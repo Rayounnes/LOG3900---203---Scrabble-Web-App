@@ -1,9 +1,9 @@
-# LOG2990 - Code de base
+# LOG3900
 
-Code de base à utiliser pour démarrer le développement de votre projet.
-Le code contient 2 projets séparés :
+Le code contient 3 projets séparés :
 
--   client : le site Web fait avec le cadriciel(_framework_) **Angular**.
+-   heavy_client : le site Web fait avec le cadriciel(_framework_) **Angular**.
+-   light_client : l'application Android avec le cadriciel Flutter.
 -   serveur : le serveur dynamique bâti avec la librairie **Express**.
 
 # Commandes npm
@@ -57,18 +57,6 @@ Ce déploiement est fait à travers le système d'Intégration Continue dans Git
 -   Naviguer sur le menu de variables disponible dans `Settings > CI/CD > Variables` de votre projet.
 -   Ajouter une nouvelle variable avec `Add variable` dont le nom est `BASE_HREF` et la valeur est `/log2990/20213/equipe-XYZ/log2990-XYZ/` avec `XYZ` étant votre numéro d'équipe.
 -   Assurez-vous que la variable n'est pas protégée ou masquée (décochez les 2 flags en bas) et cliquez sur `Add variable`. La variable sera maintenant disponible lors de la phase de déploielment.
-
-### Déploiement
-
-Se référer au fichier [DEPLOYMENT.md](DEPLOYMENT.md) pour tout ce qui a rapport avec le déploiement.
-
-## Aide supplémentaire et documentation
-
-Pour obtenir de l'aide supplémentaire sur Angular CLI, utilisez `ng help` ou [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
-
-Pour la documentation d'Angular, vous pouvez la trouver [ici](https://angular.io/docs)
-
-Pour obtenir de l'aide supplémentaire sur les tests avec Angular, utilisez [Angular Testing](https://angular.io/guide/testing)
 
 # Serveur
 
@@ -130,18 +118,6 @@ Dans le cas du site Web, utilisez **Launch Client With Debug**. Ceci ouvrira une
 Pour le serveur dynamique, utilisez **Debug Server (Attach)**. Ceci se connectera à votre instance Node en cours.
 
 Une fois le _debugger_ lancé, vous pouvez ajouter des _breakpoints_ directement dans votre code Typescript pour vous aider avec votre développement.
-
-## Intégration continue
-
-Les 2 projets viennent avec une configuration d'intégration continue (_Continuous Integration_ ou _CI_) pour la plateforme GitLab.
-
-Cette configuration permet de lancer un pipeline de validations sur le projet en 4 étapes dans l'ordre suivant: _install_, _lint_, _build_ et _test_. Si une de ses étapes échoue, le pipeline est marqué comme échouée et une notification sera visible sur GitLab. Vous pouvez consulter la console de l'étape échouée pour plus de détails sur la raison de l'échec.
-
-Le pipeline sera lancé suite aux 2 actions suivantes : lors d'un commit sur la branche master ou dans le cas d'une Merge Request (MR) entre 2 branches. Dans le cas d'une MR, chaque nouveau commit lancera un nouveau pipeline de validation.
-
-On vous recommande **fortement** de ne pas faire des commit sur la branche master, mais de plutôt toujours passer par des branches. Également, évitez d'ouvrir une MR avant d'avoir écrit le code à fusionner, mais faites-la plutôt lorsque vous êtes prêts à faire la fusion. Ceci vous évitera de lancer des pipelines inutiles avec chaque nouveau commit.
-
-On vous recommande **fortement** de ne pas accepter une MR dont le pipeline associé a échoué. Réglez les problèmes soulevés par la _CI_ pour éviter de fusionner du code inadéquat au reste de votre projet.
 
 # Standards de programmations
 
@@ -212,8 +188,3 @@ Gardez le même courriel de _commiter_, peu importe l'ordinateur que vous utilis
 
 Si vous n'êtes pas familiers avec Git et le fonctionnement des branches, nous vous recommandons fortement d'explorer [ce guide interactif](https://onlywei.github.io/explain-git-with-d3/).
 
-## Lectures suggérées
-
-[AntiPatterns](https://sourcemaking.com/antipatterns) (plus spécifiquement [Software Development AntiPatterns](https://sourcemaking.com/antipatterns/software-development-antipatterns))
-
-[Building your first Angular App](https://scrimba.com/g/gyourfirstangularapp)
