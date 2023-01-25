@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<div id="grid-container">
+    <app-surrender-game></app-surrender-game>
+    <div id="grid-buttons">
+        <div>
+            <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+        </div>
+
+        <div>
+            <button class="font-size-buttons" id="button1" (click)="enlargeSize()">+</button>
+
+            <button class="font-size-buttons" id="button2" (click)="reduceSize()">-</button>
+
+        </div>
+        <div *ngIf="this.mode === 'LOG2990'" id="goals">
+            <div id="public-goals">
+                <p id="public-goals-title">Objectifs publics</p>
+                <div [ngClass]="this.publicGoals[0].isVerified ? 'goal1' : 'goal2'">
+                    <h4>Objectif 1:</h4>
+                    <p>{{ this.publicGoals[0].name }}</p>
+                    <h4>
+                        Points: {{ this.publicGoals[0].points }} <i *ngIf="this.publicGoals[0].isVerified" class="fa fa-regular fa-check fa-2x"></i>
+                    </h4>
+                </div>
+                <div [ngClass]="this.publicGoals[1].isVerified ? 'goal1' : 'goal2'">
+                    <h4>Objectif 2:</h4>
+                    <p>{{ this.publicGoals[1].name }}</p>
+                    <h4>
+                        Points: {{ this.publicGoals[1].points }} <i *ngIf="this.publicGoals[1].isVerified" class="fa fa-regular fa-check fa-2x"></i>
+                    </h4>
+                </div>
+            </div>
+            <div id="private-goal">
+                <p id="private-goal-title">Objectif privé</p>
+                <div [ngClass]="this.privateGoal.isVerified ? 'goal1' : 'goal2'">
+                    <h4>Objectif 1: </h4>
+                    <p>{{this.privateGoal.name}}</p>
+                    <h4>Points: {{this.privateGoal.points}} <i *ngIf="this.privateGoal.isVerified" class="fa fa-regular fa-check fa-2x"></i></h4>
+                </div>
+                <p *ngIf="this.privateGoalOpponent.isVerified" class="goal1">
+                    Objectif de l'adversaire a été réalisé: <br/> {{ this.privateGoalOpponent.name }}.<br />
+                    Points: {{ this.privateGoalOpponent.points }}
+                </p>
+            </div>
+        </div>
+        <button class="pass-turn-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="passTurn()">
+            Passer
+        </button>
+        <button class="play-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="buttonPlayPressed()">Jouer</button>
+
+    </div>
+</div>

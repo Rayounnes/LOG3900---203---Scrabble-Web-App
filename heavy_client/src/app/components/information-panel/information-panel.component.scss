@@ -1,0 +1,162 @@
+.container {
+    padding: 4px;
+}
+
+h1 + p {
+    position: relative;
+    text-align: right;
+    right: 3%;
+    font: italic small-caps bold 16px/2 cursive;
+}
+
+div {
+    width: 400px;
+    height: 90px;
+
+    background: #f1f1f1;
+    border: 1px solid #777777;
+    box-sizing: border-box;
+    border-radius: 0px;
+}
+
+div + p {
+    height: 320%;
+}
+.player {
+    border-bottom: none;
+}
+
+.opponent {
+    border-top: none;
+    border-radius: 0px 0px 8px 8px;
+}
+
+.playerActive {
+    border-bottom: none;
+    background: linear-gradient(110deg, #8bc34a 60%, #aed581 60%);
+}
+.playerWinner {
+    border-bottom: none;
+    background-color: gold;
+}
+.playerLoser {
+    border-bottom: none;
+    background-color: red;
+}
+.opponentActive {
+    border-top: none;
+    border-radius: 0px 0px 8px 8px;
+    background: linear-gradient(110deg, #8bc34a 60%, #aed581 60%);
+}
+
+#image {
+    position: relative;
+    left: 2%;
+    height: 90%;
+    bottom: 30%;
+    border-radius: 50%;
+    width: 25%;
+}
+
+.image {
+    position: relative;
+    left: 5%;
+    height: 90%;
+    bottom: 30%;
+}
+.timer {
+    position: relative;
+    left: 28%;
+    height: 38%;
+    bottom: 188%;
+}
+#title-pannel {
+    font: italic small-caps bold 16px/2 cursive;
+}
+#time {
+    position: relative;
+    left: 38%;
+    bottom: 215%;
+    font-size: 17px;
+    width: 20px;
+    margin-right: 0px;
+}
+
+#tile1 {
+    position: absolute;
+    left: 120px;
+    text-align: right;
+    top: 150px;
+    font-family: Roboto;
+}
+
+#tile2 {
+    position: absolute;
+    left: 120px;
+    text-align: right;
+    top: 240px;
+    font-family: Roboto;
+}
+
+.score {
+    width: 115px;
+    height: 78px;
+    position: relative;
+    left: 70%;
+    text-align: right;
+    bottom: 95%;
+
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 56px;
+
+    color: #000000;
+}
+
+.topper {
+    height: 80px;
+    text-align: center;
+   
+    border-radius: 8px 8px 0px 0px;
+    // background: rgb(121,9,21);
+    //background: linear-gradient(90deg, rgba(121,9,21,0.7738445720084909) 0%, rgba(252,190,55,0.8130602582830007) 51%, rgba(121,9,21,0.7458333675266982) 100%);
+    background-color: rgb(44, 115, 9);
+}
+
+p:first-child {
+    position: relative;
+    font-family: Roboto;
+    font-size: 20px;
+    width: 90%;
+    left: 30%;
+    top: 10%;
+}
+#win-message {
+    position: relative;
+    font-family: Roboto;
+    font-size: 18px;
+    width: 90%;
+    left: 7%;
+    top: 35px;
+}
+#lose-message {
+    position: relative;
+    font-family: Roboto;
+    font-size: 18px;
+    width: 90%;
+    left: 7%;
+    top: 35px;
+}
+.objective {
+    border-radius: 0px 0px 8px 8px;
+    height: 150px;
+}
+.list {
+    width: 60%;
+}
+.points {
+    position: relative;
+    text-align: right;
+    bottom: 60%;
+}

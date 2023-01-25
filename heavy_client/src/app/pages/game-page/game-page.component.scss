@@ -1,0 +1,24 @@
+.container {
+    height: 100%;
+    display: flex;
+    background-color: rgb(76, 80, 80);
+    // background-image: url('~src/assets/game-page-background.jpg');
+    background-size: 50%;
+    
+    
+    
+}
+
+.play-area-container {
+    margin-top: 20px;
+    overflow: auto;
+    flex: 1 1 auto;
+
+    
+}
+
+.play-area {
+    display: grid;
+    width: min-content;
+    outline: none;
+}

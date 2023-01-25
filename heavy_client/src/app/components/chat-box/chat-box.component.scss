@@ -1,0 +1,87 @@
+.container{
+    position: absolute;
+
+    padding: 60px, 70px;
+    left:0;
+ 
+    // bottom: 0;
+
+}
+
+.sameUser{
+    background-color: lightskyblue;
+    position: relative;
+	max-width: 17em;
+    left:125px;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow:	0 0.125rem 0.5rem rgba(0, 0, 0, .3), 0 0.0625rem 0.125rem rgba(0, 0, 0, .2);
+}
+.opponent{
+    background-color: lightgreen;
+    position: relative;
+	max-width: 17em;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow:	0 0.125rem 0.5rem rgba(0, 0, 0, .3), 0 0.0625rem 0.125rem rgba(0, 0, 0, .2);
+}
+.system{
+    background-color: lightyellow;
+    max-width: 30em;
+}
+
+#messagesBox {
+    background-color: rgb(55, 54, 54);
+    width: 400px;
+    height: 350px;
+    border: 1px solid black;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-wrap:break-word;
+    white-space:normal;
+    border-radius: 10px;
+}
+
+
+#inputChat{
+    background-color: rgb(55, 54, 54);
+    width: 395px;
+    height: 30px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    color:white;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+li {
+    display: block;
+    padding: 5px;
+    white-space: pre-wrap;
+    border: 1px solid black;
+
+}
+
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: rgb(55, 54, 54);
+}
+
+::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: black
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: white
+}

@@ -1,0 +1,23 @@
+
+<mat-tab-group>
+    <mat-tab id="tabs" label="Mode Classique">
+        <div class="allPlayers">
+            <h1>Classement pour le mode Classique</h1>
+        <div *ngFor="let player of dataSourceClassic; let i = index" [ngClass]="'player'+ i" class="player">
+            <img [src]="'./assets/medal'+i+'.png'" class="trophy" alt="trophy-image">
+            <div class="name">{{player.playerName}}</div>
+            <div class="score">{{player.score}}</div>
+        </div>
+    </div> </mat-tab>
+    <mat-tab id="tabs" label="Mode LOG2990">
+        <div class="allPlayers">
+        <h1>Classement pour le mode LOG2990</h1>
+    <div *ngFor="let player of dataSourceLog; let i = index" [ngClass]="'player'+ i" class="player">
+        <img [src]="'./assets/medal'+i+'.png'" class="trophy" alt="trophy-image">
+        <div class="name">{{player.playerName}}</div>
+        <div class="score">{{player.score}}</div>
+    </div>
+</div> </mat-tab>
+  </mat-tab-group>
+
+

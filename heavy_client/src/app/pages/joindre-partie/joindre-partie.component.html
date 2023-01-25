@@ -1,0 +1,30 @@
+<div class="container">
+    <h1 class="title">Liste des parties joignables</h1>
+
+    <ul>
+        <button class="randomGame" [hidden]="gameList.length < 1" [disabled]="gameList.length <= 1" (click)="joinRandomGame()">Placement aléatoire</button>
+        <div *ngFor="let game of gameList; let i = index">
+            <div *ngIf="game && !game.isJoined" class = "game">
+                <h3>Joueur : {{ game.usernameOne }}</h3>
+                <h3>Temps par tour : {{ game.time }}</h3>
+                <h3>Dictionnaire : {{ game.dictionary.title }}</h3>
+                <button class = "buttonChoice" (click)="toggleUsernameForm(i)">Join game</button>
+                <form *ngIf="displayUsernameFormGame[i]" id="createUsername">
+                    <fieldset>
+                        <div>
+                            <div class="container">
+                                <label for="uname">Username</label>
+                                <input type="text" [(ngModel)]="username" placeholder="Entrez votre username" name="uname" required />
+                            </div>
+                        </div>
+                        <h4 class="error" *ngIf = "username === game.usernameOne">Erreur : Vous utilisez le meme nom de joeur que l'hote</h4>
+                        <h4 class="error" *ngIf = "!valideUsername(username)">Erreur : Vous ne pouvez pas utiliser des caractères speciaux</h4>
+                        <button  [disabled] = "!valideUsername(username)" [disabled] = "username === game.usernameOne" (click)="joinWaitingRoom(game)" [routerLink]="['/waiting-room',this.mode]"> Rejoindre </button>
+                        <button (click)="cancelToggle(i)">Annuler</button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </ul>
+    <button class="return" routerLink="/classique"> Retour </button>
+</div>

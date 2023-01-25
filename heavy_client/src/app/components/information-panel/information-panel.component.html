@@ -1,0 +1,50 @@
+<section class="container">
+    <div class="topper">
+        <h1 id="title-pannel">PANNEAU INFORMATIF</h1>
+        <p> Tuiles restantes : {{ this.reserveTilesLeft }}</p>
+        <p *ngIf="(isGameFinished && player.score >= opponent.score) || (isGameFinished && isAbandon)" id="win-message">Bravo vous avez gagné !</p>
+        <p *ngIf="(isGameFinished && !isAbandon && player.score < opponent.score)" id="lose-message">Vous avez perdu !</p>
+    </div>
+    <div
+        [ngClass]="{
+            player: !isPlayersTurn && !isGameFinished,
+            playerActive: isPlayersTurn && !isGameFinished,
+            playerWinner: (isGameFinished && player.score >= opponent.score) || (isGameFinished && isAbandon),
+            playerLoser: (isGameFinished && !isAbandon && player.score < opponent.score)
+        }"
+    >
+        <p>{{ player.username }}</p>
+        <img
+            *ngIf="userphotos.has(player.username.toLocaleLowerCase())"
+            id="image"
+            [src]="userphotos.get(player.username.toLocaleLowerCase())"
+            alt="opponent"
+        />
+        <img *ngIf="!userphotos.has(player.username.toLocaleLowerCase()) && isHost" class="image" src="https://bit.ly/3JmS8m6" [alt]="player.username" />
+        <img *ngIf="!userphotos.has(player.username.toLocaleLowerCase()) && !isHost" class="image" src="https://bit.ly/34RebCv" [alt]="player.username" />
+        <p class="score">{{ player.score }}</p>
+        <img *ngIf="isPlayersTurn && !isGameFinished" class="timer" src="https://cdn-icons-png.flaticon.com/512/595/595686.png" alt="Timer" />
+        <p *ngIf="isPlayersTurn && !isGameFinished" id="time">{{ clock }}</p>
+        <h3 *ngIf="player.tilesLeft < 7" id="tile1">Tuiles restantes: {{ player.tilesLeft }}</h3>
+    </div>
+    <div
+        [ngClass]="{
+            opponent: isPlayersTurn && !isGameFinished,
+            opponentActive: !isPlayersTurn && !isGameFinished
+        }"
+    >
+        <p>{{ opponent.username }}</p>
+        <img
+            *ngIf="userphotos.has(opponent.username.toLocaleLowerCase())"
+            id="image"
+            [src]="userphotos.get(opponent.username.toLocaleLowerCase())"
+            alt="opponent"
+        />
+        <img *ngIf="!userphotos.has(opponent.username.toLocaleLowerCase()) && !isHost" class="image" src="https://bit.ly/3JmS8m6" [alt]="opponent.username" />
+        <img *ngIf="!userphotos.has(opponent.username.toLocaleLowerCase()) && isHost" class="image" src="https://bit.ly/34RebCv" [alt]="opponent.username" />
+        <p class="score">{{ opponent.score }}</p>
+        <img *ngIf="!isPlayersTurn && !isGameFinished" class="timer" src="https://cdn-icons-png.flaticon.com/512/595/595686.png" alt="Timer" />
+        <p *ngIf="!isPlayersTurn && !isGameFinished" id="time">{{ clock }}</p>
+        <h3 *ngIf="opponent.tilesLeft < 7" id="tile2">Tuiles restantes: {{ opponent.tilesLeft }}</h3>
+    </div>
+</section>

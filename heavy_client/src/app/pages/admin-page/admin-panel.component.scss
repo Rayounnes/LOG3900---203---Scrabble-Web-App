@@ -1,0 +1,315 @@
+.sidebar {
+    position: fixed;
+    width: 25%;
+    height: 100vh;
+    background: green;
+    background-attachment: scroll;
+    font-size: 0.7em;
+}
+
+.return {
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 200px;
+    height: 50px;
+    background-color: rgb(12, 11, 11);
+    color: white;
+    position: fixed;
+    top: 90%;
+    right: 30px;
+    padding: 15px 32px;
+}
+.return:hover {
+    background-color: rgb(124, 64, 8);
+}
+
+.nav {
+    position: relative;
+    margin: 0 15%;
+    text-align: right;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: #e9e5de;
+}
+
+.nav ul {
+    list-style: none;
+
+    li {
+        position: relative;
+        margin: 3.2em 0;
+
+        a {
+            line-height: 5em;
+            font-size: 1.5em;
+            font-family: 'Roboto';
+            text-transform: uppercase;
+            text-decoration: none;
+            letter-spacing: 0.4em;
+            color: rgba(#fff, 0.6);
+            display: block;
+            transition: all ease-out 300ms;
+        }
+
+        &.active a {
+            color: white;
+        }
+
+        &:not(.active)::after {
+            opacity: 0.2;
+        }
+
+        &:not(.active):hover a {
+            color: rgba(#fff, 0.8);
+            background-image: linear-gradient(to left, #ffffff, green);
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 0em;
+            background: black;
+            left: 0;
+            bottom: 0;
+        }
+    }
+}
+
+.welcome-page {
+    position: relative;
+    width: 75%;
+    float: right;
+    height: 100vh;
+    background-color: #ffffff;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    a {
+        position: relative;
+    }
+
+    p {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 3em;
+        letter-spacing: 0.1em;
+        color: black;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+}
+
+.dictionary-list {
+    position: center;
+    width: 85%;
+    float: right;
+    height: 100vh;
+    background-color: #ffffff;
+    background-repeat: repeat;
+    overflow: auto;
+
+    .container2 {
+        // margin-top: 5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    p {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1.75em;
+        letter-spacing: 0.1em;
+        color: black;
+        font-weight: bold;
+        margin-top: 1px;
+    }
+    a {
+        font-family: 'Roboto';
+        //font-size: 1em;
+        letter-spacing: 0.1em;
+        color: black;
+        font-weight: bold;
+        margin-top: 1px;
+    }
+    .bb {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1em;
+        letter-spacing: 0em;
+        color: green;
+        font-weight: bold;
+    }
+}
+
+.loading {
+    margin-left: -1em;
+    margin-right: 2em;
+    margin-top: 3em;
+}
+
+.buttonAdd {
+    background-color: white;
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-top: 3em;
+}
+
+.buttonDelete {
+    background-color: green;
+    margin-left: 0em;
+    margin-top: 0em;
+}
+
+.player-names {
+    position: relative;
+    width: 75%;
+    float: right;
+    height: 100vh;
+    background-color: #ffffff;
+    overflow: auto;
+
+    .container3 {
+        // margin-top: 5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    p {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1.75em;
+        letter-spacing: 0.1em;
+        color: #131c3f;
+        font-weight: bold;
+        // margin-top: 2em;
+    }
+
+    a {
+        font-family: 'Roboto';
+        font-size: 1em;
+        letter-spacing: 0.1em;
+        color: #131c3f;
+        font-weight: bold;
+        margin-top: 1px;
+    }
+
+    .bb {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1em;
+        letter-spacing: 0em;
+        color: #131c3f;
+        font-weight: bold;
+    }
+}
+
+.game-history {
+    position: center;
+    width: 75%;
+    float: right;
+    //height: 100vh;
+    background-color: #ffffff;
+    overflow: auto;
+
+    .container4 {
+        // margin-top: 5em;
+        //display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 150%;
+    }
+
+    p {
+        text-align: center;
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1.5em;
+        //letter-spacing: 0.1em;
+        color: black;
+        font-weight: bold;
+        // margin-top: 2em;
+    }
+
+    a {
+        font-family: 'Roboto';
+        font-size: 0.9em;
+        letter-spacing: 0.1em;
+        color: black;
+        //font-weight: bold;
+        margin-top: 1px;
+    }
+
+    .bb {
+        font-family: 'Roboto';
+        text-transform: uppercase;
+        font-size: 1em;
+        letter-spacing: 0em;
+        color: #131c3f;
+        font-weight: bold;
+    }
+    .mat-table {
+        width: 95%;
+        float: right;
+        position: relative;
+        right: 0, 9cm;
+    }
+}
+
+table {
+    margin-top: 2em;
+    align-self: center;
+    width: 42%;
+    background-color: white;
+}
+
+.trash {
+    background-color: green;
+    color: #ffffff;
+    float: right;
+}
+
+.firstlist {
+    width: 65%;
+}
+
+.edit {
+    background-color: green;
+    color: #f8f6f1;
+    float: right;
+}
+
+.download {
+    background-color: green;
+    color: #ffffff;
+    float: right;
+}
+
+.is-grouped {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.is-grouped > .input:not(:last-child) {
+    margin-right: 10px;
+}
+.invisibleButton {
+    display: none;
+}

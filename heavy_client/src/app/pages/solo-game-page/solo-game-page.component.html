@@ -1,0 +1,45 @@
+<div class="container">
+    <h1 class="title">Créer une partie solo</h1>
+    <form>
+        <h2>Configurer paramètres</h2>
+        <mat-form-field class="input" appearance="outline">
+            <mat-label>Nom du joueur:</mat-label>
+            <input matInput placeholder="Ex: Ahmad" (blur)="adjustDifficulty()" [(ngModel)]="game.usernameOne" name="name" required />
+        </mat-form-field>
+
+        <h4 class="error" *ngIf="!valideUsername(game.usernameOne)">Erreur : Vous ne pouvez pas utiliser des caractères speciaux</h4>
+        <mat-form-field appearance="outline">
+            <mat-label>Temps par tour (en secondes): </mat-label>
+            <input matInput type="number" [(ngModel)]="game.time" max="300" min="30" value="60" name="time" id="time" step="30" required />
+        </mat-form-field>
+
+        <div class="gameConfig">
+            <legend>Choix du dictionnaire:</legend>
+
+            <div class="dict-container">
+                <div class="dictionary">{{ game.dictionary.title }} <mat-icon id="dict-icon">library_books</mat-icon></div>
+                <button class="dict-button" mat-raised-button (click)="popUp()">Changer dictionnaire</button>
+            </div>
+        </div>
+
+        <div class="gameConfig niveau">
+            <div>
+                <legend id="niveau">Niveau de l'adversaire:</legend>
+                <legend id="nomAdversaire">Nom de l'adversaire:</legend>
+            </div>
+            <label class="switch">
+                <input type="checkbox" />
+                <span (click)="onClick()" *ngIf="!isExpert" class="slider"><div class="beginner">Débutant</div></span>
+                <span (click)="onClick()" *ngIf="isExpert" class="slider"><div class="expert">Expert</div></span>
+            </label>
+            <div class="adversaire">{{ game.virtualPlayerName }}</div>
+        </div>
+
+        <h4 class="error" *ngIf="deletedDictionary !== undefined">Erreur: Le dictionnaire n'est plus disponible</h4>
+
+        <button mat-button class="done" [disabled]="!valideUsername(game.usernameOne) || !game.usernameOne" (click)="startGame()" color="primary">
+            <mat-icon>done</mat-icon>
+        </button>
+    </form>
+    <button class="return" routerLink="/classique">Retour</button>
+</div>

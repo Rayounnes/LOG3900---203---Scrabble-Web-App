@@ -1,0 +1,15 @@
+<div class="container justified">
+    <h1 class="title">Mode de jeu Scrabble {{this.mode}}</h1>
+    <div class="image">
+        <img id="t-tile" src="https://scrabble.hasbro.com/images/t-tile.png" alt="t-tile">
+        <img id="o-tile" src="https://scrabble.hasbro.com/images/o-tile.png" alt="o-tile">
+    </div>
+
+    <div class="justified">
+        <button class="button" (click)="navSoloGame()">Jouer une partie<br> en solo</button>
+        <button class="button" (click)="navMultiGame()">Créer une partie<br> multijoueur</button>
+        <button class="button" (click)="navJoinGame()">Joindre une partie<br> multijoueur</button>
+    </div>
+    <button class="return" (click)="navHome()">Page d'accueil</button>
+    
+</div>

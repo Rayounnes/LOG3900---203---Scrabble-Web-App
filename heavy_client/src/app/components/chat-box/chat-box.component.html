@@ -1,0 +1,27 @@
+
+<div class="container">
+<div id="messagesBox" #scrollMessages>
+    
+    <ul>
+        <li
+            *ngFor="let message of chatMessages"
+            [ngClass]="{
+                sameUser: message.type === 'player' && username === message.message.split(' :')[0],
+                system: message.type === 'system',
+                opponent: username !== message.message.split(' :')[0]
+            }"
+        >
+            {{ message.message }}
+        </li>
+    </ul>
+</div>
+<input
+    type="text"
+    placeholder="Écrivez un message"
+    id="inputChat"
+    maxlength="512"
+    [(ngModel)]="chatMessage"
+    (keydown.enter)="this.chatMessage.trim() && sendMessage()"
+/>
+
+</div>

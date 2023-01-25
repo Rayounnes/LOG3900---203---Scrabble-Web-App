@@ -1,0 +1,9 @@
+<mat-tab-group (selectedTabChange)="onChangeTab($event)" >
+  <mat-tab *ngFor="let dictionary of dicts"  [label]="dictionary.title"> {{dictionary.description}} </mat-tab>
+</mat-tab-group>
+
+<div id="dialog-buttons"> 
+  <button mat-button (click)="onCancel()" id = "cancel" >Annuler</button>
+  <button mat-button id= "ok" (click)="onOK()">Choisir</button>
+</div>
+

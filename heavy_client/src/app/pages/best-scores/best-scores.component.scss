@@ -1,0 +1,80 @@
+.player {
+    width: 340px;
+    height: 30px;
+    padding: 25px;
+    margin: 15px;
+    margin-left: 15%;
+
+    background: #8cff79a8;
+    background: linear-gradient(70deg, #5fac51a8 25%, #8cff79a8 40%);
+    box-shadow: -7px 14px 4px rgba(85, 255, 122, 0.177);
+    border-radius: 13px;
+}
+
+::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
+    min-width: 278px !important;
+   }
+
+
+.name {
+    position: relative;
+    bottom: 23px;
+    left: 50px;
+    display: inline;
+    font-size: 35px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.score {
+    position: relative;
+    width: 33%;
+    left: 50px;
+    top: 10px;
+    display: inline;
+    font-size: 35px;
+    float: right;
+    font-family: 'Iceberg';
+}
+
+.trophy {
+    position: relative;
+    bottom: 10px;
+    right: 10px;
+    height: 170%;
+}
+
+.player0 {
+    background: linear-gradient(70deg, #ac940d 25%, #ffd700 40%);
+    box-shadow: -7px 14px 4px rgba(255, 255, 41, 0.177);
+}
+
+.player1 {
+    background: linear-gradient(70deg, #9fa09b 25%, #d6d7cf 40%);
+    box-shadow: -7px 14px 4px rgba(220, 219, 219, 0.177);
+}
+
+.player2 {
+    background: linear-gradient(70deg, #87592b 25%, #cd7f32 40%);
+    box-shadow: -7px 14px 4px rgba(248, 164, 91, 0.177);
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    font-style: normal;
+    font-family: 'Iceberg';
+    font-weight: 400;
+    font-size: 35px;
+    line-height: 24px;
+    text-shadow: -3px 8px 2px rgba(255, 255, 255, 0.38);
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.allPlayers {
+    border: black solid;
+    width: 550px;
+    background-image: url('~src/assets/leaderboard.jpg');
+    align-items: center;
+    height: 620px;
+}

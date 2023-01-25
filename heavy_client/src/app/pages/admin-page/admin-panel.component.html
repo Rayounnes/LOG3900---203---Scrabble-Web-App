@@ -1,0 +1,320 @@
+<main class="main">
+    <aside class="sidebar">
+        <nav class="nav">
+            <div class="menu-items">
+                <ul>
+                    <li (click)="goTo('welcome-page')"><a>Page d'acceuil</a></li>
+                </ul>
+                <ul>
+                    <li (click)="goTo('dictionary-list')"><a>Dictionnaires</a></li>
+                </ul>
+                <ul>
+                    <li (click)="goTo('player-names')"><a>Joueurs virtuels</a></li>
+                </ul>
+                <ul>
+                    <li (click)="goTo('game-history')"><a>Historique des parties</a></li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <section class="welcome-page" *ngIf="selectedMenu === 'welcome-page'">
+        <div class="container">
+            <p>Bienvenue au mode admin</p>
+            <button mat-raised-button (click)="resetDefault()" class="buttonAdd">
+                <p class="bb">Réinitialiser les données</p>
+            </button>
+        </div>
+    </section>
+
+    <div class="dictionary-list" *ngIf="selectedMenu === 'dictionary-list'">
+        <section class="container2">
+            <p>Les dictionnaires disponibles</p>
+            <table mat-table [dataSource]="dataSourceDictionaries" class="mat-elevation-z8">
+                <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef><p>Titre</p></th>
+                    <td mat-cell *matCellDef="let element">
+                        <a>{{ element.title }}</a>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef><p>Description</p></th>
+                    <td mat-cell *matCellDef="let element">
+                        <a
+                            >{{ element.description }}
+
+                            <button class="download" (click)="downloadDictionary(element.fileName)">
+                                <mat-icon aria-hidden="false" aria-label="Example download icon">cloud_download</mat-icon>
+                            </button>
+                            <button class="trash" *ngIf="element.title !== defaultDictionary" (click)="deleteDictionary(element.fileName)">
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">delete_forever</mat-icon>
+                            </button>
+                            <button class="edit" (click)="editDictionary(element)" *ngIf="element.title !== defaultDictionary">
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">edit</mat-icon>
+                            </button>
+                        </a>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsDictionaries"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsDictionaries"></tr>
+            </table>
+            <div class="is-grouped">
+                <input style="display: none" type="file" accept="application/json" (change)="onDictionaryUpload($event)" #fileInput />
+                <button mat-raised-button class="bb" style="margin-top: 10px" (click)="fileInput.click()">
+                    <mat-icon aria-hidden="false" aria-label="Example trash icon">cloud_upload</mat-icon>
+                </button>
+                <br />
+            </div>
+            <div *ngIf="throbber"><mat-spinner class="loading"></mat-spinner></div>
+            <ng-container *ngIf="!!dictionary">
+                <h2 class="py-4">Edit dictionary</h2>
+                <form [formGroup]="dictionary">
+                    <div class="form-group row">
+                        <label for="brand" class="col-sm-2 col-form-label">Title</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="title" formControlName="title" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="model" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="description" formControlName="description" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-4 offset-sm-2">
+                            <button type="submit" class="btn btn-primary mr-2" (click)="saveDictionary()">Save</button>
+                            <button type="reset" class="btn btn-outline-primary" (click)="cancelDictionaryEdit()">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </ng-container>
+        </section>
+    </div>
+
+    <div class="player-names" *ngIf="selectedMenu === 'player-names'">
+        <section class="container3">
+            <p>Joueurs virtuels Débutants</p>
+            <table mat-table [dataSource]="dataSourceVPlayersBeginner" class="mat-elevation-z8">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef><p>Noms</p></th>
+                    <td mat-cell *matCellDef="let element">
+                        <a
+                            >{{ element.name }}
+                            <button
+                                *ngIf="!isDefBegginerPlayer(element.name)"
+                                class="trash"
+                                (click)="deleteVirtualPlayer(element, beginnerVPlayerLevel)"
+                            >
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">delete</mat-icon>
+                            </button>
+                            <button
+                                *ngIf="!isDefBegginerPlayer(element.name)"
+                                class="edit"
+                                (click)="editBeginnerVPlayer = true"
+                                (click)="nameToEdit = element"
+                                (click)="level = beginnerVPlayerLevel"
+                            >
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">edit</mat-icon>
+                            </button>
+                        </a>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPlayerTable"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPlayerTable"></tr>
+            </table>
+
+            <div class="is-grouped">
+                <input
+                    matInput
+                    type="string"
+                    placeholder="Ex: Peter"
+                    value="virtualPlayerToUpload"
+                    maxlength="8"
+                    [(ngModel)]="beginnerVirtualPlayerToUpload"
+                />
+                <button
+                    mat-raised-button
+                    class="bb"
+                    style="margin-top: 15px; margin-left: 10px"
+                    (click)="validateName(beginnerVirtualPlayerToUpload, beginnerVPlayerLevel)"
+                >
+                    Ajouter
+                </button>
+            </div>
+            <div class="is-grouped">
+                <mat-error *ngIf="!isNameInputBeginnerValid"
+                    >Entrer un nom de 3 à 8 charactères de chiffre ou lettre (pas de charactères spéciaux comme @)</mat-error
+                >
+            </div>
+
+            <form class="edit-jv" *ngIf="editBeginnerVPlayer">
+                <mat-label>Edit name </mat-label>
+                <input matInput type="string" placeholder="Ex: Peter" value="" [(ngModel)]="editedName" name="editedName" />
+                <button mat-raised-button (click)="saveName()" style="margin: 5% 0 0 5%" class="buttonAdd">
+                    <p class="bb">save</p>
+                </button>
+                <button mat-raised-button (click)="editBeginnerVPlayer = false" style="margin: 5% 0 0 5%" class="buttonAdd">
+                    <p class="bb">cancel</p>
+                </button>
+            </form>
+
+            <p>Joueurs virtuels experts</p>
+            <table mat-table [dataSource]="dataSourceVPlayersExpert" class="mat-elevation-z8">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef><p>Noms</p></th>
+                    <td mat-cell *matCellDef="let element">
+                        <a
+                            >{{ element.name }}
+                            <button *ngIf="!isDefExpertPlayer(element.name)" class="trash" (click)="deleteVirtualPlayer(element, expertVPlayerLevel)">
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">delete</mat-icon>
+                            </button>
+                            <button
+                                *ngIf="!isDefExpertPlayer(element.name)"
+                                class="edit"
+                                (click)="editExpertVPlayer = true"
+                                (click)="nameToEdit = element"
+                                (click)="level = expertVPlayerLevel"
+                            >
+                                <mat-icon aria-hidden="false" aria-label="Example trash icon">edit</mat-icon>
+                            </button>
+                        </a>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPlayerTable"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPlayerTable"></tr>
+            </table>
+
+            <div class="is-grouped">
+                <input
+                    matInput
+                    type="string"
+                    placeholder="Ex: Neymar"
+                    value="virtualPlayerToUpload"
+                    maxlength="8"
+                    [(ngModel)]="expertVirtualPlayerToUpload"
+                />
+                <button
+                    mat-raised-button
+                    class="bb"
+                    style="margin-top: 15px; margin-left: 10px"
+                    (click)="validateName(expertVirtualPlayerToUpload, expertVPlayerLevel)"
+                >
+                    Ajouter
+                </button>
+            </div>
+            <div class="is-grouped">
+                <mat-error *ngIf="!isNameInputValid">
+                    Entrer un nom de 3 à 8 charactères de chiffre ou lettre (pas de charactères spéciaux comme @)</mat-error
+                >
+            </div>
+
+            <form class="edit-jv" *ngIf="editExpertVPlayer">
+                <mat-label>Edit name </mat-label>
+                <input matInput type="string" placeholder="Ex: Neymar" value="" [(ngModel)]="editedName" name="editedName" />
+                <button mat-raised-button (click)="saveName()" style="margin: 5% 0 0 5%" class="buttonAdd">
+                    <p class="bb">save</p>
+                </button>
+                <button mat-raised-button (click)="editExpertVPlayer = false" style="margin: 5% 0 0 5%" class="buttonAdd">
+                    <p class="bb">cancel</p>
+                </button>
+            </form>
+        </section>
+    </div>
+    <section class="game-history" *ngIf="selectedMenu === 'game-history'">
+        <section class="container4">
+            <br /><br />
+            <p>Historique des parties</p>
+            <br /><br />
+            <table mat-table [dataSource]="dataSourceGameHistory" class="mat-elevation-z8">
+                <ng-container matColumnDef="date">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Date | Heure<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.date }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="duration">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Durée<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.duration }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="playerName">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Nom du premier joueur<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.playerName }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="finalScore">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Score du premier joueur<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.finalScore }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="opponentPlayerName">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Nom du deuxieme joueur<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.opponentPlayerName }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="oponnentFinalScore">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Score du deuxieme joueur<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.oponnentFinalScore }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <ng-container matColumnDef="mode">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Mode de jeu<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.mode }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <br /><br />
+                <ng-container matColumnDef="comment">
+                    <tr>
+                        <th mat-header-cell *matHeaderCellDef><br />Commentaire<br /></th>
+                    </tr>
+                    <tr>
+                        <td mat-cell *matCellDef="let element">
+                            <a>{{ element.abandoned }} </a>
+                        </td>
+                    </tr>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsGameHistory"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsGameHistory"></tr>
+            </table>
+        </section>
+    </section>
+    <button class="return" routerLink="/home">Accueil</button>
+</main>
