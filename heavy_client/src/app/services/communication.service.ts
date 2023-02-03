@@ -8,6 +8,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { VPlayerName, VPlayerLevel } from 'src/constants/virtual-player-names';
+import { loginInfos } from 'src/constants/login-constants';
 
 @Injectable({
     providedIn: 'root',
@@ -111,6 +112,17 @@ export class CommunicationService {
     }
     dictionariesReset(): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/api/dictionary/reset`).pipe(catchError(this.handleError<void>('dictionariesReset')));
+    }
+
+    /** ************** user Login methods *******************************/
+    userlogin(infos : loginInfos) : Observable<boolean>{
+        return this.http.get<boolean>(`${this.baseUrl}/api/login/user/${JSON.stringify(infos)}`,)
+        .pipe(catchError(this.handleError<boolean>('loginError')))
+    }
+
+    accountCreation(infos : loginInfos) : Observable<boolean> {
+        return this.http.put<boolean>(`${this.baseUrl}/api/login/user/creation`,infos)
+        .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {

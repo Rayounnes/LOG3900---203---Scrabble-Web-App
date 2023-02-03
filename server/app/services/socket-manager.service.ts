@@ -13,6 +13,9 @@ import * as http from 'http';
 import * as io from 'socket.io';
 import { GameManager } from './game-manager.service';
 import { Dictionary } from '@app/interfaces/dictionary';
+import { LoginService } from './login.service';
+import { DatabaseService } from './database.service';
+
 
 export class SocketManager {
     private sio: io.Server;
@@ -24,10 +27,13 @@ export class SocketManager {
     private usersRoom = new Map<string, string>(); // socket id -room
     private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
-    constructor(server: http.Server) {
+    private loginService : LoginService;
+
+    constructor(server: http.Server, private databaseService : DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         this.roomName = 'room' + this.roomIncrement;
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
+        this.loginService = new LoginService(this.databaseService);
     }
     changeRoomName() {
         this.roomIncrement++;
@@ -304,6 +310,25 @@ export class SocketManager {
             socket.disconnect();
         });
     }
+
+    userConnectionHandler(socket: io.Socket){
+        socket.on('user-connection', (loginInfos) => {
+            this.usernames.set(loginInfos.socketId,loginInfos.username)
+        });
+    }
+
+    userDisconnectHandler(socket : io.Socket){
+        socket.on('user-disconnect',  (socketId : string) => {
+            let username = this.usernames.get(socketId);
+            if(username){
+                this.usernames.delete(socketId);
+                this.loginService.changeConnectionState(username,false)
+            }
+        });
+    }
+
+
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             if (this.disconnectedSocket.oldSocketId) {
@@ -312,6 +337,7 @@ export class SocketManager {
                 this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
                 this.disconnectedSocket.oldSocketId = '';
             }
+            console.log(`Connexion avec : ${socket.id}`)
             this.gameCreationHandler(socket);
             this.waitingRoomHostHandler(socket);
             this.waitingRoomJoinedPlayerHandler(socket);
@@ -326,19 +352,24 @@ export class SocketManager {
             this.gameTurnHandler(socket);
             this.playerScoreHandler(socket);
             this.endGameHandler(socket);
+            this.userConnectionHandler(socket);
+            this.userDisconnectHandler(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
-                    const MAX_DISCONNECTED_TIME = 5000;
-                    const room = this.usersRoom.get(socket.id) as string;
+                    /* const MAX_DISCONNECTED_TIME = 5000;
+                    const room = this.usersRoom.get(socket.id) as string; */
                     // non couvert dans les tests car impossible a stub reason ,confirmé avec le chargé
                     if (reason === 'transport close') {
-                        this.disconnectedSocket = { oldSocketId: socket.id, newSocketId: '' };
+                        this.loginService.changeConnectionState(this.usernames.get(socket.id) as string,false);
+                        this.usernames.delete(socket.id);
+                       /*  this.disconnectedSocket = { oldSocketId: socket.id, newSocketId: '' };
                         setTimeout(() => {
                             if (this.disconnectedSocket.oldSocketId && this.gameRooms.get(room)?.mode !== 'solo') {
                                 this.gameManager.abandonGame(socket.id);
                                 this.gameManager.leaveRoom(socket.id);
                             }
-                        }, MAX_DISCONNECTED_TIME);
+                            this.loginService.changeConnectionState(this.usernames.get(socket.id) as string,false);
+                        }, MAX_DISCONNECTED_TIME); */
                     }
                 }
                 console.log(`Deconnexion par l'utilisateur avec id : ${socket.id}`);

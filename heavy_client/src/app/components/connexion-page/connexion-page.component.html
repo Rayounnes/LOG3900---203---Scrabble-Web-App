@@ -1,0 +1,34 @@
+<div class="connexionDiv" >
+    <div class="forms" *ngIf="!connected && !accountCreation">
+      <mat-form-field class="example-full-width">
+        <mat-label>Username </mat-label>
+        <input matInput [(ngModel)]="username">
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Password </mat-label>
+        <input matInput type="password" [(ngModel)]="password">
+      </mat-form-field>
+      <button mat-raised-button  (click)="userConnection()" [disabled]="username.length < 5 || password.length < 6 || checkingConnection" class="dataButton">Connexion</button>
+      <button mat-raised-button (click)="changeOption(true)" [disabled]="checkingConnection" class="dataButton">Créer un compte</button>
+      
+    </div>  
+    <div class="forms" *ngIf="accountCreation">
+        <mat-form-field class="example-full-width">
+        <mat-label>Username (5 car. min.)</mat-label>
+        <input matInput [(ngModel)]="username">
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+        <mat-label>Password (6 car. min.)</mat-label>
+        <input matInput type="password" [(ngModel)]="password">
+        </mat-form-field>
+        
+        
+        
+    <div class="creationButtons">
+        <button mat-raised-button (click)="createAccount()" [disabled]="username.length < 5 || password.length < 6" class="dataButton">Confirmer</button>
+        <button mat-raised-button (click)="changeOption(false)" class="dataButton">Retour</button>
+    </div>
+    </div>
+</div>
+  
+
