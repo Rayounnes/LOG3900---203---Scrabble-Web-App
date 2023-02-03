@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ChatPrototypeComponent } from '@app/components/chat-prototype/chat-prototype.component';
 import { ConnexionPageComponent } from '@app/components/connexion-page/connexion-page.component';
 import { InformationPanelComponent } from '@app/components/information-panel/information-panel.component';
 import { AdminPanelComponent } from '@app/pages/admin-page/admin-panel.component';
@@ -15,6 +16,7 @@ import { WaitingRoomPageComponent } from '@app/pages/waiting-room-page/waiting-r
 
 const routes: Routes = [
     { path: '', redirectTo: '/connexion', pathMatch: 'full' },
+    { path : 'chatproto', component : ChatPrototypeComponent},
     { path :'connexion', component : ConnexionPageComponent},
     { path: 'home', component: MainPageComponent },
     { path: 'game/:mode', component: GamePageComponent },

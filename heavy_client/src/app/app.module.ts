@@ -35,6 +35,7 @@ import { WaitingRoomPageComponent } from './pages/waiting-room-page/waiting-room
 import { DictionaryComponent } from './components/dictionary/dictionary.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ConnexionPageComponent } from './components/connexion-page/connexion-page.component';
+import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototype.component';
 
 /**
  * Main module that is used in main.ts.
@@ -64,6 +65,7 @@ import { ConnexionPageComponent } from './components/connexion-page/connexion-pa
         SoloGamePageComponent,
         DictionaryComponent,
         ConnexionPageComponent,
+        ChatPrototypeComponent,
     ],
     imports: [
         MatProgressSpinnerModule,

@@ -200,9 +200,10 @@ export class SocketManager {
     }
     chatHandler(socket: io.Socket) {
         socket.on('chatMessage', (message: string) => {
-            const room = this.usersRoom.get(socket.id) as string;
+            //const room = this.usersRoom.get(socket.id) as string;
             const username = this.usernames.get(socket.id);
-            this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
+            //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
+            this.sio.emit('chatMessage', { type: 'player', message: `${username} : ${message}` })
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
