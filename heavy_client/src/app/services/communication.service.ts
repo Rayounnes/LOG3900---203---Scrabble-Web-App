@@ -116,12 +116,12 @@ export class CommunicationService {
 
     /** ************** user Login methods *******************************/
     userlogin(infos : loginInfos) : Observable<boolean>{
-        return this.http.get<boolean>(`${this.baseUrl}/api/login/user/${JSON.stringify(infos)}`,)
+        return this.http.post<boolean>(`${this.baseUrl}/api/login/user`, infos)
         .pipe(catchError(this.handleError<boolean>('loginError')))
     }
 
     accountCreation(infos : loginInfos) : Observable<boolean> {
-        return this.http.put<boolean>(`${this.baseUrl}/api/login/user/creation`,infos)
+        return this.http.put<boolean>(`${this.baseUrl}/api/login/user`,infos)
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
 

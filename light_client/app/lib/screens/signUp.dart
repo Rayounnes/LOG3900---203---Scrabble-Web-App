@@ -1,35 +1,42 @@
-import 'package:app/constants/http_codes.dart';
-import 'package:app/models/login_infos.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
+import "package:app/models/login_infos.dart";
+import "package:app/constants/http_codes.dart";
 
-class LoginDemo extends StatefulWidget {
+class SignUp extends StatefulWidget {
   @override
-  _LoginDemoState createState() => _LoginDemoState();
+  _SignUpState createState() => _SignUpState();
 }
 
-class _LoginDemoState extends State<LoginDemo> {
+class _SignUpState extends State<SignUp> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-
+  final passwordCheckController = TextEditingController();
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     usernameController.dispose();
     passwordController.dispose();
+    passwordCheckController.dispose();
     super.dispose();
   }
 
-  void connect() async {
+  void createAccount() async {
     if (_formKey.currentState!.validate()) {
       String username = usernameController.text;
       String password = passwordController.text;
       int response = await ApiService()
-          .loginUser(LoginInfos(username: username, password: password));
+          .createUser(LoginInfos(username: username, password: password));
       if (response == HTTP_STATUS_OK) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
+              content: Text("Votre compte a été créé avec succés")),
+        );
         Navigator.pushNamed(context, '/homeScreen');
       } else if (response == HTTP_STATUS_UNAUTHORIZED) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -37,7 +44,7 @@ class _LoginDemoState extends State<LoginDemo> {
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
               content: Text(
-                  "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
+                  "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
         );
       }
     }
@@ -67,7 +74,7 @@ class _LoginDemoState extends State<LoginDemo> {
                     child: Container(
                       width: 200,
                       height: 150,
-                      child: Text('Connexion à votre compte',
+                      child: Text('Création de compte',
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
@@ -85,7 +92,7 @@ class _LoginDemoState extends State<LoginDemo> {
                     ),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer votre nom d'utilisateur";
+                        return "Veillez entrer un nom d'utilisateur";
                       }
                       return null;
                     },
@@ -103,7 +110,27 @@ class _LoginDemoState extends State<LoginDemo> {
                     obscureText: true,
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer votre mot de passe";
+                        return "Veillez entrer un mot de passe";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: passwordCheckController,
+                    decoration: const InputDecoration(
+                      hintText: "Retapez votre mot de passe",
+                      icon: Icon(Icons.password),
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (String? value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value != passwordController.text) {
+                        return "Le mot de passe écrit ne correspond pas à celui écrit";
                       }
                       return null;
                     },
@@ -114,16 +141,12 @@ class _LoginDemoState extends State<LoginDemo> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
-                      connect();
+                      if (_formKey.currentState!.validate()) {
+                        createAccount();
+                      }
                     },
-                    child: Text('Connexion'),
+                    child: Text('Créer le compte'),
                   ),
-                ),
-                TextButton(
-                  child: Text('Nouveau? Créer votre compte'),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/signScreen');
-                  },
                 ),
               ],
             ),

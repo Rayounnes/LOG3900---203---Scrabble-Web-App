@@ -2,7 +2,7 @@ import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:app/models/chatMessageModel.dart';
+import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chatList.dart';
 import 'package:get_it/get_it.dart';
 
