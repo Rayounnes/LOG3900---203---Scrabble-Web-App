@@ -84,6 +84,7 @@ export const HTTP_STATUS_SERVER_ERROR = 500;
 export const HTTP_STATUS_NOT_FOUND = 404;
 export const HTTP_STATUS_NO_CONTENT = 204;
 export const HTTP_STATUS_NOT_ACCEPTABLE = 406;
+export const HTTP_STATUS_UNAUTHORIZED = 401;
 
 export const MAX_HINT_LENGTH = 5;
 export const VOWELS: string[] = ['a', 'e', 'i', 'o', 'u', 'y'];

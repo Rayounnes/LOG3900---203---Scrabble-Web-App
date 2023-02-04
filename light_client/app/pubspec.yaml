@@ -42,6 +42,7 @@ dependencies:
   socket_io_client: ^2.0.1
   get_it: ^7.2.0
   injectable: ^2.1.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:

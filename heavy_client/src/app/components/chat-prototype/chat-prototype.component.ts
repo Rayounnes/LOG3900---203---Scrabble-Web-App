@@ -43,7 +43,6 @@ export class ChatPrototypeComponent implements OnInit {
   
   configureBaseSocketFeatures() {
       this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
-          chatMessage.time = `(${new Date().getHours() + ':' + new Date().getMinutes() + ':'+  new Date().getSeconds()})`
           this.chatMessages.push(chatMessage);
           setTimeout(() => this.automaticScroll(), 1);
       });
@@ -68,7 +67,13 @@ export class ChatPrototypeComponent implements OnInit {
   }
 
   sendToRoom() {
-      this.socketService.send('chatMessage', this.chatMessage);
+    const message :ChatMessage = {
+        username: this.username,
+        message: this.chatMessage,
+        time: new Date().toTimeString().split(' ')[0],
+        type: 'player',
+    }
+      this.socketService.send('chatMessage', message);
       this.chatMessage = '';
   }
 }

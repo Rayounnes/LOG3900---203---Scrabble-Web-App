@@ -15,6 +15,7 @@ import { GameManager } from './game-manager.service';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { LoginService } from './login.service';
 import { DatabaseService } from './database.service';
+import { ChatMessage } from '@app/interfaces/chat-message';
 
 
 export class SocketManager {
@@ -199,11 +200,12 @@ export class SocketManager {
         });
     }
     chatHandler(socket: io.Socket) {
-        socket.on('chatMessage', (message: string) => {
+        socket.on('chatMessage', (message: ChatMessage) => {
             //const room = this.usersRoom.get(socket.id) as string;
-            const username = this.usernames.get(socket.id);
+            //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
-            this.sio.emit('chatMessage', { type: 'player', message: `${username} : ${message}` })
+            console.log(message);
+            this.sio.emit('chatMessage', message);
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
@@ -314,7 +316,7 @@ export class SocketManager {
 
     userConnectionHandler(socket: io.Socket){
         socket.on('user-connection', (loginInfos) => {
-            this.usernames.set(loginInfos.socketId,loginInfos.username)
+            this.usernames.set(loginInfos.socketId,loginInfos.username);
         });
     }
 
