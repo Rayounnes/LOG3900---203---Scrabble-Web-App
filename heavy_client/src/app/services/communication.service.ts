@@ -120,6 +120,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('loginError')))
     }
 
+    userLogout(username : string) : Observable<void>{
+        return this.http.post<void>(`${this.baseUrl}/user/disconnect/${username}`, {})
+        .pipe(catchError(this.handleError<void>('logoutError')))
+    }
+
     accountCreation(infos : loginInfos) : Observable<boolean> {
         return this.http.put<boolean>(`${this.baseUrl}/api/login/user`,infos)
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))

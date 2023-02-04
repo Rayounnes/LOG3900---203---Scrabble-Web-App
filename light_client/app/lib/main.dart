@@ -5,11 +5,12 @@ import 'screens/homePage.dart';
 import 'services/socket_client.dart';
 import 'package:get_it/get_it.dart';
 import 'screens/signUp.dart';
-
+import 'models/user_infos.dart';
 final getIt = GetIt.instance;
 
 void setup() {
   getIt.registerSingleton<SocketService>(SocketService());
+  getIt.registerSingleton<UserInfos>(UserInfos());
   getIt<SocketService>().connect();
 }
 

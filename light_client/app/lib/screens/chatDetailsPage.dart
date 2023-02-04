@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chatList.dart';
-import 'package:get_it/get_it.dart';
 
 class ChatDetailPage extends StatefulWidget {
   @override

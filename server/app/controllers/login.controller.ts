@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { Request, Response, Router } from 'express';
-import { HTTP_STATUS_OK, HTTP_STATUS_UNAUTHORIZED, loginInfos } from '@app/constants/constants';
+import { HTTP_STATUS_NO_CONTENT, HTTP_STATUS_OK, HTTP_STATUS_UNAUTHORIZED, loginInfos } from '@app/constants/constants';
 import { LoginService } from '@app/services/login.service';
 
 @Service()
@@ -18,6 +18,13 @@ export class loginController {
             const userLoginInfos: loginInfos = req.body;
             this.loginService.checkLoginValidity(userLoginInfos).then((isValid): void => {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
+
+        this.router.post('/user/disconnect/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.changeConnectionState(username, false).then((): void => {
+                res.sendStatus(HTTP_STATUS_NO_CONTENT);
             });
         });
 

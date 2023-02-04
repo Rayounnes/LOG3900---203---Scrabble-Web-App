@@ -2,6 +2,8 @@ import 'package:app/constants/http_codes.dart';
 import 'package:app/models/login_infos.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
+import 'package:app/models/user_infos.dart';
+import 'package:app/main.dart';
 
 class LoginDemo extends StatefulWidget {
   @override
@@ -30,6 +32,8 @@ class _LoginDemoState extends State<LoginDemo> {
       int response = await ApiService()
           .loginUser(LoginInfos(username: username, password: password));
       if (response == HTTP_STATUS_OK) {
+        print("setting username $username");
+        getIt<UserInfos>().setUser(username);
         Navigator.pushNamed(context, '/homeScreen');
       } else if (response == HTTP_STATUS_UNAUTHORIZED) {
         ScaffoldMessenger.of(context).showSnackBar(

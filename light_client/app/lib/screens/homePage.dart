@@ -1,5 +1,8 @@
 import 'package:app/screens/discussionsPage.dart';
 import 'package:flutter/material.dart';
+import 'package:app/main.dart';
+import 'package:app/models/user_infos.dart';
+import 'package:app/services/api_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +13,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+
+  void logoutUser() async {
+    String username = getIt<UserInfos>().user;
+    await ApiService().logoutUser(username);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 3),
+          content: Text("Vous avez été déconnecté avec succés")),
+    );
+    Navigator.pushNamed(context, '/loginScreen');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +83,7 @@ class _HomePageState extends State<HomePage> {
         actions: <TextButton>[
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/loginScreen');
+              logoutUser();
             },
             child: const Text('Oui'),
           ),
