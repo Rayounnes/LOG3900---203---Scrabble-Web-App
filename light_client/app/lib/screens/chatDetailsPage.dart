@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chatList.dart';
+import 'package:app/main.dart';
+import 'package:app/models/user_infos.dart';
+import 'dart:convert';
 
 class ChatDetailPage extends StatefulWidget {
   @override
@@ -17,36 +20,35 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     handleSockets();
   }
 
+  String username = getIt<UserInfos>().user;
   List<ChatMessage> messages = [];
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
   void handleSockets() {
-    getIt<SocketService>().on("flutter", (_) {
-      print("Adding message");
-      setState(() {
-        messages.add(ChatMessage(
-            name: "Friend",
-            messageContent: "Lets gooooo",
-            isSender: false,
-            time: DateFormat.jms().format(DateTime.now())));
-      });
+    getIt<SocketService>().on("chatMessage", (chatMessage) {
+      try {
+        if (this.mounted) {
+          setState(() {
+            messages.add(ChatMessage.fromJson(chatMessage));
+            scrollDown();
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
     });
   }
 
   void sendMessage(String message) {
     print("Adding message");
-    setState(() {
-      if (messageController.text.trim() == '') return;
-      // Test de socket - mettre le socket chat
-      getIt<SocketService>().send("flutter", null);
-      messages.add(ChatMessage(
-          name: "Rayan",
-          messageContent: messageController.text,
-          isSender: true,
-          time: DateFormat.jms().format(DateTime.now())));
-    });
-    scrollDown();
+    if (messageController.text.trim().isEmpty) return;
+    final message = ChatMessage(
+        username: username,
+        type: "player",
+        message: messageController.text,
+        time: DateFormat.Hms().format(DateTime.now()));
+    getIt<SocketService>().send("chatMessage", message);
     messageController.clear();
   }
 
@@ -76,9 +78,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               padding: EdgeInsets.only(top: 10, bottom: 80),
               itemBuilder: (context, index) {
                 return ChatList(
-                    name: messages[index].name,
-                    messageContent: messages[index].messageContent,
-                    isSender: messages[index].isSender,
+                    name: messages[index].username,
+                    messageContent: messages[index].message,
+                    isSender: messages[index].username == username,
                     time: messages[index].time);
               },
             ),

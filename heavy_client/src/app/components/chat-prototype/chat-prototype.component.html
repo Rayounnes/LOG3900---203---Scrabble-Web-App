@@ -5,13 +5,13 @@
             <li
                 *ngFor="let message of chatMessages"
                 [ngClass]="{
-                    sameUser: message.type === 'player' && username === message.message.split(' :')[0],
+                    sameUser: message.type === 'player' && username === message.username,
                     system: message.type === 'system',
-                    opponent: username !== message.message.split(' :')[0]
+                    opponent: username !== message.username
                 }"
             >   
-                <p>{{message.time}}</p>
-                {{ message.message }}
+            <p>{{message.time}}</p>
+            <p>{{message.username}} : {{ message.message }}</p>
                 
             </li>
         </ul>

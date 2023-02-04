@@ -1,5 +1,6 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:injectable/injectable.dart';
+import 'dart:convert';
 
 @injectable
 class SocketService {
@@ -44,7 +45,7 @@ class SocketService {
   }
 
   void send(String event, dynamic data) {
-    if (data == null) {
+    if (data != null) {
       socket.emit(event, data);
     } else {
       socket.emit(event);
