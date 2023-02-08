@@ -15,7 +15,8 @@
     "lint:fix": "npm run lint -- --fix",
     "electron": "electron .",
     "electron-build": "ng build && electron .",
-    "start:electron" : "ng build --base-href ./ && electron ."
+    "start:electron" : "ng build --base-href ./ && electron .",
+    "build:electron": "ng build && electron-packager . --asar --ignore=/node_modules --ignore=/e2e --ignore=/src --overwrite --out=./build"
   },
   "private": true,
   "dependencies": {
