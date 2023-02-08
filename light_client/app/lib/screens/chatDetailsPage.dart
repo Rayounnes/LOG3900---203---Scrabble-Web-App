@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chatList.dart';
-import 'package:app/main.dart';
 import 'package:app/models/user_infos.dart';
-import 'dart:convert';
 
 class ChatDetailPage extends StatefulWidget {
   @override
@@ -41,7 +39,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   void sendMessage(String message) {
-    print("Adding message");
     if (messageController.text.trim().isEmpty) return;
     final message = ChatMessage(
         username: username,
@@ -53,8 +50,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   void scrollDown() {
-    scrollController.animateTo(scrollController.position.maxScrollExtent,
-        curve: Curves.linear, duration: const Duration(milliseconds: 1));
+    scrollController.jumpTo(scrollController.position.maxScrollExtent + 25);
   }
 
   @override
@@ -67,9 +63,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Stack(
+      body: Column(
         children: <Widget>[
-          Container(
+          Expanded(
             child: ListView.builder(
               controller: scrollController,
               physics: BouncingScrollPhysics(),
@@ -96,6 +92,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     child: TextField(
                       textInputAction: TextInputAction.send,
                       onSubmitted: (value) {
+                        FocusManager.instance.primaryFocus?.requestFocus();
                         sendMessage(value);
                       },
                       controller: messageController,

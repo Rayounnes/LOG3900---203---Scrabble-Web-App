@@ -42,6 +42,7 @@ class SocketService {
 
   void disconnect() {
     socket.disconnect();
+    print("disconnected Socket");
   }
 
   void send(String event, dynamic data) {

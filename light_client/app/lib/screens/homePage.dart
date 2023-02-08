@@ -1,4 +1,5 @@
 import 'package:app/screens/discussionsPage.dart';
+import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/models/user_infos.dart';
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   void logoutUser() async {
     String username = getIt<UserInfos>().user;
     await ApiService().logoutUser(username);
+    getIt<SocketService>().disconnect();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           backgroundColor: Colors.blue,

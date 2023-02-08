@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import "package:app/models/login_infos.dart";
 import "package:app/constants/http_codes.dart";
+import 'package:app/main.dart';
+import 'package:app/models/user_infos.dart';
+import 'package:app/services/socket_client.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -25,28 +28,29 @@ class _SignUpState extends State<SignUp> {
   }
 
   void createAccount() async {
-    if (_formKey.currentState!.validate()) {
-      String username = usernameController.text;
-      String password = passwordController.text;
-      int response = await ApiService()
-          .createUser(LoginInfos(username: username, password: password));
-      if (response == HTTP_STATUS_OK) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              backgroundColor: Colors.blue,
-              duration: Duration(seconds: 3),
-              content: Text("Votre compte a été créé avec succés")),
-        );
-        Navigator.pushNamed(context, '/homeScreen');
-      } else if (response == HTTP_STATUS_UNAUTHORIZED) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              backgroundColor: Colors.blue,
-              duration: Duration(seconds: 3),
-              content: Text(
-                  "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
-        );
-      }
+    if (!_formKey.currentState!.validate()) return;
+    String username = usernameController.text;
+    String password = passwordController.text;
+    int response = await ApiService()
+        .createUser(LoginInfos(username: username, password: password));
+    if (response == HTTP_STATUS_OK) {
+      getIt<SocketService>().connect();
+      getIt<UserInfos>().setUser(username);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text("Votre compte a été créé avec succés")),
+      );
+      Navigator.pushNamed(context, '/homeScreen');
+    } else if (response == HTTP_STATUS_UNAUTHORIZED) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text(
+                "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
+      );
     }
   }
 
@@ -92,7 +96,11 @@ class _SignUpState extends State<SignUp> {
                     ),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer un nom d'utilisateur";
+                        return "Nom d'utilisateur requis.";
+                      } else if (value.length < 5) {
+                        return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                      } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
+                        return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
                       }
                       return null;
                     },
@@ -110,7 +118,9 @@ class _SignUpState extends State<SignUp> {
                     obscureText: true,
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer un mot de passe";
+                        return "Mot de passe requis.";
+                      } else if (value.length < 6) {
+                        return "Un mot de passe doit contenir au minimum 6 caractéres.";
                       }
                       return null;
                     },
