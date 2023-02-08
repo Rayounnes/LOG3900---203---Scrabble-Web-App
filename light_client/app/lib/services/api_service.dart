@@ -5,18 +5,6 @@ import 'package:app/constants/server_api.dart';
 import 'package:app/models/login_infos.dart';
 
 class ApiService {
-  // Future<List<LoginInfos>?> getUsers() async {
-  //   try {
-  //     var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.usersEndpoint);
-  //     var response = await http.get(url);
-  //     if (response.statusCode == 200) {
-  //       //List<LoginInfos> _model = userModelFromJson(response.body);
-  //       //return _model;
-  //     }
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-  // }
 
   Future<int> loginUser(LoginInfos user) async {
     final response = await http.post(

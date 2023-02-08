@@ -18,7 +18,7 @@ class SocketService {
 
   void connect() {
     socket = IO.io(
-      'http://localhost:3000',
+      'https://log3900.onrender.com',
       <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': false,
