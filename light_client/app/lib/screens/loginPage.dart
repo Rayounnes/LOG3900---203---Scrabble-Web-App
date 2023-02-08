@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:app/constants/http_codes.dart';
 import 'package:app/models/login_infos.dart';
+import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import 'package:app/models/user_infos.dart';
@@ -16,7 +19,7 @@ class _LoginDemoState extends State<LoginDemo> {
   // of the TextField.
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-
+  bool buttonEnabled = true;
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -26,24 +29,24 @@ class _LoginDemoState extends State<LoginDemo> {
   }
 
   void connect() async {
-    if (_formKey.currentState!.validate()) {
-      String username = usernameController.text;
-      String password = passwordController.text;
-      int response = await ApiService()
-          .loginUser(LoginInfos(username: username, password: password));
-      if (response == HTTP_STATUS_OK) {
-        print("setting username $username");
-        getIt<UserInfos>().setUser(username);
-        Navigator.pushNamed(context, '/homeScreen');
-      } else if (response == HTTP_STATUS_UNAUTHORIZED) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              backgroundColor: Colors.blue,
-              duration: Duration(seconds: 3),
-              content: Text(
-                  "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
-        );
-      }
+    if (!_formKey.currentState!.validate()) return;
+    String username = usernameController.text;
+    String password = passwordController.text;
+    int response = await ApiService()
+        .loginUser(LoginInfos(username: username, password: password));
+    if (response == HTTP_STATUS_OK) {
+      print("setting username $username");
+      getIt<UserInfos>().setUser(username);
+      getIt<SocketService>().connect();
+      Navigator.pushNamed(context, '/homeScreen');
+    } else if (response == HTTP_STATUS_UNAUTHORIZED) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text(
+                "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
+      );
     }
   }
 
@@ -89,7 +92,11 @@ class _LoginDemoState extends State<LoginDemo> {
                     ),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer votre nom d'utilisateur";
+                        return "Nom d'utilisateur requis.";
+                      } else if (value.length < 5) {
+                        return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                      } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
+                        return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
                       }
                       return null;
                     },
@@ -107,7 +114,9 @@ class _LoginDemoState extends State<LoginDemo> {
                     obscureText: true,
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Veillez entrer votre mot de passe";
+                        return "Mot de passe requis.";
+                      } else if (value.length < 6) {
+                        return "Un mot de passe doit contenir au minimum 6 caractéres.";
                       }
                       return null;
                     },
@@ -117,7 +126,6 @@ class _LoginDemoState extends State<LoginDemo> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
                       connect();
                     },
                     child: Text('Connexion'),
