@@ -6,7 +6,6 @@ import { loginInfos } from 'src/constants/login-constants';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 
 
-
 @Component({
   selector: 'app-connexion-page',
   templateUrl: './connexion-page.component.html',
@@ -22,7 +21,7 @@ export class ConnexionPageComponent implements OnInit {
 
   constructor(private communicationService : CommunicationService, 
     private _snackBar: MatSnackBar, /* private route: ActivatedRoute, */  private router: Router,
-    public socketService: ChatSocketClientService ) {
+    public socketService: ChatSocketClientService) {
       this.connect()
     }
 
