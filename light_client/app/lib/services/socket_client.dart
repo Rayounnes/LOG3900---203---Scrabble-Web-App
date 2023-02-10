@@ -1,6 +1,7 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:injectable/injectable.dart';
 import 'dart:convert';
+import 'package:app/constants/server_api.dart';
 
 @injectable
 class SocketService {
@@ -11,14 +12,11 @@ class SocketService {
     return _instance;
   }
 
-  // This named constructor is the "real" constructor
-  // It'll be called exactly once, by the static property assignment above
-  // it's also private, so it can only be called in this class
   SocketService._internal();
 
   void connect() {
     socket = IO.io(
-      'https://log3900.onrender.com',
+      ApiConstants.baseUrl,
       <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': false,

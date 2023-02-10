@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/loginPage.dart';
-import 'screens/discussionsPage.dart';
-import 'screens/homePage.dart';
+import 'screens/login_page.dart';
+import 'screens/channels_page.dart';
+import 'screens/home_page.dart';
 import 'services/socket_client.dart';
 import 'package:get_it/get_it.dart';
-import 'screens/signUp.dart';
-import 'models/user_infos.dart';
+import 'screens/sign_page.dart';
+import 'services/user_infos.dart';
 final getIt = GetIt.instance;
 
 void setup() {
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/loginScreen': (context) => LoginDemo(),
         '/homeScreen': (context) => HomePage(),
-        '/chatScreen': (context) => Discussions(),
+        '/chatScreen': (context) => Channels(),
         '/signScreen': (context) => SignUp(),
       },
       theme: ThemeData(

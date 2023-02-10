@@ -3,15 +3,15 @@ import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
-import 'package:app/widgets/chatList.dart';
-import 'package:app/models/user_infos.dart';
+import 'package:app/widgets/chat_message.dart';
+import 'package:app/services/user_infos.dart';
 
-class ChatDetailPage extends StatefulWidget {
+class ChatPage extends StatefulWidget {
   @override
-  _ChatDetailPageState createState() => _ChatDetailPageState();
+  _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatDetailPageState extends State<ChatDetailPage> {
+class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
@@ -73,7 +73,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
               itemBuilder: (context, index) {
-                return ChatList(
+                return Message(
                     name: messages[index].username,
                     messageContent: messages[index].message,
                     isSender: messages[index].username == username,

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:app/screens/chatDetailsPage.dart';
+import 'package:app/screens/chat_page.dart';
 
-class ConversationList extends StatefulWidget {
+class Channel extends StatefulWidget {
   String name;
-  ConversationList(
+  Channel(
       {required this.name});
   @override
-  _ConversationListState createState() => _ConversationListState();
+  _ChannelState createState() => _ChannelState();
 }
 
-class _ConversationListState extends State<ConversationList> {
+class _ChannelState extends State<Channel> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ChatDetailPage();
+            return ChatPage();
           }));
         },
         child: Container(

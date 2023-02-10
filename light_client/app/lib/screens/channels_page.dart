@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:app/widgets/conversationList.dart';
+import 'package:app/widgets/channel.dart';
 
-class Discussions extends StatefulWidget {
-  const Discussions({super.key});
+class Channels extends StatefulWidget {
+  const Channels({super.key});
 
   @override
-  State<Discussions> createState() => _DiscussionsState();
+  State<Channels> createState() => _ChannelsState();
 }
 
-class _DiscussionsState extends State<Discussions> {
+class _ChannelsState extends State<Channels> {
   List<String> discussions = ["General"];
 
   @override
@@ -40,7 +40,7 @@ class _DiscussionsState extends State<Discussions> {
                 padding: EdgeInsets.all(16),
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
-                  return ConversationList(
+                  return Channel(
                     name: discussions[index],
                   );
                 },

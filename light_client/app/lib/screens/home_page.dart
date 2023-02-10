@@ -1,8 +1,8 @@
-import 'package:app/screens/discussionsPage.dart';
+import 'package:app/screens/channels_page.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
-import 'package:app/models/user_infos.dart';
+import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,20 +31,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Discussions(),
+      body: Channels(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (int index) {
           switch (index) {
             case 0:
-              // only scroll to top when current index is selected.
-              // if (_selectedIndex == index) {
-              //   _homeController.animateTo(
-              //     0.0,
-              //     duration: const Duration(milliseconds: 500),
-              //     curve: Curves.easeOut,
-              //   );
-              // }
               break;
             case 1:
               showModal(context);

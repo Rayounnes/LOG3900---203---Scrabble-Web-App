@@ -1,47 +1,40 @@
+import 'dart:ffi';
+
+import 'package:app/constants/http_codes.dart';
+import 'package:app/models/login_infos.dart';
+import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
-import "package:app/models/login_infos.dart";
-import "package:app/constants/http_codes.dart";
+import 'package:app/services/user_infos.dart';
 import 'package:app/main.dart';
-import 'package:app/models/user_infos.dart';
-import 'package:app/services/socket_client.dart';
 
-class SignUp extends StatefulWidget {
+class LoginDemo extends StatefulWidget {
   @override
-  _SignUpState createState() => _SignUpState();
+  _LoginDemoState createState() => _LoginDemoState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _LoginDemoState extends State<LoginDemo> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  // Create a text controller and use it to retrieve the current value
-  // of the TextField.
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  final passwordCheckController = TextEditingController();
+  bool buttonEnabled = true;
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     usernameController.dispose();
     passwordController.dispose();
-    passwordCheckController.dispose();
     super.dispose();
   }
 
-  void createAccount() async {
+  void connect() async {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
     String password = passwordController.text;
     int response = await ApiService()
-        .createUser(LoginInfos(username: username, password: password));
+        .loginUser(LoginInfos(username: username, password: password));
     if (response == HTTP_STATUS_OK) {
-      getIt<SocketService>().connect();
+      print("setting username $username");
       getIt<UserInfos>().setUser(username);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-            content: Text("Votre compte a été créé avec succés")),
-      );
+      getIt<SocketService>().connect();
       Navigator.pushNamed(context, '/homeScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -49,7 +42,7 @@ class _SignUpState extends State<SignUp> {
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
             content: Text(
-                "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
+                "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
       );
     }
   }
@@ -78,7 +71,7 @@ class _SignUpState extends State<SignUp> {
                     child: Container(
                       width: 200,
                       height: 150,
-                      child: Text('Création de compte',
+                      child: Text('Connexion à votre compte',
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
@@ -128,35 +121,18 @@ class _SignUpState extends State<SignUp> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: passwordCheckController,
-                    decoration: const InputDecoration(
-                      hintText: "Retapez votre mot de passe",
-                      icon: Icon(Icons.password),
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (String? value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value != passwordController.text) {
-                        return "Le mot de passe écrit ne correspond pas à celui écrit";
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      if (_formKey.currentState!.validate()) {
-                        createAccount();
-                      }
+                      connect();
                     },
-                    child: Text('Créer le compte'),
+                    child: Text('Connexion'),
                   ),
+                ),
+                TextButton(
+                  child: Text('Nouveau? Créer votre compte'),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signScreen');
+                  },
                 ),
               ],
             ),

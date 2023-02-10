@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
-class ChatList extends StatefulWidget {
+class Message extends StatefulWidget {
   String name;
   String messageContent;
   bool isSender;
   String time;
-  ChatList({
+  Message({
     required this.name,
     required this.messageContent,
     required this.isSender,
     required this.time,
   });
   @override
-  _ChatListState createState() => _ChatListState();
+  _MessageState createState() => _MessageState();
 }
 
-class _ChatListState extends State<ChatList> {
+class _MessageState extends State<Message> {
   @override
   Widget build(BuildContext context) {
     return Container(
