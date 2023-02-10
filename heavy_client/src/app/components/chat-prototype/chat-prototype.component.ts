@@ -5,6 +5,7 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import { ArgumentManagementService } from '@app/services/argument-management.service';
 import { GridService } from '@app/services/grid.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat-prototype',
@@ -28,6 +29,7 @@ export class ChatPrototypeComponent implements OnInit {
       public gridService: GridService,
       public arg: ArgumentManagementService,
       public keyboardService: KeyboardManagementService,
+      public router: Router,
   ) {}
   automaticScroll() {
       this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -65,6 +67,11 @@ export class ChatPrototypeComponent implements OnInit {
 
       
   }
+
+    userDisconnect(){
+    this.socketService.send("user-disconnect",this.socketService.socketId);
+    this.router.navigate(['/connexion'])
+    }
 
   sendToRoom() {
     const message :ChatMessage = {

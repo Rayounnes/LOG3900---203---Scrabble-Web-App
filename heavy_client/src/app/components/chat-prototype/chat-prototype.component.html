@@ -17,6 +17,7 @@
         </ul>
     </div>
     <div class="inputDiv">
+        <button class="disconnectButton" (click)="userDisconnect()">Déconnexion</button>
         <input
         #input
         type="text"
@@ -26,7 +27,7 @@
         [(ngModel)]="chatMessage"
         (keydown.enter)="this.chatMessage.trim() && sendMessage()"
         />
-        <button id="clear" (click)="this.chatMessage.trim() && sendMessage()">Send</button>
+        <button class="clear" (click)="this.chatMessage.trim() && sendMessage()">Send</button>
     </div>
     
     
