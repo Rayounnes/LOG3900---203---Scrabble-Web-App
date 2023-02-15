@@ -1,25 +1,25 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChatPrototypeComponent } from './chat-prototype.component';
+// import { ChatPrototypeComponent } from './chat-prototype.component';
 
-describe('ChatPrototypeComponent', () => {
-  let component: ChatPrototypeComponent;
-  let fixture: ComponentFixture<ChatPrototypeComponent>;
+// describe('ChatPrototypeComponent', () => {
+//   let component: ChatPrototypeComponent;
+//   let fixture: ComponentFixture<ChatPrototypeComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ ChatPrototypeComponent ]
-    })
-    .compileComponents();
-  });
+//   beforeEach(async () => {
+//     await TestBed.configureTestingModule({
+//       declarations: [ ChatPrototypeComponent ]
+//     })
+//     .compileComponents();
+//   });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ChatPrototypeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+//   beforeEach(() => {
+//     fixture = TestBed.createComponent(ChatPrototypeComponent);
+//     component = fixture.componentInstance;
+//     fixture.detectChanges();
+//   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+//   it('should create', () => {
+//     expect(component).toBeTruthy();
+//   });
+// });

@@ -45,6 +45,8 @@ describe('ChatBoxComponent', () => {
     it('chatMessage event should add the chatmessage to the array', () => {
         const spy = spyOn(component.chatMessages, 'push');
         const chatMessage = {
+            username: '',
+            time: '',
             message: 'hello',
             type: 'system',
         };
@@ -56,6 +58,8 @@ describe('ChatBoxComponent', () => {
     it('exchange-command event should call chatMessages.push if command is type system', () => {
         const spy = spyOn(component.chatMessages, 'push');
         const command = {
+            username: '',
+            time: '',
             name: 'hello',
             type: 'system',
         };
