@@ -38,7 +38,7 @@ stages:
     - lint
     - build
     # - test
-    # - deploy
+    - deploy
 
 install:client:
     stage: install
