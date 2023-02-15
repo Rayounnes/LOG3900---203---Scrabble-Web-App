@@ -13,6 +13,7 @@ import { BestScoresController } from './controllers/best-scores.controller';
 import { DictionaryController } from './controllers/dictionary.controller';
 import { GameHistoryController } from './controllers/game-history.controller';
 import { VirtualPlayerCollectorController } from './controllers/virtual-player-collector.controller';
+import { loginController } from './controllers/login.controller';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const fileupload = require('express-fileupload');
@@ -31,6 +32,7 @@ export class Application {
         private readonly bestScoreController: BestScoresController,
         private readonly dictionaryController: DictionaryController,
         private readonly gameHistoryController: GameHistoryController,
+        private readonly loginController : loginController
     ) {
         this.app = express();
 
@@ -59,6 +61,7 @@ export class Application {
         this.app.use('/api/dictionary', this.dictionaryController.router);
         this.app.use('/api/gameHistory', this.gameHistoryController.router);
         this.app.use('/api/virtualPlayer', this.virtualPlayerCollectorController.router);
+        this.app.use('/api/login',this.loginController.router);
         this.app.use('/', (req, res) => {
             res.redirect('/api/docs');
         });

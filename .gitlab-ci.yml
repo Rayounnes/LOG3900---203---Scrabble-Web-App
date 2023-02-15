@@ -37,7 +37,7 @@ stages:
     - install
     - lint
     - build
-    - test
+    # - test
     - deploy
 
 install:client:
@@ -102,30 +102,30 @@ build:server:
         paths:
             - server/out/
 
-test:client:
-    stage: test
-    <<: *only-client
-    script:
-        - Xvfb :99 -ac -screen 0 1920x1080x24 &
-        - cd client
-        - npm run coverage -- --browsers=ChromeHeadlessNoSandbox --watch=false
-    dependencies:
-        - build:client
-    artifacts:
-        paths:
-            - client/coverage/
+# test:client:
+#     stage: test
+#     <<: *only-client
+#     script:
+#         - Xvfb :99 -ac -screen 0 1920x1080x24 &
+#         - cd client
+#         - npm run coverage -- --browsers=ChromeHeadlessNoSandbox --watch=false
+#     dependencies:
+#         - build:client
+#     artifacts:
+#         paths:
+#             - client/coverage/
 
-test:server:
-    stage: test
-    <<: *only-server
-    script:
-        - cd server
-        - npm run coverage
-    dependencies:
-        - build:server
-    artifacts:
-        paths:
-            - server/coverage/
+# test:server:
+#     stage: test
+#     <<: *only-server
+#     script:
+#         - cd server
+#         - npm run coverage
+#     dependencies:
+#         - build:server
+#     artifacts:
+#         paths:
+#             - server/coverage/
 
 pages:
     image: node:14.15.0

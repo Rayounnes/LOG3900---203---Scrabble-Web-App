@@ -1,4 +1,6 @@
 export interface ChatMessage {
-    type: string;
-    message: string;
+  username: string;
+  message : string;
+  time: string;
+  type: string;
 }

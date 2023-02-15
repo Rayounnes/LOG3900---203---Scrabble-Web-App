@@ -1,0 +1,142 @@
+.container{
+    position: absolute;
+
+    padding: 60px, 70px;
+    left:0;
+    width: 99.6%;
+    height: 99.6%
+ 
+    // bottom: 0;
+
+}
+
+.sameUser{
+    background-color: lightskyblue;
+    position: relative;
+	max-width: 17em;
+    left:86.5%;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow:	0 0.125rem 0.5rem rgba(0, 0, 0, .3), 0 0.0625rem 0.125rem rgba(0, 0, 0, .2);
+}
+.opponent{
+    background-color: lightgreen;
+    position: relative;
+	max-width: 17em;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow:	0 0.125rem 0.5rem rgba(0, 0, 0, .3), 0 0.0625rem 0.125rem rgba(0, 0, 0, .2);
+}
+.system{
+    background-color: lightyellow;
+    max-width: 30em;
+}
+
+#messagesBox {
+    background-color: rgb(55, 54, 54);
+    width: 100%;
+    height: 95%;
+    border: 1px solid black;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-wrap:break-word;
+    white-space:normal;
+    border-radius: 10px;
+}
+
+.inputDiv{
+    display: flex;
+    flex-direction: row;
+    width: 99.6%;
+    height: 4%;
+    justify-content: space-evenly;
+}
+
+#inputChat{
+    background-color: #d3cfcf;
+    height: 100%;
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    color:black;
+    margin-left: 2%;
+}
+
+button.clear {
+    position: relative;
+    top: 0;
+    border-radius: 5px;
+    right: 0px;
+    z-index: 2;
+    border: none;
+    top: 2px;
+    height: 30px;
+    cursor: pointer;
+    color: black;
+    background-color: lightgreen;
+    transform: translateX(2px);
+    height: 100%;
+    width: 5%;
+    box-shadow : 20px 17px 9px 0px rgb(0 0 0 / 20%), 5px 5px 12px 0px #426846, 0px 1px 3px 0px rgb(0 0 0 / 12%)
+}
+
+button.disconnectButton{
+    position: relative;
+    top: 0;
+    border-radius: 5px;
+    right: 0px;
+    z-index: 2;
+    border: none;
+    top: 2px;
+    height: 30px;
+    cursor: pointer;
+    color: white;
+    background-color: rgb(250, 100, 95);
+    transform: translateX(2px);
+    height: 100%;
+    width: 5%;
+    box-shadow : 20px 17px 9px 0px rgb(0 0 0 / 20%), 5px 5px 12px 0px #426846, 0px 1px 3px 0px rgb(0 0 0 / 12%)
+    
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+li {
+    display: block;
+    padding: 5px;
+    white-space: pre-wrap;
+    border: 1px solid black;
+    
+
+}
+
+p{
+    
+    padding-right: 10%;
+    color: #8f8f8f;
+}
+
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: rgb(55, 54, 54);
+}
+
+::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: black
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: white
+}

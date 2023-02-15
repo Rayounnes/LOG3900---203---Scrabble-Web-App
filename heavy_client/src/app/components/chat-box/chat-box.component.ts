@@ -48,8 +48,10 @@ export class ChatBoxComponent implements OnInit {
             if (typeof placedWord.letters === 'string') {
                 this.isCommandSent = false;
                 this.chatMessages.push({
+                    username: '',
                     message: placedWord.letters,
                     type: 'system',
+                    time: '',
                 });
             } else {
                 this.socketService.send('remove-letters-rack', placedWord.letters);
@@ -69,8 +71,10 @@ export class ChatBoxComponent implements OnInit {
             if (placedWord.points === 0) {
                 await new Promise((r) => setTimeout(r, THREE_SECOND));
                 this.chatMessages.push({
+                    username: '',
                     message: 'Erreur : les mots crées sont invalides',
                     type: 'system',
+                    time: '',
                 });
                 setTimeout(() => this.automaticScroll(), 1);
                 this.gridService.removeLetter(placedWord.letters);
@@ -95,28 +99,39 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('reserve-command', (command: Command) => {
             this.isCommandSent = false;
             this.chatMessages.push({
+                username: '',
                 message: command.name,
                 type: 'system',
+                time: '',
             });
         });
         this.socketService.on('help-command', (command: Command) => {
             this.isCommandSent = false;
             this.chatMessages.push({
+                username: '',
                 message: command.name,
                 type: 'system',
+                time: '',
             });
         });
         this.socketService.on('exchange-command', (command: Command) => {
             if (command.type === 'system') {
                 this.isCommandSent = false;
                 this.chatMessages.push({
+                    username: '',
                     message: command.name,
                     type: 'system',
+                    time: '',
                 });
             } else {
                 this.socketService.send('draw-letters-rack');
                 this.socketService.send('change-user-turn');
-                this.chatMessages.push({ type: 'player', message: `${this.username} : ${command.name}` });
+                this.chatMessages.push({
+                    username: '',
+                    type: 'player',
+                    message: `${this.username} : ${command.name}`,
+                    time: '',
+                });
                 this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
                 this.isCommandSent = false;
             }
@@ -160,8 +175,10 @@ export class ChatBoxComponent implements OnInit {
         } else {
             this.isCommandSent = false;
             this.chatMessages.push({
+                username: '',
                 message: 'Erreur Syntaxe: paramétres invalides',
                 type: 'system',
+                time: '',
             });
         }
     }
@@ -177,11 +194,11 @@ export class ChatBoxComponent implements OnInit {
             lettersToExchange = this.chatMessage.split(' ')[1].trim();
             if (!lettersToExchange || /\d/.test(lettersToExchange)) {
                 this.isCommandSent = false;
-                this.chatMessages.push({ message: 'Erreur Syntaxe : parametres invalides', type: 'system' });
+                this.chatMessages.push({ username: '', message: 'Erreur Syntaxe : parametres invalides', type: 'system', time: '' });
             } else this.socketService.send('exchange-command', lettersToExchange);
         } catch (e) {
             this.isCommandSent = false;
-            this.chatMessages.push({ message: 'Erreur Sytaxe : parametres invalides', type: 'system' });
+            this.chatMessages.push({ username: '', message: 'Erreur Sytaxe : parametres invalides', type: 'system', time: '' });
         }
     }
     sendCommand() {
@@ -214,18 +231,26 @@ export class ChatBoxComponent implements OnInit {
                     break;
             }
             this.chatMessages.push({
+                username: '',
                 message: `${this.username} : ${this.writtenCommand}`,
                 type: 'player',
+                time: '',
             });
         } else {
-            this.chatMessages.push({ message: command.name, type: 'system' });
+            this.chatMessages.push({ username: '', message: command.name, type: 'system', time: '' });
         }
     }
     sendMessage() {
         if (this.chatMessage.startsWith('!')) {
-            if (this.isGameFinished) this.chatMessages.push({ message: 'Commande impossible a réaliser : la partie est terminé', type: 'system' });
+            if (this.isGameFinished)
+                this.chatMessages.push({ username: '', message: 'Commande impossible a réaliser : la partie est terminé', type: 'system', time: '' });
             else if (this.socketTurn !== this.socketService.socketId && this.chatMessage !== '!réserve' && this.chatMessage !== '!aide')
-                this.chatMessages.push({ message: "Commande impossible à réaliser : ce n'est pas à votre tour de jouer", type: 'system' });
+                this.chatMessages.push({
+                    username: '',
+                    message: "Commande impossible à réaliser : ce n'est pas à votre tour de jouer",
+                    type: 'system',
+                    time: '',
+                });
             else if (!this.isCommandSent) this.sendCommand();
         } else {
             this.sendToRoom();

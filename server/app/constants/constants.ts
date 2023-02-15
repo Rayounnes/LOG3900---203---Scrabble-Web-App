@@ -1,5 +1,6 @@
 import { Point } from '@app/interfaces/point';
 import { TopScore } from '@app/interfaces/top-scores';
+
 const ZERO_POINT = 0;
 const ONE_POINT = 1;
 const TWO_POINTS = 2;
@@ -63,9 +64,13 @@ export const DOUBLE_LETTER_POSITIONS: Point[] = [
 ];
 /* des constantes utilises pour le BestScoresService */
 
-export const DATABASE_URL = 'mongodb+srv://admin:admin@cluster0.vlpsr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
-export const DATABASE_NAME = 'LOG2990';
+export const DATABASE_URL = 'mongodb+srv://projet3:admin123@cluster1.9gz1fcx.mongodb.net/?retryWrites=true&w=majority';
+
+
+
+export const DATABASE_NAME = 'GeneralDB';
 export const DB_COLLECTION_CLASSIQUE = 'BESTSCORESCLASSIC';
+export const DB_COLLECTION_USERS = 'Users'
 export const DB_COLLECTION_LOG2990 = 'BESTSCORESLOG2990';
 export const DB_COLLECTION_GAME_HISTORY = 'GAMEHISTORY';
 export const TOP_FIVE_SCORES = 5;
@@ -79,6 +84,7 @@ export const HTTP_STATUS_SERVER_ERROR = 500;
 export const HTTP_STATUS_NOT_FOUND = 404;
 export const HTTP_STATUS_NO_CONTENT = 204;
 export const HTTP_STATUS_NOT_ACCEPTABLE = 406;
+export const HTTP_STATUS_UNAUTHORIZED = 401;
 
 export const MAX_HINT_LENGTH = 5;
 export const VOWELS: string[] = ['a', 'e', 'i', 'o', 'u', 'y'];
@@ -189,3 +195,8 @@ export const SCORES_CLASSIC: TopScore[] = [
         score: 359,
     },
 ];
+
+export interface loginInfos {
+    username : string,
+    password : string
+}

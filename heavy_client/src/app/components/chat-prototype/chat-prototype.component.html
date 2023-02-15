@@ -1,0 +1,34 @@
+<div class="container">
+    <div id="messagesBox" #scrollMessages>
+        
+        <ul>
+            <li
+                *ngFor="let message of chatMessages"
+                [ngClass]="{
+                    sameUser: message.type === 'player' && username === message.username,
+                    system: message.type === 'system',
+                    opponent: username !== message.username
+                }"
+            >   
+            <p>{{message.time}}</p>
+            <p>{{message.username}} : {{ message.message }}</p>
+                
+            </li>
+        </ul>
+    </div>
+    <div class="inputDiv">
+        <button class="disconnectButton" (click)="userDisconnect()">Déconnexion</button>
+        <input
+        #input
+        type="text"
+        placeholder="Écrivez un message"
+        id="inputChat"
+        maxlength="512"
+        [(ngModel)]="chatMessage"
+        (keydown.enter)="this.chatMessage.trim() && sendMessage()"
+        />
+        <button class="clear" (click)="this.chatMessage.trim() && sendMessage()">Send</button>
+    </div>
+    
+    
+</div>

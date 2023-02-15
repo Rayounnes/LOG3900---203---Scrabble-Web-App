@@ -1,5 +1,4 @@
 import { DATABASE_NAME, DATABASE_URL } from '@app/constants/constants';
-import { TopScore } from '@app/interfaces/top-scores';
 import { injectable } from 'inversify';
 import { Db, MongoClient } from 'mongodb';
 import 'reflect-metadata';
@@ -8,7 +7,6 @@ import { Service } from 'typedi';
 @injectable()
 @Service()
 export class DatabaseService {
-    score: TopScore[];
     private db: Db;
     private client: MongoClient;
 

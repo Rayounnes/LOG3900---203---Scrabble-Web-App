@@ -7,4 +7,5 @@ export default {
     ScoresService: Symbol('ScoresService'),
     VirtualPlayerCollectorService: Symbol('VirtualPlayerCollectorService'),
     GameHistoryService: Symbol('GameHistoryService'),
+    SocketManager : Symbol('SocketManager')
 };
