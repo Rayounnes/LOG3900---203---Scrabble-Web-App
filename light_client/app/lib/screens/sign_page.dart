@@ -31,10 +31,12 @@ class _SignUpState extends State<SignUp> {
     String password = passwordController.text;
     int response = await ApiService()
         .createUser(LoginInfos(username: username, password: password));
-    print(response);
     if (response == HTTP_STATUS_OK) {
-      getIt<SocketService>().connect();
       getIt<UserInfos>().setUser(username);
+      getIt<SocketService>().send("user-connection", <String, String>{
+        "username": username,
+        "socketId": getIt<SocketService>().socketId
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.blue,

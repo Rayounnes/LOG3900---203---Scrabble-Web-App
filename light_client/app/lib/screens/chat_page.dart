@@ -36,6 +36,7 @@ class _ChatPageState extends State<ChatPage> {
         print(e);
       }
     });
+  
   }
 
   void sendMessage(String message) {

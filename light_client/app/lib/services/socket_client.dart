@@ -55,6 +55,10 @@ class SocketService {
     return socket.id;
   }
 
+  bool isSocketAlive() {
+        return socket.id != null && socket.connected;
+  }
+
   void on(String event, dynamic Function(dynamic) action) {
     socket.on(event, action);
   }

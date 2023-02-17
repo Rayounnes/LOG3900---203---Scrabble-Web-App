@@ -32,9 +32,11 @@ class _LoginDemoState extends State<LoginDemo> {
     int response = await ApiService()
         .loginUser(LoginInfos(username: username, password: password));
     if (response == HTTP_STATUS_OK) {
-      print("setting username $username");
       getIt<UserInfos>().setUser(username);
-      getIt<SocketService>().connect();
+      getIt<SocketService>().send("user-connection", <String, String>{
+        "username": username,
+        "socketId": getIt<SocketService>().socketId
+      });
       Navigator.pushNamed(context, '/homeScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
