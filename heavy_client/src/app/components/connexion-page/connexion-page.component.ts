@@ -34,7 +34,7 @@ export class ConnexionPageComponent implements OnInit {
     this.communicationService.userlogin(loginInfos).subscribe((connectionValid) : void =>{
       if(connectionValid){
         this.connected = true;
-        this.router.navigate(['chatproto']);
+        this.router.navigate(['home']);
         this.socketService.send("user-connection",{username :this.username,socketId : this.socketService.socketId});
       }else{
         this._snackBar.open("Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer","Fermer")

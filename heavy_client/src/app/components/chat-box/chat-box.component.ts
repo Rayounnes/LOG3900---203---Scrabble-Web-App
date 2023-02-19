@@ -16,9 +16,12 @@ const THREE_SECOND = 3000;
     selector: 'app-chat-box',
     templateUrl: './chat-box.component.html',
     styleUrls: ['./chat-box.component.scss'],
+    template: `{{ now | date: 'HH:mm:ss' }}`,
 })
 export class ChatBoxComponent implements OnInit {
     @ViewChild('scrollMessages') private scrollMessages: ElementRef;
+    @ViewChild('channels') private channels: ElementRef;
+
     username = '';
     chatMessage = '';
     chatMessages: ChatMessage[] = [];
@@ -26,6 +29,8 @@ export class ChatBoxComponent implements OnInit {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
+    allUserChannels : any[] = [];
+    currentChannel : string = "";
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -259,7 +264,23 @@ export class ChatBoxComponent implements OnInit {
         setTimeout(() => this.automaticScroll(), 1);
     }
     sendToRoom() {
-        this.socketService.send('chatMessage', this.chatMessage);
+        const message: ChatMessage = {
+            username: this.username,
+            message: this.chatMessage,
+            time: new Date().toTimeString().split(' ')[0],
+            type: 'player',
+        };
+        this.socketService.send('chatMessage', message);
         this.chatMessage = '';
     }
+
+    scrollChannels(direction : string){
+        if(direction == "right"){
+            this.channels.nativeElement.scrollLeft += 90;
+            return;
+        }
+        this.channels.nativeElement.scrollLeft -= 90
+        
+    }
+
 }
