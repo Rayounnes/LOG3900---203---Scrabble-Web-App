@@ -1,5 +1,4 @@
 import 'package:app/screens/game_page.dart';
-import 'package:app/widgets/movable_container.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_page.dart';
 import 'screens/channels_page.dart';
@@ -7,6 +6,7 @@ import 'screens/home_page.dart';
 import 'services/socket_client.dart';
 import 'package:get_it/get_it.dart';
 import 'screens/sign_page.dart';
+import 'services/tile_placement.dart';
 import 'services/user_infos.dart';
 
 final getIt = GetIt.instance;
@@ -14,6 +14,7 @@ final getIt = GetIt.instance;
 void setup() {
   getIt.registerSingleton<SocketService>(SocketService());
   getIt.registerSingleton<UserInfos>(UserInfos());
+  getIt.registerSingleton<TilePlacement>(TilePlacement());
 }
 
 void main() {
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         '/homeScreen': (context) => HomePage(),
         '/chatScreen': (context) => Channels(),
         '/signScreen': (context) => SignUp(),
-        '/gameScreen': (context) => MovableContainer(),
+        '/gameScreen': (context) => GamePage(),
       },
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

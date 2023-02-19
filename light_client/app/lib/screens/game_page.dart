@@ -1,11 +1,12 @@
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:flutter/material.dart';
-import 'package:app/widgets/movable_container.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
+
+import '../services/tile_placement.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -39,8 +40,8 @@ class Painter extends CustomPainter {
       if (i < 15) {
         for (int j = 0; j < 15; j++) {
           fillPaint.color = j % 2 == 0
-              ? Color.fromARGB(255, 153, 167, 245)
-              : Color.fromARGB(255, 255, 186, 140);
+              ? Color.fromARGB(255, 224, 253, 57)
+              : Color.fromARGB(255, 228, 223, 220);
 
           final cellRect = Rect.fromLTWH(
             i * cellWidth + 2,
@@ -61,6 +62,14 @@ class Painter extends CustomPainter {
 }
 
 class _GamePageState extends State<GamePage> {
+  Offset position = Offset(0.0, 0.0);
+  double boxHeight = 46;
+  double boxWidth = 46;
+
+  setTile(Offset offset) {
+    return getIt<TilePlacement>().setTile(Offset(offset.dx, offset.dy - 78));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,12 +79,13 @@ class _GamePageState extends State<GamePage> {
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
-        body: Column(children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 25, bottom: 40),
+        body: Stack(children: <Widget>[
+          Positioned(
+            left: 370,
+            top: 45,
             child: FloatingActionButton(
               onPressed: () {
-                print(1);
+                print(position);
               },
               backgroundColor: Colors.blue,
               child: Icon(
@@ -88,9 +98,47 @@ class _GamePageState extends State<GamePage> {
           Center(
             child: CustomPaint(
               painter: Painter(),
-              size: Size(675, 675),
+              size: Size(750, 750),
             ),
           ),
+          Positioned(
+              left: position.dx,
+              top: position.dy,
+              child: Center(
+                child: Draggable(
+                  feedback: Container(
+                    width: boxWidth,
+                    height: boxHeight,
+                    color: Color.fromARGB(255, 0, 109, 42).withOpacity(0.5),
+                  ),
+                  child: AnimatedContainer(
+                    duration: Duration(seconds: 1),
+                    color: Color.fromARGB(255, 172, 63, 235),
+                    height: boxHeight,
+                    width: boxWidth,
+                  ),
+                  onDraggableCanceled: (velocity, offset) {
+                    setState(() {
+                      position = setTile(offset);
+                    });
+                  },
+                ),
+              )),
+          Positioned(
+            left: 370,
+            bottom: 45,
+            child: FloatingActionButton(
+              onPressed: () {
+                print(position);
+              },
+              backgroundColor: Color.fromARGB(255, 243, 33, 33),
+              child: Icon(
+                Icons.abc,
+                color: Color.fromARGB(255, 184, 187, 173),
+                size: 25,
+              ),
+            ),
+          )
         ]));
   }
 }
