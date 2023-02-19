@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 class GameButton extends StatelessWidget {
   final String name;
   final void Function() route;
-  const GameButton({required this.name, required this.route});
+  final bool isButtonDisabled;
+  final double padding;
+  const GameButton(
+      {required this.name, required this.route, required this.padding, this.isButtonDisabled = false});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32.0),
+      padding: EdgeInsets.all(padding),
       child: MaterialButton(
         height: 40,
-        onPressed: this.route,
+        onPressed: isButtonDisabled ? null : route,
         color: Colors.blue,
         textColor: Colors.white,
         child: Text(this.name),

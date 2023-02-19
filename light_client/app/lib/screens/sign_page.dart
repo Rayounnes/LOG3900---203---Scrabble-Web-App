@@ -43,7 +43,7 @@ class _SignUpState extends State<SignUp> {
             duration: Duration(seconds: 3),
             content: Text("Votre compte a été créé avec succés")),
       );
-      Navigator.pushNamed(context, '/homeScreen');
+      Navigator.pushNamed(context, '/gameChoicesScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

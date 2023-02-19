@@ -37,7 +37,7 @@ class _LoginDemoState extends State<LoginDemo> {
         "username": username,
         "socketId": getIt<SocketService>().socketId
       });
-      Navigator.pushNamed(context, '/homeScreen');
+      Navigator.pushNamed(context, '/gameChoicesScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

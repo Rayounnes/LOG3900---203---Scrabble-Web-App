@@ -6,7 +6,13 @@ class Dictionary {
 
   Map toJson() => {
         'title': title,
-        'filename': fileName,
+        'fileName': fileName,
       };
 
+  factory Dictionary.fromJson(Map<String, dynamic> json) {
+    return Dictionary(
+      title: json['title'],
+      fileName: json['fileName'],
+    );
+  }
 }

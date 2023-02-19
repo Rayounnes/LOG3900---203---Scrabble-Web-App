@@ -1,6 +1,8 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
 import 'package:app/screens/channels_page.dart';
+import 'package:app/screens/join_game.dart';
+import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/button.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +25,9 @@ class _GameChoicesState extends State<GameChoices> {
       time: 60,
       mode: CLASSIC_MODE,
       type: GAME_TYPE,
-      dictionnary: FRENCH_DICTIONNARY);
+      dictionary: FRENCH_DICTIONNARY);
 
-  String dictionnary = "Francais";
+  String dictionary = "Francais";
   List<DropdownMenuItem<String>> dictionnaries = [
     DropdownMenuItem(child: Text("Francais"), value: "Francais"),
     DropdownMenuItem(child: Text("Anglais"), value: "Anglais"),
@@ -34,9 +36,12 @@ class _GameChoicesState extends State<GameChoices> {
   createGame() {
     if (!_formKey.currentState!.validate()) return;
     game.time = int.parse(timeController.text);
-    game.dictionnary =
-        dictionnary == "Francais" ? FRENCH_DICTIONNARY : ENGLISH_DICTIONNARY;
+    game.dictionary =
+        dictionary == "Francais" ? FRENCH_DICTIONNARY : ENGLISH_DICTIONNARY;
     getIt<SocketService>().send('create-game', game);
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return WaitingRoom();
+    }));
   }
 
   @override
@@ -75,16 +80,18 @@ class _GameChoicesState extends State<GameChoices> {
               ),
               SizedBox(height: 16.0),
               GameButton(
+                  padding: 32.0,
                   name: "Créer une partie",
                   route: () {
                     showModal(context);
                   }),
               GameButton(
+                  padding: 32.0,
                   name: "Rejoindre une partie",
                   route: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return GameChoices();
+                      return JoinGames();
                     }));
                   }),
             ],
@@ -145,10 +152,10 @@ class _GameChoicesState extends State<GameChoices> {
                 DropdownButtonFormField(
                     validator: (value) =>
                         value == null ? "Select a country" : null,
-                    value: dictionnary,
+                    value: dictionary,
                     onChanged: (String? newValue) {
                       setState(() {
-                        dictionnary = newValue!;
+                        dictionary = newValue!;
                       });
                     },
                     items: dictionnaries),

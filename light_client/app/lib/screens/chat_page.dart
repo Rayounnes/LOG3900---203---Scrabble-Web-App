@@ -26,7 +26,7 @@ class _ChatPageState extends State<ChatPage> {
   void handleSockets() {
     getIt<SocketService>().on("chatMessage", (chatMessage) {
       try {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             messages.add(ChatMessage.fromJson(chatMessage));
             scrollDown();

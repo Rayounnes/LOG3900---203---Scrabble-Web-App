@@ -43,7 +43,7 @@ class SocketService {
     print("disconnected Socket");
   }
 
-  void send(String event, dynamic data) {
+  void send(String event, [dynamic data]) {
     if (data != null) {
       socket.emit(event, data);
     } else {
@@ -56,7 +56,7 @@ class SocketService {
   }
 
   bool isSocketAlive() {
-        return socket.id != null && socket.connected;
+    return socket.id != null && socket.connected;
   }
 
   void on(String event, dynamic Function(dynamic) action) {
