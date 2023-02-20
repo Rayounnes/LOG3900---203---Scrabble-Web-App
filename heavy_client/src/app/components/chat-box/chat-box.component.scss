@@ -34,18 +34,6 @@
     max-width: 30em;
 }
 
-/* .channels{
-    width: 400px;
-    background-color: #373636;
-    height: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    overflow-y: auto;
-    scrollbar-width: thin;
-} */
-
 
 .channels{
     width: 400px;
@@ -111,7 +99,7 @@
 .icondiv{
     width: 30%;
     height: 100%;
-    cursor: pointer;
+    
     display: flex;
     justify-content: space-evenly;
     align-content: center;
@@ -175,20 +163,53 @@ li {
 }
 
 .svg-icon {
-    width: 1em;
-    height: 1em;
+    width: 1.2em;
+    height: 1.2em;
     margin-left: 2%;
     margin-right: 2%;
     display: block;
+    cursor: pointer;
 }
+
+.svg-icon-add{
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 2%;
+    margin-right: 2%;
+    display: block;
+    cursor: pointer;
+
+}
+
+
   
 .svg-icon path,
 .svg-icon polygon,
-.svg-icon rect {
+.svg-icon rect,
+.svg-icon-add path,
+.svg-icon-add polygon,
+.svg-icon-add rect {
 fill: white;
 }
   
-.svg-icon circle {
+.svg-icon circle,
+.svg-icon-add circle {
 stroke: white;
 stroke-width: 1;
+}
+
+.mat-input-element {/* 
+    font: inherit; */
+    font-family: 'Times New Roman', Times, serif;
+    background: #ff000000;
+    color: white;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    width: 80%;
+    max-width: 100%;
+    vertical-align: bottom;
+    text-align: inherit;
+    box-sizing: content-box;
+    border-bottom: 1px dotted #bdb3b3
 }

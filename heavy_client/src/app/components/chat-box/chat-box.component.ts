@@ -34,6 +34,7 @@ export class ChatBoxComponent implements OnInit {
     writtenCommand = '';
     allUserChannels : any[] = [];
     currentChannel : string = "General";
+    searching : boolean  = false
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -297,6 +298,14 @@ export class ChatBoxComponent implements OnInit {
         }
         this.channels.nativeElement.scrollLeft -= 90
         
+    }
+
+    searchChannels(){
+        this.searching = !this.searching
+        if(!this.searching){
+            setTimeout(() => this.automaticScroll(), 1);
+            return;
+        }
     }
 
     getAllChannels(){
