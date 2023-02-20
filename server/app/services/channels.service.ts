@@ -5,6 +5,7 @@ import { DatabaseService } from './database.service';
 import types from '@app/types';
 import { DB_COLLECTION_CHANNEL } from '@app/constants/constants';
 import { DB_COLLECTION_USERS } from '@app/constants/constants';
+import { ChatMessage } from '@app/interfaces/chat-message';
 
 @injectable()
 @Service()
@@ -40,6 +41,19 @@ export class ChannelService{
 
     }
 
+    async addMessageToChannel(message : ChatMessage) {
+        let channelDocument = await this.channelCollection.findOne({name : message.channel});
+        
+        
+        if(channelDocument){
+            try{
+                await this.channelCollection.updateOne({_id: channelDocument["_id"]},{ $push: { messages: message } });
+                console.log("Message added to channel successfully!");
+            }catch (error) {
+                console.error("Error writing message to database: ", error);
+            }
+        }
+    }
 
 
 

@@ -303,9 +303,11 @@ export class ChatBoxComponent implements OnInit {
         this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
             this.allUserChannels = userChannels
             let channel : any;
-            for(channel in this.allUserChannels){
+            for(channel of this.allUserChannels){
                 if(channel['name'] == "General"){
                     this.chatMessages = channel['messages']
+                    this.chatMessages.shift()
+                    setTimeout(() => this.automaticScroll(), 1);
                     return;
                 }
             }

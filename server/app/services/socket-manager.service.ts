@@ -208,6 +208,7 @@ export class SocketManager {
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
             this.sio.to(message.channel as string).emit('chatMessage', message);
+            this.channelService.addMessageToChannel(message)
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
