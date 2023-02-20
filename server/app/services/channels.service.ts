@@ -61,6 +61,19 @@ export class ChannelService{
         }
     }
 
+    async createNewChannel(channelName : string, username : string){
+        let user = await this.userCollection.findOne({ username: username });
+        if(user){
+            console.log(user)
+            await this.userCollection.updateOne({_id : user["_id"]},{ $push: { channels: channelName } })
+        }
+
+        let newChannel = {name : channelName, isGameChannel : false, users : [], messages : []};
+        await this.channelCollection.insertOne(newChannel)
+        return newChannel
+
+    }
+
 
 
 

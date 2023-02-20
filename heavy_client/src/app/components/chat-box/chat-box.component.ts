@@ -177,7 +177,7 @@ export class ChatBoxComponent implements OnInit {
         });
         this.socketService.on('sendUsername', (uname: string) => {
             this.username = uname;
-            this.getAllChannels();
+            this.getUserChannels();
         });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
@@ -188,6 +188,9 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('end-game', () => {
             this.isGameFinished = true;
         });
+        this.socketService.on('channel-created',(newChannel)=>{
+            this.allUserChannels.push(newChannel)
+        })
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);
@@ -332,26 +335,27 @@ export class ChatBoxComponent implements OnInit {
         startWith(null),
         debounceTime(200),
         switchMap((res: string) => {
-            let newChannelsList : any = [];
-          if (!res) {
-            newChannelsList = this.allChannelsNames.map((name) =>{
-                if(this.userChannelsNames.includes(name)){
-                    return name;
-                }
-                return null;
-            }).filter((name) =>{
-                name !== null;
-            })
-            return of(newChannelsList);
-          }
-          
-          for(let channel of this.allChannelsNames){
-            if(channel.includes(res.toString())){
-              newChannelsList.push(channel)
+            let newChannelsList : string[] = [];
+            if (!res) {
+                newChannelsList = this.allChannelsNames.map((name) =>{
+                    if(this.userChannelsNames.indexOf(name) == -1){
+                        return name;
+                    }
+                    return ""
+                }).filter((channel)=>
+                    channel !== ""
+                )
+                
+                return of(newChannelsList);
             }
-          }
-          this.currentSearch = res
-          return of(newChannelsList)
+          
+            for(let channel of this.allChannelsNames){
+                if(channel.includes(res.toString()) && this.userChannelsNames.indexOf(channel) == -1){
+                newChannelsList.push(channel)
+                }
+            }
+            this.currentSearch = res
+            return of(newChannelsList)
     
         })
     );
@@ -364,15 +368,24 @@ export class ChatBoxComponent implements OnInit {
     }
 
     addChannels(){
-        if(this.channelsControl.value?.length > 0){
+        if(this.channelsControl.value?.length > 0){ // Si l'utilisateur veut juste rejoindre des channels deja existants
             console.log("ici")
-        }else{
-            console.log("Labas")
-            console.log(this.currentSearch)
+            return;
         }
+        //Si l'utilisateur veut créé son propre channel
+        if(this.currentSearch.length == 0 || this.userChannelsNames.indexOf(this.currentSearch) != -1){
+            return;
+        }
+        console.log("envoie 1 du client ")
+        this.socketService.send('channel-creation',this.currentSearch);
+        this.currentSearch = "";
+        this.searching = false;
+        setTimeout(() => this.automaticScroll(), 1);
+        return;
+        
     }
 
-    getAllChannels(){
+    getUserChannels(){
         this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
             this.allUserChannels = userChannels
             let channel : any;
