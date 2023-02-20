@@ -36,6 +36,7 @@ import { DictionaryComponent } from './components/dictionary/dictionary.componen
 import { MatTabsModule } from '@angular/material/tabs';
 import { ConnexionPageComponent } from './components/connexion-page/connexion-page.component';
 import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototype.component';
+import {MatListModule} from '@angular/material/list';
 
 /**
  * Main module that is used in main.ts.
@@ -84,6 +85,7 @@ import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototy
         MatCardModule,
         MatDialogModule,
         MatTabsModule,
+        MatListModule
     ],
     providers: [],
     bootstrap: [AppComponent],

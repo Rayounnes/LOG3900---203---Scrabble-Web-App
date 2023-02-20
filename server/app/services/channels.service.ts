@@ -41,6 +41,12 @@ export class ChannelService{
 
     }
 
+    async getAllChannels(){
+        let allChannels = await this.channelCollection.find().toArray();
+        let allChannelsName = allChannels.map((obj) => obj.name)
+        return allChannelsName
+    }
+
     async addMessageToChannel(message : ChatMessage) {
         let channelDocument = await this.channelCollection.findOne({name : message.channel});
         

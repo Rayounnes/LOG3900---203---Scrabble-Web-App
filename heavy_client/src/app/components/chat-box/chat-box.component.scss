@@ -108,7 +108,7 @@
     overflow: hidden;
 }
 
-#messagesBox {
+.messagesBox {
     background-color: rgb(55, 54, 54);
     width: 400px;
     height: 350px;
@@ -212,4 +212,20 @@ stroke-width: 1;
     text-align: inherit;
     box-sizing: content-box;
     border-bottom: 1px dotted #bdb3b3
+}
+
+.mat-selection-list{
+    background-color: rgb(55, 54, 54);
+    width: 400px;
+    height: 350px;
+    border: 1px solid black;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-wrap:break-word;
+    white-space:normal;
+    border-radius: 10px;
+}
+
+.hint{
+    color: #b5b5b5;
 }

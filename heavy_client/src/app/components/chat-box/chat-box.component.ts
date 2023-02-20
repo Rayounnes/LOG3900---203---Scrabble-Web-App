@@ -8,6 +8,9 @@ import { Letter } from '@app/interfaces/letter';
 import { Placement } from '@app/interfaces/placement';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { CommunicationService } from '@app/services/communication.service';
+import { FormControl } from '@angular/forms';
+import { debounceTime, switchMap, startWith } from "rxjs/operators";
+import { of } from "rxjs";
 
 
 
@@ -32,9 +35,16 @@ export class ChatBoxComponent implements OnInit {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
+    
+
     allUserChannels : any[] = [];
     currentChannel : string = "General";
-    searching : boolean  = false
+    searching : boolean  = false;
+    search = new FormControl();
+    currentSearch : string = "";
+    userChannelsNames : string[] = [];
+    allChannelsNames : string[] = [];
+    channelsControl = new FormControl();
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -305,6 +315,60 @@ export class ChatBoxComponent implements OnInit {
         if(!this.searching){
             setTimeout(() => this.automaticScroll(), 1);
             return;
+        }
+        this.setupSearchArrays();
+    }
+
+    async setupSearchArrays(){
+        for(let channel of this.allUserChannels){
+            this.userChannelsNames.push(channel.name)
+        }
+        await this.communicationService.getAllChannels().subscribe((allChannelsNames : any) =>{
+            this.allChannelsNames = allChannelsNames
+        })
+    }
+
+    $search = this.search.valueChanges.pipe(
+        startWith(null),
+        debounceTime(200),
+        switchMap((res: string) => {
+            let newChannelsList : any = [];
+          if (!res) {
+            newChannelsList = this.allChannelsNames.map((name) =>{
+                if(this.userChannelsNames.includes(name)){
+                    return name;
+                }
+                return null;
+            }).filter((name) =>{
+                name !== null;
+            })
+            return of(newChannelsList);
+          }
+          
+          for(let channel of this.allChannelsNames){
+            if(channel.includes(res.toString())){
+              newChannelsList.push(channel)
+            }
+          }
+          this.currentSearch = res
+          return of(newChannelsList)
+    
+        })
+    );
+
+    selectionChange(option: any) {
+    let value = this.channelsControl.value || [];
+    if (option.selected) value.push(option.value);
+    else value = value.filter((x: any) => x != option.value);
+    this.channelsControl.setValue(value);
+    }
+
+    addChannels(){
+        if(this.channelsControl.value?.length > 0){
+            console.log("ici")
+        }else{
+            console.log("Labas")
+            console.log(this.currentSearch)
         }
     }
 

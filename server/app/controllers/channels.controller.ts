@@ -28,6 +28,12 @@ export class ChannelController{
             })
         });
 
+        this.router.get('/allchannels', async (req: Request, res: Response, next): Promise<void> => {
+            this.channelService.getAllChannels().then((allChannelsName)=>{
+                res.send(allChannelsName);
+            })
+        });
+
         
     }
 

@@ -138,6 +138,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<void>('channelsGetError')))
     }
 
+    getAllChannels() : Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/channels/allchannels`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

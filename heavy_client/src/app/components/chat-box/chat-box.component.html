@@ -40,14 +40,14 @@
         </div>
 
         <div class="allChannels" *ngIf="searching">
-            <input matInput #searchChannel>
-            <svg class="svg-icon-add" viewBox="0 0 20 20">
+            <input matInput #searchChannel [formControl]="search">
+            <svg class="svg-icon-add" viewBox="0 0 20 20" (click)="addChannels()">
                 <path d="M14.613,10c0,0.23-0.188,0.419-0.419,0.419H10.42v3.774c0,0.23-0.189,0.42-0.42,0.42s-0.419-0.189-0.419-0.42v-3.774H5.806c-0.23,0-0.419-0.189-0.419-0.419s0.189-0.419,0.419-0.419h3.775V5.806c0-0.23,0.189-0.419,0.419-0.419s0.42,0.189,0.42,0.419v3.775h3.774C14.425,9.581,14.613,9.77,14.613,10 M17.969,10c0,4.401-3.567,7.969-7.969,7.969c-4.402,0-7.969-3.567-7.969-7.969c0-4.402,3.567-7.969,7.969-7.969C14.401,2.031,17.969,5.598,17.969,10 M17.13,10c0-3.932-3.198-7.13-7.13-7.13S2.87,6.068,2.87,10c0,3.933,3.198,7.13,7.13,7.13S17.13,13.933,17.13,10"></path>
             </svg>
         </div>
         
     </div>
-<div id="messagesBox" #scrollMessages *ngIf="!searching">
+<div class="messagesBox" #scrollMessages *ngIf="!searching">
     
     <ul>
         <li
@@ -63,6 +63,20 @@
         </li>
     </ul>
 </div>
+
+<div class="messageBox" *ngIf="searching">
+    
+    <mat-selection-list  (selectionChange)="selectionChange($event.option)" >
+        <span class="hint"><em>Select channels to join and press "+". If you want to create a new channel, type the name and press "+"</em></span>  
+        <mat-list-option  *ngFor="let channel of $search|async" [value]="channel" [selected]="channelsControl.value &&channelsControl.value?.indexOf(channel)>=0">
+    
+            <span class="hint">{{channel}}</span>
+            
+        </mat-list-option>
+    </mat-selection-list>
+
+</div>
+
 <input
     type="text"
     placeholder="Écrivez un message"
