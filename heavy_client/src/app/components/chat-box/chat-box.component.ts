@@ -390,6 +390,20 @@ export class ChatBoxComponent implements OnInit {
         
     }
 
+    changeChannel(newChannel : string){
+        if(newChannel != this.currentChannel){
+            this.currentChannel = newChannel
+            let channel : any;
+            for(channel of this.allUserChannels){
+                if(channel['name'] == newChannel){
+                    this.chatMessages = channel['messages']
+                    setTimeout(() => this.automaticScroll(), 1);
+                    return;
+                }
+            }
+        }
+    }
+
     getUserChannels(){
         this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
             this.allUserChannels = userChannels
@@ -397,6 +411,7 @@ export class ChatBoxComponent implements OnInit {
             for(channel of this.allUserChannels){
                 if(channel['name'] == "General"){
                     this.chatMessages = channel['messages']
+                    if(channel.messages[0].length == 0)
                     this.chatMessages.shift()
                     setTimeout(() => this.automaticScroll(), 1);
                     return;
