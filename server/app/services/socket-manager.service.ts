@@ -344,6 +344,18 @@ export class SocketManager {
         }
     }
 
+    async userJoinNewChannels(socket : io.Socket){
+        socket.on('join-channel', async (channelNames) =>{
+            let username = this.usernames.get(socket.id);
+            await this.channelService.joinExistingChannels(channelNames,username as string);
+            for(let channel of channelNames){
+                socket.join(channel)
+            }
+            this.sio.to(socket.id).emit('channels-joined');
+
+        })
+    }
+
     userCreateChannel(socket : io.Socket){
         socket.on('channel-creation', async (channelName : string) =>{
             let username = this.usernames.get(socket.id);
@@ -380,7 +392,8 @@ export class SocketManager {
             this.endGameHandler(socket);
             this.userConnectionHandler(socket);
             this.userDisconnectHandler(socket);
-            this.userCreateChannel(socket)
+            this.userCreateChannel(socket);
+            this.userJoinNewChannels(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

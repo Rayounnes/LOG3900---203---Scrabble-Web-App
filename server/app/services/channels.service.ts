@@ -74,6 +74,15 @@ export class ChannelService{
 
     }
 
+    async joinExistingChannels(channelsNames : string[], username : string){
+        let user = await this.userCollection.findOne({ username: username });
+        if(user){
+            for(let channelName of channelsNames){
+                await this.userCollection.updateOne({_id : user["_id"]},{ $push: { channels: channelName } })
+            }
+        }
+    }
+
 
 
 

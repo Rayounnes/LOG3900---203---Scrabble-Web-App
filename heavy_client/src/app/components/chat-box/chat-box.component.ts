@@ -191,6 +191,9 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('channel-created',(newChannel)=>{
             this.allUserChannels.push(newChannel)
         })
+        this.socketService.on('channels-joined',()=>{
+            this.getUserChannels();
+        })
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);
@@ -369,7 +372,9 @@ export class ChatBoxComponent implements OnInit {
 
     addChannels(){
         if(this.channelsControl.value?.length > 0){ // Si l'utilisateur veut juste rejoindre des channels deja existants
-            console.log("ici")
+            this.socketService.send('join-channel',this.channelsControl.value);
+            this.currentSearch = "";
+            this.searching = false;
             return;
         }
         //Si l'utilisateur veut créé son propre channel
