@@ -7,6 +7,9 @@ import { GridService } from '@app/services/grid.service';
 import { Letter } from '@app/interfaces/letter';
 import { Placement } from '@app/interfaces/placement';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
+import { CommunicationService } from '@app/services/communication.service';
+
+
 
 const GAME_COMMANDS: string[] = ['placer', 'échanger', 'passer'];
 const HELP_COMMANDS: string[] = ['indice', 'réserve', 'aide'];
@@ -37,6 +40,7 @@ export class ChatBoxComponent implements OnInit {
         public gridService: GridService,
         public arg: ArgumentManagementService,
         public keyboardService: KeyboardManagementService,
+        private communicationService : CommunicationService
     ) {}
     automaticScroll() {
         this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -47,6 +51,7 @@ export class ChatBoxComponent implements OnInit {
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
+        
     }
     verifyPlaceSocket() {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -152,6 +157,7 @@ export class ChatBoxComponent implements OnInit {
         });
         this.socketService.on('sendUsername', (uname: string) => {
             this.username = uname;
+            this.getAllChannels();
         });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
@@ -281,6 +287,12 @@ export class ChatBoxComponent implements OnInit {
         }
         this.channels.nativeElement.scrollLeft -= 90
         
+    }
+
+    getAllChannels(){
+        this.communicationService.getUserChannels(this.username).subscribe(() : void =>{
+            console.log("http return")
+        })
     }
 
 }

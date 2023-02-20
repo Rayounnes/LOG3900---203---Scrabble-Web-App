@@ -52,7 +52,7 @@ export class ConnexionPageComponent implements OnInit {
     this.communicationService.accountCreation(loginInfos).subscribe((accountCreationValid) : void =>{
       if(accountCreationValid){
         this.connected = true;
-        this.router.navigate(['chatproto']);
+        this.router.navigate(['home']);
         this.socketService.send("user-connection",{username :this.username,socketId : this.socketService.socketId});
       }else{
         this._snackBar.open("Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.","Fermer")

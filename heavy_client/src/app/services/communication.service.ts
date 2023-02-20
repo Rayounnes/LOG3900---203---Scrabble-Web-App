@@ -130,6 +130,15 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
 
+    /** ************** chat channels methods *******************************/
+
+
+    getUserChannels(username : string) : Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/api/channels/channel/${username}`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
+
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
     }
