@@ -79,12 +79,33 @@
 
 
 .channel{
-    display: block;
+    display: flex;
     height: 100%;
     width: 33% !important;
-    background-color: #c7c7c7;
+    background-color: #4c4c4c;
     border-radius: 10px;
     cursor: pointer;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.activeChannel{
+    display: flex;
+    height: 100%;
+    width: 33% !important;
+    background-color: #018d20;
+    border-radius: 10px;
+    cursor: pointer;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#channel-name{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: larger;
+    color: antiquewhite;
 }
 
 .icondiv{

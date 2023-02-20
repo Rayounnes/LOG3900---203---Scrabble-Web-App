@@ -16,6 +16,7 @@ import { Dictionary } from '@app/interfaces/dictionary';
 import { LoginService } from './login.service';
 import { DatabaseService } from './database.service';
 import { ChatMessage } from '@app/interfaces/chat-message';
+import { ChannelService } from './channels.service';
 
 
 export class SocketManager {
@@ -29,12 +30,14 @@ export class SocketManager {
     private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
     private loginService : LoginService;
+    private channelService : ChannelService;
 
     constructor(server: http.Server, private databaseService : DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         this.roomName = 'room' + this.roomIncrement;
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
         this.loginService = new LoginService(this.databaseService);
+        this.channelService = new ChannelService(this.databaseService)
     }
     changeRoomName() {
         this.roomIncrement++;
@@ -204,8 +207,7 @@ export class SocketManager {
             //const room = this.usersRoom.get(socket.id) as string;
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
-            console.log(message);
-            this.sio.emit('chatMessage', message);
+            this.sio.to(message.channel as string).emit('chatMessage', message);
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
@@ -317,6 +319,7 @@ export class SocketManager {
     userConnectionHandler(socket: io.Socket){
         socket.on('user-connection', (loginInfos) => {
             this.usernames.set(loginInfos.socketId,loginInfos.username);
+            this.userJoinChannels(socket)
         });
     }
 
@@ -328,6 +331,16 @@ export class SocketManager {
                 this.loginService.changeConnectionState(username,false)
             }
         });
+    }
+
+    async userJoinChannels(socket : io.Socket){
+        let username = this.usernames.get(socket.id);
+        if(username){
+            let channels = await this.channelService.getUserChannelsName(username)
+            for(let channel of channels){
+                socket.join(channel);
+            }
+        }
     }
 
 

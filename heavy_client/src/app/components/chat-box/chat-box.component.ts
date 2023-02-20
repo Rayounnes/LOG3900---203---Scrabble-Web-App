@@ -33,7 +33,7 @@ export class ChatBoxComponent implements OnInit {
     isGameFinished = false;
     writtenCommand = '';
     allUserChannels : any[] = [];
-    currentChannel : string = "";
+    currentChannel : string = "General";
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -152,7 +152,16 @@ export class ChatBoxComponent implements OnInit {
         this.validatePlaceSockets();
         this.gameCommandSockets();
         this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
-            this.chatMessages.push(chatMessage);
+            let channel : any;
+            for(channel of this.allUserChannels){
+                if(channel['name'] == chatMessage.channel){
+                    channel.messages.push(chatMessage)
+                    if(channel.messages[0].length == 0)
+                    channel.messages.shift()
+                    if(channel['name'] == this.currentChannel)
+                    this.chatMessages = channel.messages
+                }
+            }
             setTimeout(() => this.automaticScroll(), 1);
         });
         this.socketService.on('sendUsername', (uname: string) => {
@@ -275,6 +284,7 @@ export class ChatBoxComponent implements OnInit {
             message: this.chatMessage,
             time: new Date().toTimeString().split(' ')[0],
             type: 'player',
+            channel : this.currentChannel
         };
         this.socketService.send('chatMessage', message);
         this.chatMessage = '';
@@ -290,8 +300,15 @@ export class ChatBoxComponent implements OnInit {
     }
 
     getAllChannels(){
-        this.communicationService.getUserChannels(this.username).subscribe(() : void =>{
-            console.log("http return")
+        this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
+            this.allUserChannels = userChannels
+            let channel : any;
+            for(channel in this.allUserChannels){
+                if(channel['name'] == "General"){
+                    this.chatMessages = channel['messages']
+                    return;
+                }
+            }
         })
     }
 

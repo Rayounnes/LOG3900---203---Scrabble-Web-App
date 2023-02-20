@@ -121,7 +121,7 @@ export class CommunicationService {
     }
 
     userLogout(username : string) : Observable<void>{
-        return this.http.post<void>(`${this.baseUrl}/user/disconnect/${username}`, {})
+        return this.http.post<void>(`${this.baseUrl}/api/login/user/disconnect/${username}`, {})
         .pipe(catchError(this.handleError<void>('logoutError')))
     }
 

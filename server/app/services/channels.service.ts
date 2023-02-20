@@ -20,7 +20,7 @@ export class ChannelService{
         return this.databaseService.database.collection(DB_COLLECTION_USERS);
     }
 
-    private async getUserChannelsName(username : string){
+    async getUserChannelsName(username : string){
 
         let document = await this.userCollection.findOne({ username: username });
         if(document){
@@ -30,11 +30,12 @@ export class ChannelService{
         
     }
 
-    async getUserChannels(username : string){
-        this.getUserChannelsName(username).then((userChannelsName) =>{
-            console.log(userChannelsName)
-            return this.channelCollection.find({name : { $in : userChannelsName }}).toArray()
+    async getUserChannels(username : string) : Promise<any[]>{
+        let userChannels : any[] = []
+        await this.getUserChannelsName(username).then(async (userChannelsName) =>{
+            userChannels = await this.channelCollection.find({name : { $in : userChannelsName }}).toArray()
         });
+        return userChannels
         
 
     }
