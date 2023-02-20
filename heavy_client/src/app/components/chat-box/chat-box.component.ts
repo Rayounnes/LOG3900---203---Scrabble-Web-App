@@ -169,8 +169,12 @@ export class ChatBoxComponent implements OnInit {
                     channel.messages.push(chatMessage)
                     if(channel.messages[0].length == 0)
                     channel.messages.shift()
-                    if(channel['name'] == this.currentChannel)
-                    this.chatMessages = channel.messages
+                    if(channel['name'] == this.currentChannel){
+                        this.chatMessages = channel.messages
+                    }else{
+                        channel['unread'] = true
+                    }
+                    
                 }
             }
             setTimeout(() => this.automaticScroll(), 1);
@@ -188,7 +192,8 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('end-game', () => {
             this.isGameFinished = true;
         });
-        this.socketService.on('channel-created',(newChannel)=>{
+        this.socketService.on('channel-created',(newChannel : any)=>{
+            newChannel['unread'] = false;
             this.allUserChannels.push(newChannel)
         })
         this.socketService.on('channels-joined',()=>{
@@ -398,6 +403,7 @@ export class ChatBoxComponent implements OnInit {
                 if(channel['name'] == newChannel){
                     this.chatMessages = channel['messages']
                     setTimeout(() => this.automaticScroll(), 1);
+                    channel['unread'] = false;
                     return;
                 }
             }
@@ -416,6 +422,7 @@ export class ChatBoxComponent implements OnInit {
                     setTimeout(() => this.automaticScroll(), 1);
                     return;
                 }
+                channel['unread'] = false;
             }
         })
     }
