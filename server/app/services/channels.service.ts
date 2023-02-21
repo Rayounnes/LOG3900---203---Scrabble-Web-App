@@ -83,6 +83,16 @@ export class ChannelService{
         }
     }
 
+    async leaveChannel(channelName : string, username : string){
+        let user = await this.userCollection.findOne({ username: username });
+        if(user){
+            let currentChannels = user["channels"] as string[]
+            let index = currentChannels.indexOf(channelName)
+            currentChannels.splice(index,1);
+            await this.userCollection.updateOne({_id : user["_id"]},{ $set: { channels: currentChannels } })
+        }
+    }
+
 
 
 

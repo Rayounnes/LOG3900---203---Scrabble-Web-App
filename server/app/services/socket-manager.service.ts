@@ -365,6 +365,14 @@ export class SocketManager {
         });
     }
 
+    userLeaveChannel(socket : io.Socket){
+        socket.on('leave-channel', async (channelName : string) =>{
+            let username = this.usernames.get(socket.id);
+            await this.channelService.leaveChannel(channelName,username as string);
+            this.sio.to(socket.id).emit("leave-channel");
+        })
+    }
+
 
 
     handleSockets(): void {
@@ -394,6 +402,7 @@ export class SocketManager {
             this.userDisconnectHandler(socket);
             this.userCreateChannel(socket);
             this.userJoinNewChannels(socket);
+            this.userLeaveChannel(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

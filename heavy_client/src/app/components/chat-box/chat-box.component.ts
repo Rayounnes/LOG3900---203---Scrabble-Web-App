@@ -199,6 +199,10 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('channels-joined',()=>{
             this.getUserChannels();
         })
+        this.socketService.on('leave-channel',()=>{
+            this.getUserChannels();
+        })
+
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);
@@ -331,6 +335,7 @@ export class ChatBoxComponent implements OnInit {
     }
 
     async setupSearchArrays(){
+        this.userChannelsNames = []
         for(let channel of this.allUserChannels){
             this.userChannelsNames.push(channel.name)
         }
@@ -410,9 +415,14 @@ export class ChatBoxComponent implements OnInit {
         }
     }
 
+    leaveChannel(){
+        this.socketService.send('leave-channel',this.currentChannel);
+    }
+
     getUserChannels(){
         this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
             this.allUserChannels = userChannels
+            this.currentChannel = "General"
             let channel : any;
             for(channel of this.allUserChannels){
                 if(channel['name'] == "General"){
