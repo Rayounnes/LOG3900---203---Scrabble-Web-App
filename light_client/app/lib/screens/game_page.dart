@@ -85,7 +85,7 @@ class _GamePageState extends State<GamePage> {
             top: 45,
             child: FloatingActionButton(
               onPressed: () {
-                print(position);
+                print(position.dx);
               },
               backgroundColor: Colors.blue,
               child: Icon(

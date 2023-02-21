@@ -47,7 +47,10 @@ class TilePlacement {
       if (point < axis[i]) {
         res = axis[i - 1];
         break;
+      } else {
+        res = axis[i - 1];
       }
+      // Il faut vérifier lorsque le placement est à droite et en bas
     }
     return res;
   }
