@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/gameScreen',
+      initialRoute: '/loginScreen',
       routes: {
         '/loginScreen': (context) => LoginDemo(),
         '/homeScreen': (context) => HomePage(),

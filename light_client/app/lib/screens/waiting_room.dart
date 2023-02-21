@@ -2,6 +2,7 @@ import 'package:app/constants/constants.dart';
 import 'package:app/main.dart';
 import 'package:app/models/game.dart';
 import 'package:app/screens/game_modes_page.dart';
+import 'package:app/screens/game_page.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/button.dart';
@@ -82,7 +83,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
       });
     });
     getIt<SocketService>().on('join-game', (_) {
-      // this.router.navigate([`/game/${this.mode}`]);
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return GamePage();
+      }));
     });
   }
 
@@ -190,7 +193,6 @@ class _WaitingRoomState extends State<WaitingRoom> {
           ),
         ),
       ),
-    )
-    );
+    ));
   }
 }

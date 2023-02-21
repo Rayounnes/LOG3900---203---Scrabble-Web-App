@@ -1,5 +1,6 @@
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
@@ -206,7 +207,7 @@ class _GamePageState extends State<GamePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ParentWidget(child: Scaffold(
         appBar: AppBar(
           title: const Text(
             'Page de jeu',
@@ -218,6 +219,7 @@ class _GamePageState extends State<GamePage> {
             left: 370,
             top: 45,
             child: FloatingActionButton(
+              heroTag: "btn2",
               onPressed: () {
                 print(position.dx);
               },
@@ -275,6 +277,7 @@ class _GamePageState extends State<GamePage> {
             left: 370,
             bottom: 45,
             child: FloatingActionButton(
+              heroTag: "btn3",
               onPressed: () {
                 print(position);
               },
@@ -286,6 +289,6 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
           )
-        ]));
+        ])),);
   }
 }

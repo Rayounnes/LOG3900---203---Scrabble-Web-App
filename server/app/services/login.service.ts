@@ -18,7 +18,7 @@ export class LoginService {
         let isValid: boolean;
         let document = await this.userCollection.findOne({ username: loginInfos.username });
         if (document && document['password'] == loginInfos.password && !document['connected']) {
-            this.changeConnectionState(loginInfos.username, true);
+            // this.changeConnectionState(loginInfos.username, true);
             isValid = true;
         } else {
             isValid = false;
