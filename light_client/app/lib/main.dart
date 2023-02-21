@@ -34,7 +34,6 @@ class MyApp extends StatelessWidget {
         '/homeScreen': (context) => HomePage(),
         '/chatScreen': (context) => Channels(),
         '/gameChoicesScreen': (context) => GameModes(),
-        '/classicModeScreen': (context) => GameChoices(),
         '/signScreen': (context) => SignUp(),
       },
       theme: ThemeData(

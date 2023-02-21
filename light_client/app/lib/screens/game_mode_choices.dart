@@ -1,17 +1,17 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
-import 'package:app/screens/channels_page.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/button.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
-import 'package:app/services/api_service.dart';
 
 class GameChoices extends StatefulWidget {
-  const GameChoices({super.key});
+  final String modeName;
+  const GameChoices({super.key, required this.modeName});
 
   @override
   State<GameChoices> createState() => _GameChoicesState();
@@ -46,55 +46,58 @@ class _GameChoicesState extends State<GameChoices> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue[200],
-        title: Text(
-          "Mode de jeu Classique",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-        ),
-      ),
-      backgroundColor: Colors.blueGrey,
-      body: Center(
-        child: Container(
-          height: 500,
-          width: 500,
-          decoration: BoxDecoration(
-            color: Colors.blue[200],
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              width: 1,
-              color: Colors.grey,
-            ),
+    return ParentWidget(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.blue[200],
+          title: Text(
+            "Mode de jeu ${widget.modeName}",
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 60.0),
-                child: Text('Mode de jeu classique',
-                    style: TextStyle(
-                      fontSize: 23,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
-                    )),
+        ),
+        backgroundColor: Colors.blueGrey,
+        body: Center(
+          child: Container(
+            height: 500,
+            width: 500,
+            decoration: BoxDecoration(
+              color: Colors.blue[200],
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                width: 1,
+                color: Colors.grey,
               ),
-              SizedBox(height: 16.0),
-              GameButton(
-                  padding: 32.0,
-                  name: "Créer une partie",
-                  route: () {
-                    showModal(context);
-                  }),
-              GameButton(
-                  padding: 32.0,
-                  name: "Rejoindre une partie",
-                  route: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return JoinGames();
-                    }));
-                  }),
-            ],
+            ),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child:
+                      Text('Créez ou rejoignez une partie ${widget.modeName}',
+                          style: TextStyle(
+                            fontSize: 23,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          )),
+                ),
+                SizedBox(height: 50.0),
+                GameButton(
+                    padding: 32.0,
+                    name: "Créer une partie",
+                    route: () {
+                      showModal(context);
+                    }),
+                GameButton(
+                    padding: 32.0,
+                    name: "Rejoindre une partie",
+                    route: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return JoinGames();
+                      }));
+                    }),
+              ],
+            ),
           ),
         ),
       ),
@@ -106,7 +109,7 @@ class _GameChoicesState extends State<GameChoices> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Créer une partie classique'),
+        title: Text('Créer une partie ${widget.modeName}'),
         content: Container(
           height: 400,
           child: Form(
@@ -150,8 +153,9 @@ class _GameChoicesState extends State<GameChoices> {
                   ),
                 ),
                 DropdownButtonFormField(
-                    validator: (value) =>
-                        value == null ? "Select a country" : null,
+                    validator: (value) => value == null
+                        ? "Veillez choisir un dictionnaire"
+                        : null,
                     value: dictionary,
                     onChanged: (String? newValue) {
                       setState(() {

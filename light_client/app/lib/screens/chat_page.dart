@@ -7,6 +7,9 @@ import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
 
 class ChatPage extends StatefulWidget {
+  final String discussion;
+  const ChatPage({super.key, required this.discussion});
+
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -16,6 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     handleSockets();
+    print(widget.discussion);
   }
 
   String username = getIt<UserInfos>().user;
@@ -36,7 +40,6 @@ class _ChatPageState extends State<ChatPage> {
         print(e);
       }
     });
-  
   }
 
   void sendMessage(String message) {
@@ -58,10 +61,10 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.lightBlue,
         title: Text(
-          "General",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          widget.discussion,
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
         ),
       ),
       body: Column(

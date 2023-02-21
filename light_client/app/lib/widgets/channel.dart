@@ -1,3 +1,4 @@
+import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:app/screens/chat_page.dart';
 
@@ -14,9 +15,11 @@ class _ChannelState extends State<Channel> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ChatPage();
-          }));
+          Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ChatPage(discussion: 'Discussion 1'),
+                ),
+              );
         },
         child: Container(
           decoration: BoxDecoration(
