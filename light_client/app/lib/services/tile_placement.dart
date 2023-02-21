@@ -1,3 +1,4 @@
+import 'package:app/constants/widgets.dart';
 import 'package:flutter/widgets.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:injectable/injectable.dart';
@@ -8,47 +9,47 @@ class TilePlacement {
   static final List<double> axisY = [];
   static final TilePlacement _instance = TilePlacement._internal();
 
-  static final TOP_BOARD = 225.0;
-  static final BOTTOM_BOARD = 975.0;
-  static final LEFT_BOARD = 25.0;
-  static final RIGHT_BOARD = 775.0;
-  static final tileSize = 50;
-  static final nbOfTile = 15;
-
   factory TilePlacement() {
-    for (int i = 0; i <= nbOfTile; i++) {
-      axisX.add(LEFT_BOARD + i * 50);
+    for (int i = 0; i <= NB_OF_TILE; i++) {
+      axisX.add(LEFT_BOARD_POSITION + i * 50);
     }
-    for (int j = 0; j <= nbOfTile; j++) {
-      axisY.add(TOP_BOARD + j * 50);
+    for (int j = 0; j <= NB_OF_TILE; j++) {
+      axisY.add(TOP_BOARD_POSITION + j * 50);
     }
     return _instance;
   }
 
   TilePlacement._internal();
 
-  Offset setTile(Offset position) {
+  Offset setTileOnBoard(Offset position, int tileID) {
     Offset tilePosition = findTileCenter(position);
     double dx = findTileInterval(axisX, tilePosition.dx);
     double dy = findTileInterval(axisY, tilePosition.dy);
-    print(dx);
-    print(dy);
+    tilePosition = Offset(dx, dy);
 
-    return Offset(dx, dy);
+    if (dx == 0 || dy == 0) {
+      tilePosition = setTileOnRack(tileID);
+    }
+
+    return tilePosition;
+  }
+
+  Offset setTileOnRack(int tileID) {
+    return Offset(RACK_START_AXISX + TILE_SIZE * tileID, RACK_START_AXISY);
   }
 
   Offset findTileCenter(Offset position) {
-    return Offset(position.dx + tileSize / 2, position.dy + tileSize / 2);
+    return Offset(position.dx + TILE_SIZE / 2, position.dy + TILE_SIZE / 2);
   }
 
   double findTileInterval(List<double> axis, double point) {
     double res = 0;
-    for (int i = 1; i <= nbOfTile; i++) {
+    for (int i = 1; i <= NB_OF_TILE; i++) {
       if (point < axis[i]) {
-        res = axis[i - 1];
+        res = point < axis[0] ? 0 : axis[i - 1];
         break;
       } else {
-        res = axis[i - 1];
+        res = 0;
       }
     }
     return res;
