@@ -342,6 +342,7 @@ export class ChatBoxComponent implements OnInit {
         await this.communicationService.getAllChannels().subscribe((allChannelsNames : any) =>{
             this.allChannelsNames = allChannelsNames
         })
+        this.channelsControl.setValue([]) 
     }
 
     $search = this.search.valueChanges.pipe(
@@ -417,6 +418,10 @@ export class ChatBoxComponent implements OnInit {
 
     leaveChannel(){
         this.socketService.send('leave-channel',this.currentChannel);
+    }
+
+    deleteChannel(){
+        this.socketService.send('delete-channel',this.currentChannel);
     }
 
     getUserChannels(){

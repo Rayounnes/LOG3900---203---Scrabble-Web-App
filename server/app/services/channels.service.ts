@@ -93,6 +93,15 @@ export class ChannelService{
         }
     }
 
+    async deleteChannel(channelName : string){
+        let users = await this.userCollection.find({channels : {$in : [channelName]}}).toArray() as any[]
+        for(let user of users){
+            await this.leaveChannel(channelName,user['username']);
+        }
+
+        await this.channelCollection.deleteOne({name : channelName});
+    }
+
 
 
 
