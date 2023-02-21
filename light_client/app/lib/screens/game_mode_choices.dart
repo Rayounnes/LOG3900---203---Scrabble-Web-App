@@ -33,6 +33,12 @@ class _GameChoicesState extends State<GameChoices> {
     DropdownMenuItem(child: Text("Anglais"), value: "Anglais"),
   ];
 
+@override
+void dispose() {
+  timeController.dispose();
+  super.dispose();
+}
+
   createGame() {
     if (!_formKey.currentState!.validate()) return;
     game.time = int.parse(timeController.text);

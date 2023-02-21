@@ -22,6 +22,13 @@ class _ChatPageState extends State<ChatPage> {
     print(widget.discussion);
   }
 
+  @override
+  void dispose() {
+    messageController.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
+
   String username = getIt<UserInfos>().user;
   List<ChatMessage> messages = [];
   final messageController = TextEditingController();

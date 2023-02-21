@@ -119,80 +119,82 @@ class _WaitingRoomState extends State<WaitingRoom> {
   Widget build(BuildContext context) {
     return ParentWidget(
         child: Scaffold(
-      backgroundColor: Colors.blueGrey,
-      body: Center(
-        child: Container(
-          height: 500,
-          width: 700,
-          decoration: BoxDecoration(
-            color: Colors.blue[200],
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              width: 1,
-              color: Colors.grey,
-            ),
-          ),
-          child: Column(
-            children: <Widget>[
-              if (isHost) ...[
-                TextPhrase(text: "Bienvenue $username "),
-                joinedUsername == ""
-                    ? TextPhrase(
-                        text: "Vous êtes en attente d'un deuxieme joueur")
-                    : TextPhrase(
-                        text: "Veuillez confirmer le joueur $joinedUsername"),
-              ] else if (isJoinedPlayer) ...[
-                userKicked
-                    ? TextPhrase(
-                        text:
-                            "Le joueur $hostUsername vous a rejeté de la partie ! De retour dans la liste des parties")
-                    : TextPhrase(
-                        text:
-                            "Bienvenue $joinedUsername, vous etes bien en attente du demarrage de la partie par $hostUsername")
-              ],
-              SizedBox(
-                height: 30,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GameButton(
-                    padding: 16.0,
-                    name: "Annuler",
-                    route: () {
-                      isHost ? cancelMatch() : cancelWaitingJoinedUser();
-                    },
-                    isButtonDisabled: false,
+            backgroundColor: Colors.blueGrey,
+            body: Center(
+              child: Container(
+                height: 500,
+                width: 700,
+                decoration: BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    width: 1,
+                    color: Colors.grey,
                   ),
-                  GameButton(
-                    padding: 16.0,
-                    name: "Accepter",
-                    route: () {
-                      confirmUser();
-                    },
-                    isButtonDisabled: isJoinedPlayer,
-                  ),
-                  GameButton(
-                    padding: 16.0,
-                    name: "Rejeter",
-                    route: () {
-                      kickUser();
-                    },
-                    isButtonDisabled: isJoinedPlayer,
-                  )
-                ],
+                ),
+                child: Column(
+                  children: <Widget>[
+                    if (isHost) ...[
+                      TextPhrase(text: "Bienvenue $username "),
+                      joinedUsername == ""
+                          ? TextPhrase(
+                              text: "Vous êtes en attente d'un deuxieme joueur")
+                          : TextPhrase(
+                              text:
+                                  "Veuillez confirmer le joueur $joinedUsername"),
+                    ] else if (isJoinedPlayer) ...[
+                      userKicked
+                          ? TextPhrase(
+                              text:
+                                  "Le joueur $hostUsername vous a rejeté de la partie ! De retour dans la liste des parties")
+                          : TextPhrase(
+                              text:
+                                  "Bienvenue $joinedUsername, vous etes bien en attente du demarrage de la partie par $hostUsername")
+                    ],
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GameButton(
+                          padding: 16.0,
+                          name: "Annuler",
+                          route: () {
+                            isHost ? cancelMatch() : cancelWaitingJoinedUser();
+                          },
+                          isButtonDisabled: false,
+                        ),
+                        GameButton(
+                          padding: 16.0,
+                          name: "Accepter",
+                          route: () {
+                            confirmUser();
+                          },
+                          isButtonDisabled: isJoinedPlayer,
+                        ),
+                        GameButton(
+                          padding: 16.0,
+                          name: "Rejeter",
+                          route: () {
+                            kickUser();
+                          },
+                          isButtonDisabled: isJoinedPlayer,
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    if ((joinedUsername == "" && isHost) || isJoinedPlayer) ...[
+                      SizedBox(
+                          height: 80,
+                          width: 80,
+                          child: CircularProgressIndicator())
+                    ]
+                  ],
+                ),
               ),
-              SizedBox(
-                height: 30,
-              ),
-              if ((joinedUsername == "" && isHost) || isJoinedPlayer) ...[
-                SizedBox(
-                    height: 80, width: 80, child: CircularProgressIndicator())
-              ]
-            ],
-          ),
-        ),
-      ),
-    ));
+            )));
   }
 }

@@ -15,8 +15,8 @@ final getIt = GetIt.instance;
 void setup() {
   getIt.registerSingleton<SocketService>(SocketService());
   getIt.registerSingleton<UserInfos>(UserInfos());
-  getIt<SocketService>().connect();
   getIt.registerSingleton<TilePlacement>(TilePlacement());
+  getIt<SocketService>().connect();
 }
 
 void main() {
