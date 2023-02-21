@@ -1,4 +1,4 @@
-import 'package:app/screens/game_mode_choices.dart';
+import 'package:app/screens/game_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_page.dart';
 import 'screens/channels_page.dart';
@@ -6,6 +6,7 @@ import 'screens/home_page.dart';
 import 'services/socket_client.dart';
 import 'package:get_it/get_it.dart';
 import 'screens/sign_page.dart';
+import 'services/tile_placement.dart';
 import 'services/user_infos.dart';
 import 'screens/game_modes_page.dart';
 
@@ -15,6 +16,7 @@ void setup() {
   getIt.registerSingleton<SocketService>(SocketService());
   getIt.registerSingleton<UserInfos>(UserInfos());
   getIt<SocketService>().connect();
+  getIt.registerSingleton<TilePlacement>(TilePlacement());
 }
 
 void main() {
@@ -28,13 +30,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/loginScreen',
+      initialRoute: '/gameScreen',
       routes: {
         '/loginScreen': (context) => LoginDemo(),
         '/homeScreen': (context) => HomePage(),
         '/chatScreen': (context) => Channels(),
         '/gameChoicesScreen': (context) => GameModes(),
         '/signScreen': (context) => SignUp(),
+        '/gameScreen': (context) => GamePage(),
       },
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
