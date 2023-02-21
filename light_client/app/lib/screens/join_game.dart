@@ -4,6 +4,7 @@ import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/widgets/game_info.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 
@@ -48,40 +49,42 @@ class _JoinGamesState extends State<JoinGames> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          "Parties disponibles",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+    return ParentWidget(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text(
+            "Parties disponibles",
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ListView.separated(
-                itemCount: games.length,
-                shrinkWrap: true,
-                padding: EdgeInsets.all(16),
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return GameInfo(
-                    game: games[index],
-                    joinGame: () {
-                      try {
-                        joinWaitingRoom(games[index]);
-                      } catch (e) {
-                        print(e);
-                      }
-                    },
-                  );
-                },
-                separatorBuilder: (context, index) => SizedBox(
-                      height: 10,
-                    )),
-          ],
+        body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ListView.separated(
+                  itemCount: games.length,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.all(16),
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return GameInfo(
+                      game: games[index],
+                      joinGame: () {
+                        try {
+                          joinWaitingRoom(games[index]);
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                    );
+                  },
+                  separatorBuilder: (context, index) => SizedBox(
+                        height: 10,
+                      )),
+            ],
+          ),
         ),
       ),
     );

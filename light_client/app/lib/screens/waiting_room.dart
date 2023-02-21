@@ -5,6 +5,7 @@ import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/button.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/text.dart';
 import 'package:flutter/material.dart';
 import 'package:app/services/user_infos.dart';
@@ -113,7 +114,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ParentWidget(
+        child: Scaffold(
       backgroundColor: Colors.blueGrey,
       body: Center(
         child: Container(
@@ -188,6 +190,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
           ),
         ),
       ),
+    )
     );
   }
 }
