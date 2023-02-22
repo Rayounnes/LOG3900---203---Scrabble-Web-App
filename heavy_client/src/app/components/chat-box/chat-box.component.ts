@@ -45,6 +45,7 @@ export class ChatBoxComponent implements OnInit {
     userChannelsNames : string[] = [];
     allChannelsNames : string[] = [];
     channelsControl = new FormControl();
+    userTyping : boolean = false;
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -194,6 +195,7 @@ export class ChatBoxComponent implements OnInit {
         });
         this.socketService.on('channel-created',(newChannel : any)=>{
             newChannel['unread'] = false;
+            newChannel['typing'] = [false,0]
             this.allUserChannels.push(newChannel)
         })
         this.socketService.on('channels-joined',()=>{
@@ -202,6 +204,35 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('leave-channel',()=>{
             this.getUserChannels();
         })
+        this.socketService.on('isTypingMessage', (message: any) => {
+            if(message.player !== this.username){
+                let channel :any
+                for(channel of this.allUserChannels){
+                    if(channel['name'] == message.channel){
+                        let old = channel['typing'];
+                        old[2].push(message.player)
+                        channel['typing'] = [true,old[1]+1,old[2]]
+                    }
+                }
+                setTimeout(() => this.automaticScroll(), 1);
+            }
+        });
+        this.socketService.on('isNotTypingMessage', (message: any) => {
+            if(message.player !== this.username){
+                let channel :any
+                for(channel of this.allUserChannels){
+                    if(channel['name'] == message.channel){
+                        let old = channel['typing'];
+                        let index = old[2].indexOf(message.player)
+                        old[2].splice(index,1)
+                        channel['typing'] = [true,old[1]-1,old[2]]
+                    }
+                }
+                setTimeout(() => this.automaticScroll(), 1);
+            }
+        });
+
+
 
     }
     validCommandName(message: string): Command {
@@ -304,7 +335,7 @@ export class ChatBoxComponent implements OnInit {
         this.chatMessage = '';
         setTimeout(() => this.automaticScroll(), 1);
     }
-    sendToRoom() {
+    sendToRoom(personnalizedMessage? : boolean) {
         const message: ChatMessage = {
             username: this.username,
             message: this.chatMessage,
@@ -314,7 +345,54 @@ export class ChatBoxComponent implements OnInit {
         };
         this.socketService.send('chatMessage', message);
         this.chatMessage = '';
+        if(!personnalizedMessage)
+        this.isNotTyping(true)
     }
+
+    personalizedMessage(event: any) {
+        if(this.chatMessage.length > 0){
+            this.chatMessage = event.target.innerText;
+            this.sendToRoom(false)
+        }else{
+            this.chatMessage = event.target.innerText;
+            this.sendToRoom(true)
+        }
+        
+        
+        
+    }
+
+    isTyping(event: any) {
+        if(event.key !== 'Enter' && event.key!=='Backspace' &&this.chatMessage.length == 0) {
+            const message: ChatMessage = {
+                username: this.username,
+                message: "typing",
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'player',
+                channel : this.currentChannel
+            };
+            this.socketService.send('isTypingMessage', message)
+            this.userTyping = true;
+        }  
+    }
+
+    isNotTyping(forceSend? : boolean) {
+        if((this.chatMessage.length == 1 && this.userTyping) || forceSend){
+            const message: ChatMessage = {
+                username: this.username,
+                message: "",
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'player',
+                channel : this.currentChannel
+            };
+            this.socketService.send('isTypingMessage', message)
+            this.userTyping = false;
+        }
+        
+    }
+
+
+
 
     scrollChannels(direction : string){
         if(direction == "right"){
@@ -435,9 +513,9 @@ export class ChatBoxComponent implements OnInit {
                     if(channel.messages[0].length == 0)
                     this.chatMessages.shift()
                     setTimeout(() => this.automaticScroll(), 1);
-                    return;
                 }
                 channel['unread'] = false;
+                channel['typing'] = [false,0,[]]
             }
         })
     }

@@ -55,7 +55,17 @@
         
     </div>
 <div class="messagesBox" #scrollMessages *ngIf="!searching">
-    
+
+    <ul class="persoM">
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Salut !</button>
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Bien joué !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Nul!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Bonne chance !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
+
+    </ul>
+
     <ul>
         <li
             *ngFor="let message of chatMessages"
@@ -69,6 +79,11 @@
         <p>{{message.username}} : {{ message.message }}</p>
         </li>
     </ul>
+    <div class="typing" *ngFor="let channel of allUserChannels" >
+        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1">{{channel.typing[2][0]}} est en train decrire</span>
+        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1">Plusieurs personnes sont train decrire</span>
+        <div *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] >= 1" class="dot-typing"></div>
+    </div>
 </div>
 
 <div class="messageBox" *ngIf="searching">
@@ -92,6 +107,10 @@
     [(ngModel)]="chatMessage"
     (keydown.enter)="this.chatMessage.trim() && sendMessage()"
     *ngIf="!searching"
+    (keydown.backspace)="this.chatMessage.trim() && this.isNotTyping()"
+    (keydown)="isTyping($event)"
 />
 
+
 </div>
+

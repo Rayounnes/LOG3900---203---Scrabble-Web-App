@@ -381,6 +381,21 @@ export class SocketManager {
         })
     }
 
+    userTyping(socket : io.Socket){
+        socket.on('isTypingMessage', (message: ChatMessage) => {
+            if(message.message.length > 0){
+                console.log("dans server typing")
+                this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
+            }else{
+                console.log("dans server nottyping")
+                this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
+            }
+            
+        });
+    }
+
+    
+
 
 
     handleSockets(): void {
@@ -412,6 +427,7 @@ export class SocketManager {
             this.userJoinNewChannels(socket);
             this.userLeaveChannel(socket);
             this.userDeleteChannel(socket);
+            this.userTyping(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
