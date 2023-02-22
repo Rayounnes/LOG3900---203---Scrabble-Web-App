@@ -21,6 +21,8 @@ export class ChatBoxComponent implements OnInit {
     @ViewChild('scrollMessages') private scrollMessages: ElementRef;
     username = '';
     chatMessage = '';
+    userTyping = false;
+    isTypingMessage = '';
     chatMessages: ChatMessage[] = [];
     socketTurn: string;
     isCommandSent = false;
@@ -130,6 +132,16 @@ export class ChatBoxComponent implements OnInit {
             this.chatMessages.push(chatMessage);
             setTimeout(() => this.automaticScroll(), 1);
         });
+        this.socketService.on('isTypingMessage', (isTypingMessage: ChatMessage) => {
+            if ((isTypingMessage.message).includes('entrain')) {
+                this.isTypingMessage = isTypingMessage.message;
+            }
+            else {
+                this.isTypingMessage = '';
+               
+            }
+            setTimeout(() => this.isNotTyping(), 100000);
+        });
         this.socketService.on('sendUsername', (uname: string) => {
             this.username = uname;
         });
@@ -231,10 +243,27 @@ export class ChatBoxComponent implements OnInit {
             this.sendToRoom();
         }
         this.chatMessage = '';
+        this.isNotTyping();
         setTimeout(() => this.automaticScroll(), 1);
     }
     sendToRoom() {
         this.socketService.send('chatMessage', this.chatMessage);
         this.chatMessage = '';
     }
+    isTyping(event: any) {
+        if(event.key !== 'Enter' && event.key!=='Backspace' ) {
+            this.userTyping = true;
+            const message = " est entrain d'écrire..."
+            this.socketService.send('isTypingMessage', message)
+        }  
+    }
+    isNotTyping() {
+        this.userTyping = false;
+        this.isTypingMessage = '';
+        this.socketService.send('isTypingMessage', this.isTypingMessage)
+    }
+    personalizedMessage(event: any) {
+        this.chatMessage = event.target.innerText;
+    }
+
 }

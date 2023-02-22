@@ -1,7 +1,16 @@
 
 <div class="container">
 <div id="messagesBox" #scrollMessages>
-    
+    <p class="messageTyping"> {{this.isTypingMessage}} </p>
+    <ul>
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Salut !</button>
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Bien joué !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Nul!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Bonne chance !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
+
+    </ul>
     <ul>
         <li
             *ngFor="let message of chatMessages"
@@ -22,6 +31,8 @@
     maxlength="512"
     [(ngModel)]="chatMessage"
     (keydown.enter)="this.chatMessage.trim() && sendMessage()"
+    (keydown.backspace)="this.isNotTyping()"
+    (keydown)="isTyping($event)"
 />
 
 </div>

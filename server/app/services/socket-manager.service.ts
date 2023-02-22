@@ -198,6 +198,12 @@ export class SocketManager {
             const username = this.usernames.get(socket.id);
             this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
         });
+        socket.on('isTypingMessage', (message: string) => {
+            // const room = this.usersRoom.get(socket.id) as string;
+            const username = this.usernames.get(socket.id);
+            const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
+            this.sio.to(opponentSocket).emit('isTypingMessage', { type: 'player', message: `${username} ${message}` });
+        });
     }
     placeCommandViewHandler(socket: io.Socket) {
         socket.on('remove-arrow-and-letter', () => {
