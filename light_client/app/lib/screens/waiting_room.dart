@@ -111,6 +111,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
   void cancelMatch() {
     getIt<SocketService>().send('cancel-match');
+    if (joinedUsername != "") kickUser();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return GameModes();
     }));
@@ -180,7 +181,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             confirmUser();
                           },
                           isButtonDisabled:
-                              isHost ? !isJoinedPlayer : isJoinedPlayer,
+                              isHost ? joinedUsername == "" : isJoinedPlayer,
                         ),
                         GameButton(
                           padding: 16.0,
@@ -189,7 +190,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             kickUser();
                           },
                           isButtonDisabled:
-                              isHost ? !isJoinedPlayer : isJoinedPlayer,
+                              isHost ? joinedUsername == "" : isJoinedPlayer,
                         )
                       ],
                     ),
