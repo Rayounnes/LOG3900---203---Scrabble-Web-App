@@ -1,6 +1,8 @@
 import 'dart:collection';
 
 import 'package:app/main.dart';
+import 'package:app/models/tile.dart';
+import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +65,12 @@ class Board extends CustomPainter {
     // rack
     for (var i = 4; i < 12; ++i) {
       final x = TILE_SIZE * i;
-      path.moveTo(x, TILE_SIZE * 17);
+      path.moveTo(x, TILE_SIZE * 16);
       path.relativeLineTo(0, TILE_SIZE);
     }
 
     // Draw horizontal lines
-    for (var i = 17; i < 19; ++i) {
+    for (var i = 16; i < 18; ++i) {
       final y = TILE_SIZE * i;
       path.moveTo(TILE_SIZE * 4, y);
       path.relativeLineTo(TILE_SIZE * 7, 0);
@@ -77,7 +79,7 @@ class Board extends CustomPainter {
     // fill rack
     for (var i = 4; i < 11; i += 1) {
       final x = TILE_SIZE * i;
-      final y = 17 * TILE_SIZE;
+      final y = 16 * TILE_SIZE;
       canvas.drawRect(Offset(x, y) & rectSize, paintRack);
     }
 
@@ -187,108 +189,250 @@ class Board extends CustomPainter {
 }
 
 class _GamePageState extends State<GamePage> {
-  List<int> tileWidgets = [0, 1, 2, 3];
-  final Map<int, Offset> position = Map();
+  final Map<int, Offset> tilePosition = {};
+  final Map<int, String> tileLetter = {};
+  final Map<int, bool> isTileLocked = {};
+  List<int> rackIDList = List.from(TILE_INITIAL_ID);
 
   @override
   void initState() {
     super.initState();
-    for (var index in tileWidgets) {
-      position[index] = getIt<TilePlacement>().setTileOnRack(index);
-    }
+    handleSockets();
+    getReserveLetter();
+    setTileOnRack();
   }
 
-  setTileOnBoard(Offset offset, int tileID) {
-    return getIt<TilePlacement>()
-        .setTileOnBoard(Offset(offset.dx, offset.dy - 78), tileID);
+  Offset setTileOnBoard(Offset offset, int tileID) {
+    return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
+  }
+
+  void setTileOnRack() {
+    setState(() {
+      for (var index in rackIDList) {
+        isTileLocked[index] = false;
+        tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
+      }
+    });
+  }
+
+  void lockTileOnBoard() {
+    var lettersToExchange = '';
+    for (var index in rackIDList) {
+      if (tilePosition[index]?.dy != RACK_START_AXISY) {
+        lettersToExchange += "${tileLetter[index]}";
+        isTileLocked[index] = true;
+      } else {
+        removeTileOnRack(index);
+      }
+    }
+    getIt<SocketService>().send('exchange-command', lettersToExchange);
+  }
+
+  void removeTileOnRack(int index) {
+    tilePosition.remove(index);
+    isTileLocked.remove(index);
+    tileLetter.remove(index);
+  }
+
+  void updateRackID() {
+    setState(() {
+      for (int i = 0; i < rackIDList.length; i++) {
+        rackIDList[i] += RACK_SIZE;
+      }
+      getIt<SocketService>().send('update-reserve');
+    });
+  }
+
+  void getReserveLetter() {
+    setState(() {
+      getIt<SocketService>().send('draw-letters-rack');
+    });
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on('end-game', (val) => {});
+    getIt<SocketService>().on(
+        'draw-letters-rack',
+        (letters) => {
+              setState(() {
+                for (var index in rackIDList) {
+                  tileLetter[index] = letters[index % RACK_SIZE].toString();
+                }
+              })
+            });
+  }
+
+  void switchRack(bool isForExchange) {
+    if (!isForExchange) {
+      lockTileOnBoard();
+    } else {
+      for (var index in rackIDList) {
+        removeTileOnRack(index);
+      }
+    }
+    updateRackID();
+    getReserveLetter();
+    setTileOnRack();
+    fillRack();
+  }
+
+  // Création des tuiles
+  List<Widget> fillRack() {
+    List<Widget> rackTiles = [];
+    setState(() {
+      for (var id in tilePosition.keys) {
+        rackTiles.add(Positioned(
+          left: tilePosition[id]?.dx,
+          top: tilePosition[id]?.dy,
+          child: Draggable(
+            feedback: Container(
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              color: isTileLocked[id] == true
+                  ? Color.fromARGB(0, 255, 255, 255)
+                  : Color.fromARGB(255, 26, 219, 100).withOpacity(0.6),
+            ),
+            child: AnimatedContainer(
+              duration: Duration(seconds: 1),
+              color: Color.fromARGB(255, 39, 45, 46),
+              height: TILE_SIZE,
+              width: TILE_SIZE,
+              child: Center(
+                child: Text(
+                  "${tileLetter[id]}",
+                  style: TextStyle(
+                      fontSize: 35, color: Color.fromARGB(255, 255, 255, 255)),
+                ),
+              ),
+            ),
+            onDraggableCanceled: (velocity, offset) {
+              setState(() {
+                if (isTileLocked[id] != true) {
+                  offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
+                  Offset boardPosition = setTileOnBoard(offset, id);
+                  if (!tilePosition.containsValue(boardPosition)) {
+                    tilePosition[id] = boardPosition;
+                  }
+                }
+              });
+            },
+          ),
+        ));
+      }
+    });
+    return rackTiles;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ParentWidget(child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Page de jeu',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: Stack(children: <Widget>[
-          Positioned(
-            left: 370,
-            top: 45,
-            child: FloatingActionButton(
-              heroTag: "btn2",
-              onPressed: () {
-                print(1);
-              },
-              backgroundColor: Colors.blue,
-              child: Icon(
-                Icons.abc,
-                color: Colors.white,
-                size: 25,
-              ),
+    return ParentWidget(
+      child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text(
+              'Page de jeu',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
           ),
-          Center(
-            child: Container(
-              height: 750,
-              width: 750,
-              color: Color.fromRGBO(243, 174, 72, 1),
-              child: Center(
-                child: CustomPaint(
-                  painter: Board(),
-                  size: Size(750, 750),
+          body: Stack(children: <Widget>[
+            Positioned(
+              left: 370,
+              top: 45,
+              child: FloatingActionButton(
+                heroTag: "btn0",
+                onPressed: () {
+                  print(isTileLocked);
+                },
+                backgroundColor: Colors.blue,
+                child: Icon(
+                  Icons.abc,
+                  color: Colors.white,
+                  size: 25,
                 ),
               ),
             ),
-          ),
-          for (var i in tileWidgets)
-            Positioned(
-                left: position[i]?.dx,
-                top: position[i]?.dy,
+            Center(
+              child: Container(
+                height: 750,
+                width: 750,
+                color: Color.fromRGBO(243, 174, 72, 1),
                 child: Center(
-                  child: Draggable(
-                    feedback: Container(
-                      width: TILE_SIZE,
-                      height: TILE_SIZE,
-                      color: Color.fromARGB(255, 0, 109, 42).withOpacity(0.5),
-                    ),
-                    child: AnimatedContainer(
-                      duration: Duration(seconds: 1),
-                      color: Color.fromARGB(255, 20, 20, 20),
-                      height: TILE_SIZE,
-                      width: TILE_SIZE,
-                      child: Center(
-                        child: Text(
-                          'H',
-                          style: TextStyle(fontSize: 35, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    onDraggableCanceled: (velocity, offset) {
-                      setState(() {
-                        Offset value = setTileOnBoard(offset, i);
-                        position[i] = value;
-                      });
-                    },
+                  child: CustomPaint(
+                    painter: Board(),
+                    size: Size(750, 750),
                   ),
-                )),
-          Positioned(
-            left: 370,
-            bottom: 45,
-            child: FloatingActionButton(
-              heroTag: "btn3",
-              onPressed: () {
-                print("position");
-              },
-              backgroundColor: Color.fromARGB(255, 243, 33, 33),
-              child: Icon(
-                Icons.abc,
-                color: Color.fromARGB(255, 184, 187, 173),
-                size: 25,
+                ),
               ),
             ),
-          )
-        ])),);
+            ...fillRack(),
+            Positioned(
+              left: LEFT_BOARD_POSITION,
+              bottom: LEFT_BOARD_POSITION,
+              width: 100,
+              child: FloatingActionButton(
+                heroTag: "btn1",
+                onPressed: () {
+                  getIt<SocketService>().send('quit-game');
+                  Navigator.popUntil(
+                      context, ModalRoute.withName('/loginScreen'));
+                },
+                backgroundColor: Color.fromARGB(255, 255, 110, 74),
+                child: Icon(
+                  Icons.output,
+                  color: Color.fromARGB(255, 219, 224, 213),
+                  size: TILE_SIZE,
+                ),
+              ),
+            ),
+            Positioned(
+              right: LEFT_BOARD_POSITION + TILE_SIZE,
+              top: RACK_START_AXISY,
+              child: FloatingActionButton(
+                heroTag: "btn2",
+                onPressed: () {
+                  setState(() {
+                    switchRack(false);
+                  });
+                },
+                backgroundColor: Color.fromARGB(255, 159, 201, 165),
+                child: Icon(
+                  Icons.check_box,
+                  color: Color.fromARGB(255, 22, 82, 0),
+                  size: TILE_SIZE,
+                ),
+              ),
+            ),
+            Positioned(
+              left: LEFT_BOARD_POSITION + TILE_SIZE,
+              top: RACK_START_AXISY,
+              child: FloatingActionButton(
+                heroTag: "btn3",
+                onPressed: () {
+                  showDialog<List<String>>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        List<String> exchangeableTile = [];
+                        for (var index in rackIDList) {
+                          exchangeableTile.add(tileLetter[index]!);
+                        }
+                        return TileExchangeMenu(
+                          tileLetters: exchangeableTile,
+                        );
+                      }).then((List<String>? result) {
+                    if (result != null) {
+                      switchRack(true);
+                    }
+                  });
+                },
+                backgroundColor: Color.fromARGB(255, 55, 151, 189),
+                child: Icon(
+                  Icons.compare_arrows,
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  size: TILE_SIZE,
+                ),
+              ),
+            )
+          ])),
+    );
   }
 }
