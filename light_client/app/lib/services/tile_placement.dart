@@ -1,6 +1,5 @@
 import 'package:app/constants/widgets.dart';
 import 'package:flutter/widgets.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -35,7 +34,8 @@ class TilePlacement {
   }
 
   Offset setTileOnRack(int tileID) {
-    return Offset(RACK_START_AXISX + TILE_SIZE * tileID, RACK_START_AXISY);
+    return Offset(
+        RACK_START_AXISX + TILE_SIZE * (tileID % RACK_SIZE), RACK_START_AXISY);
   }
 
   Offset findTileCenter(Offset position) {
