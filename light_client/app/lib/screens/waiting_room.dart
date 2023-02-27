@@ -12,6 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:app/services/user_infos.dart';
 
 class WaitingRoom extends StatefulWidget {
+  final String modeName;
+  final Function waitingSocket;
+  const WaitingRoom(
+      {super.key, required this.modeName, required this.waitingSocket});
+
   @override
   _WaitingRoomState createState() => _WaitingRoomState();
 }
@@ -21,6 +26,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   void initState() {
     super.initState();
     handleSockets();
+    widget.waitingSocket();
   }
 
   String username = getIt<UserInfos>().user;
@@ -71,7 +77,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
       });
       await Future.delayed(const Duration(seconds: 3));
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return JoinGames();
+        return JoinGames(modeName: widget.modeName);
       }));
     });
     getIt<SocketService>().on('joined-user-left', (_) {
@@ -97,7 +103,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
   void cancelWaitingJoinedUser() {
     getIt<SocketService>().send('joined-user-left');
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return JoinGames();
+      return JoinGames(
+        modeName: widget.modeName,
+      );
     }));
   }
 
@@ -135,7 +143,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                 child: Column(
                   children: <Widget>[
                     if (isHost) ...[
-                      TextPhrase(text: "Bienvenue $username "),
+                      TextPhrase(text: "Bienvenue $hostUsername "),
                       joinedUsername == ""
                           ? TextPhrase(
                               text: "Vous êtes en attente d'un deuxieme joueur")
@@ -171,7 +179,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                           route: () {
                             confirmUser();
                           },
-                          isButtonDisabled: isJoinedPlayer,
+                          isButtonDisabled:
+                              isHost ? !isJoinedPlayer : isJoinedPlayer,
                         ),
                         GameButton(
                           padding: 16.0,
@@ -179,7 +188,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                           route: () {
                             kickUser();
                           },
-                          isButtonDisabled: isJoinedPlayer,
+                          isButtonDisabled:
+                              isHost ? !isJoinedPlayer : isJoinedPlayer,
                         )
                       ],
                     ),

@@ -33,20 +33,24 @@ class _GameChoicesState extends State<GameChoices> {
     DropdownMenuItem(child: Text("Anglais"), value: "Anglais"),
   ];
 
-@override
-void dispose() {
-  timeController.dispose();
-  super.dispose();
-}
+  @override
+  void dispose() {
+    timeController.dispose();
+    super.dispose();
+  }
 
   createGame() {
     if (!_formKey.currentState!.validate()) return;
     game.time = int.parse(timeController.text);
     game.dictionary =
         dictionary == "Francais" ? FRENCH_DICTIONNARY : ENGLISH_DICTIONNARY;
-    getIt<SocketService>().send('create-game', game);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return WaitingRoom();
+      return WaitingRoom(
+        modeName: widget.modeName,
+        waitingSocket: () {
+          getIt<SocketService>().send('create-game', game);
+        },
+      );
     }));
   }
 
@@ -99,7 +103,9 @@ void dispose() {
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return JoinGames();
+                        return JoinGames(
+                          modeName: widget.modeName,
+                        );
                       }));
                     }),
               ],

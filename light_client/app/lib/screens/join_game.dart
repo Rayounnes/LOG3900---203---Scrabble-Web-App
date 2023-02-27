@@ -1,5 +1,6 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
+import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/user_infos.dart';
@@ -9,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 
 class JoinGames extends StatefulWidget {
-  const JoinGames({super.key});
+  final String modeName;
+  const JoinGames({super.key, required this.modeName});
 
   @override
   State<JoinGames> createState() => _JoinGamesState();
@@ -42,8 +44,12 @@ class _JoinGamesState extends State<JoinGames> {
   void joinWaitingRoom(Game gameToJoin) {
     gameToJoin.usernameTwo = username;
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      getIt<SocketService>().send('waiting-room-second-player', gameToJoin);
-      return WaitingRoom();
+      return WaitingRoom(
+        modeName: widget.modeName,
+        waitingSocket: () {
+          getIt<SocketService>().send('waiting-room-second-player', gameToJoin);
+        },
+      );
     }));
   }
 
@@ -53,8 +59,15 @@ class _JoinGamesState extends State<JoinGames> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return GameChoices(modeName: widget.modeName);
+                }));
+              }),
           title: Text(
-            "Parties disponibles",
+            "Parties ${widget.modeName} disponibles",
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
