@@ -308,7 +308,7 @@ class _GamePageState extends State<GamePage> {
             onDraggableCanceled: (velocity, offset) {
               setState(() {
                 if (isTileLocked[id] != true) {
-                  offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
+                  offset = Offset(offset.dx, offset.dy - TILE_SIZE);
                   Offset boardPosition = setTileOnBoard(offset, id);
                   if (!tilePosition.containsValue(boardPosition)) {
                     tilePosition[id] = boardPosition;
