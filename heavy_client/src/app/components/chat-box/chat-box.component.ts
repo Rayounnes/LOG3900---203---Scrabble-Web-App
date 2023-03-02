@@ -35,8 +35,6 @@ export class ChatBoxComponent implements OnInit {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
-    
-
     allUserChannels : any[] = [];
     currentChannel : string = "General";
     searching : boolean  = false;
@@ -52,7 +50,7 @@ export class ChatBoxComponent implements OnInit {
         public gridService: GridService,
         public arg: ArgumentManagementService,
         public keyboardService: KeyboardManagementService,
-        private communicationService : CommunicationService
+        private communicationService: CommunicationService,
     ) {}
     automaticScroll() {
         this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -390,10 +388,6 @@ export class ChatBoxComponent implements OnInit {
         }
         
     }
-
-
-
-
     scrollChannels(direction : string){
         if(direction == "right"){
             this.channels.nativeElement.scrollLeft += 90;
@@ -519,5 +513,4 @@ export class ChatBoxComponent implements OnInit {
             }
         })
     }
-
 }
