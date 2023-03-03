@@ -15,12 +15,12 @@ export class MainPageComponent {
     h: string;
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
-    constructor(public router: Router, private dialog: MatDialog, private socketService : ChatSocketClientService) {
+    constructor(public router: Router, private dialog: MatDialog, private socketService: ChatSocketClientService) {
         this.connect();
     }
 
-    navClassicPage() {
-        this.router.navigate(['/mode/classic']);
+    navModePage(isClassic: boolean) {
+        this.router.navigate(['/mode'], { queryParams: { isClassicMode: isClassic } });
     }
 
     popUp() {
@@ -31,18 +31,14 @@ export class MainPageComponent {
         messageRef.afterClosed();
     }
 
-    userDisconnect(){
-        this.socketService.send("user-disconnect",this.socketService.socketId);
-        this.router.navigate(['/connexion'])
+    userDisconnect() {
+        this.socketService.send('user-disconnect', this.socketService.socketId);
+        this.router.navigate(['/connexion']);
     }
 
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
         }
-    }
-
-    navLogPage() {
-        this.router.navigate(['/mode/LOG2990']);
     }
 }
