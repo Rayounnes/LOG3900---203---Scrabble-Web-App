@@ -12,6 +12,7 @@ class Channels extends StatefulWidget {
 
 class _ChannelsState extends State<Channels> {
   List<String> discussions = ["General"];
+  final nameController = TextEditingController(text: "Nouvelle discussion");
 
   @override
   Widget build(BuildContext context) {
@@ -46,24 +47,20 @@ class _ChannelsState extends State<Channels> {
                     height: 10,
                   )),
                 ListTile(
-                title: Row(
-                children: <Widget>[
-                Expanded(child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                  showModal(context);
-                    }, 
-                  name: "Créer un chat + ",
-                  )),
-                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Supprimer un chat -"))),
-                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Rechercher un chat"))),
+                  title: Row(
+                  children: <Widget>[
+                  Expanded(child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                    showModal(context);
+                      }, 
+                    name: "Créer un chat + ",
+                    )),
+                  Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Supprimer un chat -"))),
+                  Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Rechercher un chat"))),
             ],
           ),
-        )
-
-
-
-                  
+        )                  
         ],
       ),
     );
@@ -77,7 +74,7 @@ class _ChannelsState extends State<Channels> {
       builder: (BuildContext context) => AlertDialog(
         title: Text('Créer un nouveau chat'),
         content: Container(
-          height: 200,
+          height: 150,
           child: Form(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -90,6 +87,12 @@ class _ChannelsState extends State<Channels> {
                     "Nom du chat",
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: nameController,
+                  )
+                )
               ],
             ),
           ),
@@ -105,6 +108,7 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
+              discussions.add(nameController.text);
             },
             child: Text(
               "Créer le chat",
