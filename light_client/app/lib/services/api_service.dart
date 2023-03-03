@@ -5,7 +5,6 @@ import 'package:app/constants/server_api.dart';
 import 'package:app/models/login_infos.dart';
 
 class ApiService {
-
   Future<int> loginUser(LoginInfos user) async {
     final response = await http.post(
       Uri.parse(ApiConstants.baseUrl + "/api/login/user"),

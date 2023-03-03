@@ -89,7 +89,9 @@ export class ChatBoxComponent implements OnInit {
             this.socketService.send('change-user-turn');
             this.socketService.send('draw-letters-rack');
         });
-        this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
+        this.socketService.on('draw-letters-opponent', (lettersPosition) => {
+            lettersPosition = JSON.parse(lettersPosition as string)
+
             this.gridService.placeLetter(lettersPosition as Letter[]);
             this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
             this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);

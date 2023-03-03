@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:app/main.dart';
 import 'package:app/models/tile.dart';
@@ -13,6 +14,50 @@ import 'package:app/services/user_infos.dart';
 
 import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
+import '../services/board.dart';
+import '../models/letter.dart';
+import '../models/Words_Args.dart';
+import '../models/placement.dart';
+
+// Copyright 2019 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+class _HorizontalDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.deepPurpleAccent,
+              ),
+            ),
+          ),
+          const Divider(
+            color: Colors.grey,
+            height: 20,
+            thickness: 1,
+            indent: 20,
+            endIndent: 0,
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.deepOrangeAccent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -21,7 +66,7 @@ class GamePage extends StatefulWidget {
   State<GamePage> createState() => _GamePageState();
 }
 
-class Board extends CustomPainter {
+class BoardPaint extends CustomPainter {
   Color rectColor = Color(0xff000000);
   Size rectSize = Size(50, 50);
   @override
@@ -192,7 +237,9 @@ class _GamePageState extends State<GamePage> {
   final Map<int, Offset> tilePosition = {};
   final Map<int, String> tileLetter = {};
   final Map<int, bool> isTileLocked = {};
+  final board = new Board();
   List<int> rackIDList = List.from(TILE_INITIAL_ID);
+  final List<Letter> lettersofBoard = [];
 
   @override
   void initState() {
@@ -203,7 +250,24 @@ class _GamePageState extends State<GamePage> {
   }
 
   Offset setTileOnBoard(Offset offset, int tileID) {
+    int line = offset.dy ~/ 50 - 4;
+    int column = offset.dx ~/ 50;
+    String? letterValue = tileLetter[tileID];
+
+    lettersofBoard.add(Letter(line, column, letterValue!));
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
+  }
+
+  void validatePlacement() {
+    board.isFilledForEachLetter(lettersofBoard);
+    dynamic word = board.verifyPlacement(lettersofBoard);
+    if (word != null) {
+      print("the word is valid");
+
+      getIt<SocketService>().send('verify-place-message', word);
+    } else {
+      print("the word is invalid");
+    }
   }
 
   void setTileOnRack() {
@@ -211,6 +275,7 @@ class _GamePageState extends State<GamePage> {
       for (var index in rackIDList) {
         isTileLocked[index] = false;
         tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
+        print(tilePosition);
       }
     });
   }
@@ -260,6 +325,27 @@ class _GamePageState extends State<GamePage> {
                 }
               })
             });
+    getIt<SocketService>().on('verify-place-message', (placedWord) {
+      // getIt<SocketService>()
+      print("dans le bail");
+      //     .send('remove-letters-rack', placedWord.letters),
+      getIt<SocketService>().send('validate-created-words', placedWord);
+    });
+
+    getIt<SocketService>().on('validate-created-words', (placedWord) {
+      // if (placedWord.points != 0){
+      print(placedWord);
+      print(placedWord["letters"]);
+      final lettersjson = jsonEncode(placedWord["letters"]);
+      getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
+
+      getIt<SocketService>().send('send-player-score');
+      getIt<SocketService>().send('update-reserve');
+      getIt<SocketService>().send('change-user-turn');
+      getIt<SocketService>().send('draw-letters-rack');
+      // getIt<SocketService>().send('freeze-timer');
+      // }
+    });
   }
 
   void switchRack(bool isForExchange) {
@@ -310,6 +396,7 @@ class _GamePageState extends State<GamePage> {
                 if (isTileLocked[id] != true) {
                   offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                   Offset boardPosition = setTileOnBoard(offset, id);
+                  print(boardPosition);
                   if (!tilePosition.containsValue(boardPosition)) {
                     tilePosition[id] = boardPosition;
                   }
@@ -335,21 +422,27 @@ class _GamePageState extends State<GamePage> {
             ),
           ),
           body: Stack(children: <Widget>[
+            // Positioned(
+            //   left: 370,
+            //   top: 45,
+            //   child: FloatingActionButton(
+            //     heroTag: "btn0",
+            //     onPressed: () {
+            //       print(isTileLocked);
+            //     },
+            //     backgroundColor: Colors.blue,
+            //     child: Icon(
+            //       Icons.abc,
+            //       color: Colors.white,
+            //       size: 25,
+            //     ),
+            //   ),
+            // ),
             Positioned(
-              left: 370,
-              top: 45,
-              child: FloatingActionButton(
-                heroTag: "btn0",
-                onPressed: () {
-                  print(isTileLocked);
-                },
-                backgroundColor: Colors.blue,
-                child: Icon(
-                  Icons.abc,
-                  color: Colors.white,
-                  size: 25,
-                ),
-              ),
+              left: 15,
+              height: 200,
+              width: 390,
+              child: _HorizontalDivider(),
             ),
             Center(
               child: Container(
@@ -358,7 +451,7 @@ class _GamePageState extends State<GamePage> {
                 color: Color.fromRGBO(243, 174, 72, 1),
                 child: Center(
                   child: CustomPaint(
-                    painter: Board(),
+                    painter: BoardPaint(),
                     size: Size(750, 750),
                   ),
                 ),
@@ -391,7 +484,8 @@ class _GamePageState extends State<GamePage> {
                 heroTag: "btn2",
                 onPressed: () {
                   setState(() {
-                    switchRack(false);
+                    validatePlacement();
+                    // switchRack(false);
                   });
                 },
                 backgroundColor: Color.fromARGB(255, 159, 201, 165),
