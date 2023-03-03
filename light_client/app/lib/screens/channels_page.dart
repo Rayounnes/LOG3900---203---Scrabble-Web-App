@@ -1,6 +1,7 @@
 import 'package:app/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:app/widgets/channel.dart';
+import 'package:app/widgets/button.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -44,26 +45,16 @@ class _ChannelsState extends State<Channels> {
               separatorBuilder: (context, index) => SizedBox(
                     height: 10,
                   )),
-                //    ElevatedButton(
-                //     style: ElevatedButton.styleFrom(
-                //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                //     ),
-                //     child: Text('Créer un chat +'),
-                //     onPressed: () {
-                //   },
-                  
-                // ),
-                //  ElevatedButton(
-                //     style: ElevatedButton.styleFrom(
-                //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                //     ),
-                //     child: Text('Supprimer un chat -'),
-                //     onPressed: () {
-                //   }),
                 ListTile(
                 title: Row(
                 children: <Widget>[
-                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Créer un chat + "),)),
+                Expanded(child: GameButton(
+                  padding: 32.0,
+                  route: () {
+                  showModal(context);
+                    }, 
+                  name: "Créer un chat + ",
+                  )),
                 Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Supprimer un chat -"))),
                 Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Rechercher un chat"))),
             ],
@@ -73,6 +64,52 @@ class _ChannelsState extends State<Channels> {
 
 
                   
+        ],
+      ),
+    );
+  }
+
+
+  void showModal(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('Créer un nouveau chat'),
+        content: Container(
+          height: 200,
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Nom du chat",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <ElevatedButton>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Annuler",
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+            },
+            child: Text(
+              "Créer le chat",
+            ),
+          )
         ],
       ),
     );
