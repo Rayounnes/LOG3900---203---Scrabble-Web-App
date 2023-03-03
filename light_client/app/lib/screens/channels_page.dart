@@ -44,6 +44,35 @@ class _ChannelsState extends State<Channels> {
               separatorBuilder: (context, index) => SizedBox(
                     height: 10,
                   )),
+                //    ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                //     ),
+                //     child: Text('Créer un chat +'),
+                //     onPressed: () {
+                //   },
+                  
+                // ),
+                //  ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                //     ),
+                //     child: Text('Supprimer un chat -'),
+                //     onPressed: () {
+                //   }),
+                ListTile(
+                title: Row(
+                children: <Widget>[
+                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Créer un chat + "),)),
+                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Supprimer un chat -"))),
+                Expanded(child: ElevatedButton(onPressed: () {}, child: Text("Rechercher un chat"))),
+            ],
+          ),
+        )
+
+
+
+                  
         ],
       ),
     );
