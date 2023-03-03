@@ -1,27 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { GameCreationComponent } from '../game-creation/game-creation.component';
 
 @Component({
     selector: 'app-classique-page',
     templateUrl: './classique-page.component.html',
     styleUrls: ['./classique-page.component.scss'],
 })
-export class ClassiquePageComponent {
+export class ClassiquePageComponent implements OnInit {
     mode: string;
-    constructor(public router: Router, private route: ActivatedRoute) {
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
+    paramsObject: any;
+    constructor(public router: Router, private dialog: MatDialog, private route: ActivatedRoute) {}
+
+    ngOnInit(): void {
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+            console.log(this.paramsObject);
+        });
+        this.mode = this.paramsObject.params.isClassicMode ? 'Classique' : 'Coopératif';
     }
 
-    navSoloGame() {
-        this.router.navigate([`/solo-game/${this.mode}`]);
-    }
-
-    navMultiGame() {
-        this.router.navigate([`/partie-multijoueur/${this.mode}`]);
+    createGame() {
+        const dialogRef = this.dialog.open(GameCreationComponent, {
+            data: {
+                isClassic: this.paramsObject.params.isClassicMode,
+            },
+            width: 'auto',
+            closeOnNavigation: true,
+        });
+        dialogRef.afterClosed();
     }
 
     navJoinGame() {
-        this.router.navigate([`/joindre-partie/${this.mode}`]);
+        this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.paramsObject.params.isClassicMode } });
     }
 
     navHome() {

@@ -1,12 +1,17 @@
-import { Dictionary } from '@app/interfaces/dictionary';
+import { Dictionary } from './dictionary';
 export interface Game {
+    hostUsername: string;
+    hostID: string;
     room: string;
-    isJoined: boolean;
-    usernameOne: string;
-    usernameTwo: string;
+    isClassicMode: boolean;
+    isPrivate: boolean;
+    isFullPlayers: boolean;
+    password: string;
+    humanPlayers: number;
+    joinedPlayers: string[]; // usernames
+    observers: number;
+    joinedObservers: string[]; // usernames
+    virtualPlayers: number;
     time: number;
     dictionary: Dictionary;
-    hostID: string;
-    mode: string;
-    type: string;
 }

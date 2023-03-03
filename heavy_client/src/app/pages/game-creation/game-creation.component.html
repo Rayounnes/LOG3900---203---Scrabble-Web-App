@@ -1,0 +1,44 @@
+<div>
+    <div class="add-title">
+        <h2 class="primary">Créer une partie {{ data.mode }}</h2>
+        <p>Créez une partie publique ou privée</p>
+    </div>
+    <form #myForm="ngForm" (ngSubmit)="createGame()">
+        <mat-checkbox [(ngModel)]="game.isPrivate" [ngModelOptions]="{standalone: true}" #checkbox>Partie Privée</mat-checkbox>
+        <mat-form-field appearance="fill">
+            <mat-label>Nombre de joueurs humains: </mat-label>
+            <input matInput type="number" [(ngModel)]="game.humanPlayers" [ngModelOptions]="{standalone: true}" max="4" min="2" value="2" id="humanPlayers" step="1" required />
+            <mat-error *ngIf="game.humanPlayers > 4">Nombre de joeurs humains trop grand.</mat-error>
+            <mat-error *ngIf="game.humanPlayers < 2">Nombre de joeurs humains trop petit.</mat-error>
+            <mat-icon matSuffix></mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Temps par tour (en secondes): </mat-label>
+            <input matInput type="number" [(ngModel)]="game.time" [ngModelOptions]="{standalone: true}" max="300" min="30" value="60" id="time" step="30" required />
+            <mat-error *ngIf="game.time < 30">Temps par tour trop petit.</mat-error>
+            <mat-error *ngIf="game.time > 300">Temps par tour trop grand.</mat-error>
+            <mat-icon matSuffix></mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Dictionnaire de jeu</mat-label>
+            <mat-select [(ngModel)]="game.dictionary" [ngModelOptions]="{standalone: true}">
+                <mat-option [value]="frenchDictionary" selected>Francais</mat-option>
+                <mat-option [value]="englishDictionary">Anglais</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" *ngIf="!checkbox.checked"
+            ><input
+                matInput
+                placeholder="Mot de passe de partie publique (optionnel)"
+                [type]="hide ? 'password' : 'text'"
+                [(ngModel)]="game.password"
+                [ngModelOptions]="{standalone: true}"
+            /><mat-icon matSuffix (click)="hide = !hide">{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon></mat-form-field
+        >
+
+        <div class="btn-sec">
+            <button mat-raised-button type="submit" color="primary" class="Update-btn">Créer partie</button>
+            <button mat-raised-button type="button" class="Discard-btn" (click)="onNoClick()">Annuler</button>
+        </div>
+    </form>
+</div>

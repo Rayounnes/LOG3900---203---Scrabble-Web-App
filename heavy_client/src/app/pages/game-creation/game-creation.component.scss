@@ -1,0 +1,34 @@
+mat-form-field {
+    width: 100%;
+  }
+
+  mat-checkbox {
+    margin: 1%;
+  }
+  
+  .btn-sec {
+    text-align: right;
+    margin-top: 1.5em;
+  }
+  .Update-btn {
+    margin: 5px;
+  }
+  .Discard-btn {
+    margin: 5px;
+  }
+  .text-inside {
+    position: absolute;
+    left: 5px;
+    width: 100%;
+  }
+  @media (max-width: 800px) {
+    .btn-sec {
+      margin-right: 1rem !important;
+    }
+  }
+  @media (max-width: 600px) {
+    .btn-sec {
+      margin-right: 1rem !important;
+    }
+  }
+  
