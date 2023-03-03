@@ -1,11 +1,12 @@
 import 'dart:collection';
 
 import 'package:app/main.dart';
-import 'package:app/models/tile.dart';
+import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chat_message.dart';
@@ -192,7 +193,8 @@ class _GamePageState extends State<GamePage> {
   final Map<int, Offset> tilePosition = {};
   final Map<int, String> tileLetter = {};
   final Map<int, bool> isTileLocked = {};
-  List<int> rackIDList = List.from(TILE_INITIAL_ID);
+  List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
+  List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
 
   @override
   void initState() {
@@ -215,17 +217,19 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  void lockTileOnBoard() {
+  void lockTileOnBoard(bool isForExchange) {
     var lettersToExchange = '';
     for (var index in rackIDList) {
-      if (tilePosition[index]?.dy != RACK_START_AXISY) {
+      if (tilePosition[index]?.dy != RACK_START_AXISY && !isForExchange) {
         lettersToExchange += "${tileLetter[index]}";
         isTileLocked[index] = true;
       } else {
         removeTileOnRack(index);
       }
     }
-    getIt<SocketService>().send('exchange-command', lettersToExchange);
+    if (lettersToExchange != '') {
+      getIt<SocketService>().send('exchange-command', lettersToExchange);
+    }
   }
 
   void removeTileOnRack(int index) {
@@ -234,12 +238,12 @@ class _GamePageState extends State<GamePage> {
     tileLetter.remove(index);
   }
 
-  void updateRackID() {
+  void updateRackID(bool isForExchange, List<int> tileIDList) {
     setState(() {
-      for (int i = 0; i < rackIDList.length; i++) {
-        rackIDList[i] += RACK_SIZE;
+      for (int i = 0; i < tileIDList.length; i++) {
+        tileIDList[i] += RACK_SIZE;
       }
-      getIt<SocketService>().send('update-reserve');
+      if (!isForExchange) getIt<SocketService>().send('update-reserve');
     });
   }
 
@@ -249,8 +253,37 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
+  void changeTurn() {
+    setState(() {
+      getIt<SocketService>().send('change-user-turn');
+    });
+  }
+
   void handleSockets() {
     getIt<SocketService>().on('end-game', (val) => {});
+    int index;
+    int column;
+    int line;
+    getIt<SocketService>().on(
+        'draw-letters-opponent',
+        (letters) => {
+              setState(() => {
+                    index = opponentTileID[0],
+                    for (var letter in letters)
+                      {
+                        print(letter),
+                        isTileLocked[index] = true,
+                        tileLetter[index] = letter["value"].toString(),
+                        line = int.parse(letter["line"].toString()),
+                        column = int.parse(letter["column"].toString()),
+                        tilePosition[index] = getIt<TilePlacement>()
+                            .getOpponentPosition(line, column),
+                        index += 1,
+                      },
+                    updateRackID(true, opponentTileID)
+                  })
+            });
+
     getIt<SocketService>().on(
         'draw-letters-rack',
         (letters) => {
@@ -263,17 +296,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void switchRack(bool isForExchange) {
-    if (!isForExchange) {
-      lockTileOnBoard();
-    } else {
-      for (var index in rackIDList) {
-        removeTileOnRack(index);
-      }
-    }
-    updateRackID();
+    lockTileOnBoard(isForExchange);
+    updateRackID(isForExchange, rackIDList);
     getReserveLetter();
     setTileOnRack();
     fillRack();
+    changeTurn();
   }
 
   // Création des tuiles
@@ -340,9 +368,7 @@ class _GamePageState extends State<GamePage> {
               top: 45,
               child: FloatingActionButton(
                 heroTag: "btn0",
-                onPressed: () {
-                  print(isTileLocked);
-                },
+                onPressed: () {},
                 backgroundColor: Colors.blue,
                 child: Icon(
                   Icons.abc,
@@ -351,7 +377,9 @@ class _GamePageState extends State<GamePage> {
                 ),
               ),
             ),
-            Center(
+            Positioned(
+              left: LEFT_BOARD_POSITION,
+              top: TOP_BOARD_POSITION,
               child: Container(
                 height: 750,
                 width: 750,
@@ -373,8 +401,9 @@ class _GamePageState extends State<GamePage> {
                 heroTag: "btn1",
                 onPressed: () {
                   getIt<SocketService>().send('quit-game');
-                  Navigator.popUntil(
-                      context, ModalRoute.withName('/loginScreen'));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return GameModes();
+                  }));
                 },
                 backgroundColor: Color.fromARGB(255, 255, 110, 74),
                 child: Icon(
@@ -385,10 +414,29 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             Positioned(
-              right: LEFT_BOARD_POSITION + TILE_SIZE,
+              left: LEFT_BOARD_POSITION,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
-                heroTag: "btn2",
+                heroTag: "passTurn",
+                onPressed: () {
+                  setState(() {
+                    getIt<SocketService>().send('pass-turn');
+                    switchRack(true);
+                  });
+                },
+                backgroundColor: Color.fromARGB(255, 253, 174, 101),
+                child: Icon(
+                  Icons.double_arrow_rounded,
+                  color: Color.fromARGB(255, 0, 123, 172),
+                  size: TILE_SIZE,
+                ),
+              ),
+            ),
+            Positioned(
+              right: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
+              top: RACK_START_AXISY,
+              child: FloatingActionButton(
+                heroTag: "confirmPlacement",
                 onPressed: () {
                   setState(() {
                     switchRack(false);
@@ -403,17 +451,17 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             Positioned(
-              left: LEFT_BOARD_POSITION + TILE_SIZE,
+              left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
-                heroTag: "btn3",
+                heroTag: "exchangeLetters",
                 onPressed: () {
                   showDialog<List<String>>(
                       context: context,
                       builder: (BuildContext context) {
                         List<String> exchangeableTile = [];
                         for (var index in rackIDList) {
-                          exchangeableTile.add(tileLetter[index]!);
+                          exchangeableTile.add(tileLetter[index].toString());
                         }
                         return TileExchangeMenu(
                           tileLetters: exchangeableTile,
