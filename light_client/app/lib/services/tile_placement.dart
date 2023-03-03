@@ -24,7 +24,7 @@ class TilePlacement {
     Offset tilePosition = findTileCenter(position);
     double dx = findTileInterval(axisX, tilePosition.dx);
     double dy = findTileInterval(axisY, tilePosition.dy);
-    tilePosition = Offset(dx, dy - 25);
+    tilePosition = Offset(dx, dy);
 
     if (dx == 0 || dy == 0) {
       tilePosition = setTileOnRack(tileID);
