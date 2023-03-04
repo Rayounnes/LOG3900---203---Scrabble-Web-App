@@ -122,8 +122,8 @@ class Board {
       value += letter.value;
     }
     WordArgs word = WordArgs();
-    word.line = letters[0].line + 1;
-    word.column = letters[0].column + 1;
+    word.line = letters[0].line;
+    word.column = letters[0].column;
     word.orientation = orientation;
     word.value = value;
     return word;

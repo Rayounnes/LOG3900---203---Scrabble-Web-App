@@ -252,12 +252,14 @@ class _GamePageState extends State<GamePage> {
   }
 
   Offset setTileOnBoard(Offset offset, int tileID) {
-    int line = ((offset.dy - 150) ~/ 50);
-    int column = offset.dx ~/ 50;
+    Offset positionOnBoard =
+        getIt<TilePlacement>().getTilePosition(offset, tileID);
+    int line = ((positionOnBoard.dy - 150) ~/ 50);
+    int column = positionOnBoard.dx ~/ 50;
     String? letterValue = tileLetter[tileID];
-    print(offset);
     print(line);
     print(column);
+    print(getIt<TilePlacement>().getTilePosition(offset, tileID));
 
     lettersofBoard.add(Letter(line, column, letterValue!));
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
@@ -280,7 +282,6 @@ class _GamePageState extends State<GamePage> {
       for (var index in rackIDList) {
         isTileLocked[index] = false;
         tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
-        print(tilePosition);
       }
     });
   }
@@ -339,7 +340,6 @@ class _GamePageState extends State<GamePage> {
                     index = opponentTileID[0],
                     for (var letter in letters)
                       {
-                        print(letter),
                         isTileLocked[index] = true,
                         tileLetter[index] = letter["value"].toString(),
                         line = int.parse(letter["line"].toString()),
@@ -366,21 +366,15 @@ class _GamePageState extends State<GamePage> {
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
       } else {
-        print(lettersofBoard);
-        print("dans le bail");
         getIt<SocketService>()
-            .send('remove-letters-rack', placedWord["letters"]);
+            .send('remove-letters-rack', jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
       }
     });
 
     getIt<SocketService>().on('validate-created-words', (placedWord) {
       if (placedWord["points"] != 0) {
-        print("le mot a envoyer ici");
-        print(lettersofBoard);
         lettersofBoard = [];
-        print(placedWord);
-        print(placedWord["letters"]);
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
 
@@ -436,7 +430,6 @@ class _GamePageState extends State<GamePage> {
                 if (isTileLocked[id] != true) {
                   offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                   Offset boardPosition = setTileOnBoard(offset, id);
-                  print(boardPosition);
                   if (!tilePosition.containsValue(boardPosition)) {
                     tilePosition[id] = boardPosition;
                   }

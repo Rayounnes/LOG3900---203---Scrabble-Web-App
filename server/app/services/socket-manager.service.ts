@@ -218,8 +218,13 @@ export class SocketManager {
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
 
         });
-        socket.on('remove-letters-rack', (letters: Letter[]) => {
+        socket.on('remove-letters-rack', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+            if (typeof letters === "string"){
+                letters = JSON.parse(letters as unknown as string)
+                
+            }
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });

@@ -19,6 +19,13 @@ class TilePlacement {
   }
 
   TilePlacement._internal();
+  Offset getTilePosition(Offset position, int tileID) {
+    Offset tilePosition = findTileCenter(position);
+    double dx = findTileInterval(axisX, tilePosition.dx);
+    double dy = findTileInterval(axisY, tilePosition.dy);
+    tilePosition = Offset(dx, dy);
+    return tilePosition;
+  }
 
   Offset setTileOnBoard(Offset position, int tileID) {
     Offset tilePosition = findTileCenter(position);
