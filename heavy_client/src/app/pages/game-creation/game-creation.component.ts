@@ -5,7 +5,7 @@ import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 
-const FRENCH_DICTIONARY = { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary;
+const FRENCH_DICTIONARY = { title: 'Francais', fileName: 'dictionnary.json' } as Dictionary;
 const ENGLISH_DICTIONARY = { title: 'Anglais', fileName: 'english.json' } as Dictionary;
 
 @Component({
@@ -61,6 +61,8 @@ export class GameCreationComponent implements OnInit {
         if (this.game.humanPlayers < 2 || this.game.humanPlayers > 4) return;
         this.game.isClassicMode = this.data.isClassic;
         this.game.hostUsername = this.hostusername;
+        this.game.joinedPlayers = [];
+        this.game.joinedObservers = [];
         this.game.virtualPlayers = 4 - this.game.humanPlayers;
         console.log(this.game);
         this.socketService.send('create-game', this.game);

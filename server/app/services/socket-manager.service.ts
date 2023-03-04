@@ -40,7 +40,7 @@ export class SocketManager {
         this.roomIncrement++;
         this.roomName = 'room' + this.roomIncrement;
     }
-    createGame(game: Game, type: string, socketId: string) {
+    createGame(game: Game, socketId: string) {
         game.room = this.roomName;
         this.gameRooms.set(this.roomName, game);
         game.hostID = socketId;
@@ -51,7 +51,7 @@ export class SocketManager {
     }
     gameCreationHandler(socket: io.Socket) {
         socket.on('create-game', (game: Game) => {
-            this.createGame(game, 'multiplayer', socket.id);
+            this.createGame(game, socket.id);
             socket.join(this.roomName);
             this.sio.to(this.roomName).emit('create-game', game.hostUsername);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
@@ -62,7 +62,7 @@ export class SocketManager {
             this.sio.emit('dictionary-selected', dictionary);
         });
         socket.on('create-solo-game', (game: SoloGame) => {
-            this.createGame(game, 'solo', socket.id);
+            this.createGame(game, socket.id);
             game.isFinished = false;
             socket.join(this.roomName);
             // this.scrabbleGames.set(
@@ -121,8 +121,8 @@ export class SocketManager {
         });
     }
     gameRoomsViewHandler(socket: io.Socket) {
-        socket.on('update-joinable-matches', (gameMode: string) => {
-            // this.sio.emit('update-joinable-matches', this.gameList(gameMode));
+        socket.on('update-joinable-matches', (isClassicMode: boolean) => {
+            this.sio.emit('update-joinable-matches', this.gameList(isClassicMode));
         });
         socket.on('sendUsername', () => {
             const myUsername = this.usernames.get(socket.id) as string;

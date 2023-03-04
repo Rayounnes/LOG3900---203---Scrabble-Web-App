@@ -10,6 +10,7 @@ import { GameCreationComponent } from '../game-creation/game-creation.component'
 })
 export class ClassiquePageComponent implements OnInit {
     mode: string;
+    isClassic: boolean;
     paramsObject: any;
     constructor(public router: Router, private dialog: MatDialog, private route: ActivatedRoute) {}
 
@@ -18,13 +19,14 @@ export class ClassiquePageComponent implements OnInit {
             this.paramsObject = { ...params.keys, ...params };
             console.log(this.paramsObject);
         });
-        this.mode = this.paramsObject.params.isClassicMode ? 'Classique' : 'Coopératif';
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.mode = this.isClassic ? 'Classique' : 'Coopératif';
     }
 
     createGame() {
         const dialogRef = this.dialog.open(GameCreationComponent, {
             data: {
-                isClassic: this.paramsObject.params.isClassicMode,
+                isClassic: this.isClassic,
             },
             width: 'auto',
             closeOnNavigation: true,
@@ -33,7 +35,7 @@ export class ClassiquePageComponent implements OnInit {
     }
 
     navJoinGame() {
-        this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.paramsObject.params.isClassicMode } });
+        this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
     }
 
     navHome() {

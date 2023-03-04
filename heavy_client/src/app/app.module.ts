@@ -37,6 +37,8 @@ import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototy
 import { GameCreationComponent } from './pages/game-creation/game-creation.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { GamePasswordFormComponent } from './components/game-password-form/game-password-form.component';
+import { PrivateGameWaitingComponent } from './components/private-game-waiting/private-game-waiting.component';
 
 /**
  * Main module that is used in main.ts.
@@ -66,6 +68,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
         ConnexionPageComponent,
         ChatPrototypeComponent,
         GameCreationComponent,
+        GamePasswordFormComponent,
+        PrivateGameWaitingComponent,
     ],
     imports: [
         MatProgressSpinnerModule,

@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
-import { SPECIAL_CHARACTERS } from 'src/constants/special-characters';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { GamePasswordFormComponent } from '@app/components/game-password-form/game-password-form.component';
+import { PrivateGameWaitingComponent } from '@app/components/private-game-waiting/private-game-waiting.component';
+
+// import { Dictionary } from '@app/interfaces/dictionary';
 
 @Component({
     selector: 'app-joindre-partie',
@@ -15,15 +19,20 @@ export class JoindrePartieComponent implements OnInit {
     openedGameWindow: number[] = [];
     username: string = '';
     click: boolean = false;
+    paramsObject: any;
     mode: string;
-    constructor(public socketService: ChatSocketClientService, private route: ActivatedRoute) {
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
-    }
+    isClassic: boolean;
+    constructor(public socketService: ChatSocketClientService, private route: ActivatedRoute, public dialog: MatDialog) {}
 
     ngOnInit(): void {
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+            console.log(this.paramsObject);
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.mode = this.isClassic ? 'Classique' : 'Coopératif';
         this.connect();
-        this.socketService.send('update-joinable-matches', this.mode);
+        this.socketService.send('update-joinable-matches', this.isClassic);
     }
 
     connect() {
@@ -40,33 +49,29 @@ export class JoindrePartieComponent implements OnInit {
             this.gameList.push();
         });
     }
-    toggleUsernameForm(i: number) {
-        this.clearOpenedToggles();
-        this.openedGameWindow.push(i);
-        this.displayUsernameFormGame[i] = !this.displayUsernameFormGame[i];
+
+    openDialog(gamePassword: string): void {
+        const dialogRef = this.dialog.open(GamePasswordFormComponent, {
+            data: { password: gamePassword },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            console.log('The dialog was closed');
+            console.log('Result:', result.goodPassword);
+        });
     }
+
+    openPrivateWaiting(): void {
+        this.dialog.open(PrivateGameWaitingComponent, {
+            disableClose: true,
+        });
+    }
+
     joinWaitingRoom(gameToJoin: Game) {
-        gameToJoin.usernameTwo = this.username;
-        this.socketService.send('waiting-room-second-player', gameToJoin);
-    }
-
-    valideUsername(username: string) {
-        return !SPECIAL_CHARACTERS.test(username);
-    }
-
-    joinRandomGame() {
-        this.clearOpenedToggles();
-        const randomGameIndex = Math.floor(Math.random() * this.gameList.length);
-        this.toggleUsernameForm(randomGameIndex);
-        this.openedGameWindow.push(randomGameIndex);
-        this.click = !this.click;
-    }
-
-    cancelToggle(i: number) {
-        this.displayUsernameFormGame[i] = !this.displayUsernameFormGame[i];
-    }
-
-    clearOpenedToggles() {
-        for (const game of this.openedGameWindow) this.displayUsernameFormGame[game] = false;
+        if (gameToJoin.password) this.openDialog(gameToJoin.password);
+        else {
+            gameToJoin.joinedPlayers.push(this.username);
+            this.socketService.send('waiting-room-second-player', gameToJoin);
+        }
     }
 }
