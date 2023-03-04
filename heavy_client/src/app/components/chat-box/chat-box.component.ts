@@ -91,6 +91,7 @@ export class ChatBoxComponent implements OnInit {
         });
         this.socketService.on('draw-letters-opponent', (lettersPosition) => {
             lettersPosition = JSON.parse(lettersPosition as string)
+            lettersPosition = (typeof lettersPosition === "string") ? JSON.parse(lettersPosition as unknown as string): lettersPosition;
 
             this.gridService.placeLetter(lettersPosition as Letter[]);
             this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);

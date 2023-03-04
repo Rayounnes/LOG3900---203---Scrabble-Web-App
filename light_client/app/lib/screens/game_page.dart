@@ -379,10 +379,10 @@ class _GamePageState extends State<GamePage> {
         getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
 
         getIt<SocketService>().send('send-player-score');
-        getIt<SocketService>().send('update-reserve');
-        getIt<SocketService>().send('change-user-turn');
-        getIt<SocketService>().send('draw-letters-rack');
+        switchRack(false);
         // getIt<SocketService>().send('freeze-timer');
+      } else {
+        setTileOnRack();
       }
     });
   }

@@ -221,10 +221,10 @@ export class SocketManager {
         socket.on('remove-letters-rack', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
             console.log(letters);
-            if (typeof letters === "string"){
-                letters = JSON.parse(letters as unknown as string)
+        
+            letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
                 
-            }
+            
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
