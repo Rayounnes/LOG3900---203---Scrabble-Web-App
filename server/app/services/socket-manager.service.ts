@@ -214,7 +214,9 @@ export class SocketManager {
         });
         socket.on('draw-letters-rack', () => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
+
         });
         socket.on('remove-letters-rack', (letters: Letter[]) => {
             const room = this.usersRoom.get(socket.id) as string;
@@ -241,13 +243,17 @@ export class SocketManager {
         socket.on('verify-place-message', (command: WordArgs) => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
+            console.log(command.line, command.column, command.orientation, command.value);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
+            console.log(lettersPosition);
+
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
+            
             const room = this.usersRoom.get(socket.id) as string;
             const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;

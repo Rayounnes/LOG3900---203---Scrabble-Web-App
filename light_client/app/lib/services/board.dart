@@ -122,8 +122,8 @@ class Board {
       value += letter.value;
     }
     WordArgs word = WordArgs();
-    word.line = letters[0].line;
-    word.column = letters[0].column;
+    word.line = letters[0].line + 1;
+    word.column = letters[0].column + 1;
     word.orientation = orientation;
     word.value = value;
     return word;
@@ -162,11 +162,12 @@ class Board {
     // }
     int currentPos = startLetter.line;
     for (var letter in letters) {
-      while (getIsFilled(currentPos + 1, startLetter.column)) {
-        currentPos++;
-      }
-      if (letter.line != currentPos + 1) {
+      if (letter.line != currentPos) {
         return;
+      }
+      currentPos++;
+      while (getIsFilled(startLetter.column, currentPos)) {
+        currentPos++;
       }
     }
 

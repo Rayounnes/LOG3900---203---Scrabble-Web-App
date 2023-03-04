@@ -54,4 +54,9 @@ class TilePlacement {
     }
     return res;
   }
+
+  Offset getOpponentPosition(int line, int column) {
+    return Offset(
+        LEFT_BOARD_POSITION + column * 50, TOP_BOARD_POSITION + line * 50);
+  }
 }
