@@ -1,7 +1,11 @@
+
+
 import 'package:app/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:app/widgets/channel.dart';
 import 'package:app/widgets/button.dart';
+import 'package:app/main.dart';
+import 'package:app/services/socket_client.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -11,8 +15,21 @@ class Channels extends StatefulWidget {
 }
 
 class _ChannelsState extends State<Channels> {
+  @override
+  void initState() {
+    super.initState();
+    handleSockets();
+    
+  }
+
   List<String> discussions = ["General"];
   final nameController = TextEditingController(text: "Nouvelle discussion");
+
+  void handleSockets() {
+    getIt<SocketService>().on("create-chat", (nameChat) {
+         discussions.add(nameChat);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +125,11 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              discussions.add(nameController.text);
+              setState(() {
+                discussions.add(nameController.text);
+              });
+              print(discussions);
+              // getIt<SocketService>().send("create-chat", nameController.text);
             },
             child: Text(
               "Créer le chat",
