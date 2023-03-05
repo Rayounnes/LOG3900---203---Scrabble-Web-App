@@ -1,5 +1,4 @@
 
-
 import 'package:app/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:app/widgets/channel.dart';
@@ -33,7 +32,18 @@ class _ChannelsState extends State<Channels> {
       }).catchError((error) {
       print('Error fetching channels: $error');
       });
+    
+       getIt<SocketService>().on("channel-created", (chatMessage) {
+      try {
+        if (mounted) {
+          setState(() {
 
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
   }
 
   @override
@@ -142,11 +152,12 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                discussions.add(nameController.text);
-              });
+              // setState(() {
+                
+              //   discussions.add(nameController.text);
+              // });
+              getIt<SocketService>().send("channel-creation", nameController.text);
               Navigator.of(context).pop();
-              // getIt<SocketService>().send("create-chat", nameController.text);
             },
             child: Text(
               "Créer le chat",
