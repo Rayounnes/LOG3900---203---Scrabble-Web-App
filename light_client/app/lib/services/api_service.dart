@@ -54,8 +54,6 @@ Future<List<dynamic>> getAllChannels() async {
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allchannels'),
     );
     if (response.statusCode == 200) {
-      print('yoooo');
-      print(response.body);
       return jsonDecode(response.body);
 
     } else {

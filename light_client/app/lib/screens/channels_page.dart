@@ -28,12 +28,12 @@ class _ChannelsState extends State<Channels> {
   var chatDeleted = '';
 
   handleSockets() async{
-    try {
-    List channels = await ApiService().getAllChannels();
-    print(channels);
-  } catch (e) {
-    print('Error fetching channels: $e');
-  }
+    ApiService().getAllChannels().then((response) {
+      print(response); // affiche la réponse de la requête HTTP
+      }).catchError((error) {
+      print('Error fetching channels: $error');
+      });
+
   }
 
   @override
