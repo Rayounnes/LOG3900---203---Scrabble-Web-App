@@ -6,6 +6,7 @@ import 'package:app/widgets/button.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/api_service.dart';
+import 'package:app/models/channels_model.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -33,11 +34,12 @@ class _ChannelsState extends State<Channels> {
       print('Error fetching channels: $error');
       });
     
-       getIt<SocketService>().on("channel-created", (chatMessage) {
+      getIt<SocketService>().on("channel-created", (channel) {
+      print(channel);
       try {
         if (mounted) {
           setState(() {
-
+            discussions.add(channel['name']);
           });
         }
       } catch (e) {
@@ -152,10 +154,6 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              // setState(() {
-                
-              //   discussions.add(nameController.text);
-              // });
               getIt<SocketService>().send("channel-creation", nameController.text);
               Navigator.of(context).pop();
             },
