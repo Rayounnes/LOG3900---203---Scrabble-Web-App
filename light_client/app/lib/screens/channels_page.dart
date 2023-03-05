@@ -6,6 +6,7 @@ import 'package:app/widgets/channel.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/services/api_service.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -26,14 +27,18 @@ class _ChannelsState extends State<Channels> {
   final nameController = TextEditingController(text: "Nouvelle discussion");
   var chatDeleted = '';
 
-  void handleSockets() {
-    getIt<SocketService>().on("create-chat", (nameChat) {
-         discussions.add(nameChat);
-    });
+  handleSockets() async{
+    try {
+    List channels = await ApiService().getAllChannels();
+    print(channels);
+  } catch (e) {
+    print('Error fetching channels: $e');
+  }
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Column(
