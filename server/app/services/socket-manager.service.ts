@@ -340,6 +340,7 @@ export class SocketManager {
         if(username){
             let channels = await this.channelService.getUserChannelsName(username)
             for(let channel of channels){
+                console.log("ce que je veux");
                 console.log(channel);
                 socket.join(channel);
             }

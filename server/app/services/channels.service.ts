@@ -50,7 +50,6 @@ export class ChannelService {
     async getAllUsers() {
         let allUsers = await this.userCollection.find().toArray();
         let allUsersChannel = allUsers.map((obj) => obj.channels);
-        console.log(allUsersChannel);
         return allUsersChannel;
     }
 
@@ -81,14 +80,20 @@ export class ChannelService {
 
     }
 
-    async joinExistingChannels(channelsNames : string[], username : string){
+    async joinExistingChannels(channelsNames : string | string[], username : string){
         let user = await this.userCollection.findOne({ username: username });
         if(user){
-            for(let channelName of channelsNames){
-                await this.userCollection.updateOne({_id : user["_id"]},{ $push: { channels: channelName } })
+            if(Array.isArray(channelsNames)){
+                for(let channelName of channelsNames){
+                    await this.userCollection.updateOne({ _id: user['_id'] }, { $addToSet: { channels: channelName } });
+                }
+            }
+            else {
+                await this.userCollection.updateOne({ _id: user['_id'] }, { $addToSet: { channels: channelsNames } });
             }
         }
     }
+    
 
     async leaveChannel(channelName : string, username : string){
         let user = await this.userCollection.findOne({ username: username });
