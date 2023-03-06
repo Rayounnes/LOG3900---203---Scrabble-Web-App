@@ -63,11 +63,14 @@ export class JoindrePartieComponent implements OnInit {
 
     joinWaitingRoom(gameToJoin: Game) {
         if (gameToJoin.password) {
+            this.socketService.send('waiting-password-game', gameToJoin);
             const dialogRef = this.dialog.open(GamePasswordFormComponent, {
+                // disableClose: true,
                 data: { password: gameToJoin.password },
             });
             dialogRef.afterClosed().subscribe((result) => {
                 if (result) this.goToWaitingRoom(gameToJoin);
+                else this.socketService.send('cancel-waiting-password', gameToJoin);
             });
         } else if (!gameToJoin.isPrivate) {
             this.goToWaitingRoom(gameToJoin);

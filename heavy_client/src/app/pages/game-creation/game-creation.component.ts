@@ -24,6 +24,7 @@ export class GameCreationComponent implements OnInit {
         humanPlayers: 2,
         observers: 0,
         virtualPlayers: 0,
+        playersWaiting: 0,
         time: 60,
     } as Game;
     dictionaries: Dictionary[] = [];

@@ -33,7 +33,7 @@ export class GameManager {
     }
     leaveRoom(socketId: string) {
         this.usersRoom.delete(socketId);
-        this.usernames.delete(socketId);
+        // this.usernames.delete(socketId);
     }
     changeTurn(room: string) {
         this.scrabbleGames.get(room)?.toggleTurn();
