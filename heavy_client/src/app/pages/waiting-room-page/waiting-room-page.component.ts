@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Game } from '@app/interfaces/game';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AcceptPlayerGameComponent } from '@app/components/accept-player-game/accept-player-game.component';
+// import { Game } from '@app/interfaces/game';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
-
-const WAITING_DELAY = 3000;
+import { Game } from '@app/interfaces/game';
+import { PlayerInfos } from '@app/interfaces/player-infos';
 
 @Component({
     selector: 'app-waiting-room-page',
@@ -11,19 +14,38 @@ const WAITING_DELAY = 3000;
     styleUrls: ['waiting-room-page.component.scss'],
 })
 export class WaitingRoomPageComponent implements OnInit {
-    userKicked = false;
-    userLeft = false;
-    userCanceled = false;
     isHost: boolean = false;
-    isJoinedPlayer: boolean = false;
+    isClassic: boolean = false;
     hostUsername = '';
-    joinedUsername = '';
-    leftUsername = '';
+    paramsObject: any;
     mode: string;
-    constructor(public router: Router, private route: ActivatedRoute, public socketService: ChatSocketClientService) {}
+    game = {
+        hostUsername: '',
+        isPrivate: false,
+        isFullPlayers: false,
+        joinedPlayers: [{ username: '', socketId: '' }],
+        joinedObservers: [{ username: '', socketId: '' }],
+        humanPlayers: 2,
+    } as Game;
+
+    constructor(
+        public router: Router,
+        private route: ActivatedRoute,
+        public socketService: ChatSocketClientService,
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar,
+    ) {}
+
+    onCreateGameClick(): void {
+        console.log('Creating game...');
+    }
 
     ngOnInit(): void {
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.mode = this.isClassic ? 'Classique' : 'Coopératif';
         this.connect();
     }
 
@@ -36,45 +58,64 @@ export class WaitingRoomPageComponent implements OnInit {
     }
 
     configureBaseSocketFeatures() {
-        this.socketService.on('create-game', (username: string) => {
-            this.hostUsername = username;
+        this.socketService.on('create-game', (game: Game) => {
+            this.game = game;
             this.isHost = true;
         });
-        this.socketService.on('waiting-room-second-player', (username: string) => {
-            this.joinedUsername = username;
-            this.isJoinedPlayer = true;
+        this.socketService.on('waiting-room-player', (game: Game) => {
+            this.game = game;
         });
-        this.socketService.on('add-second-player-waiting-room', (game: Game) => {
-            this.joinedUsername = game.usernameTwo;
-            this.hostUsername = game.usernameOne;
+        this.socketService.on('private-room-player', (userInfos: PlayerInfos) => {
+            this.openAcceptDialog(userInfos);
         });
-        this.socketService.on('kick-user', () => {
-            this.userKicked = true;
-            setTimeout(() => {
-                this.router.navigate([`/joindre-partie/${this.mode}`]);
-            }, WAITING_DELAY);
-        });
-        this.socketService.on('joined-user-left', () => {
-            this.userLeft = true;
-            this.leftUsername = this.joinedUsername;
-            this.joinedUsername = '';
+
+        this.socketService.on('joined-user-left', (username: string) => {
+            const message = `${username} a quitté la partie.`;
+            this.snackBar.open(message, 'Fermer', {
+                duration: 3000,
+                panelClass: ['snackbar'],
+            });
         });
         this.socketService.on('join-game', () => {
             this.router.navigate([`/game/${this.mode}`]);
         });
+        this.socketService.on('cancel-match', () => {
+            const message = 'La partie a été annulée par le créateur.';
+            this.snackBar.open(message, 'Fermer', {
+                duration: 3000,
+                panelClass: ['snackbar'],
+            });
+            this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
+        });
     }
-    confirmUser() {
-        this.socketService.send('join-game', { playerUsername: this.joinedUsername, mode: this.mode });
-    }
+
     cancelWaitingJoinedUser() {
         this.socketService.send('joined-user-left');
+        this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
     }
     cancelMatch() {
         this.socketService.send('cancel-match');
+        this.router.navigate(['/mode'], { queryParams: { isClassicMode: this.isClassic } });
     }
 
-    kickUser() {
-        this.socketService.send('kick-user', this.joinedUsername);
-        this.joinedUsername = '';
+    openAcceptDialog(userInfos: PlayerInfos): void {
+        const dialogRef = this.dialog.open(AcceptPlayerGameComponent, {
+            width: 'auto',
+            data: { username: userInfos.username },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === null) {
+                const message = `${userInfos.username} a quitté l'attente d'acceptation.`;
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            } else if (result) {
+                this.socketService.send('accept-private-player', userInfos);
+            } else {
+                this.socketService.send('reject-private-player', userInfos);
+            }
+        });
     }
 }

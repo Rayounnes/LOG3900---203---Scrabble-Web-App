@@ -8,7 +8,6 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     styleUrls: ['./private-game-waiting.component.scss'],
 })
 export class PrivateGameWaitingComponent implements OnInit {
-    userKicked: boolean = false;
     constructor(public dialogRef: MatDialogRef<PrivateGameWaitingComponent>, public socketService: ChatSocketClientService) {}
 
     ngOnInit(): void {
@@ -24,14 +23,15 @@ export class PrivateGameWaitingComponent implements OnInit {
     }
 
     configureBaseSocketFeatures() {
-        this.socketService.on('kick-user', () => {
-            this.userKicked = true;
-            this.dialogRef.close();
+        this.socketService.on('reject-private-player', () => {
+            this.dialogRef.close(false);
+        });
+        this.socketService.on('accept-private-player', () => {
+            this.dialogRef.close(true);
         });
     }
 
     cancelWaitingJoinedUser() {
-        this.socketService.send('joined-user-left');
-        this.dialogRef.close();
+        this.dialogRef.close(null);
     }
 }

@@ -64,9 +64,9 @@ export class GameCreationComponent implements OnInit {
         this.game.joinedPlayers = [];
         this.game.joinedObservers = [];
         this.game.virtualPlayers = 4 - this.game.humanPlayers;
-        console.log(this.game);
+        this.dialogRef.close();
         this.socketService.send('create-game', this.game);
-        // this.router.navigate([`/waiting-room/${this.mode}`]);
+        this.router.navigate(['/waiting-room'], { queryParams: { isClassicMode: this.data.isClassic } });
     }
 
     onNoClick(): void {

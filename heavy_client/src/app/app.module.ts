@@ -17,6 +17,7 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
+import { MatListModule } from '@angular/material/list';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
@@ -39,6 +40,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { GamePasswordFormComponent } from './components/game-password-form/game-password-form.component';
 import { PrivateGameWaitingComponent } from './components/private-game-waiting/private-game-waiting.component';
+import { AcceptPlayerGameComponent } from './components/accept-player-game/accept-player-game.component';
 
 /**
  * Main module that is used in main.ts.
@@ -70,6 +72,7 @@ import { PrivateGameWaitingComponent } from './components/private-game-waiting/p
         GameCreationComponent,
         GamePasswordFormComponent,
         PrivateGameWaitingComponent,
+        AcceptPlayerGameComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
@@ -90,6 +93,7 @@ import { PrivateGameWaitingComponent } from './components/private-game-waiting/p
         MatTabsModule,
         MatSlideToggleModule,
         MatCheckboxModule,
+        MatListModule,
     ],
     providers: [],
     bootstrap: [AppComponent],

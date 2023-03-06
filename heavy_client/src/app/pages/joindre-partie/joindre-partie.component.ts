@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { GamePasswordFormComponent } from '@app/components/game-password-form/game-password-form.component';
 import { PrivateGameWaitingComponent } from '@app/components/private-game-waiting/private-game-waiting.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 // import { Dictionary } from '@app/interfaces/dictionary';
 
@@ -17,12 +18,17 @@ export class JoindrePartieComponent implements OnInit {
     gameList: Game[] = [];
     displayUsernameFormGame: boolean[] = [false];
     openedGameWindow: number[] = [];
-    username: string = '';
     click: boolean = false;
     paramsObject: any;
     mode: string;
     isClassic: boolean;
-    constructor(public socketService: ChatSocketClientService, private route: ActivatedRoute, public dialog: MatDialog) {}
+    constructor(
+        public router: Router,
+        public socketService: ChatSocketClientService,
+        private route: ActivatedRoute,
+        public dialog: MatDialog,
+        private snackBar: MatSnackBar,
+    ) {}
 
     ngOnInit(): void {
         this.route.queryParamMap.subscribe((params) => {
@@ -50,28 +56,38 @@ export class JoindrePartieComponent implements OnInit {
         });
     }
 
-    openDialog(gamePassword: string): void {
-        const dialogRef = this.dialog.open(GamePasswordFormComponent, {
-            data: { password: gamePassword },
-        });
-
-        dialogRef.afterClosed().subscribe((result) => {
-            console.log('The dialog was closed');
-            console.log('Result:', result.goodPassword);
-        });
-    }
-
-    openPrivateWaiting(): void {
-        this.dialog.open(PrivateGameWaitingComponent, {
-            disableClose: true,
-        });
+    goToWaitingRoom(gameToJoin: Game) {
+        this.socketService.send('waiting-room-player', gameToJoin);
+        this.router.navigate(['/waiting-room'], { queryParams: { isClassicMode: this.isClassic } });
     }
 
     joinWaitingRoom(gameToJoin: Game) {
-        if (gameToJoin.password) this.openDialog(gameToJoin.password);
-        else {
-            gameToJoin.joinedPlayers.push(this.username);
-            this.socketService.send('waiting-room-second-player', gameToJoin);
+        if (gameToJoin.password) {
+            const dialogRef = this.dialog.open(GamePasswordFormComponent, {
+                data: { password: gameToJoin.password },
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+                if (result) this.goToWaitingRoom(gameToJoin);
+            });
+        } else if (!gameToJoin.isPrivate) {
+            this.goToWaitingRoom(gameToJoin);
+        } else if (gameToJoin.isPrivate) {
+            this.socketService.send('private-room-player', gameToJoin);
+            const privateDialogRef = this.dialog.open(PrivateGameWaitingComponent, {
+                disableClose: true,
+            });
+
+            privateDialogRef.afterClosed().subscribe((result) => {
+                if (result === null) this.socketService.send('left-private-player', gameToJoin);
+                else if (result) this.goToWaitingRoom(gameToJoin);
+                else if (!result) {
+                    const message = 'Vous avez été rejeté de la partie.';
+                    this.snackBar.open(message, 'Fermer', {
+                        duration: 1000,
+                        panelClass: ['snackbar'],
+                    });
+                }
+            });
         }
     }
 }

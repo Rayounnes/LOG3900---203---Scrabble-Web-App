@@ -2,12 +2,7 @@
     justify-content: center;
     text-align: center;
 }
-#createUsername {
-    border: 1px solid black;
-    height: auto;
-    width: 300px;
-    display:block;
-}
+
 
 .homeDiv{
     justify-content: center;
@@ -75,36 +70,4 @@ h3{
     padding: 10px;
 }
 
-.return {
-    text-decoration: none;
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 200px;
-    height: 50px;
-    background-color: rgb(12, 11, 11);
-    color: white;
-    position: absolute;
-    top: 90%;
-    left: 10px;
-    padding: 15px 32px;
-}
-.return:hover {
-    background-color: rgb(124, 64, 8);
-}
 
-.randomGame {
-    cursor: pointer;
-    font-family: 'ChunkFive';
-    font-size: 1.75vh;
-    border-width: 0.25em;
-    border-radius: 0.5em;
-    border-style: solid;
-    height: 40px;
-    width: 200px;
-}
-
-.randomGame:hover {
-    background-color: rgb(207, 198, 199);
-}

@@ -1,0 +1,8 @@
+<h2 mat-dialog-title>Demande d'acceptation</h2>
+<mat-dialog-content>
+  <p>{{data.username}} essaye de rejoindre la partie. Accepter ou rejeter le joueur?</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onRejectClick()">Rejeter</button>
+  <button mat-raised-button color="primary" (click)="onAcceptClick()">Accepter</button>
+</mat-dialog-actions>

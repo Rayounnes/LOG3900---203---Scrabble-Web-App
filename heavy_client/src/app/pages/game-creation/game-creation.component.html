@@ -12,7 +12,7 @@
             <mat-error *ngIf="game.humanPlayers < 2">Nombre de joeurs humains trop petit.</mat-error>
             <mat-icon matSuffix></mat-icon>
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field *ngIf="data.isClassic" appearance="fill">
             <mat-label>Temps par tour (en secondes): </mat-label>
             <input matInput type="number" [(ngModel)]="game.time" [ngModelOptions]="{standalone: true}" max="300" min="30" value="60" id="time" step="30" required />
             <mat-error *ngIf="game.time < 30">Temps par tour trop petit.</mat-error>

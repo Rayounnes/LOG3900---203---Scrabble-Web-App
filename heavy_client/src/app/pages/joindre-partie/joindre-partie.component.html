@@ -24,7 +24,7 @@
                     </div>
                 </mat-card-content>
                 <mat-card-actions>
-                    <button mat-raised-button color="primary" (click)="game.isPrivate ? openPrivateWaiting() : joinWaitingRoom(game)">Rejoindre</button>
+                    <button mat-raised-button color="primary" (click)="joinWaitingRoom(game)">Rejoindre</button>
                     <button *ngIf="!game.isPrivate" mat-raised-button color="accent">Observer</button>
                 </mat-card-actions>
             </mat-card>

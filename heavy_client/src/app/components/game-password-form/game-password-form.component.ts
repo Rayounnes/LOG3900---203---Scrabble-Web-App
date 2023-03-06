@@ -13,14 +13,14 @@ export class GamePasswordFormComponent {
     constructor(public dialogRef: MatDialogRef<GamePasswordFormComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
     onCancelClick(): void {
-        this.dialogRef.close({ goodPassword: false });
+        this.dialogRef.close(false);
     }
 
     verifyPassword(): void {
         this.wrongPassword = this.inputPassword !== this.data.password;
         if (!this.wrongPassword) {
             this.data.validPassword = true;
-            this.dialogRef.close({ goodPassword: true });
+            this.dialogRef.close(true);
         }
     }
 }
