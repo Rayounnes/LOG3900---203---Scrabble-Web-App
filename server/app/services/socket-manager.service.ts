@@ -340,24 +340,28 @@ export class SocketManager {
         if(username){
             let channels = await this.channelService.getUserChannelsName(username)
             for(let channel of channels){
-                console.log("ce que je veux");
-                console.log(channel);
                 socket.join(channel);
             }
         }
     }
 
     async userJoinNewChannels(socket : io.Socket){
-        socket.on('join-channel', async (channelNames) =>{
+        socket.on('join-channel', async (channelNames : string | string[]) =>{
             let username = this.usernames.get(socket.id);
-            await this.channelService.joinExistingChannels(channelNames,username as string);
-            for(let channel of channelNames){
-                socket.join(channel)
+            await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
+            if(Array.isArray(channelNames)){
+                for(let channel of channelNames){
+                    socket.join(channel);
+                }
+            }
+            else {
+                console.log(channelNames);
+                socket.join(channelNames);
             }
             this.sio.to(socket.id).emit('channels-joined');
-
         })
     }
+    
 
     userCreateChannel(socket : io.Socket){
         socket.on('channel-creation', async (channelName : string) =>{
