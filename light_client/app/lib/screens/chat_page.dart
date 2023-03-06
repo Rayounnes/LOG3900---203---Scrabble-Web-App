@@ -8,6 +8,7 @@ import 'package:app/services/user_infos.dart';
 
 class ChatPage extends StatefulWidget {
   final String discussion;
+  
   const ChatPage({super.key, required this.discussion});
 
   @override
@@ -19,7 +20,6 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     handleSockets();
-    print(widget.discussion);
   }
 
   @override
@@ -31,11 +31,14 @@ class _ChatPageState extends State<ChatPage> {
 
   String username = getIt<UserInfos>().user;
   List<ChatMessage> messages = [];
+  String currentChat = '';
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
-  void handleSockets() {
-    getIt<SocketService>().on("chatMessage", (chatMessage) {
+  void handleSockets() async {
+    getIt<SocketService>().on('chatMessage', (chatMessage) {
+      print('dans la socket on');
+      print(chatMessage);
       try {
         if (mounted) {
           setState(() {
@@ -55,8 +58,11 @@ class _ChatPageState extends State<ChatPage> {
         username: username,
         type: "player",
         message: messageController.text,
-        time: DateFormat.Hms().format(DateTime.now()));
-    getIt<SocketService>().send("chatMessage", message);
+        time: DateFormat.Hms().format(DateTime.now()),
+        channel: widget.discussion);
+    print('dnas la socket send');
+    print(message.channel);
+    getIt<SocketService>().send('chatMessage', message);
     messageController.clear();
   }
 
@@ -84,11 +90,12 @@ class _ChatPageState extends State<ChatPage> {
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
               itemBuilder: (context, index) {
-                return Message(
+                  return Message(
                     name: messages[index].username,
                     messageContent: messages[index].message,
                     isSender: messages[index].username == username,
-                    time: messages[index].time);
+                    time: messages[index].time,
+                    );
               },
             ),
           ),
@@ -123,7 +130,9 @@ class _ChatPageState extends State<ChatPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: FloatingActionButton(
                       onPressed: () {
+                        print(messages);
                         sendMessage(messageController.text);
+                        
                       },
                       child: Icon(
                         Icons.send,

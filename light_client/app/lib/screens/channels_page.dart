@@ -10,9 +10,9 @@ import 'package:app/models/channels_model.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
-
   @override
   State<Channels> createState() => _ChannelsState();
+
 }
 
 class _ChannelsState extends State<Channels> {
@@ -24,18 +24,22 @@ class _ChannelsState extends State<Channels> {
   }
 
   List<String> discussions = ["General"];
+  List<dynamic> allChannelsDB = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
-  var chatDeleted = '';
+  
+  String chatDeleted = '';
+  String chatJoined = '';
 
   handleSockets() async{
+    print(discussions);
     ApiService().getAllChannels().then((response) {
-      print(response); // affiche la réponse de la requête HTTP
+      allChannelsDB = response;
+      print(allChannelsDB); 
       }).catchError((error) {
       print('Error fetching channels: $error');
       });
     
       getIt<SocketService>().on("channel-created", (channel) {
-      print(channel);
       try {
         if (mounted) {
           setState(() {
@@ -46,11 +50,26 @@ class _ChannelsState extends State<Channels> {
         print(e);
       }
     });
+
+    getIt<SocketService>().on("leave-channel", (dynamic) {});
+
+    getIt<SocketService>().on("channels-joined", (dynamic) {
+      try {
+        if (mounted) {
+          setState(() {
+            print(chatJoined);
+            discussions.add(chatJoined);
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    
+    print(discussions);
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Column(
@@ -101,6 +120,7 @@ class _ChannelsState extends State<Channels> {
                     Expanded(child: GameButton(
                     padding: 32.0,
                     route: () {
+                      showModalSearch(context);
                       }, 
                     name: "Rechercher un chat",
                     ))
@@ -218,14 +238,13 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
+              getIt<SocketService>().send("delete-channel", chatDeleted);
+               setState(() {
                 if(chatDeleted != 'General') {
                   discussions.remove(chatDeleted);
                 } 
               });
-              print(discussions);
               Navigator.of(context).pop();
-              // getIt<SocketService>().send("create-chat", nameController.text);
             },
             child: Text(
               "Supprimer le chat",
@@ -235,4 +254,70 @@ class _ChannelsState extends State<Channels> {
       ),
     );
   }
+
+
+   void showModalSearch(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('Rechercher un chat'),
+        content: Container(
+          height: 150,
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+               Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Choisissez un chat que vous voulez rejoindre",
+                  ),
+                ),
+                DropdownButtonFormField(
+                    validator: (value) => value == null
+                        ? "Veuillez choisir le chat à rejoindre"
+                        : null,
+                    value: allChannelsDB[0],
+                    onChanged: (Object? newValue) {
+                      setState(() {
+                        chatJoined = newValue! as String;
+                      });
+                    },
+                    items: allChannelsDB.map((discussion) {
+                    return DropdownMenuItem(
+                    value: discussion,
+                    child: Text(discussion),
+                    );
+                    }).toList(),)
+              ],
+            ),
+          ),
+        ),
+        actions: <ElevatedButton>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Annuler",
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              getIt<SocketService>().send("join-channel", chatJoined);
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Rejoindre le chat",
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  
 }

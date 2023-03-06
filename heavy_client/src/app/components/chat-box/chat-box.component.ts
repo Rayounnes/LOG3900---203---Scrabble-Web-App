@@ -164,10 +164,10 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
             let channel : any;
             for(channel of this.allUserChannels){
-                if(channel['name'] == chatMessage.channel){
-                    channel.messages.push(chatMessage)
+                if (channel['name'] == chatMessage.channel) {
+                    channel.messages.push(chatMessage);
                     if(channel.messages[0].length == 0)
-                    channel.messages.shift()
+                    channel.messages.shift();
                     if(channel['name'] == this.currentChannel){
                         this.chatMessages = channel.messages
                     }else{

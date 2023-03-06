@@ -207,8 +207,9 @@ export class SocketManager {
             //const room = this.usersRoom.get(socket.id) as string;
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
+            // eslint-disable-next-line no-console
             this.sio.to(message.channel as string).emit('chatMessage', message);
-            this.channelService.addMessageToChannel(message)
+            this.channelService.addMessageToChannel(message);
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
@@ -339,6 +340,7 @@ export class SocketManager {
         if(username){
             let channels = await this.channelService.getUserChannelsName(username)
             for(let channel of channels){
+                console.log(channel);
                 socket.join(channel);
             }
         }
