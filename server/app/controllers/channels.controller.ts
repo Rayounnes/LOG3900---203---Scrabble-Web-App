@@ -34,6 +34,12 @@ export class ChannelController{
             })
         });
 
+        this.router.get('/allusers', async (req: Request, res: Response, next): Promise<void> => {
+            this.channelService.getAllUsers().then((allUsersName)=>{
+                res.send(allUsersName);
+            })
+        });
+
         
     }
 

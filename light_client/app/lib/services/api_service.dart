@@ -62,6 +62,19 @@ Future<List<dynamic>> getAllChannels() async {
 }
 
 
+Future<List<dynamic>> getAllUsers() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/allusers'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+
 
 
 }

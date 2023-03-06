@@ -499,6 +499,7 @@ export class ChatBoxComponent implements OnInit {
     getUserChannels(){
         this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
             this.allUserChannels = userChannels
+            console.log(this.allUserChannels);
             this.currentChannel = "General"
             let channel : any;
             for(channel of this.allUserChannels){

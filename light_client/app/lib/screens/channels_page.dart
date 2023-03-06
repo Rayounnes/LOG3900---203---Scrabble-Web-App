@@ -25,6 +25,7 @@ class _ChannelsState extends State<Channels> {
 
   List<String> discussions = ["General"];
   List<dynamic> allChannelsDB = [];
+  List<dynamic> allUsersChannels = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
   
   String chatDeleted = '';
@@ -35,6 +36,14 @@ class _ChannelsState extends State<Channels> {
     ApiService().getAllChannels().then((response) {
       allChannelsDB = response;
       print(allChannelsDB); 
+      }).catchError((error) {
+      print('Error fetching channels: $error');
+      });
+
+
+      ApiService().getAllUsers().then((response) {
+        allUsersChannels=response;
+        print(allUsersChannels);
       }).catchError((error) {
       print('Error fetching channels: $error');
       });
@@ -65,6 +74,30 @@ class _ChannelsState extends State<Channels> {
         print(e);
       }
     });
+  }
+
+
+  String numberUsersOfChannel(String nameChannelDeleted) {
+    int count = 0;
+    for(dynamic channel in allUsersChannels){
+      if (channel != null) {
+        for(String nameChannel in channel){
+          if(nameChannel == nameChannelDeleted){
+            count += 1;
+          }
+        }
+
+      }
+    }
+    if(count == 1) {
+      return "delete";
+    }
+    else if (count > 1) {
+      return "leave";
+    }
+    else {
+      return "";
+    }
   }
 
   @override
@@ -238,11 +271,18 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              getIt<SocketService>().send("delete-channel", chatDeleted);
-               setState(() {
-                if(chatDeleted != 'General') {
-                  discussions.remove(chatDeleted);
-                } 
+              String action = numberUsersOfChannel(chatDeleted);
+              if(action == "delete") {
+                 getIt<SocketService>().send("delete-channel", chatDeleted);
+              }
+              else if(action == "leave"){
+                getIt<SocketService>().send("leave-channel", chatDeleted); 
+              }
+              else {}
+              setState(() {
+              if(chatDeleted != 'General') {
+                discussions.remove(chatDeleted);
+              } 
               });
               Navigator.of(context).pop();
             },

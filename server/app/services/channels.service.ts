@@ -9,7 +9,7 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 
 @injectable()
 @Service()
-export class ChannelService{
+export class ChannelService {
     constructor(@inject(types.DatabaseService) private databaseService: DatabaseService) {}
 
     get channelCollection()  {
@@ -44,7 +44,14 @@ export class ChannelService{
     async getAllChannels(){
         let allChannels = await this.channelCollection.find().toArray();
         let allChannelsName = allChannels.map((obj) => obj.name)
-        return allChannelsName
+        return allChannelsName;
+    }
+
+    async getAllUsers() {
+        let allUsers = await this.userCollection.find().toArray();
+        let allUsersChannel = allUsers.map((obj) => obj.channels);
+        console.log(allUsersChannel);
+        return allUsersChannel;
     }
 
     async addMessageToChannel(message : ChatMessage) {
