@@ -19,13 +19,17 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
+    print("init");
+  
     handleSockets();
+   
     
   }
 
   List<String> discussions = ["General"];
   List<dynamic> allChannelsDB = [];
   List<dynamic> allUsersChannels = [];
+  List<dynamic> channelsUsers = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
   
   String chatDeleted = '';
@@ -33,19 +37,30 @@ class _ChannelsState extends State<Channels> {
 
   handleSockets() async{
     print(discussions);
-    ApiService().getAllChannels().then((response) {
-      allChannelsDB = response;
-      print(allChannelsDB); 
-      }).catchError((error) {
-      print('Error fetching channels: $error');
-      });
+   
 
 
       ApiService().getAllUsers().then((response) {
         allUsersChannels=response;
-        print(allUsersChannels);
       }).catchError((error) {
       print('Error fetching channels: $error');
+      });
+
+      getIt<SocketService>().on("sendUsername", (username) {
+         ApiService().getAllChannels().then((response) {
+          channelsUsers = response;
+          }).catchError((error) {
+          print('Error fetching channels: $error');
+          });
+        setState(() {
+          discussions = ["General"];
+          for(String channel in channelsUsers) {
+            if(channel != "General"){
+                discussions.add(channel);
+            }
+          
+          }  
+        });
       });
     
       getIt<SocketService>().on("channel-created", (channel) {
@@ -66,7 +81,6 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() {
-            print(chatJoined);
             discussions.add(chatJoined);
           });
         }
@@ -101,8 +115,9 @@ class _ChannelsState extends State<Channels> {
   }
 
   @override
+  
   Widget build(BuildContext context) {
-    print(discussions);
+  
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Column(
@@ -128,6 +143,8 @@ class _ChannelsState extends State<Channels> {
               padding: EdgeInsets.all(16),
               physics: BouncingScrollPhysics(),
               itemBuilder: (context, index) {
+      
+
                 return Channel(name: discussions[index]);
               },
               separatorBuilder: (context, index) => SizedBox(

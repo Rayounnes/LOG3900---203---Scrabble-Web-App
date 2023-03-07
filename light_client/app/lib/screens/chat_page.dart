@@ -100,52 +100,116 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
-              color: Colors.white,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (value) {
-                        FocusManager.instance.primaryFocus?.requestFocus();
-                        sendMessage(value);
-                      },
-                      controller: messageController,
-                      decoration: InputDecoration(
-                          hintText: "Écris un message ...",
-                          hintStyle: TextStyle(color: Colors.black54),
-                          border: OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              messageController.clear();
-                            },
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        print(messages);
-                        sendMessage(messageController.text);
-                        
-                      },
-                      child: Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                      backgroundColor: Colors.blue,
-                    ),
-                  ),
-                ],
+            alignment: Alignment.topLeft,
+            child:Row(children: [
+            SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Salut!';
+                  sendMessage(messageController.text);
+                  // action à effectuer lorsqu'on appuie sur le bouton 1
+                },
+                child: Text('Salut!'),
+              ),
+        SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Bien joué!';
+                  sendMessage(messageController.text);// action à effectuer lorsqu'on appuie sur le bouton 2
+                },
+                child: Text('Bien joué!')),
+         SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Nul!';
+                  sendMessage(messageController.text); // action à effectuer lorsqu'on appuie sur le bouton 2
+                },
+                child: Text('Nul!')),
+          SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Wow!';
+                  sendMessage(messageController.text); 
+                  // action à effectuer lorsqu'on appuie sur le bouton 2
+                },
+                child: Text('Wow!')),
+          SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Bonne chance!';
+                  sendMessage(messageController.text); 
+                  // action à effectuer lorsqu'on appuie sur le bouton 2
+                },
+                child: Text('Bonne chance!')),
+          SizedBox(width: 50), // un espace vide pour séparer les boutons
+              TextButton(
+                onPressed: () {
+                  messageController.text = 'Oh non!';
+                  sendMessage(messageController.text); 
+                  // action à effectuer lorsqu'on appuie sur le bouton 2
+                },
+                child: Text('Oh non!')),
+                  
+                ],),
+
+                ),
+           
+
+
+
+          Align(
+  alignment: Alignment.bottomLeft,
+  child: Container(
+    padding: EdgeInsets.only(left: 10, bottom: 10, top: 10),
+    color: Colors.white,
+
+    child: Row(
+      
+      children: <Widget>[
+         SizedBox(width: 10), // un espace vide pour séparer les boutons
+        
+        Expanded(
+          child: TextField(
+            textInputAction: TextInputAction.send,
+            onSubmitted: (value) {
+              FocusManager.instance.primaryFocus?.requestFocus();
+              sendMessage(value);
+            },
+            controller: messageController,
+            decoration: InputDecoration(
+              hintText: "Écris un message ...",
+              hintStyle: TextStyle(color: Colors.black54),
+              border: OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.clear),
+                onPressed: () {
+                  messageController.clear();
+                },
               ),
             ),
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              print(messages);
+              sendMessage(messageController.text);
+            },
+            child: Icon(
+              Icons.send,
+              color: Colors.white,
+              size: 25,
+            ),
+            backgroundColor: Colors.blue,
+          ),
+        ),
+       
+      ],
+    ),
+  ),
+),
+
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app/screens/chat_page.dart';
 import 'package:app/screens/channels_page.dart';
 
+
 class Channel extends StatefulWidget {
   String name;
   Channel(
@@ -16,9 +17,11 @@ class _ChannelState extends State<Channel> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
+  
           Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChatPage(discussion: widget.name),
+
                 ),
               );
         },
