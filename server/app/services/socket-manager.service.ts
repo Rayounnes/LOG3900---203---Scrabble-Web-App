@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Command } from '@app/interfaces/command';
 import { Game } from '@app/interfaces/game';
 import { Letter } from '@app/interfaces/lettre';
@@ -17,6 +18,7 @@ import { LoginService } from './login.service';
 import { DatabaseService } from './database.service';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { PlayerInfos } from '@app/interfaces/player-infos';
+import { ChannelService } from './channels.service';
 
 export class SocketManager {
     private sio: io.Server;
@@ -29,12 +31,14 @@ export class SocketManager {
     private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
     private loginService: LoginService;
+    private channelService: ChannelService;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         this.roomName = 'room' + this.roomIncrement;
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
         this.loginService = new LoginService(this.databaseService);
+        this.channelService = new ChannelService(this.databaseService);
     }
     changeRoomName() {
         this.roomIncrement++;
@@ -253,8 +257,8 @@ export class SocketManager {
             //const room = this.usersRoom.get(socket.id) as string;
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
-            console.log(message);
-            this.sio.emit('chatMessage', message);
+            this.sio.to(message.channel as string).emit('chatMessage', message);
+            this.channelService.addMessageToChannel(message);
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
@@ -358,15 +362,74 @@ export class SocketManager {
     userConnectionHandler(socket: io.Socket) {
         socket.on('user-connection', (loginInfos) => {
             this.usernames.set(loginInfos.socketId, loginInfos.username);
+            this.userJoinChannels(socket);
         });
     }
 
     userDisconnectHandler(socket: io.Socket) {
         socket.on('user-disconnect', (socketId: string) => {
-            let username = this.usernames.get(socketId);
+            const username = this.usernames.get(socketId);
             if (username) {
                 this.usernames.delete(socketId);
                 this.loginService.changeConnectionState(username, false);
+            }
+        });
+    }
+
+    async userJoinChannels(socket: io.Socket) {
+        const username = this.usernames.get(socket.id);
+        if (username) {
+            const channels = await this.channelService.getUserChannelsName(username);
+            for (const channel of channels) {
+                socket.join(channel);
+            }
+        }
+    }
+
+    async userJoinNewChannels(socket: io.Socket) {
+        socket.on('join-channel', async (channelNames) => {
+            const username = this.usernames.get(socket.id);
+            await this.channelService.joinExistingChannels(channelNames, username as string);
+            for (const channel of channelNames) {
+                socket.join(channel);
+            }
+            this.sio.to(socket.id).emit('channels-joined');
+        });
+    }
+
+    userCreateChannel(socket: io.Socket) {
+        socket.on('channel-creation', async (channelName: string) => {
+            const username = this.usernames.get(socket.id);
+            const channel = await this.channelService.createNewChannel(channelName, username as string);
+            socket.join(channelName);
+            this.sio.to(channelName).emit('channel-created', channel);
+        });
+    }
+
+    userLeaveChannel(socket: io.Socket) {
+        socket.on('leave-channel', async (channelName: string) => {
+            const username = this.usernames.get(socket.id);
+            await this.channelService.leaveChannel(channelName, username as string);
+            this.sio.to(socket.id).emit('leave-channel');
+            socket.leave(channelName);
+        });
+    }
+
+    userDeleteChannel(socket: io.Socket) {
+        socket.on('delete-channel', async (channelName: string) => {
+            await this.channelService.deleteChannel(channelName);
+            this.sio.to(channelName).emit('leave-channel');
+        });
+    }
+
+    userTyping(socket: io.Socket) {
+        socket.on('isTypingMessage', (message: ChatMessage) => {
+            if (message.message.length > 0) {
+                console.log('dans server typing');
+                this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
+            } else {
+                console.log('dans server nottyping');
+                this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
             }
         });
     }
@@ -396,6 +459,11 @@ export class SocketManager {
             this.endGameHandler(socket);
             this.userConnectionHandler(socket);
             this.userDisconnectHandler(socket);
+            this.userCreateChannel(socket);
+            this.userJoinNewChannels(socket);
+            this.userLeaveChannel(socket);
+            this.userDeleteChannel(socket);
+            this.userTyping(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

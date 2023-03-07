@@ -121,7 +121,7 @@ export class CommunicationService {
     }
 
     userLogout(username : string) : Observable<void>{
-        return this.http.post<void>(`${this.baseUrl}/user/disconnect/${username}`, {})
+        return this.http.post<void>(`${this.baseUrl}/api/login/user/disconnect/${username}`, {})
         .pipe(catchError(this.handleError<void>('logoutError')))
     }
 
@@ -129,6 +129,20 @@ export class CommunicationService {
         return this.http.put<boolean>(`${this.baseUrl}/api/login/user`,infos)
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
+
+    /** ************** chat channels methods *******************************/
+
+
+    getUserChannels(username : string) : Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/api/channels/channel/${username}`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
+    getAllChannels() : Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/channels/allchannels`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

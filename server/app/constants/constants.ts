@@ -72,6 +72,7 @@ export const DATABASE_NAME = 'GeneralDB';
 export const DB_COLLECTION_CLASSIQUE = 'BESTSCORESCLASSIC';
 export const DB_COLLECTION_USERS = 'Users'
 export const DB_COLLECTION_LOG2990 = 'BESTSCORESLOG2990';
+export const DB_COLLECTION_CHANNEL = 'Channels'
 export const DB_COLLECTION_GAME_HISTORY = 'GAMEHISTORY';
 export const TOP_FIVE_SCORES = 5;
 export const DESCENDING_ORDER = -1;

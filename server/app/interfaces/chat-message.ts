@@ -3,4 +3,5 @@ export interface ChatMessage {
     message : string;
     time: string;
     type: string;
+    channel? : string;
   }
