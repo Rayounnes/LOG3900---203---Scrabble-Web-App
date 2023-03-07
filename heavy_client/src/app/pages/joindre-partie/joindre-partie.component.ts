@@ -61,11 +61,32 @@ export class JoindrePartieComponent implements OnInit {
         this.router.navigate(['/waiting-room'], { queryParams: { isClassicMode: this.isClassic } });
     }
 
+    observeGame(gameToJoin: Game) {
+        // changer par le socket pour aller a une partie
+        if (gameToJoin.hasStarted) this.socketService.send('waiting-room-player', gameToJoin);
+        else {
+            this.socketService.send('waiting-room-observer', gameToJoin);
+            this.router.navigate(['/waiting-room'], { queryParams: { isClassicMode: this.isClassic } });
+        }
+    }
+
+    joinAsObserver(gameToJoin: Game) {
+        if (gameToJoin.password) {
+            const dialogRef = this.dialog.open(GamePasswordFormComponent, {
+                data: { password: gameToJoin.password },
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+                if (result) this.observeGame(gameToJoin);
+            });
+        } else if (!gameToJoin.isPrivate) {
+            this.observeGame(gameToJoin);
+        }
+    }
+
     joinWaitingRoom(gameToJoin: Game) {
         if (gameToJoin.password) {
             this.socketService.send('waiting-password-game', gameToJoin);
             const dialogRef = this.dialog.open(GamePasswordFormComponent, {
-                // disableClose: true,
                 data: { password: gameToJoin.password },
             });
             dialogRef.afterClosed().subscribe((result) => {

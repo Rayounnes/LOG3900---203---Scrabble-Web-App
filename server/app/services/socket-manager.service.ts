@@ -94,15 +94,20 @@ export class SocketManager {
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {
-        socket.on('joined-user-left', () => {
+        socket.on('joined-user-left', (isObserver: boolean) => {
             const playerUsername = this.usernames.get(socket.id) as string;
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            game.joinedPlayers = game.joinedPlayers.filter((user) => user.username !== playerUsername);
             socket.leave(room);
             this.gameManager.leaveRoom(socket.id);
-            game.isFullPlayers = game.joinedPlayers.length === game.humanPlayers;
-            this.sio.to(room).emit('joined-user-left', playerUsername);
+            if (!isObserver) {
+                game.joinedPlayers = game.joinedPlayers.filter((user) => user.username !== playerUsername);
+                game.isFullPlayers = game.joinedPlayers.length === game.humanPlayers;
+                this.sio.to(room).emit('joined-user-left', playerUsername);
+            } else {
+                game.joinedObservers = game.joinedObservers.filter((user) => user.username !== playerUsername);
+                this.sio.to(room).emit('joined-observer-left', playerUsername);
+            }
             this.sio.to(room).emit('waiting-room-player', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
@@ -115,6 +120,18 @@ export class SocketManager {
             if (game.password) game.playersWaiting--;
             game.joinedPlayers.push({ username: playerUsername, socketId: socket.id });
             game.isFullPlayers = game.joinedPlayers.length === game.humanPlayers;
+            this.sio.to(socket.id).emit('waiting-player-status', false); // isObserver
+            this.sio.to(roomToJoin).emit('waiting-room-player', game);
+            this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
+        });
+        socket.on('waiting-room-observer', (gameParams: Game) => {
+            const roomToJoin = gameParams.room;
+            socket.join(roomToJoin);
+            this.usersRoom.set(socket.id, roomToJoin);
+            const playerUsername = this.usernames.get(socket.id) as string;
+            const game = this.gameRooms.get(roomToJoin) as Game;
+            game.joinedObservers.push({ username: playerUsername, socketId: socket.id });
+            this.sio.to(socket.id).emit('waiting-player-status', true);
             this.sio.to(roomToJoin).emit('waiting-room-player', game);
             this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
         });

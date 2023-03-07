@@ -7,6 +7,7 @@ export interface Game {
     isClassicMode: boolean;
     isPrivate: boolean;
     playersWaiting: number; // joueurs qui attendent l'acceptation du hôte
+    hasStarted: boolean;
     isFullPlayers: boolean;
     password: string;
     humanPlayers: number;

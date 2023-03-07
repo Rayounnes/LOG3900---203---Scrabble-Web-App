@@ -15,6 +15,7 @@ import { PlayerInfos } from '@app/interfaces/player-infos';
 })
 export class WaitingRoomPageComponent implements OnInit {
     isHost: boolean = false;
+    isObserver: boolean = false;
     isClassic: boolean = false;
     hostUsername = '';
     paramsObject: any;
@@ -65,6 +66,9 @@ export class WaitingRoomPageComponent implements OnInit {
         this.socketService.on('waiting-room-player', (game: Game) => {
             this.game = game;
         });
+        this.socketService.on('waiting-player-status', (isObserver: boolean) => {
+            this.isObserver = isObserver;
+        });
         this.socketService.on('private-room-player', (userInfos: PlayerInfos) => {
             this.openAcceptDialog(userInfos);
         });
@@ -76,11 +80,18 @@ export class WaitingRoomPageComponent implements OnInit {
                 panelClass: ['snackbar'],
             });
         });
+        this.socketService.on('joined-observer-left', (username: string) => {
+            const message = `${username} a quitté l'observation de la partie.`;
+            this.snackBar.open(message, 'Fermer', {
+                duration: 3000,
+                panelClass: ['snackbar'],
+            });
+        });
         this.socketService.on('join-game', () => {
             this.router.navigate([`/game/${this.mode}`]);
         });
         this.socketService.on('cancel-match', () => {
-            const message = 'La partie a été annulée par le créateur.';
+            const message = 'La partie a été annulée.';
             this.snackBar.open(message, 'Fermer', {
                 duration: 3000,
                 panelClass: ['snackbar'],
@@ -89,8 +100,8 @@ export class WaitingRoomPageComponent implements OnInit {
         });
     }
 
-    cancelWaitingJoinedUser() {
-        this.socketService.send('joined-user-left');
+    cancelWaiting() {
+        this.socketService.send('joined-user-left', this.isObserver);
         this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
     }
     cancelMatch() {

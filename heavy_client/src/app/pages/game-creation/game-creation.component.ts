@@ -18,6 +18,7 @@ export class GameCreationComponent implements OnInit {
     englishDictionary = ENGLISH_DICTIONARY;
     game = {
         hostUsername: '',
+        hasStarted: false,
         isPrivate: false,
         isFullPlayers: false,
         password: '',

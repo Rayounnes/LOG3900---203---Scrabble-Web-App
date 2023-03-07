@@ -31,7 +31,7 @@
         </div>
 
         <div class="buttons">
-            <button mat-raised-button color="warn" (click)="cancelWaitingJoinedUser()" *ngIf="!isHost">Quitter</button>
+            <button mat-raised-button color="warn" (click)="cancelWaiting()" *ngIf="!isHost">Quitter</button>
             <button mat-raised-button color="primary" *ngIf="isHost" (click)="onCreateGameClick()" [disabled]="game.humanPlayers !== game.joinedPlayers.length">Lancer Partie</button>
             <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button>
         </div>
