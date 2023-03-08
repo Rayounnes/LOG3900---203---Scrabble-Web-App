@@ -1,4 +1,5 @@
 import 'package:app/screens/game_page.dart';
+import 'package:app/services/music_service.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_page.dart';
 import 'screens/channels_page.dart';
@@ -15,6 +16,7 @@ final getIt = GetIt.instance;
 void setup() {
   getIt.registerSingleton<SocketService>(SocketService());
   getIt.registerSingleton<UserInfos>(UserInfos());
+  getIt.registerSingleton<MusicService>(MusicService());
   getIt.registerSingleton<TilePlacement>(TilePlacement());
   getIt<SocketService>().connect();
 }

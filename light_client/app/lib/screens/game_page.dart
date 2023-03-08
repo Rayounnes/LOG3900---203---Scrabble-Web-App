@@ -16,6 +16,8 @@ import 'package:app/services/user_infos.dart';
 import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
+import '../services/music_service.dart';
+
 import '../models/letter.dart';
 import '../models/Words_Args.dart';
 import '../models/placement.dart';
@@ -239,6 +241,8 @@ class _GamePageState extends State<GamePage> {
   final Map<int, String> tileLetter = {};
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
+  // final musicBackground = MusicService();
+
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
@@ -249,7 +253,12 @@ class _GamePageState extends State<GamePage> {
     handleSockets();
     getReserveLetter();
     setTileOnRack();
+    // getIt<MusicService>().playMusic();
   }
+
+  // void playBackgroundMusic() {
+  //   setState(() => {musicBackground.automaticPlaylist()});
+  // }
 
   verifyLetterOnBoard(int tileID) {
     for (var letter in lettersofBoard) {

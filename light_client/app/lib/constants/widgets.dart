@@ -12,3 +12,5 @@ const OPPONENT_INITIAL_ID = [1000, 1001, 1002, 1003, 1004, 1005, 1006];
 const RACK_START_AXISX = 225.0;
 const RACK_START_AXISY = 950.0;
 const RACK_SIZE = 7;
+
+const MUSIC_PATH = ["audio/Elevator Music.mp3", "audio/Wii Music.mp3"];
