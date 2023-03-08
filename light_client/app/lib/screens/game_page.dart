@@ -251,17 +251,40 @@ class _GamePageState extends State<GamePage> {
     setTileOnRack();
   }
 
+  verifyLetterOnBoard(int tileID) {
+    for (var letter in lettersofBoard) {
+      if (letter.tileID == tileID) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  removeLetterOnBoard(int tileID) {
+    for (var letter in lettersofBoard) {
+      if (letter.tileID == tileID) {
+        lettersofBoard
+            .removeWhere((element) => element.tileID == letter.tileID);
+        return;
+      }
+    }
+  }
+
   Offset setTileOnBoard(Offset offset, int tileID) {
     Offset positionOnBoard =
         getIt<TilePlacement>().getTilePosition(offset, tileID);
     int line = ((positionOnBoard.dy - 150) ~/ 50);
     int column = positionOnBoard.dx ~/ 50;
     String? letterValue = tileLetter[tileID];
-    print(line);
-    print(column);
-    print(getIt<TilePlacement>().getTilePosition(offset, tileID));
+    bool isLetterInList = false;
+    if (positionOnBoard.dy != RACK_START_AXISY) {
+      if (verifyLetterOnBoard(tileID)) {
+        removeLetterOnBoard(tileID);
+      }
+      lettersofBoard.add(Letter(line, column, letterValue!, tileID));
+    }
 
-    lettersofBoard.add(Letter(line, column, letterValue!));
+    // lettersofBoard.add(Letter(line, column, letterValue!));
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
   }
 
