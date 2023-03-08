@@ -1,4 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+/* eslint-disable max-lines */
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { Command } from '@app/interfaces/command';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
@@ -9,10 +10,8 @@ import { Placement } from '@app/interfaces/placement';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { CommunicationService } from '@app/services/communication.service';
 import { FormControl } from '@angular/forms';
-import { debounceTime, switchMap, startWith } from "rxjs/operators";
-import { of } from "rxjs";
-
-
+import { debounceTime, switchMap, startWith } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 const GAME_COMMANDS: string[] = ['placer', 'échanger', 'passer'];
 const HELP_COMMANDS: string[] = ['indice', 'réserve', 'aide'];
@@ -24,7 +23,7 @@ const THREE_SECOND = 3000;
     styleUrls: ['./chat-box.component.scss'],
     template: `{{ now | date: 'HH:mm:ss' }}`,
 })
-export class ChatBoxComponent implements OnInit {
+export class ChatBoxComponent implements OnInit, OnDestroy {
     @ViewChild('scrollMessages') private scrollMessages: ElementRef;
     @ViewChild('channels') private channels: ElementRef;
 
@@ -35,24 +34,23 @@ export class ChatBoxComponent implements OnInit {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
-    
 
-    allUserChannels : any[] = [];
-    currentChannel : string = "General";
-    searching : boolean  = false;
+    allUserChannels: any[] = [];
+    currentChannel: string = 'General';
+    searching: boolean = false;
     search = new FormControl();
-    currentSearch : string = "";
-    userChannelsNames : string[] = [];
-    allChannelsNames : string[] = [];
+    currentSearch: string = '';
+    userChannelsNames: string[] = [];
+    allChannelsNames: string[] = [];
     channelsControl = new FormControl();
-    userTyping : boolean = false;
+    userTyping: boolean = false;
 
     constructor(
         public socketService: ChatSocketClientService,
         public gridService: GridService,
         public arg: ArgumentManagementService,
         public keyboardService: KeyboardManagementService,
-        private communicationService : CommunicationService
+        private communicationService: CommunicationService,
     ) {}
     automaticScroll() {
         this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -60,10 +58,13 @@ export class ChatBoxComponent implements OnInit {
     ngOnInit(): void {
         this.connect();
     }
+
+    ngOnDestroy() {
+        console.log('Destroying!');
+    }
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
-        
     }
     verifyPlaceSocket() {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -164,18 +165,16 @@ export class ChatBoxComponent implements OnInit {
         this.validatePlaceSockets();
         this.gameCommandSockets();
         this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
-            let channel : any;
-            for(channel of this.allUserChannels){
-                if(channel['name'] == chatMessage.channel){
-                    channel.messages.push(chatMessage)
-                    if(channel.messages[0].length == 0)
-                    channel.messages.shift()
-                    if(channel['name'] == this.currentChannel){
-                        this.chatMessages = channel.messages
-                    }else{
-                        channel['unread'] = true
+            let channel: any;
+            for (channel of this.allUserChannels) {
+                if (channel['name'] === chatMessage.channel) {
+                    channel.messages.push(chatMessage);
+                    if (channel.messages[0].length === 0) channel.messages.shift();
+                    if (channel['name'] === this.currentChannel) {
+                        this.chatMessages = channel.messages;
+                    } else {
+                        channel['unread'] = true;
                     }
-                    
                 }
             }
             setTimeout(() => this.automaticScroll(), 1);
@@ -193,47 +192,47 @@ export class ChatBoxComponent implements OnInit {
         this.socketService.on('end-game', () => {
             this.isGameFinished = true;
         });
-        this.socketService.on('channel-created',(newChannel : any)=>{
+        this.socketService.on('channel-created', (newChannel: any) => {
+            console.log('channel-created');
             newChannel['unread'] = false;
-            newChannel['typing'] = [false,0]
-            this.allUserChannels.push(newChannel)
-        })
-        this.socketService.on('channels-joined',()=>{
+            newChannel['typing'] = [false, 0];
+            this.allUserChannels.push(newChannel);
+            this.changeChannel(newChannel);
+            console.log('channel-created: ', this.allUserChannels);
+        });
+        this.socketService.on('channels-joined', () => {
             this.getUserChannels();
-        })
-        this.socketService.on('leave-channel',()=>{
+        });
+        this.socketService.on('leave-channel', () => {
             this.getUserChannels();
-        })
+        });
         this.socketService.on('isTypingMessage', (message: any) => {
-            if(message.player !== this.username){
-                let channel :any
-                for(channel of this.allUserChannels){
-                    if(channel['name'] == message.channel){
+            if (message.player !== this.username) {
+                let channel: any;
+                for (channel of this.allUserChannels) {
+                    if (channel['name'] === message.channel) {
                         let old = channel['typing'];
-                        old[2].push(message.player)
-                        channel['typing'] = [true,old[1]+1,old[2]]
+                        old[2].push(message.player);
+                        channel['typing'] = [true, old[1] + 1, old[2]];
                     }
                 }
                 setTimeout(() => this.automaticScroll(), 1);
             }
         });
         this.socketService.on('isNotTypingMessage', (message: any) => {
-            if(message.player !== this.username){
-                let channel :any
-                for(channel of this.allUserChannels){
-                    if(channel['name'] == message.channel){
+            if (message.player !== this.username) {
+                let channel: any;
+                for (channel of this.allUserChannels) {
+                    if (channel['name'] === message.channel) {
                         let old = channel['typing'];
-                        let index = old[2].indexOf(message.player)
-                        old[2].splice(index,1)
-                        channel['typing'] = [true,old[1]-1,old[2]]
+                        let index = old[2].indexOf(message.player);
+                        old[2].splice(index, 1);
+                        channel['typing'] = [true, old[1] - 1, old[2]];
                     }
                 }
                 setTimeout(() => this.automaticScroll(), 1);
             }
         });
-
-
-
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);
@@ -335,157 +334,147 @@ export class ChatBoxComponent implements OnInit {
         this.chatMessage = '';
         setTimeout(() => this.automaticScroll(), 1);
     }
-    sendToRoom(personnalizedMessage? : boolean) {
+    sendToRoom(personnalizedMessage?: boolean) {
         const message: ChatMessage = {
             username: this.username,
             message: this.chatMessage,
             time: new Date().toTimeString().split(' ')[0],
             type: 'player',
-            channel : this.currentChannel
+            channel: this.currentChannel,
         };
         this.socketService.send('chatMessage', message);
         this.chatMessage = '';
-        if(!personnalizedMessage)
-        this.isNotTyping(true)
+        if (!personnalizedMessage) this.isNotTyping(true);
     }
 
     personalizedMessage(event: any) {
-        if(this.chatMessage.length > 0){
+        if (this.chatMessage.length > 0) {
             this.chatMessage = event.target.innerText;
-            this.sendToRoom(false)
-        }else{
+            this.sendToRoom(false);
+        } else {
             this.chatMessage = event.target.innerText;
-            this.sendToRoom(true)
+            this.sendToRoom(true);
         }
-        
-        
-        
     }
 
     isTyping(event: any) {
-        if(event.key !== 'Enter' && event.key!=='Backspace' &&this.chatMessage.length == 0) {
+        if (event.key !== 'Enter' && event.key !== 'Backspace' && this.chatMessage.length === 0) {
             const message: ChatMessage = {
                 username: this.username,
-                message: "typing",
+                message: 'typing',
                 time: new Date().toTimeString().split(' ')[0],
                 type: 'player',
-                channel : this.currentChannel
+                channel: this.currentChannel,
             };
-            this.socketService.send('isTypingMessage', message)
+            this.socketService.send('isTypingMessage', message);
             this.userTyping = true;
-        }  
+        }
     }
 
-    isNotTyping(forceSend? : boolean) {
-        if((this.chatMessage.length == 1 && this.userTyping) || forceSend){
+    isNotTyping(forceSend?: boolean) {
+        if ((this.chatMessage.length === 1 && this.userTyping) || forceSend) {
             const message: ChatMessage = {
                 username: this.username,
-                message: "",
+                message: '',
                 time: new Date().toTimeString().split(' ')[0],
                 type: 'player',
-                channel : this.currentChannel
+                channel: this.currentChannel,
             };
-            this.socketService.send('isTypingMessage', message)
+            this.socketService.send('isTypingMessage', message);
             this.userTyping = false;
         }
-        
     }
 
-
-
-
-    scrollChannels(direction : string){
-        if(direction == "right"){
+    scrollChannels(direction: string) {
+        if (direction === 'right') {
             this.channels.nativeElement.scrollLeft += 90;
             return;
         }
-        this.channels.nativeElement.scrollLeft -= 90
-        
+        this.channels.nativeElement.scrollLeft -= 90;
     }
 
-    searchChannels(){
-        this.searching = !this.searching
-        if(!this.searching){
+    searchChannels() {
+        this.searching = !this.searching;
+        if (!this.searching) {
             setTimeout(() => this.automaticScroll(), 1);
             return;
         }
         this.setupSearchArrays();
     }
 
-    async setupSearchArrays(){
-        this.userChannelsNames = []
-        for(let channel of this.allUserChannels){
-            this.userChannelsNames.push(channel.name)
+    async setupSearchArrays() {
+        this.userChannelsNames = [];
+        for (const channel of this.allUserChannels) {
+            this.userChannelsNames.push(channel.name);
         }
-        await this.communicationService.getAllChannels().subscribe((allChannelsNames : any) =>{
-            this.allChannelsNames = allChannelsNames
-        })
-        this.channelsControl.setValue([]) 
+        await this.communicationService.getAllChannels().subscribe((allChannelsNames: any) => {
+            this.allChannelsNames = allChannelsNames;
+        });
+        this.channelsControl.setValue([]);
     }
 
     $search = this.search.valueChanges.pipe(
         startWith(null),
         debounceTime(200),
         switchMap((res: string) => {
-            let newChannelsList : string[] = [];
+            let newChannelsList: string[] = [];
             if (!res) {
-                newChannelsList = this.allChannelsNames.map((name) =>{
-                    if(this.userChannelsNames.indexOf(name) == -1){
-                        return name;
-                    }
-                    return ""
-                }).filter((channel)=>
-                    channel !== ""
-                )
-                
+                newChannelsList = this.allChannelsNames
+                    .map((name) => {
+                        if (this.userChannelsNames.indexOf(name) == -1) {
+                            return name;
+                        }
+                        return '';
+                    })
+                    .filter((channel) => channel !== '');
+
                 return of(newChannelsList);
             }
-          
-            for(let channel of this.allChannelsNames){
-                if(channel.includes(res.toString()) && this.userChannelsNames.indexOf(channel) == -1){
-                newChannelsList.push(channel)
+
+            for (let channel of this.allChannelsNames) {
+                if (channel.includes(res.toString()) && this.userChannelsNames.indexOf(channel) === -1) {
+                    newChannelsList.push(channel);
                 }
             }
-            this.currentSearch = res
-            return of(newChannelsList)
-    
-        })
+            this.currentSearch = res;
+            return of(newChannelsList);
+        }),
     );
 
     selectionChange(option: any) {
-    let value = this.channelsControl.value || [];
-    if (option.selected) value.push(option.value);
-    else value = value.filter((x: any) => x != option.value);
-    this.channelsControl.setValue(value);
+        let value = this.channelsControl.value || [];
+        if (option.selected) value.push(option.value);
+        else value = value.filter((x: any) => x !== option.value);
+        this.channelsControl.setValue(value);
     }
 
-    addChannels(){
-        if(this.channelsControl.value?.length > 0){ // Si l'utilisateur veut juste rejoindre des channels deja existants
-            this.socketService.send('join-channel',this.channelsControl.value);
-            this.currentSearch = "";
+    addChannels() {
+        if (this.channelsControl.value?.length > 0) {
+            // Si l'utilisateur veut juste rejoindre des channels deja existants
+            this.socketService.send('join-channel', this.channelsControl.value);
+            this.currentSearch = '';
             this.searching = false;
             return;
         }
         //Si l'utilisateur veut créé son propre channel
-        if(this.currentSearch.length == 0 || this.userChannelsNames.indexOf(this.currentSearch) != -1){
+        if (this.currentSearch.length === 0 || this.userChannelsNames.indexOf(this.currentSearch) !== -1) {
             return;
         }
-        console.log("envoie 1 du client ")
-        this.socketService.send('channel-creation',this.currentSearch);
-        this.currentSearch = "";
+        console.log('envoie 1 du client ');
+        this.socketService.send('channel-creation', this.currentSearch);
+        this.currentSearch = '';
         this.searching = false;
         setTimeout(() => this.automaticScroll(), 1);
         return;
-        
     }
 
-    changeChannel(newChannel : string){
-        if(newChannel != this.currentChannel){
-            this.currentChannel = newChannel
-            let channel : any;
-            for(channel of this.allUserChannels){
-                if(channel['name'] == newChannel){
-                    this.chatMessages = channel['messages']
+    changeChannel(newChannel: string) {
+        if (newChannel !== this.currentChannel) {
+            this.currentChannel = newChannel;
+            let channel: any;
+            for (channel of this.allUserChannels) {
+                if (channel['name'] === newChannel) {
+                    this.chatMessages = channel['messages'];
                     setTimeout(() => this.automaticScroll(), 1);
                     channel['unread'] = false;
                     return;
@@ -494,30 +483,30 @@ export class ChatBoxComponent implements OnInit {
         }
     }
 
-    leaveChannel(){
-        this.socketService.send('leave-channel',this.currentChannel);
+    leaveChannel() {
+        this.socketService.send('leave-channel', this.currentChannel);
     }
 
-    deleteChannel(){
-        this.socketService.send('delete-channel',this.currentChannel);
+    deleteChannel() {
+        this.socketService.send('delete-channel', this.currentChannel);
     }
 
-    getUserChannels(){
-        this.communicationService.getUserChannels(this.username).subscribe((userChannels : any) : void =>{
-            this.allUserChannels = userChannels
-            this.currentChannel = "General"
-            let channel : any;
-            for(channel of this.allUserChannels){
-                if(channel['name'] == "General"){
-                    this.chatMessages = channel['messages']
-                    if(channel.messages[0].length == 0)
-                    this.chatMessages.shift()
+    getUserChannels() {
+        console.log('getting user channels');
+        this.communicationService.getUserChannels(this.username).subscribe((userChannels: any): void => {
+            console.log('getuserChannels: ',userChannels);
+            this.allUserChannels = userChannels;
+            this.currentChannel = 'General';
+            let channel: any;
+            for (channel of this.allUserChannels) {
+                if (channel['name'] === 'General') {
+                    this.chatMessages = channel['messages'];
+                    if (channel.messages[0].length === 0) this.chatMessages.shift();
                     setTimeout(() => this.automaticScroll(), 1);
                 }
                 channel['unread'] = false;
-                channel['typing'] = [false,0,[]]
+                channel['typing'] = [false, 0, []];
             }
-        })
+        });
     }
-
 }

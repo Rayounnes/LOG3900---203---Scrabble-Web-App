@@ -60,6 +60,7 @@ export class WaitingRoomPageComponent implements OnInit {
 
     configureBaseSocketFeatures() {
         this.socketService.on('create-game', (game: Game) => {
+            console.log("In create game");
             this.game = game;
             this.isHost = true;
         });
