@@ -55,7 +55,6 @@ Future<List<dynamic>> getAllChannels() async {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception('Failed to get all channels');
     }
@@ -73,6 +72,31 @@ Future<List<dynamic>> getAllUsers() async {
       throw Exception('Failed to get all channels');
     }
 }
+
+Future<List<dynamic>> getChannelsOfUsers(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/usersChannels/'+username),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+Future<List<dynamic>> getMessagesOfChannel(String channel) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/messagesChannels/'+channel),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
 
 
 

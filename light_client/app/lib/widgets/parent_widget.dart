@@ -1,5 +1,7 @@
 import 'package:app/screens/channels_page.dart';
 import 'package:flutter/material.dart';
+import 'package:app/main.dart';
+import 'package:app/services/socket_client.dart';
 
 class ParentWidget extends StatefulWidget {
   final Widget child;
@@ -39,6 +41,7 @@ class _ParentWidgetState extends State<ParentWidget> {
   }
 
   Widget chatPopup(BuildContext context) {
+    getIt<SocketService>().send("sendUsername"); 
     return Center(
       child: AnimatedContainer(
         decoration: BoxDecoration(

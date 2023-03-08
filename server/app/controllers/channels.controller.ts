@@ -40,7 +40,20 @@ export class ChannelController{
             })
         });
 
-        
+
+        this.router.get('/usersChannels/:username', async (req: Request, res: Response, next): Promise<void> => {
+            let username = req.params.username;
+            this.channelService.getUserChannelsName(username).then((userChannels)=>{
+                res.send(userChannels);
+            })
+        });
+
+        this.router.get('/messagesChannels/:channel', async (req: Request, res: Response, next): Promise<void> => {
+            const channel = req.params.channel;
+            this.channelService.getMessagesOfChannel(channel).then((userChannels)=>{
+                res.send(userChannels);
+            });
+        }); 
     }
 
 }

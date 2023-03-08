@@ -19,8 +19,6 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
-    print("init");
-  
     handleSockets();
    
     
@@ -29,6 +27,7 @@ class _ChannelsState extends State<Channels> {
   List<String> discussions = ["General"];
   List<dynamic> allChannelsDB = [];
   List<dynamic> allUsersChannels = [];
+
   List<dynamic> channelsUsers = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
   
@@ -36,9 +35,11 @@ class _ChannelsState extends State<Channels> {
   String chatJoined = '';
 
   handleSockets() async{
-    print(discussions);
-   
-
+     ApiService().getAllChannels().then((response) {
+      allChannelsDB = response;
+      }).catchError((error) {
+      print('Error fetching channels: $error');
+      });
 
       ApiService().getAllUsers().then((response) {
         allUsersChannels=response;
@@ -46,22 +47,31 @@ class _ChannelsState extends State<Channels> {
       print('Error fetching channels: $error');
       });
 
-      getIt<SocketService>().on("sendUsername", (username) {
-         ApiService().getAllChannels().then((response) {
-          channelsUsers = response;
-          }).catchError((error) {
-          print('Error fetching channels: $error');
-          });
-        setState(() {
+      getIt<SocketService>().on("sendUsername", (username) async {
+         ApiService().getChannelsOfUsers(username).then((response) {
+          channelsUsers=response;
+          print(channelsUsers);
+           setState(() {
+        
           discussions = ["General"];
           for(String channel in channelsUsers) {
-            if(channel != "General"){
-                discussions.add(channel);
+            if(channel != "General") {
+                discussions.add(channel); 
             }
+            } 
+          print(discussions); 
+          });
+          }).catchError((error) {
+          print('Error fetching channels: $error');});
+
           
-          }  
-        });
-      });
+    
+         
+
+         
+
+          });
+ 
     
       getIt<SocketService>().on("channel-created", (channel) {
       try {
@@ -89,6 +99,7 @@ class _ChannelsState extends State<Channels> {
       }
     });
   }
+
 
 
   String numberUsersOfChannel(String nameChannelDeleted) {

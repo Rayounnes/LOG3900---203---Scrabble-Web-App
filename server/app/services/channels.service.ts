@@ -114,6 +114,18 @@ export class ChannelService {
         await this.channelCollection.deleteOne({name : channelName});
     }
 
+    async getMessagesOfChannel(channelName: string) {
+        const channel = await this.channelCollection.findOne({ name: channelName });
+        if (channel) {
+            return channel['messages'];
+        }
+        return null;
+    }
+
+
+
+
+
 
 
 

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
+import 'package:app/services/api_service.dart';
 
 class ChatPage extends StatefulWidget {
   final String discussion;
@@ -20,6 +21,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     handleSockets();
+    
   }
 
   @override
@@ -36,6 +38,31 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController scrollController = ScrollController();
 
   void handleSockets() async {
+    ApiService().getMessagesOfChannel(widget.discussion).then((response) {
+      print(widget.discussion);
+      
+      
+      setState(() {
+      if(widget.discussion == 'General') {
+        response.removeAt(49);
+        response.removeAt(0);
+
+      }
+
+      print(response);
+      for (dynamic res in response) {
+      print(res);
+      ChatMessage message = ChatMessage.fromJson(res);
+      messages.add(message);
+    }
+        
+      });
+    
+      }).catchError((error) {
+      print('Error fetching channels: $error');
+      });
+
+
     getIt<SocketService>().on('chatMessage', (chatMessage) {
       print('dans la socket on');
       print(chatMessage);
@@ -102,51 +129,48 @@ class _ChatPageState extends State<ChatPage> {
           Align(
             alignment: Alignment.topLeft,
             child:Row(children: [
-            SizedBox(width: 50), // un espace vide pour séparer les boutons
+            SizedBox(width: 50), 
               TextButton(
                 onPressed: () {
                   messageController.text = 'Salut!';
                   sendMessage(messageController.text);
-                  // action à effectuer lorsqu'on appuie sur le bouton 1
                 },
                 child: Text('Salut!'),
               ),
-        SizedBox(width: 50), // un espace vide pour séparer les boutons
+        SizedBox(width: 50), 
               TextButton(
                 onPressed: () {
                   messageController.text = 'Bien joué!';
-                  sendMessage(messageController.text);// action à effectuer lorsqu'on appuie sur le bouton 2
+                  sendMessage(messageController.text);
                 },
                 child: Text('Bien joué!')),
-         SizedBox(width: 50), // un espace vide pour séparer les boutons
+         SizedBox(width: 50), 
               TextButton(
                 onPressed: () {
                   messageController.text = 'Nul!';
-                  sendMessage(messageController.text); // action à effectuer lorsqu'on appuie sur le bouton 2
+                  sendMessage(messageController.text); 
                 },
                 child: Text('Nul!')),
-          SizedBox(width: 50), // un espace vide pour séparer les boutons
+          SizedBox(width: 50),
               TextButton(
                 onPressed: () {
                   messageController.text = 'Wow!';
                   sendMessage(messageController.text); 
-                  // action à effectuer lorsqu'on appuie sur le bouton 2
                 },
                 child: Text('Wow!')),
-          SizedBox(width: 50), // un espace vide pour séparer les boutons
+          SizedBox(width: 50), 
               TextButton(
                 onPressed: () {
                   messageController.text = 'Bonne chance!';
                   sendMessage(messageController.text); 
-                  // action à effectuer lorsqu'on appuie sur le bouton 2
+                  
                 },
                 child: Text('Bonne chance!')),
-          SizedBox(width: 50), // un espace vide pour séparer les boutons
+          SizedBox(width: 50),
               TextButton(
                 onPressed: () {
                   messageController.text = 'Oh non!';
                   sendMessage(messageController.text); 
-                  // action à effectuer lorsqu'on appuie sur le bouton 2
                 },
                 child: Text('Oh non!')),
                   
