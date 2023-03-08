@@ -41,12 +41,19 @@ class _WaitingRoomState extends State<WaitingRoom> {
   String mode = CLASSIC_MODE;
 
   void handleSockets() {
-    getIt<SocketService>().on('create-game', (username) {
-      if (!mounted) return;
-      setState(() {
-        hostUsername = username;
-        isHost = true;
-      });
+    getIt<SocketService>().on('create-game', (gameJson) {
+      print("in create game");
+      try {
+        if (!mounted) return;
+        Game game = Game.fromJson(gameJson);
+        print(game);
+        setState(() {
+          hostUsername = game.hostUsername;
+          isHost = true;
+        });
+      } catch (e) {
+        print(e);
+      }
     });
     getIt<SocketService>().on('waiting-room-second-player', (username) {
       if (!mounted) return;
@@ -64,8 +71,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
         Game game = Game.fromJson(gameJson);
         if (!mounted) return;
         setState(() {
-          joinedUsername = game.usernameTwo;
-          hostUsername = game.usernameOne;
+          joinedUsername = "game.usernameTwo";
+          hostUsername = "game.usernameOne";
         });
       } catch (e) {
         print(e);

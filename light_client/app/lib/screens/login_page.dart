@@ -18,6 +18,13 @@ class _LoginDemoState extends State<LoginDemo> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    if (!getIt<SocketService>().isSocketAlive()) getIt<SocketService>().connect();
+  }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -52,12 +59,13 @@ class _LoginDemoState extends State<LoginDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.green[800],
       body: Center(
         child: Container(
           height: 700,
           width: 600,
           decoration: BoxDecoration(
-            color: Colors.blue[200],
+            color: Color.fromRGBO(203, 201, 201, 1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               width: 1,

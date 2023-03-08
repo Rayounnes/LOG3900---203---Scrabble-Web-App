@@ -44,6 +44,9 @@ class SocketService {
   }
 
   void send(String event, [dynamic data]) {
+    print("In send socket");
+    print(isSocketAlive());
+    if (!isSocketAlive()) connect();
     if (data != null) {
       socket.emit(event, data);
     } else {

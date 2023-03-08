@@ -59,6 +59,9 @@ export class SocketManager {
     }
     gameCreationHandler(socket: io.Socket) {
         socket.on('create-game', async (game: Game) => {
+            game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
+            game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedPlayers;
+            console.log('game: ', game);
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
