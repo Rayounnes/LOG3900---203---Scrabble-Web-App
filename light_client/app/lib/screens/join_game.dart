@@ -42,7 +42,7 @@ class _JoinGamesState extends State<JoinGames> {
   }
 
   void joinWaitingRoom(Game gameToJoin) {
-    gameToJoin.usernameTwo = username;
+    // gameToJoin.usernameTwo = username;
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return WaitingRoom(
         modeName: widget.modeName,

@@ -18,7 +18,7 @@ class _ParentWidgetState extends State<ParentWidget> {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
         //bottomNavigationBar: HomePage(),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.green[800],
         body: Stack(children: [widget.child, chatPopup(context)]),
         floatingActionButton: keyboardIsOpened
             ? null

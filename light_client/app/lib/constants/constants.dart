@@ -9,6 +9,6 @@ const GAME_TYPE = "multiplayer";
 const MIN_TIME_TURN = 30;
 const MAX_TIME_TURN = 300;
 class GameNames {
-  static String classic = 'classique';
-  static String cooperative = 'coopératif';
+  static String classic = 'Classique';
+  static String cooperative = 'Coopératif';
 }

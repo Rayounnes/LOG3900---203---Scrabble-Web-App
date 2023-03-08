@@ -45,10 +45,10 @@ export class SocketManager {
         this.roomName = 'room' + this.roomIncrement;
     }
     createGame(game: Game, socketId: string) {
-        game.room = this.roomName;
-        this.gameRooms.set(this.roomName, game);
+        game.room = `Partie de ${game.hostUsername}`;
+        this.gameRooms.set(game.room, game);
         game.hostID = socketId;
-        this.usersRoom.set(socketId, this.roomName);
+        this.usersRoom.set(socketId, game.room);
     }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
@@ -58,13 +58,15 @@ export class SocketManager {
         });
     }
     gameCreationHandler(socket: io.Socket) {
-        socket.on('create-game', (game: Game) => {
+        socket.on('create-game', async (game: Game) => {
+            game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
+            game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedPlayers;
+            console.log('game: ', game);
             this.createGame(game, socket.id);
-            socket.join(this.roomName);
+            await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
-            this.sio.to(this.roomName).emit('create-game', game);
+            this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
-            this.changeRoomName();
         });
 
         socket.on('dictionary-selected', (dictionary: Dictionary) => {
@@ -86,10 +88,10 @@ export class SocketManager {
         });
     }
     waitingRoomHostHandler(socket: io.Socket) {
-        socket.on('cancel-match', () => {
+        socket.on('cancel-match', async () => {
             const gameCanceled = this.gameRooms.get(this.usersRoom.get(socket.id) as string) as Game;
             this.gameManager.leaveRoom(socket.id);
-            socket.leave(gameCanceled.room);
+            await this.deleteChannel(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
             for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
             for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
@@ -98,11 +100,11 @@ export class SocketManager {
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {
-        socket.on('joined-user-left', (isObserver: boolean) => {
+        socket.on('joined-user-left', async (isObserver: boolean) => {
             const playerUsername = this.usernames.get(socket.id) as string;
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            socket.leave(room);
+            await this.leaveChannel(socket, game.room);
             this.gameManager.leaveRoom(socket.id);
             if (!isObserver) {
                 game.joinedPlayers = game.joinedPlayers.filter((user) => user.username !== playerUsername);
@@ -115,9 +117,9 @@ export class SocketManager {
             this.sio.to(room).emit('waiting-room-player', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
-        socket.on('waiting-room-player', (gameParams: Game) => {
+        socket.on('waiting-room-player', async (gameParams: Game) => {
             const roomToJoin = gameParams.room;
-            socket.join(roomToJoin);
+            await this.joinChannels(socket, [roomToJoin]);
             this.usersRoom.set(socket.id, roomToJoin);
             const playerUsername = this.usernames.get(socket.id) as string;
             const game = this.gameRooms.get(roomToJoin) as Game;
@@ -128,9 +130,9 @@ export class SocketManager {
             this.sio.to(roomToJoin).emit('waiting-room-player', game);
             this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
         });
-        socket.on('waiting-room-observer', (gameParams: Game) => {
+        socket.on('waiting-room-observer', async (gameParams: Game) => {
             const roomToJoin = gameParams.room;
-            socket.join(roomToJoin);
+            await this.joinChannels(socket, [roomToJoin]);
             this.usersRoom.set(socket.id, roomToJoin);
             const playerUsername = this.usernames.get(socket.id) as string;
             const game = this.gameRooms.get(roomToJoin) as Game;
@@ -388,37 +390,52 @@ export class SocketManager {
 
     async userJoinNewChannels(socket: io.Socket) {
         socket.on('join-channel', async (channelNames) => {
-            const username = this.usernames.get(socket.id);
-            await this.channelService.joinExistingChannels(channelNames, username as string);
-            for (const channel of channelNames) {
-                socket.join(channel);
-            }
-            this.sio.to(socket.id).emit('channels-joined');
+            await this.joinChannels(socket, channelNames);
         });
     }
 
+    async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
+        const username = this.usernames.get(socket.id);
+        const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
+        socket.join(channelName);
+        this.sio.to(channelName).emit('channel-created', channel);
+    }
+
+    async leaveChannel(socket: io.Socket, channelName: string) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.leaveChannel(channelName, username as string);
+        this.sio.to(socket.id).emit('leave-channel');
+        socket.leave(channelName);
+    }
+
+    async joinChannels(socket: io.Socket, channelNames: string[]) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.joinExistingChannels(channelNames, username as string);
+        for (const channel of channelNames) {
+            socket.join(channel);
+        }
+        this.sio.to(socket.id).emit('channels-joined');
+    }
+
+    async deleteChannel(channelName: string) {
+        await this.channelService.deleteChannel(channelName);
+        this.sio.to(channelName).emit('leave-channel');
+    }
     userCreateChannel(socket: io.Socket) {
         socket.on('channel-creation', async (channelName: string) => {
-            const username = this.usernames.get(socket.id);
-            const channel = await this.channelService.createNewChannel(channelName, username as string);
-            socket.join(channelName);
-            this.sio.to(channelName).emit('channel-created', channel);
+            await this.createChannel(socket, channelName, false);
         });
     }
 
     userLeaveChannel(socket: io.Socket) {
         socket.on('leave-channel', async (channelName: string) => {
-            const username = this.usernames.get(socket.id);
-            await this.channelService.leaveChannel(channelName, username as string);
-            this.sio.to(socket.id).emit('leave-channel');
-            socket.leave(channelName);
+            await this.leaveChannel(socket, channelName);
         });
     }
 
     userDeleteChannel(socket: io.Socket) {
         socket.on('delete-channel', async (channelName: string) => {
-            await this.channelService.deleteChannel(channelName);
-            this.sio.to(channelName).emit('leave-channel');
+            await this.deleteChannel(channelName);
         });
     }
 
