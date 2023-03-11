@@ -51,6 +51,8 @@ class _GameChoicesState extends State<GameChoices> {
   @override
   void dispose() {
     timeController.dispose();
+    humanPlayersController.dispose();
+    passwordGameController.dispose();
     super.dispose();
   }
 
@@ -66,6 +68,7 @@ class _GameChoicesState extends State<GameChoices> {
     game.joinedPlayers = [];
     game.joinedObservers = [];
     game.virtualPlayers = 4 - game.humanPlayers;
+    Navigator.of(context).pop();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return WaitingRoom(
         modeName: widget.modeName,

@@ -58,6 +58,10 @@ class SocketService {
     return socket.id;
   }
 
+  get userSocket {
+    return socket;
+  }
+
   bool isSocketAlive() {
     return socket.id != null && socket.connected;
   }

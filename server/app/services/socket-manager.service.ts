@@ -65,6 +65,7 @@ export class SocketManager {
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
+            console.log("emetting create-game");
             this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
@@ -92,6 +93,7 @@ export class SocketManager {
             const gameCanceled = this.gameRooms.get(this.usersRoom.get(socket.id) as string) as Game;
             this.gameManager.leaveRoom(socket.id);
             await this.deleteChannel(gameCanceled.room);
+            socket.leave(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
             for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
             for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);

@@ -1,6 +1,8 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/main.dart';
 import 'package:app/models/game.dart';
+import 'package:app/models/player_infos.dart';
+import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/game_page.dart';
 import 'package:app/screens/join_game.dart';
@@ -22,126 +24,120 @@ class WaitingRoom extends StatefulWidget {
 }
 
 class _WaitingRoomState extends State<WaitingRoom> {
+  bool isHost = false;
+  bool isObserver = false;
+  bool isClassic = false;
+  bool acceptPlayerQuit = false;
+  String hostUsername = '';
+  Game game = Game(hostUsername: "", time: 60);
+
   @override
   void initState() {
     super.initState();
+    isClassic = widget.modeName == GameNames.classic;
     handleSockets();
     widget.waitingSocket();
   }
 
-  String username = getIt<UserInfos>().user;
-  bool userKicked = false;
-  bool userLeft = false;
-  bool userCanceled = false;
-  bool isHost = false;
-  bool isJoinedPlayer = false;
-  String hostUsername = '';
-  String joinedUsername = '';
-  String leftUsername = '';
-  String mode = CLASSIC_MODE;
+  @override
+  void dispose() {
+    print("dispose called");
+    getIt<SocketService>().userSocket.off('create-game');
+    getIt<SocketService>().userSocket.off('waiting-room-player');
+    getIt<SocketService>().userSocket.off('waiting-player-status');
+    getIt<SocketService>().userSocket.off('private-room-player');
+    getIt<SocketService>().userSocket.off('joined-user-left');
+    getIt<SocketService>().userSocket.off('joined-observer-left');
+    getIt<SocketService>().userSocket.off('join-game');
+    getIt<SocketService>().userSocket.off('cancel-match');
+    super.dispose();
+  }
 
   void handleSockets() {
     getIt<SocketService>().on('create-game', (gameJson) {
-      print("in create game");
-      try {
-        if (!mounted) return;
-        Game game = Game.fromJson(gameJson);
-        print(game);
-        setState(() {
-          hostUsername = game.hostUsername;
-          isHost = true;
-        });
-      } catch (e) {
-        print(e);
-      }
-    });
-    getIt<SocketService>().on('waiting-room-second-player', (username) {
-      if (!mounted) return;
+      print("received create-game");
       setState(() {
         try {
-          joinedUsername = username;
-          isJoinedPlayer = true;
+          print(gameJson);
+          game = Game.fromJson(gameJson);
+          isHost = true;
         } catch (e) {
           print(e);
         }
       });
     });
-    getIt<SocketService>().on('add-second-player-waiting-room', (gameJson) {
-      try {
-        Game game = Game.fromJson(gameJson);
-        if (!mounted) return;
-        setState(() {
-          joinedUsername = "game.usernameTwo";
-          hostUsername = "game.usernameOne";
-        });
-      } catch (e) {
-        print(e);
-      }
-    });
-    getIt<SocketService>().on('kick-user', (_) async {
+    getIt<SocketService>().on('waiting-room-player', (gameJson) {
       setState(() {
-        userKicked = true;
+        game = Game.fromJson(gameJson);
       });
-      await Future.delayed(const Duration(seconds: 3));
+    });
+    getIt<SocketService>().on('waiting-player-status', (observerPerson) {
+      setState(() {
+        isObserver = observerPerson;
+      });
+    });
+    getIt<SocketService>().on('private-room-player', (userInfosJson) {
+      openAcceptDialog(context, PlayerInfos.fromJson(userInfosJson));
+    });
+
+    getIt<SocketService>().on('joined-user-left', (username) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text("${username}  a quitté la partie.")),
+      );
+    });
+    getIt<SocketService>().on('joined-observer-left', (username) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text("${username} a quitté l'observation de la partie.")),
+      );
+    });
+    getIt<SocketService>().on('join-game', (_) {
+      // this.router.navigate([`/game/${this.mode}`]);
+    });
+    getIt<SocketService>().on('cancel-match', (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text("La partie a été annulée.")),
+      );
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return JoinGames(modeName: widget.modeName);
       }));
     });
-    getIt<SocketService>().on('joined-user-left', (_) {
-      if (!mounted) return;
-      setState(() {
-        userLeft = true;
-        leftUsername = joinedUsername;
-        joinedUsername = '';
-      });
-    });
-    getIt<SocketService>().on('join-game', (_) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return GamePage();
-      }));
-    });
   }
 
-  void confirmUser() {
-    getIt<SocketService>().send('join-game',
-        <String, String>{"playerUsername": joinedUsername, "mode": mode});
-  }
-
-  void cancelWaitingJoinedUser() {
-    getIt<SocketService>().send('joined-user-left');
+  void cancelWaiting() {
+    getIt<SocketService>().send('joined-user-left', isObserver);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return JoinGames(
-        modeName: widget.modeName,
-      );
+      return JoinGames(modeName: widget.modeName);
     }));
   }
 
   void cancelMatch() {
     getIt<SocketService>().send('cancel-match');
-    if (joinedUsername != "") kickUser();
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return GameModes();
+      return GameChoices(modeName: widget.modeName);
     }));
-  }
-
-  void kickUser() {
-    getIt<SocketService>().send('kick-user', joinedUsername);
-    setState(() {
-      joinedUsername = '';
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
         child: Scaffold(
-            backgroundColor: Colors.blueGrey,
+            backgroundColor: Colors.green[800],
             body: Center(
               child: Container(
-                height: 500,
+                height: 1000,
                 width: 700,
                 decoration: BoxDecoration(
-                  color: Colors.blue[200],
+                  color: Color.fromRGBO(203, 201, 201, 1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     width: 1,
@@ -150,69 +146,152 @@ class _WaitingRoomState extends State<WaitingRoom> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    if (isHost) ...[
-                      TextPhrase(text: "Bienvenue $hostUsername "),
-                      joinedUsername == ""
-                          ? TextPhrase(
-                              text: "Vous êtes en attente d'un deuxieme joueur")
-                          : TextPhrase(
-                              text:
-                                  "Veuillez confirmer le joueur $joinedUsername"),
-                    ] else if (isJoinedPlayer) ...[
-                      userKicked
-                          ? TextPhrase(
-                              text:
-                                  "Le joueur $hostUsername vous a rejeté de la partie ! De retour dans la liste des parties")
-                          : TextPhrase(
-                              text:
-                                  "Bienvenue $joinedUsername, vous etes bien en attente du demarrage de la partie par $hostUsername")
-                    ],
+                    TextPhrase(text: "Salle d'attente de ${game.hostUsername}"),
                     SizedBox(
                       height: 30,
                     ),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Container(
+                        height: 200,
+                        width: 200,
+                        child: Column(
+                          children: [
+                            TextPhrase(text: "Joueurs"),
+                            ListView.separated(
+                                itemCount: game.joinedPlayers.length,
+                                shrinkWrap: true,
+                                physics: BouncingScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return Text(
+                                      game.joinedPlayers[index].username);
+                                },
+                                separatorBuilder: (context, index) => SizedBox(
+                                      height: 5,
+                                    )),
+                          ],
+                        ),
+                      ),
+                      if (!game.isPrivate) ...[
+                        Container(
+                          height: 200,
+                          width: 200,
+                          child: Column(
+                            children: [
+                              TextPhrase(text: "Observateurs"),
+                              ListView.separated(
+                                  itemCount: game.joinedObservers.length,
+                                  shrinkWrap: true,
+                                  physics: BouncingScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    return Text(
+                                        game.joinedObservers[index].username);
+                                  },
+                                  separatorBuilder: (context, index) =>
+                                      SizedBox(
+                                        height: 5,
+                                      )),
+                            ],
+                          ),
+                        )
+                      ],
+                    ]),
+                    if (!game.isFullPlayers) ...[
+                      TextPhrase(text: "En attente de joueurs"),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                            height: 80,
+                            width: 80,
+                            child: CircularProgressIndicator()),
+                      )
+                    ],
+                    TextPhrase(
+                        text:
+                            "Joueurs restants pour démarrer la partie: ${game.humanPlayers - game.joinedPlayers.length}"),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GameButton(
-                          padding: 16.0,
-                          name: "Annuler",
-                          route: () {
-                            isHost ? cancelMatch() : cancelWaitingJoinedUser();
-                          },
-                          isButtonDisabled: false,
-                        ),
-                        GameButton(
-                          padding: 16.0,
-                          name: "Accepter",
-                          route: () {
-                            confirmUser();
-                          },
-                          isButtonDisabled:
-                              isHost ? joinedUsername == "" : isJoinedPlayer,
-                        ),
-                        GameButton(
-                          padding: 16.0,
-                          name: "Rejeter",
-                          route: () {
-                            kickUser();
-                          },
-                          isButtonDisabled:
-                              isHost ? joinedUsername == "" : isJoinedPlayer,
-                        )
+                        if (!isHost)
+                          GameButton(
+                            padding: 16.0,
+                            name: "Quitter",
+                            route: () {
+                              cancelWaiting();
+                            },
+                            isButtonDisabled: false,
+                          ),
+                        if (isHost) ...[
+                          GameButton(
+                            padding: 16.0,
+                            name: "Lancer Partie",
+                            route: () {
+                              cancelWaiting();
+                            },
+                            isButtonDisabled:
+                                game.humanPlayers != game.joinedPlayers.length,
+                          ),
+                          GameButton(
+                            padding: 16.0,
+                            name: "Annuler Partie",
+                            route: () {
+                              cancelMatch();
+                            },
+                            isButtonDisabled: false,
+                          )
+                        ]
                       ],
                     ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    if ((joinedUsername == "" && isHost) || isJoinedPlayer) ...[
-                      SizedBox(
-                          height: 80,
-                          width: 80,
-                          child: CircularProgressIndicator())
-                    ]
                   ],
                 ),
               ),
             )));
+  }
+
+  void openAcceptDialog(BuildContext context, PlayerInfos userInfos) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          getIt<SocketService>().on('left-private-player', (_) {
+            Navigator.pop(context, true);
+          });
+          return AlertDialog(
+            title: const Text("Demande d'acceptation"),
+            content: Text(
+                "${userInfos.username} essaye de rejoindre la partie. Accepter ou rejeter le joueur?"),
+            actions: <TextButton>[
+              TextButton(
+                onPressed: () {
+                  print("accept player quit $acceptPlayerQuit");
+                  getIt<SocketService>()
+                      .send('reject-private-player', userInfos);
+                  Navigator.pop(context);
+                },
+                child: const Text('Rejeter'),
+              ),
+              TextButton(
+                onPressed: () {
+                  getIt<SocketService>()
+                      .send('accept-private-player', userInfos);
+                  Navigator.pop(context);
+                },
+                child: const Text('Accepter'),
+              ),
+            ],
+          );
+        }).then((leftPlayer) {
+      if (leftPlayer == null) return;
+
+      if (leftPlayer) {
+        getIt<SocketService>().userSocket.off('left-private-player');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
+              content: Text(
+                  "${userInfos.username} a quitté l'attente d'acceptation.")),
+        );
+      }
+    });
   }
 }
