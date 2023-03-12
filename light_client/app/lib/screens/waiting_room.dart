@@ -49,6 +49,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
     getIt<SocketService>().userSocket.off('joined-user-left');
     getIt<SocketService>().userSocket.off('joined-observer-left');
     getIt<SocketService>().userSocket.off('join-game');
+    print("disposing cancel-match");
     getIt<SocketService>().userSocket.off('cancel-match');
     super.dispose();
   }
@@ -100,12 +101,14 @@ class _WaitingRoomState extends State<WaitingRoom> {
       // this.router.navigate([`/game/${this.mode}`]);
     });
     getIt<SocketService>().on('cancel-match', (_) {
+      print(".on cancel-match");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
             content: Text("La partie a été annulée.")),
       );
+      Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return JoinGames(modeName: widget.modeName);
       }));
@@ -114,6 +117,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
   void cancelWaiting() {
     getIt<SocketService>().send('joined-user-left', isObserver);
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return JoinGames(modeName: widget.modeName);
     }));
@@ -152,49 +156,64 @@ class _WaitingRoomState extends State<WaitingRoom> {
                     ),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Container(
-                        height: 200,
+                        height: 300,
                         width: 200,
-                        child: Column(
-                          children: [
-                            TextPhrase(text: "Joueurs"),
-                            ListView.separated(
-                                itemCount: game.joinedPlayers.length,
-                                shrinkWrap: true,
-                                physics: BouncingScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  return Text(
-                                      game.joinedPlayers[index].username);
-                                },
-                                separatorBuilder: (context, index) => SizedBox(
-                                      height: 5,
-                                    )),
-                          ],
+                        child: ListView.builder(
+                          itemCount: game.joinedPlayers.length + 1,
+                          shrinkWrap: true,
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return ListTile(
+                                title: Text(
+                                  'Joueurs',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return ListTile(
+                                title: Text(game.joinedPlayers[index - 1]
+                                    .username),
+                              );
+                            }
+                          },
                         ),
                       ),
                       if (!game.isPrivate) ...[
                         Container(
-                          height: 200,
-                          width: 200,
-                          child: Column(
-                            children: [
-                              TextPhrase(text: "Observateurs"),
-                              ListView.separated(
-                                  itemCount: game.joinedObservers.length,
-                                  shrinkWrap: true,
-                                  physics: BouncingScrollPhysics(),
-                                  itemBuilder: (context, index) {
-                                    return Text(
-                                        game.joinedObservers[index].username);
-                                  },
-                                  separatorBuilder: (context, index) =>
-                                      SizedBox(
-                                        height: 5,
-                                      )),
-                            ],
-                          ),
-                        )
+                            height: 300,
+                            width: 200,
+                            child: ListView.builder(
+                              itemCount: game.joinedObservers.length + 1,
+                              shrinkWrap: true,
+                              physics: BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return ListTile(
+                                    title: Text(
+                                      'Observateurs',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return ListTile(
+                                    title: Text(game.joinedObservers[index - 1]
+                                        .username),
+                                  );
+                                }
+                              },
+                            ))
                       ],
                     ]),
+                    SizedBox(
+                      height: 50,
+                    ),
                     if (!game.isFullPlayers) ...[
                       TextPhrase(text: "En attente de joueurs"),
                       Padding(

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,7 +13,7 @@ import { PlayerInfos } from '@app/interfaces/player-infos';
     templateUrl: 'waiting-room-page.component.html',
     styleUrls: ['waiting-room-page.component.scss'],
 })
-export class WaitingRoomPageComponent implements OnInit {
+export class WaitingRoomPageComponent implements OnInit, OnDestroy {
     isHost: boolean = false;
     isObserver: boolean = false;
     isClassic: boolean = false;
@@ -50,6 +50,16 @@ export class WaitingRoomPageComponent implements OnInit {
         this.connect();
     }
 
+    ngOnDestroy(): void {
+        this.socketService.socket.off('create-game');
+        this.socketService.socket.off('waiting-room-player');
+        this.socketService.socket.off('waiting-player-status');
+        this.socketService.socket.off('private-room-player');
+        this.socketService.socket.off('joined-user-left');
+        this.socketService.socket.off('joined-observer-left');
+        this.socketService.socket.off('cancel-match');
+    }
+
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
@@ -60,7 +70,6 @@ export class WaitingRoomPageComponent implements OnInit {
 
     configureBaseSocketFeatures() {
         this.socketService.on('create-game', (game: Game) => {
-            console.log("In create game");
             this.game = game;
             this.isHost = true;
         });

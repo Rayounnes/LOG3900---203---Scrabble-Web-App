@@ -16,9 +16,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class JoindrePartieComponent implements OnInit {
     gameList: Game[] = [];
-    displayUsernameFormGame: boolean[] = [false];
-    openedGameWindow: number[] = [];
-    click: boolean = false;
     paramsObject: any;
     mode: string;
     isClassic: boolean;

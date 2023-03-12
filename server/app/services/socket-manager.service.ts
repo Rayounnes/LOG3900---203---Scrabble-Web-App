@@ -60,7 +60,7 @@ export class SocketManager {
     gameCreationHandler(socket: io.Socket) {
         socket.on('create-game', async (game: Game) => {
             game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
-            game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedPlayers;
+            game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
             console.log('game: ', game);
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
@@ -92,13 +92,13 @@ export class SocketManager {
         socket.on('cancel-match', async () => {
             const gameCanceled = this.gameRooms.get(this.usersRoom.get(socket.id) as string) as Game;
             this.gameManager.leaveRoom(socket.id);
-            await this.deleteChannel(gameCanceled.room);
             socket.leave(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
             for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
             for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
             this.gameRooms.delete(gameCanceled.room);
             this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
+            await this.deleteChannel(gameCanceled.room);
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {
