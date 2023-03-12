@@ -130,6 +130,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
 
+    getUserConnexions(username : string) : Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/api/login/connexionhistory/${username}`)
+        .pipe(catchError(this.handleError<any[]>('connexionHistoryError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 

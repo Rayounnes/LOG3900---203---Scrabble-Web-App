@@ -66,5 +66,15 @@ export class LoginService {
     async changeConnectionState(username: string, state: boolean) {
         var newvalues = { $set: { connected: state } };
         await this.databaseService.database.collection(DB_COLLECTION_USERS).updateOne({ username: username }, newvalues);
+        await this.userCollection.updateOne({ username: username },{ $push: {connexions : [new Date().toLocaleString(),state ]}});
+    }
+
+    async getConnexionHistory(username : string){
+        let history = await this.userCollection.findOne({username : username});
+        if(history){
+            return history['connexions']
+        }else{
+            return []
+        }
     }
 }

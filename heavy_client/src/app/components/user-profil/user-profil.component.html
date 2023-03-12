@@ -21,4 +21,24 @@
     </div>
 </div>
 
+<div class="row2">
+    <div class="category">
+        <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
+            <span >Historique des parties</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Connexions' ? 'choice' : 'no-choice'" (click)="changeCategory('Connexions')">
+            <span>Historique des connexions et déconnexions</span>
+        </div>
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Connexions'">
+        <div class="data"  *ngFor="let data of connexionHistory">
+
+            <span *ngIf="data[1]" class="connect">Connexion</span>
+            <span *ngIf="!data[1]" class="disconnect">Déconnexion</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+</div>
+
 
