@@ -33,6 +33,13 @@ export class iconController {
                 res.status(icon ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(icon);
             })
         });
+        this.router.post('/change',async (req: Request, res: Response, next): Promise<void> => {
+            const icon : string = JSON.parse(req.body.image);
+            const username : string = JSON.parse(req.body.username);
+            this.iconService.changeUserIcon(icon,username).then((isValid): void =>{
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            })
+        });
         
         
 

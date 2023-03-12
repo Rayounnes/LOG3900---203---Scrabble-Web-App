@@ -165,6 +165,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<string[]>('userIconsGetError')))
     }
 
+    changeIcon(username : string,icon : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/icons/change`,{image : JSON.stringify(icon), username : JSON.stringify(username)})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
+    }
+
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

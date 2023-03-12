@@ -52,5 +52,17 @@ export class iconService {
         let newIcon = { icon: icon, active: [], personal: true, creator : username };
         await this.iconsCollection.insertOne(newIcon);
     }
+
+    async changeUserIcon(icon : string,username : string){
+        let oldIcon = await this.iconsCollection.findOne({active : username});
+        let newIcon = await this.iconsCollection.findOne({icon : icon});
+        if(newIcon && oldIcon){
+            await this.iconsCollection.updateOne({_id : newIcon["_id"]},{ $push: { active: username } })
+            await this.iconsCollection.updateOne({_id : oldIcon["_id"]},{ $pull: { active: username } })
+            return true;
+        }
+        return false;
+        
+    }
     
 }

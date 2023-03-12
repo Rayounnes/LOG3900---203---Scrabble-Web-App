@@ -41,7 +41,8 @@ export class AvatarSelectionComponent implements OnInit {
   }
 
   getAllIcons(){
-    this.communicationService.getAllIcons(this.socketService.socketId).subscribe((icons : string[]) =>{
+    let param = this.username.length ? this.username : this.socketService.socketId
+    this.communicationService.getAllIcons(param).subscribe((icons : string[]) =>{
       if(icons.length > 0){
         for(let icon of icons){
           this.avatars.push([this.sanitizer.bypassSecurityTrustUrl(icon),false])

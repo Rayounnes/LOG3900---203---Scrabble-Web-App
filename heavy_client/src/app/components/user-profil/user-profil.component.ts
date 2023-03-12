@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { CommunicationService } from '@app/services/communication.service';
+import { AvatarSelectionComponent } from '../avatar-selection/avatar-selection.component';
 
 @Component({
   selector: 'app-user-profil',
@@ -13,9 +15,11 @@ export class UserProfilComponent implements OnInit {
   currentIcon : string = "";
   currentCategory : string = "Parties";
   connexionHistory : any[] = [];
+  dialogRef : any;
+  avatarChoosed : string = "";
 
   constructor(private communicationService : CommunicationService,
-    public socketService: ChatSocketClientService) { 
+    public socketService: ChatSocketClientService,private dialog : MatDialog) { 
       this.connect()
     }
 
@@ -51,6 +55,26 @@ export class UserProfilComponent implements OnInit {
     this.communicationService.getUserConnexions(this.username).subscribe((history : any[])=>{
       this.connexionHistory = history.reverse()
     })
+  }
+
+  chooseAvatar(){
+    this.dialogRef = this.dialog.open(AvatarSelectionComponent,{
+      width : '1500px',
+      height: '750px'
+    })
+    const subscription = this.dialogRef.componentInstance.avatar.subscribe((avatar : string)=>{
+      if(avatar){
+        if(this.currentIcon !== avatar){
+          this.currentIcon = avatar;
+          this.communicationService.changeIcon(this.username,this.currentIcon).subscribe((isValid : boolean)=>{
+            return isValid;
+          })  
+        }
+
+        subscription.unsubscribe();
+      }
+    })
+
   }
 
   ngOnInit(): void {
