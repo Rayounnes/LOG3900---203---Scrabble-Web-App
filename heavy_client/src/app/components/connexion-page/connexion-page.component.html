@@ -12,23 +12,33 @@
       <button mat-raised-button (click)="changeOption(true)" [disabled]="checkingConnection" class="dataButton">Créer un compte</button>
       
     </div>  
-    <div class="forms" *ngIf="accountCreation">
-        <mat-form-field class="example-full-width">
+    <div class="forms" *ngIf="accountCreation" >
+      <mat-form-field class="example-full-width" [formGroup]="myForm"> 
+      <mat-label>Email</mat-label>
+      <input matInput  type="email" formControlName="email">
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
         <mat-label>Username (5 car. min.)</mat-label>
         <input matInput [(ngModel)]="username">
         </mat-form-field>
-        <mat-form-field class="example-full-width">
-        <mat-label>Password (6 car. min.)</mat-label>
-        <input matInput type="password" [(ngModel)]="password">
-        </mat-form-field>
+      <mat-form-field class="example-full-width">
+      <mat-label>Password (6 car. min.)</mat-label>
+      <input matInput type="password" [(ngModel)]="password">
+      </mat-form-field>
+      <button mat-raised-button  class="avatarButton" (click)="chooseAvatar()">Choisir un avatar</button>
+      <!-- 
+      <img [src]="trustedUrl" width="50px" height="50px"/> -->
         
         
         
     <div class="creationButtons">
-        <button mat-raised-button (click)="createAccount()" [disabled]="username.length < 5 || password.length < 6" class="dataButton">Confirmer</button>
+        <button mat-raised-button (click)="createAccount()" [disabled]="myForm.controls['email'].errors?.pattern|| password.length < 6 || myForm.controls['email'].errors?.required" class="dataButton">Confirmer</button>
         <button mat-raised-button (click)="changeOption(false)" class="dataButton">Retour</button>
     </div>
     </div>
+  
+
+    
 </div>
   
 

@@ -41,6 +41,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { GamePasswordFormComponent } from './components/game-password-form/game-password-form.component';
 import { PrivateGameWaitingComponent } from './components/private-game-waiting/private-game-waiting.component';
 import { AcceptPlayerGameComponent } from './components/accept-player-game/accept-player-game.component';
+import { AvatarSelectionComponent } from './components/avatar-selection/avatar-selection.component';
 
 /**
  * Main module that is used in main.ts.
@@ -73,6 +74,7 @@ import { AcceptPlayerGameComponent } from './components/accept-player-game/accep
         GamePasswordFormComponent,
         PrivateGameWaitingComponent,
         AcceptPlayerGameComponent,
+        AvatarSelectionComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
