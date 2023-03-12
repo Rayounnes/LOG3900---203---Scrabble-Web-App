@@ -27,6 +27,8 @@ class _ChannelsState extends State<Channels> {
   List<String> discussions = ["General"];
   List<dynamic> allChannelsDB = [];
   List<dynamic> allUsersChannels = [];
+  List<String> selectedList = [];
+  int count = -1;
 
   List<dynamic> channelsUsers = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
@@ -50,7 +52,6 @@ class _ChannelsState extends State<Channels> {
       getIt<SocketService>().on("sendUsername", (username) async {
          ApiService().getChannelsOfUsers(username).then((response) {
           channelsUsers=response;
-          print(channelsUsers);
            setState(() {
         
           discussions = ["General"];
@@ -59,7 +60,6 @@ class _ChannelsState extends State<Channels> {
                 discussions.add(channel); 
             }
             } 
-          print(discussions); 
           });
           }).catchError((error) {
           print('Error fetching channels: $error');});
@@ -91,7 +91,7 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() {
-            discussions.add(chatJoined);
+            discussions.add(selectedList[count]);
           });
         }
       } catch (e) {
@@ -323,69 +323,116 @@ class _ChannelsState extends State<Channels> {
     );
   }
 
+  List<String> channelsToJoin() {
+    List<String> filteredChannels = [];
+    for (String channel in allChannelsDB) {
+      if (!discussions.contains(channel)) {
 
-   void showModalSearch(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text('Rechercher un chat'),
-        content: Container(
-          height: 150,
-          child: Form(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-               Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Choisissez un chat que vous voulez rejoindre",
+        filteredChannels.add(channel);
+      }
+    }
+    return filteredChannels;
+}
+
+
+  void showModalSearch(BuildContext context) {
+  final fullList = channelsToJoin();
+  List<String> filteredList = fullList;
+  selectedList = [];
+
+  List<bool> checkedList = List.generate(fullList.length, (_) => false); // Utilisez List.generate au lieu de List.filled pour initialiser une liste de booléens
+
+  final searchController = TextEditingController();
+
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.9,
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Rechercher',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    filteredList =
+                        fullList.where((element) => element.contains(value)).toList();
+                  });
+                },
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final item = filteredList[index];
+                      return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return CheckboxListTile(
+                            title: Text(item),
+                            value: checkedList[index],
+                            onChanged: (value) {
+                              setState(() {
+                                checkedList[index] = value!;
+                                if (value) {
+                                  selectedList.add(item);
+                                } else {
+                                  selectedList.remove(item);
+                                }
+                              });
+                            },
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
-                DropdownButtonFormField(
-                    validator: (value) => value == null
-                        ? "Veuillez choisir le chat à rejoindre"
-                        : null,
-                    value: allChannelsDB[0],
-                    onChanged: (Object? newValue) {
-                      setState(() {
-                        chatJoined = newValue! as String;
-                      });
+              ),
+
+                Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
                     },
-                    items: allChannelsDB.map((discussion) {
-                    return DropdownMenuItem(
-                    value: discussion,
-                    child: Text(discussion),
-                    );
-                    }).toList(),)
-              ],
-            ),
+                    child: Text("Annuler"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      print(selectedList);
+                      for(String channel in selectedList ) {
+                        count = count + 1;
+                        getIt<SocketService>().send("join-channel", channel);
+                      }
+                     
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Rejoindre le(s) chat(s)"),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        actions: <ElevatedButton>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Annuler",
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              getIt<SocketService>().send("join-channel", chatJoined);
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Rejoindre le chat",
-            ),
-          )
-        ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
-  
+
+
 }

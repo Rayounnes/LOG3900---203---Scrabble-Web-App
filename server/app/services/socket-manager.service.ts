@@ -346,16 +346,17 @@ export class SocketManager {
     }
 
     async userJoinNewChannels(socket : io.Socket){
-        socket.on('join-channel', async (channelNames : string | string[]) =>{
+        socket.on('join-channel', async (channelNames: string[]) => {
             let username = this.usernames.get(socket.id);
             await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
+            console.log(channelNames);
             if(Array.isArray(channelNames)){
                 for(let channel of channelNames){
+                    console.log(channel);
                     socket.join(channel);
                 }
             }
             else {
-                console.log(channelNames);
                 socket.join(channelNames);
             }
             this.sio.to(socket.id).emit('channels-joined');
