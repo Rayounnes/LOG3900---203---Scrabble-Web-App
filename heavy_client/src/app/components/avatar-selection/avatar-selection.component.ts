@@ -13,9 +13,8 @@ import { CommunicationService } from '@app/services/communication.service';
 })
 export class AvatarSelectionComponent implements OnInit {
 
-  @Output() avatar : EventEmitter<any[]> = new EventEmitter<any[]>();
+  @Output() avatar : EventEmitter<string> = new EventEmitter<string>();
   avatars : any = [];
-  addedAvatars : any = [];
   username : string= "";
   selectionMade : boolean = false;
   currentIcon : string = "";
@@ -74,7 +73,6 @@ export class AvatarSelectionComponent implements OnInit {
     this.communicationService.pushIcon(image,username).subscribe((added)=>{
       if(added){
         this.avatars.push([this.sanitizer.bypassSecurityTrustUrl(image),false]);
-        this.addedAvatars.push([this.sanitizer.bypassSecurityTrustUrl(image),false])
       }
     })
   }
@@ -92,19 +90,8 @@ export class AvatarSelectionComponent implements OnInit {
   }
 
 confirmSelection(){
-  this.avatar.emit(this.formatArray());
+  this.avatar.emit(this.currentIcon);
   this.dialogRef.close()
-}
-
-formatArray(){
-  let finalArray : string[] = [];
-  finalArray.push(this.currentIcon)
-  for(let i=0;i<this.addedAvatars.length;i++){
-    if(this.addedAvatars[i][0]['changingThisBreaksApplicationSecurity'] != this.currentIcon){
-      finalArray.push(this.addedAvatars[i][0]['changingThisBreaksApplicationSecurity'])
-    }
-  }
-  return finalArray
 }
   
   ngOnInit(): void {

@@ -39,6 +39,15 @@ export class iconService {
         return iconsArray
     }
 
+    async getUserIcon(username : string){
+        let icon = await this.iconsCollection.findOne({active : username})
+        
+        if(icon){
+            return [icon['icon']]
+        }
+        return ""
+    }
+
     private async addIconToDB( icon : string,username : string) {
         let newIcon = { icon: icon, active: [], personal: true, creator : username };
         await this.iconsCollection.insertOne(newIcon);

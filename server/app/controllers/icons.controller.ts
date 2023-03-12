@@ -27,6 +27,13 @@ export class iconController {
                 res.status(icons ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(icons);
             })
         });
+        this.router.get('/getusericon/:username',async (req: Request, res: Response, next): Promise<void> => {
+            const username : string = req.params.username;
+            this.iconService.getUserIcon(username).then((icon : string[] ): void =>{
+                res.status(icon ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(icon);
+            })
+        });
+        
         
 
 

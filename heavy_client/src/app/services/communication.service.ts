@@ -155,6 +155,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('logoutError')))
     }
 
+    getAvatar(username : string) : Observable<string[]>{
+        return this.http.get<string[]>(`${this.baseUrl}/api/icons/getusericon/${username}`)
+        .pipe(catchError(this.handleError<string[]>('userIconsGetError')))
+    }
+
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

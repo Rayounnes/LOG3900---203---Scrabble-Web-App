@@ -42,6 +42,7 @@ import { GamePasswordFormComponent } from './components/game-password-form/game-
 import { PrivateGameWaitingComponent } from './components/private-game-waiting/private-game-waiting.component';
 import { AcceptPlayerGameComponent } from './components/accept-player-game/accept-player-game.component';
 import { AvatarSelectionComponent } from './components/avatar-selection/avatar-selection.component';
+import { UserProfilComponent } from './components/user-profil/user-profil.component';
 
 /**
  * Main module that is used in main.ts.
@@ -75,6 +76,7 @@ import { AvatarSelectionComponent } from './components/avatar-selection/avatar-s
         PrivateGameWaitingComponent,
         AcceptPlayerGameComponent,
         AvatarSelectionComponent,
+        UserProfilComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
