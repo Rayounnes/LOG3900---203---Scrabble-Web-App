@@ -1,26 +1,39 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<div class="homeDiv">
+    <div class="modesContainer">
+        <h1 mat-dialog-title>Salle d'attente de {{game.hostUsername}} </h1>
+        <div class="game-lobby-container">
+            <div class="users-list">
+                <h2 class="joined-users">Joueurs</h2>
+                <mat-list>
+                    <mat-list-item *ngFor="let user of game.joinedPlayers">
+                        <span mat-line>{{ user.username }}</span>
+                    </mat-list-item>
+                </mat-list>
+            </div>
 
-<div class="waiting">
-    <div *ngIf="isHost">
-        <h1>Bienvenue {{ hostUsername }}</h1>
-        <h1 *ngIf="userLeft && !joinedUsername">Le joueur {{leftUsername}} a quitté la salle d'attente !</h1>
-        <h1 *ngIf="!joinedUsername">vous étes en attente d'un deuxieme joueur</h1>
-        <h1 *ngIf="joinedUsername">Veuillez confirmer le joueur {{ joinedUsername }}</h1>
-        <div class="buttons">
-            <button class="buttonChoice" (click)="cancelMatch()" routerLink="['/partie-multijoueur',this.mode]">Annuler</button>
-            <button (click)="cancelMatch()" [routerLink]="['/solo-game']" [ngClass]="joinedUsername !== '' ? 'buttonChoiceDisabled' : 'buttonChoice'" [disabled]="joinedUsername !== ''">
-                Convertir en partie solo
-            </button>
-            <button (click)="confirmUser()" [ngClass]="joinedUsername !== '' ? 'buttonChoice' : 'buttonChoiceDisabled'" [disabled]="joinedUsername === ''" >Accepter</button>
-            <button (click)="kickUser()" [ngClass]="joinedUsername !== '' ? 'buttonChoice' : 'buttonChoiceDisabled'" [disabled]="joinedUsername === ''">Rejeter</button>
+            <div class="observers-list" *ngIf="!game.isPrivate">
+                <h2 class="joined-observers">Observateurs</h2>
+                <mat-list>
+                    <mat-list-item *ngFor="let observer of game.joinedObservers">
+                        <span mat-line>{{ observer.username }}</span>
+                    </mat-list-item>
+                </mat-list>
+            </div>
         </div>
-    </div>
-    <div *ngIf="isJoinedPlayer">
-        <h1 *ngIf="userKicked">Le joueur {{hostUsername}} vous a rejeté de la partie ! De retour dans la liste des parties</h1>
-        <h1 *ngIf="!userKicked">Bienvenue {{ joinedUsername }} vous etes bien en attente du demarrage de la partie par {{hostUsername}}</h1>
-        <button class="buttonChoice" (click)="cancelWaitingJoinedUser()" routerLink="['/joindre-partie',this.mode]">Annuler</button>
-    </div>
-    <div class="loadingIcon" *ngIf="(!joinedUsername && isHost) || isJoinedPlayer">
-        <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        <div class="waiting-players" *ngIf="!game.isFullPlayers">
+            <h2>En attente de joueurs</h2>
+            <div class="loading-spinner">
+                <mat-spinner diameter="32"></mat-spinner>
+            </div>
+        </div>
+        <div class="remaining-players">
+            <h2>Joueurs restants pour démarrer la partie: {{ game.humanPlayers - game.joinedPlayers.length }}</h2>
+        </div>
+
+        <div class="buttons">
+            <button mat-raised-button color="warn" (click)="cancelWaiting()" *ngIf="!isHost">Quitter</button>
+            <button mat-raised-button color="primary" *ngIf="isHost" (click)="onCreateGameClick()" [disabled]="game.humanPlayers !== game.joinedPlayers.length">Lancer Partie</button>
+            <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button>
+        </div>
     </div>
 </div>

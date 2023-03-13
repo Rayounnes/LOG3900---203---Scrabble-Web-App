@@ -20,11 +20,20 @@ class GameChoices extends StatefulWidget {
 class _GameChoicesState extends State<GameChoices> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final timeController = TextEditingController(text: "60");
+  final humanPlayersController = TextEditingController(text: "2");
+  final passwordGameController = TextEditingController();
+  bool isClassicMode = false;
   Game game = Game(
-      usernameOne: getIt<UserInfos>().user,
+      hostUsername: getIt<UserInfos>().user,
+      hasStarted: false,
+      isPrivate: false,
+      isFullPlayers: false,
+      password: '',
+      humanPlayers: 2,
+      observers: 0,
+      virtualPlayers: 0,
+      playersWaiting: 0,
       time: 60,
-      mode: CLASSIC_MODE,
-      type: GAME_TYPE,
       dictionary: FRENCH_DICTIONNARY);
 
   String dictionary = "Francais";
@@ -34,16 +43,32 @@ class _GameChoicesState extends State<GameChoices> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    isClassicMode = widget.modeName == GameNames.classic;
+  }
+
+  @override
   void dispose() {
     timeController.dispose();
+    humanPlayersController.dispose();
+    passwordGameController.dispose();
     super.dispose();
   }
 
-  createGame() {
+  createGame(bool isPrivateGame) {
     if (!_formKey.currentState!.validate()) return;
     game.time = int.parse(timeController.text);
+    game.isPrivate = isPrivateGame;
+    game.isClassicMode = isClassicMode;
+    game.humanPlayers = int.parse(humanPlayersController.text);
+    game.password = passwordGameController.text;
     game.dictionary =
         dictionary == "Francais" ? FRENCH_DICTIONNARY : ENGLISH_DICTIONNARY;
+    game.joinedPlayers = [];
+    game.joinedObservers = [];
+    game.virtualPlayers = 4 - game.humanPlayers;
+    Navigator.of(context).pop();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return WaitingRoom(
         modeName: widget.modeName,
@@ -59,19 +84,18 @@ class _GameChoicesState extends State<GameChoices> {
     return ParentWidget(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue[200],
           title: Text(
             "Mode de jeu ${widget.modeName}",
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.green[800],
         body: Center(
           child: Container(
-            height: 500,
+            height: 400,
             width: 500,
             decoration: BoxDecoration(
-              color: Colors.blue[200],
+              color: Color.fromRGBO(203, 201, 201, 1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 width: 1,
@@ -80,6 +104,10 @@ class _GameChoicesState extends State<GameChoices> {
             ),
             child: Column(
               children: <Widget>[
+                Text(
+                  "Mode de jeu ${widget.modeName}",
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child:
@@ -87,12 +115,11 @@ class _GameChoicesState extends State<GameChoices> {
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
-                            fontWeight: FontWeight.w700,
                           )),
                 ),
-                SizedBox(height: 50.0),
+                SizedBox(height: 15.0),
                 GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Créer une partie",
                     route: () {
                       showModal(context);
@@ -118,86 +145,130 @@ class _GameChoicesState extends State<GameChoices> {
 
   void showModal(BuildContext context) {
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text('Créer une partie ${widget.modeName}'),
-        content: Container(
-          height: 400,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          bool _isChecked = false;
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Créer une partie ${widget.modeName}'),
+              content: Container(
+                width: 500,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text("Créez une partie publique ou privée"),
+                      CheckboxListTile(
+                        title: Text('Partie privée'),
+                        value: _isChecked,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _isChecked = newValue!;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: humanPlayersController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: "Nombres de joueurs humains",
+                              labelText: "Nombres de joueurs humains"),
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return "Nombre de joeurs humains requis.";
+                            } else if (int.parse(value) < 2) {
+                              return "Le nombre de joueurs humains minimum est de 2.";
+                            } else if (int.parse(value) > 4) {
+                              return "Le nombre de joueurs humains maximum est de 4.";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      if (isClassicMode)
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: timeController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Temps par tour (s)',
+                                labelText: 'Temps'),
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Temps par tour requis.";
+                              } else if (int.parse(value) < MIN_TIME_TURN) {
+                                return "Le temps minimum est 30 secondes.";
+                              } else if (int.parse(value) > MAX_TIME_TURN) {
+                                return "Le temps maximum est de 300 secondes.";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Dictionnaire de jeu",
+                        ),
+                      ),
+                      DropdownButtonFormField(
+                          validator: (value) => value == null
+                              ? "Veillez choisir un dictionnaire"
+                              : null,
+                          value: dictionary,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              dictionary = newValue!;
+                            });
+                          },
+                          items: dictionnaries),
+                      if (!_isChecked)
+                        Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TextFormField(
+                            controller: passwordGameController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Mot de passe de partie',
+                                labelText:
+                                    'Mot de passe de partie publique (optionnel)'),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: <ElevatedButton>[
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                   child: Text(
-                    "Temps par tour (en secondes) ",
+                    "Annuler",
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: timeController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Temps par tour (s)',
-                        labelText: 'Temps'),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return "Temps par tour requis.";
-                      } else if (int.parse(value) < MIN_TIME_TURN) {
-                        return "Le temps minimum est 30 secondes.";
-                      } else if (int.parse(value) > MAX_TIME_TURN) {
-                        return "Le temps maximum est de 300 secondes.";
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                ElevatedButton(
+                  onPressed: () {
+                    createGame(_isChecked);
+                  },
                   child: Text(
-                    "Choisissez un dictionnaire",
+                    "Créer la partie",
                   ),
-                ),
-                DropdownButtonFormField(
-                    validator: (value) => value == null
-                        ? "Veillez choisir un dictionnaire"
-                        : null,
-                    value: dictionary,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dictionary = newValue!;
-                      });
-                    },
-                    items: dictionnaries),
+                )
               ],
-            ),
-          ),
-        ),
-        actions: <ElevatedButton>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Annuler",
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              createGame();
-            },
-            child: Text(
-              "Créer la partie",
-            ),
-          )
-        ],
-      ),
-    );
+            );
+          });
+        });
   }
 }

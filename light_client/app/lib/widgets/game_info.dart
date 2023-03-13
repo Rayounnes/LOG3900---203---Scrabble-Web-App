@@ -25,7 +25,7 @@ class _GameInfoState extends State<GameInfo> {
           children: <Widget>[
             Icon(Icons.gamepad_rounded),
             Text(
-              "Joeur hôte: ${widget.game.usernameOne}\n",
+              "Joeur hôte: ${widget.game.hostUsername}\n",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(

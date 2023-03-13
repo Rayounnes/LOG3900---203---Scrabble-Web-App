@@ -1,90 +1,52 @@
-.container {
-    min-height: 100%;
-    background-color: rgba(182, 174, 174, 0.5);
-    background-blend-mode: lighten;
-    background-image: url('https://i0.wp.com/echecetstrat.com/wp-content/uploads/2019/12/Scrabble-cover.jpg?w=1440&ssl=1');
-    position: fixed;
+.homeDiv{
+    justify-content: center;
     width: 100%;
-}
-
-.justified {
+    height: 100%;
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
-    border-style: solid;
-}
-
-.button {
-    width: 400px;
-    height: 100px;
-    margin-top: 10px;
+    background-color: rgb(68, 98, 68);
+} 
+h1 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
     text-align: center;
-    cursor: pointer;
-    background-color: black;
-    color: white;
-    border-radius: 10px;
-    margin: 5px 5px;
-    padding: 15px 32px;
-    font-size: 16px;
-    border: 5px solid;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+
+.modesContainer{
+    background-color: rgb(203, 201, 201);
+    width: 30%;
+    height: 55%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 3%;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 20px 17px 9px 0px rgb(0 0 0 / 20%), 19px 14px 9px 0px rgb(66 104 70), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+    margin-bottom: 10%;
 }
 
-.disconnectButton{
-    width: 400px;
-    height: 100px;
-    margin-top: 10px;
-    text-align: center;
-    cursor: pointer;
-    background-color: rgb(140, 62, 62);
-    color: rgb(255, 255, 255);
-    border-radius: 10px;
-    margin: 5px 5px;
-    padding: 15px 32px;
-    font-size: 16px;
-    border: 5px solid;
-}
 
-.button:hover {
-    background-color: rgb(124, 64, 8);
-}
-
-.team-name {
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
+.dataButton{
+    transition: ease-out 50ms;
+    width: 300px;
+    height: 50px;
+    box-shadow: 0px 8px 9px 0px rgb(0 0 0 / 34%);
+    background-color: #155c05c9;
     color: whitesmoke;
-    font-weight: bold;
-    font-size: 150%;
+    margin-top: 5%;
 }
 
-.header-item {
-    justify-content: center;
-    text-align: center;
-    font-style: normal;
-    font-weight: bold;
-    font-family: georgia, Sans-serif;
-    font-size: 300%;
-    height: 100px;
-    color: #245020;
+popout-window{
+    width: 450px !important;
+    height: 0;
 }
 
-.footer-item {
-    text-align: center;
-}
-
-.footer-item p :nth-child(even) {
-    color: black;
-    font-weight: bold;
-    font-size: 110%;
-}
-.footer-item p :nth-child(odd) {
-    color: black;
-    font-weight: bold;
-    font-size: 110%;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
+div.popoutWrapper{
+    display: none !important;
 }

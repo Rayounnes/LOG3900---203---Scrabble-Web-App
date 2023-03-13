@@ -1,30 +1,53 @@
 import 'package:app/models/dictionnary_model.dart';
+import 'package:app/models/player_infos.dart';
+import 'dart:convert';
+import '../constants/constants.dart';
 
 class Game {
-  bool isJoined;
-  String usernameOne, usernameTwo, hostID, mode, type, room;
-  int time;
+  bool isClassicMode, isPrivate, hasStarted, isFullPlayers;
+  int playersWaiting, humanPlayers, observers, virtualPlayers, time;
+  String hostUsername, hostID, room, password;
+  List<PlayerInfos> joinedPlayers, joinedObservers;
   Dictionary dictionary;
+
   Game({
-    required this.usernameOne,
+    required this.hostUsername,
     required this.time,
-    required this.mode,
-    required this.type,
-    required this.dictionary,
-    this.isJoined = false,
-    this.usernameTwo = '',
+    this.dictionary = FRENCH_DICTIONNARY,
     this.hostID = '',
     this.room = '',
+    this.password = '',
+    this.joinedObservers = const [],
+    this.joinedPlayers = const [],
+    this.hasStarted = false,
+    this.humanPlayers = 2,
+    this.isClassicMode = false,
+    this.isPrivate = false,
+    this.observers = 0,
+    this.playersWaiting = 0,
+    this.virtualPlayers = 0,
+    this.isFullPlayers = false,
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
     return Game(
-      isJoined: json['isJoined'] == null ? false : json['isJoined'],
-      usernameOne: json['usernameOne'],
-      usernameTwo: json['usernameTwo'] == null ? '' : json['usernameTwo'],
+      hostUsername: json['hostUsername'],
+      password: json['password'],
+      joinedObservers: List<PlayerInfos>.from(json['joinedObservers']
+          .map((observer) => PlayerInfos.fromJson(observer))
+          .toList()),
+      joinedPlayers: List<PlayerInfos>.from(json['joinedPlayers']
+          .map((player) => PlayerInfos.fromJson(player))
+          .toList()),
+      hasStarted: json['hasStarted'],
+      humanPlayers: json['humanPlayers'],
+      isClassicMode: json['isClassicMode'],
+      isPrivate: json['isPrivate'],
+      observers: json['observers'],
+      playersWaiting: json['playersWaiting'],
+      virtualPlayers: json['virtualPlayers'],
+      isFullPlayers: json['isFullPlayers'],
       hostID: json['hostID'],
-      mode: json['mode'],
-      type: json['type'],
       time: json['time'],
       room: json['room'],
       dictionary: Dictionary.fromJson(json['dictionary']),
@@ -33,11 +56,21 @@ class Game {
 
   // avoir une methode toJson pour chaque classe qui va etre send dans une socket
   Map toJson() => {
-        'usernameOne': usernameOne,
-        'usernameTwo': usernameTwo,
+        'hostUsername': hostUsername,
+        'password': password,
+        'joinedObservers': json.encode(
+            joinedObservers.map((observer) => observer.toJson()).toList()),
+        'joinedPlayers': json
+            .encode(joinedPlayers.map((player) => player.toJson()).toList()),
+        'hasStarted': hasStarted,
+        'humanPlayers': humanPlayers,
+        'isClassicMode': isClassicMode,
+        'isPrivate': isPrivate,
+        'observers': observers,
+        'playersWaiting': playersWaiting,
+        'virtualPlayers': virtualPlayers,
+        'isFullPlayers': isFullPlayers,
         'hostID': hostID,
-        'mode': mode,
-        'type': type,
         'time': time,
         'room': room,
         'dictionary': dictionary.toJson(),
