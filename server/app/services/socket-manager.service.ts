@@ -228,6 +228,16 @@ export class SocketManager {
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
+
+        socket.on('remove-letters-rack-LightClient', (letters) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+        
+            letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
+            
+           this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
+        });
+
         socket.on('freeze-timer', () => {
             const room = this.usersRoom.get(socket.id) as string;
             this.sio.to(room).emit('freeze-timer');

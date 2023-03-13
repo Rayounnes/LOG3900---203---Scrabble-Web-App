@@ -1,4 +1,5 @@
 import 'package:app/screens/game_page.dart';
+import 'package:app/screens/camera_page.dart';
 import 'package:app/services/music_service.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_page.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/gameChoicesScreen': (context) => GameModes(),
         '/signScreen': (context) => SignUp(),
         '/gameScreen': (context) => GamePage(),
+        '/userScreen': (context) => CameraPage(),
       },
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

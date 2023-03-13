@@ -6,6 +6,7 @@ import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/parent_widget.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,7 @@ import '../services/music_service.dart';
 import '../models/letter.dart';
 import '../models/Words_Args.dart';
 import '../models/placement.dart';
+import '../widgets/game_appbar.dart';
 
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -241,7 +243,6 @@ class _GamePageState extends State<GamePage> {
   final Map<int, String> tileLetter = {};
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
-  // final musicBackground = MusicService();
 
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
@@ -253,12 +254,7 @@ class _GamePageState extends State<GamePage> {
     handleSockets();
     getReserveLetter();
     setTileOnRack();
-    // getIt<MusicService>().playMusic();
   }
-
-  // void playBackgroundMusic() {
-  //   setState(() => {musicBackground.automaticPlaylist()});
-  // }
 
   verifyLetterOnBoard(int tileID) {
     for (var letter in lettersofBoard) {
@@ -398,9 +394,10 @@ class _GamePageState extends State<GamePage> {
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
       } else {
-        getIt<SocketService>()
-            .send('remove-letters-rack', jsonEncode(placedWord["letters"]));
+        getIt<SocketService>().send('remove-letters-rack-LightClient',
+            jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
+        print("$tileLetter /n le socket coupable");
       }
     });
 
@@ -451,7 +448,7 @@ class _GamePageState extends State<GamePage> {
               width: TILE_SIZE,
               child: Center(
                 child: Text(
-                  "${tileLetter[id]}",
+                  tileLetter[id].toString().toUpperCase(),
                   style: TextStyle(
                       fontSize: 35, color: Color.fromARGB(255, 255, 255, 255)),
                 ),
@@ -480,29 +477,13 @@ class _GamePageState extends State<GamePage> {
     return ParentWidget(
       child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: const Text(
-              'Page de jeu',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-          ),
+              automaticallyImplyLeading: false,
+              title: Text(
+                'Page de Jeu',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+              actions: [GameAppBar()]),
           body: Stack(children: <Widget>[
-            // Positioned(
-            //   left: 370,
-            //   top: 45,
-            //   child: FloatingActionButton(
-            //     heroTag: "btn0",
-            //     onPressed: () {
-            //       print(isTileLocked);
-            //     },
-            //     backgroundColor: Colors.blue,
-            //     child: Icon(
-            //       Icons.abc,
-            //       color: Colors.white,
-            //       size: 25,
-            //     ),
-            //   ),
-            // ),
             Positioned(
               left: 370,
               top: 45,
@@ -580,7 +561,6 @@ class _GamePageState extends State<GamePage> {
                 onPressed: () {
                   setState(() {
                     validatePlacement();
-                    // switchRack(false);
                   });
                 },
                 backgroundColor: Color.fromARGB(255, 159, 201, 165),

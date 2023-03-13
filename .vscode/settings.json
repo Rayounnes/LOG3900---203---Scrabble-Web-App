@@ -1,3 +1,7 @@
 {
-    "eslint.workingDirectories": ["./heavy_client", "./server"],
+    "eslint.workingDirectories": [
+        "./heavy_client",
+        "./server"
+    ],
+    "cmake.sourceDirectory": "${workspaceFolder}/light_client/app/linux",
 }
