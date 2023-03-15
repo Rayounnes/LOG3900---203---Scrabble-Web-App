@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../services/music_service.dart';
 
-class GameAppBar extends StatefulWidget {
-  const GameAppBar();
+class MusicAppBar extends StatefulWidget {
+  const MusicAppBar();
 
   @override
-  State<GameAppBar> createState() => _GameAppBarState();
+  State<MusicAppBar> createState() => _MusicAppBarState();
 }
 
-class _GameAppBarState extends State<GameAppBar> {
-
+class _MusicAppBarState extends State<MusicAppBar> {
   MusicService musicService = MusicService();
 
   @override
@@ -78,7 +77,10 @@ class _GameAppBarState extends State<GameAppBar> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(musicService.isPlaying ? Icons.pause : Icons.play_arrow,
+                      icon: Icon(
+                          musicService.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
                           color: musicService.isPlaying
                               ? Color.fromARGB(255, 255, 57, 31)
                               : Color.fromARGB(255, 35, 122, 0)),
@@ -89,9 +91,7 @@ class _GameAppBarState extends State<GameAppBar> {
                           } else {
                             musicService.resumeMusic();
                           }
-                      
                         });
-                        // add your on press functionality here
                       },
                     ),
                     Padding(
@@ -103,7 +103,6 @@ class _GameAppBarState extends State<GameAppBar> {
                           setState(() {
                             musicService.nextMusic();
                           });
-                          // add your on press functionality here
                         },
                       ),
                     ),

@@ -1,3 +1,4 @@
+import 'package:app/constants/widgets.dart';
 import 'package:app/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
@@ -18,6 +19,7 @@ class _SignUpState extends State<SignUp> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordCheckController = TextEditingController();
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -44,11 +46,8 @@ class _SignUpState extends State<SignUp> {
             duration: Duration(seconds: 3),
             content: Text("Votre compte a été créé avec succés")),
       );
-      
-      //Navigator.pushNamed(context, '/userScreen'); // Pour prendre une photo
 
       Navigator.pushNamed(context, '/gameChoicesScreen');
-    
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -95,17 +94,57 @@ class _SignUpState extends State<SignUp> {
             child: Column(
               children: <Widget>[
                 Padding(
-                    padding: const EdgeInsets.only(top: 60.0),
-                    child: Container(
-                      width: 200,
-                      height: 150,
+                    padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+                    child: SizedBox(
+                      width: 400,
                       child: Text('Création de compte',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
                             fontWeight: FontWeight.w700,
                           )),
                     )),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 30.0),
+                  child: Container(
+                    width: 200,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 203, 213, 203),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Color.fromARGB(255, 2, 126, 42),
+                        width: 2,
+                      ),
+                    ),
+                    child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.collections,
+                                  size: TILE_SIZE,
+                                  color: Color.fromARGB(255, 12, 12, 12)),
+                              onPressed: () {},
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.compare_arrows,
+                                  size: TILE_SIZE/2,
+                                  color: Color.fromARGB(255, 12, 12, 12)),
+                              onPressed: null,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add_a_photo,
+                                  size: TILE_SIZE,
+                                  color: Color.fromARGB(255, 12, 12, 12)),
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/userScreen'); // Pour prendre une photo
+                              },
+                            ),
+                        ],)
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
@@ -168,7 +207,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {

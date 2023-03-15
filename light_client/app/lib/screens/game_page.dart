@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:app/main.dart';
@@ -6,63 +5,15 @@ import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/parent_widget.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:intl/intl.dart';
-import 'package:app/models/chat_message_model.dart';
-import 'package:app/widgets/chat_message.dart';
-import 'package:app/services/user_infos.dart';
 
 import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
-import '../services/music_service.dart';
 
 import '../models/letter.dart';
-import '../models/Words_Args.dart';
-import '../models/placement.dart';
-import '../widgets/game_appbar.dart';
+import '../widgets/music_appbar.dart';
 
-// Copyright 2019 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-class _HorizontalDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.deepPurpleAccent,
-              ),
-            ),
-          ),
-          const Divider(
-            color: Colors.grey,
-            height: 20,
-            thickness: 1,
-            indent: 20,
-            endIndent: 0,
-          ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.deepOrangeAccent,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -76,9 +27,6 @@ class BoardPaint extends CustomPainter {
   Size rectSize = Size(50, 50);
   @override
   void paint(Canvas canvas, Size size) {
-    final vLines = (size.width ~/ TILE_SIZE) + 1;
-    final hLines = (size.height ~/ TILE_SIZE) + 1;
-
     final paintRack = Paint()
       ..strokeWidth = 1
       ..color = Color.fromARGB(255, 239, 181, 64)
@@ -281,7 +229,6 @@ class _GamePageState extends State<GamePage> {
     int line = ((positionOnBoard.dy - 150) ~/ 50);
     int column = positionOnBoard.dx ~/ 50;
     String? letterValue = tileLetter[tileID];
-    bool isLetterInList = false;
     if (positionOnBoard.dy != RACK_START_AXISY) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
@@ -482,7 +429,7 @@ class _GamePageState extends State<GamePage> {
                 'Page de Jeu',
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
-              actions: [GameAppBar()]),
+              actions: [MusicAppBar()]),
           body: Stack(children: <Widget>[
             Positioned(
               left: 370,
