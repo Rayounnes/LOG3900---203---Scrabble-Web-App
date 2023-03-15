@@ -130,6 +130,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
 
+    getUserConnexions(username : string) : Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/api/login/connexionhistory/${username}`)
+        .pipe(catchError(this.handleError<any[]>('connexionHistoryError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 
@@ -141,6 +146,28 @@ export class CommunicationService {
     getAllChannels() : Observable<any>{
         return this.http.get<any>(`${this.baseUrl}/api/channels/allchannels`)
         .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
+    /** ************** icon methods *******************************/
+
+    getAllIcons(username : string) : Observable<string[]> {
+        return this.http.get<string[]>(`${this.baseUrl}/api/icons/get/${username}`)
+        .pipe(catchError(this.handleError<string[]>('iconsGetError')))
+    }
+
+    pushIcon(icon : string,username : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/icons/add`,{image : JSON.stringify(icon), username : JSON.stringify(username)})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
+    }
+
+    getAvatar(username : string) : Observable<string[]>{
+        return this.http.get<string[]>(`${this.baseUrl}/api/icons/getusericon/${username}`)
+        .pipe(catchError(this.handleError<string[]>('userIconsGetError')))
+    }
+
+    changeIcon(username : string,icon : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/icons/change`,{image : JSON.stringify(icon), username : JSON.stringify(username)})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
     }
 
 

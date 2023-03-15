@@ -34,5 +34,12 @@ export class loginController {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             });
         });
+
+        this.router.get('/connexionhistory/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getConnexionHistory(username).then((history): void => {
+                res.status(history.length > 0 ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(history);
+            });
+        });
     }
 }

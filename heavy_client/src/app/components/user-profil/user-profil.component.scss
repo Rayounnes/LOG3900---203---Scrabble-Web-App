@@ -1,0 +1,164 @@
+.row1{
+    display: flex;
+    flex-direction: row;
+    height: 25%;
+    width: 100%;
+}
+
+.row2{
+    width: 100%;
+    height: 65%;
+    margin-top : 5%;
+    display: flex;
+    flex-direction: column;
+}
+
+.category{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 15%;
+    position: sticky;
+    justify-content: space-between;
+}
+
+.infos{
+    width: 100%;
+    height: 84%;
+    margin-top: 1%;
+    overflow-y: scroll;
+    align-items: safe center;
+    padding-top: 1%;
+    padding-left: 1%;
+}
+
+.data{
+    width: 98%;
+    height: 20%;
+    background-color: lightgrey;
+    border-radius: 10px;
+    margin-bottom: 0.2%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.choice{
+    display: flex;
+    height: 100%;
+    width: 49%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.2);
+    background-color: #3c742f;
+    margin-right: 0.2%;
+    font-size: larger;
+    color: white;
+    transition: background-color 0.5s ease;
+}
+
+.choice:active{
+    background-color: #3c742f;
+    background-image: linear-gradient(to right, #c3c3c34a, #3c742f);
+}
+
+.no-choice{
+    display: flex;
+    height: 100%;
+    width: 49%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background-color: #c3c3c34a;
+    margin-right: 0.2%;
+    font-size : larger
+}
+
+.choice:hover{
+    cursor: pointer;
+}
+
+.no-choice:hover{
+    cursor: pointer;
+}
+
+
+
+
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+
+
+.col1{
+    height: 100%;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.col1:hover{
+    cursor: pointer;
+}
+
+
+.col{
+    height: 100%;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 3px solid #8080803d;
+}
+
+.col2{
+    height: 100%;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2%;
+}
+
+.username{
+    font-family: fantasy;
+    font-size: x-large;
+    margin-top: 4%;
+}
+
+.number{
+    font-size: xxx-large;
+    padding-bottom: 0%;
+    color: rgb(60,116,47);
+    font-family: fantasy;
+}
+
+.info{
+    padding-top: 30%;
+    font-style: italic;
+    font-size: small;
+    color: gray;
+}
+
+.connect{
+    margin-left: 2%;
+    color: #3c742f;
+}
+
+.disconnect{
+    margin-left: 2%;
+    color: #ff3e3e;
+}
+
+.time{
+    margin-right: 2%;
+}
+
