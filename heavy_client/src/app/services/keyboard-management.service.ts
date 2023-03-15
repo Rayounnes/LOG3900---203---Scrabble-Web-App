@@ -141,6 +141,34 @@ export class KeyboardManagementService {
         }
     }
 
+    addDropLettersArray(letter: Letter) {
+        this.letters.push({ line: letter.line, column: letter.column, value: letter.value, tileID:letter.tileID });
+    }
+
+    verifyLetterOnBoard(letterToAdd: Letter) {
+        for (var letter of this.letters) {
+          if (letter.tileID === letterToAdd.tileID) {
+            return true;
+          }
+        }
+        return false;
+      }
+    
+      removeLetterOnBoard(letterToRemove: Letter) {
+        for (var letter of this.letters) {
+          if (letter.tileID == letterToRemove.tileID) {
+            console.log("la tuile en question", letterToRemove.tileID);
+            this.letters = this.letters.filter(element => element.tileID !== letterToRemove.tileID);
+            console.log("lettre dans la fonction", this.letters);
+
+            return;
+          }
+        }
+      }
+
+
+
+
     putLetterOnCanvas(letter: string, positionStart: Vec2, size: number) {
         this.gridService.fillColor(positionStart.x + 1, positionStart.y + 1, '#F9E076');
         this.gridService.writeLetter(letter, positionStart.x + 1, positionStart.y + 1, size);
@@ -244,6 +272,7 @@ export class KeyboardManagementService {
     async playOrEnter() {
         if (this.letters.length !== 0) {
             this.actionsAfterPlacement();
+            console.log(this.wordFormed);
             this.socketService.send('verify-place-message', this.wordFormed);
             await new Promise((r) => setTimeout(r, DELAY));
             this.initializeBeforeTurn();

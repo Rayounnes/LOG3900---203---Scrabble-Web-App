@@ -390,7 +390,7 @@ class _GamePageState extends State<GamePage> {
         print("erreur le mot nest paas valide");
       } else {
         getIt<SocketService>()
-            .send('remove-letters-rack', jsonEncode(placedWord["letters"]));
+            .send('remove-letters-rack-light-client', jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
       }
     });

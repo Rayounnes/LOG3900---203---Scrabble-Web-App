@@ -1,0 +1,10 @@
+<div class="checkbox-list" *ngFor="let item of items">
+    <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="item.checked" class="checkbox-input" (change)="onChange()">
+        {{item.label}}    
+    </label>
+  </div>
+  <div class="button-container" mat-dialog-actions>
+    <button mat-button (click)="onNoClick()"> &#10006;</button>
+    <button mat-button [mat-dialog-close]="exchangeWord" cdkFocusInitial>ok</button>
+  </div>

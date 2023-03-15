@@ -1,8 +1,15 @@
-import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
+import { CdkDragDrop, CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
+import { Vec2 } from '@app/interfaces/vec2';
+import { Letter } from '@app/interfaces/letter';
+import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+
+
 
 const RESERVE_START_LENGTH = 102;
 const CLASSNAME_INI = 'mat-typography vsc-initialized';
@@ -15,6 +22,7 @@ const CLASSNAME = 'mat-typography';
 })
 export class ChevaletComponent implements AfterViewInit {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>;
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
     chevaletLetters: string[] = [];
@@ -22,12 +30,47 @@ export class ChevaletComponent implements AfterViewInit {
     socketTurn: string;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
+    items =["a", "b", "c", 'd', 'e', 'r', 't'];
+    position0: Vec2= {x: 0, y: 0};
+    position1: Vec2= {x: 0, y: 0};
+    position2: Vec2= {x: 0, y: 0};
+    position3: Vec2= {x: 0, y: 0};
+    position4: Vec2= {x: 0, y: 0};
+    position5: Vec2= {x: 0, y: 0};
+    position6: Vec2= {x: 0, y: 0};
+
+    lettersExchange = '';
+
+    
+
+    dragTiles: Map<any,any> = new Map([
+        ["tile0", undefined],
+        ["tile1", undefined],
+        ["tile2", undefined],
+        ["tile3", undefined],
+        ["tile4", undefined],
+        ["tile5", undefined],
+        ["tile6", undefined],
+    ]);
+
+    @Output() sendTileEvent = new EventEmitter<Letter>();
+    @Output() removeTileEvent = new EventEmitter<Letter>();
+    @Output() resetDragEvent = new EventEmitter<string>();
+
+
+    @Input() dragUsed: string;
+    dragAccepted = ['free', 'drag']
+
 
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-    ) {}
+        public dragDrop: DragDropModule,
+        public dialog: MatDialog,
+
+    ) {
+    }
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,12 +106,15 @@ export class ChevaletComponent implements AfterViewInit {
         this.chevaletService.deselectAllLetters();
     }
 
+
     ngAfterViewInit(): void {
         this.chevaletService.chevaletContext = this.chevaletCanvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         this.chevaletService.fillChevalet();
         this.chevaletService.drawChevalet();
         this.chevaletCanvas.nativeElement.focus();
         this.connect();
+        this.positionTiles();
+
     }
     connect() {
         this.configureBaseSocketFeatures();
@@ -79,6 +125,7 @@ export class ChevaletComponent implements AfterViewInit {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
             this.chevaletService.updateRack(letters);
             this.chevaletLetters = letters;
+            this.items = letters;
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
                 this.chevaletService.rackArray[i].letter = this.chevaletLetters[i];
             }
@@ -86,6 +133,10 @@ export class ChevaletComponent implements AfterViewInit {
         // pour voir si c'est son tour : this.socketTurn === this.socketService.socketId
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
+            this.resetDragEvent.emit('free');
+
+            
+
         });
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
@@ -110,11 +161,175 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     exchange() {
-        this.socketService.send('exchange-command', this.chevaletService.lettersToExchange());
+        // this.socketService.send('exchange-command', this.chevaletService.lettersToExchange());
+        this.socketService.send('exchange-command', this.lettersExchange);
+
         this.chevaletService.makerackTilesIn();
         this.chevaletService.deselectAllLetters();
+        this.resetDragEvent.emit('free');
+
     }
     cancel() {
         this.chevaletService.deselectAllLetters();
     }
+
+
+    onDragEnded(event: CdkDragEnd){
+        console.log(event);
+
+    }
+
+    onDropped(event: any){
+        console.log("drop",event);
+        event.dropPoint.x = 0;
+        event.dropPoint.y = 0;
+    }
+
+    getPositionDroppedX(posX: number){
+        return Math.floor(((posX-20)/39)+1);
+    }
+
+    getPositionDroppedY(posY: number){
+        return Math.floor(((posY+589)/39)+1);
+    }
+    drop(event: CdkDragDrop<string[]>) {
+
+        let tileBoxes: ElementRef<any>[] = [];
+        this.boxes.forEach((box) => {
+            tileBoxes.push(box);
+        })
+        console.log(this.boxes);
+        console.log(event);
+        let i = 0;
+        for (let key of this.dragTiles.keys()){
+            this.dragTiles.set(key,tileBoxes[i++])
+        }
+        let tile = this.dragTiles.get(event.item.element.nativeElement.id);
+        const keysArray = Array.from(this.dragTiles.keys())
+        let posTileX = -585 + event.dropPoint.x;
+        let posTileY = -691+ event.dropPoint.y;
+        let letterValue = event.item.element.nativeElement.innerText;
+
+        // const index = this.boxes.toArray().indexOf(event.source);
+        // console.log(`Box ${index + 1} was dragged to position x:${event.source.getFreeDragPosition().x} y:${event.source.getFreeDragPosition().y}`);
+        if(event.dropPoint.x >580 && event.dropPoint.x<1154 && event.dropPoint.y>69 &&event.dropPoint.y<650){
+            // this.items.splice(event.previousIndex, 1);
+            // this.position.x = 700;
+            // this.position.y =300;
+            console.log('dans le canvas');
+            // const currentPosition = tileBoxes[0].nativeElement.getBoundingClientRect();
+            // const newX = currentPosition.x + event.distance.x;
+            // const newY = currentPosition.y + event.distance.y;
+            // const keysArray = Array.from(this.dragTiles.keys())
+
+            console.log(posTileX)
+            if(posTileX<20){
+                console.log(tile.nativeElement.style.left);
+                tile.nativeElement.style.left = `${16.25}px`;
+                console.log("valid");
+                
+            }
+            else{
+
+
+                    tile.nativeElement.style.left = `${16.25 + 39.5 * this.getPositionDroppedX(posTileX)}px`;
+                
+
+            }
+            if(posTileY<-589){
+                tile.nativeElement.style.top = `${-602}px`;
+                console.log("y valid");
+                console.log(posTileY);
+            }
+            else{
+                tile.nativeElement.style.top = `${-602 + 39.5 * this.getPositionDroppedY(posTileY)}px`;
+                console.log(Math.floor(((posTileY+589)/39)+1));
+
+            }
+
+            
+
+            // this.position0.x = 0;
+            // this.position1.x = 0;
+       
+            console.log(Math.floor((posTileX-20)/39)+1);
+                // tile.nativeElement.style.left = `${16.25 + 39 * (((posTileX-20)/39)+1)}px`;
+            
+            // tile.nativeElement.style.top = `${posTileY}px`;
+            tile.nativeElement.style.width = `${39}px`;
+            tile.nativeElement.style.height = `${39}px`;
+
+            // event.item.freeDragPosition.x = 100;
+            // event.item.freeDragPosition.y = 600;
+            this.sendTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY), column:this.getPositionDroppedX(posTileX), tileID:event.item.element.nativeElement.id});
+
+
+
+        }
+        else{
+            tile.nativeElement.style.top = `${1}px`;
+            tile.nativeElement.style.left = `${42+(71*(keysArray.indexOf(event.item.element.nativeElement.id)))}px`;
+            tile.nativeElement.style.width = `${68}px`;
+            tile.nativeElement.style.height = `${57}px`;
+            // creer un event pour supprimer une lettre
+            this.removeTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY), column:this.getPositionDroppedX(posTileX), tileID:event.item.element.nativeElement.id});
+
+
+        }
+        // if (a){
+
+        //     tileBoxes[0].nativeElement.style.width = `${68}px`;
+        //     tileBoxes[0].nativeElement.style.height = `${57}px`;
+        //     moveItemInArray(this.items, event.previousIndex, event.currentIndex);
+        // }
+        // this.items.splice(event.previousIndex, 1);
+      }
+
+      positionTiles(){
+        this.position0.x = 42; //42 et 1
+        this.position0.y = 1;
+
+        this.position1.x = 42+71;
+        this.position1.y = 1;
+
+        this.position2.x = 42+(71*2);
+        this.position2.y = 1;
+
+        this.position3.x = 42+(71*3);
+        this.position3.y = 1;
+
+        this.position4.x = 42+(71*4);
+        this.position4.y = 1;
+
+        this.position5.x = 42+(71*5);
+        this.position5.y = 1;
+
+        this.position6.x = 42+(71*6);
+        this.position6.y = 1;
+
+      }
+      test(event: any){
+        console.log(event);
+      }
+
+      openExchangeDialog(){
+        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+            width: '200px', 
+            data: {rackList: this.items}
+          });
+      
+          dialogRef.afterClosed().subscribe(result => {
+            this.lettersExchange = result;
+            this.exchangePopUp(result);
+            console.log(result);
+            console.log('The dialog was closed');
+            
+          });
+        }
+
+        exchangePopUp(result: any){
+            if(result !== undefined){
+                this.exchange();
+            }
+        }
 }

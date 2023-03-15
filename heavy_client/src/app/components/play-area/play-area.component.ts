@@ -10,7 +10,11 @@ import { MouseManagementService } from '@app/services/mouse-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
-
+import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Letter } from '@app/interfaces/letter';
+import { WordArgs } from '@app/interfaces/word-args';
+import {MatDialog} from '@angular/material/dialog';
+import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
 const THREE_SECONDS = 3000;
 
 @Component({
@@ -20,6 +24,11 @@ const THREE_SECONDS = 3000;
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @ViewChild('gridCanvas', { static: false }) private gridCanvas!: ElementRef<HTMLCanvasElement>;
+    boardItems: string[] = [];
+    boardRows: string[][] = [];
+    cellSize = 39.6875;
+    @ViewChild('canvasDropList') canvasDropList: ElementRef;
+    rackItems = ['f','g','h'];
     grid = new gridConstants.GridConstants();
     mousePosition: Vec2 = { x: 0, y: 0 };
     buttonPressed = '';
@@ -40,6 +49,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     private defaultSize: number;
     private maxSizeWord: number;
     private minSizeWord: number;
+    selectedTile: string;
+    selectedTileInitialPosition: { x: any; y: any; };
+    position= {x: 0, y: 0};
+    dragOrType = 'free';
+    typeAccepted = ['free', 'type']
+
+
+
 
     constructor(
         private gridService: GridService,
@@ -48,6 +65,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         private route: ActivatedRoute,
         public mouse: MouseManagementService,
         public keyboard: KeyboardManagementService,
+        public dialog: MatDialog,
     ) {
         // this.mouse = new MouseManagementService(gridService);
         // this.keyboard = new KeyboardManagementService(gridService, chevaletService, this.mouse, socketService);
@@ -57,10 +75,28 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.minSizeWord = 23;
         this.canvasSize = { x: this.grid.defaultWidth, y: this.grid.defaultHeight };
         this.mode = this.route.snapshot.paramMap.get('mode') as string;
+        for (let i = 0; i < 15; i++) {
+            const row: string[] = [];
+            for (let j = 0; j < 15; j++) {
+              row.push('dddd');
+            }
+            this.boardRows.push(row);
+          }
     }
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
+        if(this.buttonPressed==='Enter'){
+            
+
+            if( this.dragOrType === 'drag' && this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
+    
+                this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+                console.log(this.keyboard.word);
+                this.dragOrType = 'free';
+            }
+
+        }
         this.keyboard.importantKey(this.buttonPressed);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
@@ -76,6 +112,53 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         if (event.target.id === 'canvas') return;
         this.keyboard.removeAllLetters();
     }
+    onTileDragStart(event: any, tile: string) {
+        console.log(event);
+        this.selectedTile = tile;
+        this.selectedTileInitialPosition = { x: event.clientX, y: event.clientY };
+        // event.source._dragRef.disabled = false; // Enable dragging
+      }
+
+    setDragFree(event: string){
+        console.log(event);
+        this.dragOrType = 'free';
+    }
+
+    returnRackTile(letter: Letter){
+        this.keyboard.removeLetterOnBoard(letter);
+    }
+    receiveDroppedTile(letter: Letter){
+        if (this.keyboard.verifyLetterOnBoard(letter)) {
+            this.keyboard.removeLetterOnBoard(letter);
+          }
+        this.keyboard.addDropLettersArray(letter);
+        this.dragOrType = 'drag';
+    }
+
+    onDragEnded(event: CdkDragEnd){
+        console.log(event);
+        this.position = { x: 200, y: 400 };
+
+    }
+
+
+      drop(event: CdkDragDrop<string[]>) {
+        console.log('in the drop');
+        if (event.previousContainer === event.container) {
+            console.log(event.previousContainer);
+            console.log(event.container);
+
+            console.log('in the canvas');
+            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+        } else {
+          transferArrayItem(
+            event.previousContainer.data,
+            event.container.data,
+            event.previousIndex,
+            event.currentIndex,
+          );
+        }
+      }
 
     enlargeSize() {
         if (this.size < this.maxSizeWord) {
@@ -121,6 +204,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.placeSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
+            this.dragOrType;
         });
         this.socketService.on('end-game', () => {
             this.commandSent = true;
@@ -153,16 +237,25 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.send('chatMessage', '!passer');
         this.socketService.send('pass-turn');
         this.socketService.send('change-user-turn');
+        this.dragOrType = 'free';
+
     }
-    mouseHitDetect(event: MouseEvent) {
-        if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame) {
+    mouseHitDetect(event: MouseEvent) {                           // draw arrow if turn and worstarted
+        if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame && this.typeAccepted.includes(this.dragOrType)) {
             this.mouse.detectOnCanvas(event);
+            this.dragOrType = 'type';
         }
     }
 
     buttonPlayPressed() {
+
+        if(this.dragOrType === 'drag' && this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
+            this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+        }
+        console.log("the word", this.keyboard.word);
         this.keyboard.buttonPlayPressed();
         this.chevaletService.makerackTilesIn();
+        this.dragOrType = 'free';
     }
 
     removeLetterAndArrow() {
@@ -175,4 +268,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.gridService.board.wordStarted = false;
         this.chevaletService.makerackTilesIn();
     }
+
+    openExchangeDialog(){
+        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+            width: '250px',
+            data: {rackList: this.rackItems}
+          });
+      
+          dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed');
+            
+          });
+        }
+    
+
 }

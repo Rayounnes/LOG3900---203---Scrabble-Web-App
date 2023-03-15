@@ -222,11 +222,22 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             console.log(letters);
         
-            letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
+            // letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
                 
             
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
+        });
+
+        socket.on('remove-letters-rack-light-client', (letters) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+        
+            letters =  JSON.parse(letters as unknown as string);
+                
+            
+            this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
+            // this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
         socket.on('freeze-timer', () => {
             const room = this.usersRoom.get(socket.id) as string;

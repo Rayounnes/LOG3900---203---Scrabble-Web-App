@@ -3,8 +3,16 @@
     <app-surrender-game></app-surrender-game>
     <div id="grid-buttons">
         <div>
-            <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+
+            <canvas id="canvas" cdkDropList #boardCanvas [cdkDropListData]="boardItems"  cdkDropListConnectedTo="canvasDropList"  #canvasDropList #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+
+            <app-chevalet class="chevalet" (resetDragEvent)="setDragFree($event)" (removeTileEvent)="returnRackTile($event)" (sendTileEvent)="receiveDroppedTile($event)" [dragUsed]="dragOrType"></app-chevalet>
+            <div cdkDrag [cdkDragFreeDragPosition]="position" (cdkDragEnded)="onDragEnded($event)">Drag me!</div>
+
+    
         </div>
+
+
 
         <div>
             <button class="font-size-buttons" id="button1" (click)="enlargeSize()">+</button>
@@ -12,6 +20,7 @@
             <button class="font-size-buttons" id="button2" (click)="reduceSize()">-</button>
 
         </div>
+
         <div *ngIf="this.mode === 'LOG2990'" id="goals">
             <div id="public-goals">
                 <p id="public-goals-title">Objectifs publics</p>
@@ -43,9 +52,9 @@
                 </p>
             </div>
         </div>
-        <button class="pass-turn-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="passTurn()">
+        <button class="pass-turn-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="passTurn()"> 
             Passer
-        </button>
+        </button> 
         <button class="play-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="buttonPlayPressed()">Jouer</button>
 
     </div>

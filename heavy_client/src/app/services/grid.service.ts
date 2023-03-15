@@ -37,7 +37,7 @@ export class GridService {
     board = new Board();
     gridContext: CanvasRenderingContext2D;
     grid = new gridConstants.GridConstants();
-    private canvasSize: CanvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
+    canvasSize: CanvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
     fillAndSetColor(pos1: number, pos2: number, color: string) {
         this.fillColor(pos1, pos2, color);
