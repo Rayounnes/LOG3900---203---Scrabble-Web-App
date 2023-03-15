@@ -3,11 +3,14 @@ class ChatMessage {
   String message;
   String time;
   String type;
+  String? channel;
+  
   ChatMessage(
       {required this.username,
       required this.message,
       required this.time,
-      required this.type});
+      required this.type,
+      this.channel});
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
@@ -15,6 +18,7 @@ class ChatMessage {
       message: json['message'],
       time: json['time'],
       type: json['type'],
+      channel: json['channel']
     );
   }
 
@@ -23,5 +27,6 @@ class ChatMessage {
         'time': time,
         'message': message,
         'type': type,
+        'channel': channel
       };
 }

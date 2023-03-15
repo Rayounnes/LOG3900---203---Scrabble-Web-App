@@ -5,7 +5,7 @@ import { Letter } from '@app/interfaces/lettre';
 import { Placement } from '@app/interfaces/placement';
 import { JoinInfos } from '@app/interfaces/join-infos';
 import { ScrabbleClassic } from '@app/classes/scrabble-classic';
-import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
+// import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
 import { SocketUser } from '@app/interfaces/socket-user';
 import { SoloGame } from '@app/interfaces/solo-game';
 import { WordArgs } from '@app/interfaces/word-args';
@@ -17,7 +17,8 @@ import { Dictionary } from '@app/interfaces/dictionary';
 import { LoginService } from './login.service';
 import { DatabaseService } from './database.service';
 import { ChatMessage } from '@app/interfaces/chat-message';
-
+import { PlayerInfos } from '@app/interfaces/player-infos';
+import { ChannelService } from './channels.service';
 
 export class SocketManager {
     private sio: io.Server;
@@ -29,57 +30,57 @@ export class SocketManager {
     private usersRoom = new Map<string, string>(); // socket id -room
     private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
-    private loginService : LoginService;
+    private loginService: LoginService;
+    private channelService: ChannelService;
 
-    constructor(server: http.Server, private databaseService : DatabaseService) {
+    constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         this.roomName = 'room' + this.roomIncrement;
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
         this.loginService = new LoginService(this.databaseService);
+        this.channelService = new ChannelService(this.databaseService);
     }
     changeRoomName() {
         this.roomIncrement++;
         this.roomName = 'room' + this.roomIncrement;
     }
-    createGame(game: Game, type: string, socketId: string) {
-        game.room = this.roomName;
-        if (type !== 'solo') game.isJoined = false;
-        this.gameRooms.set(this.roomName, game);
+    createGame(game: Game, socketId: string) {
+        game.room = `Partie de ${game.hostUsername}`;
+        this.gameRooms.set(game.room, game);
         game.hostID = socketId;
-        this.usernames.set(socketId, game.usernameOne);
-        this.usersRoom.set(socketId, this.roomName);
+        this.usersRoom.set(socketId, game.room);
     }
-    gameList(gameMode: string): Game[] {
-        return Array.from(this.gameRooms.values()).filter((game: Game) => game.type !== 'solo' && game.mode === gameMode);
+    gameList(isClassic: boolean): Game[] {
+        return Array.from(this.gameRooms.values()).filter((game: Game) => {
+            const classic = game.isClassicMode === isClassic;
+            const privateFull = classic && game.isPrivate && !game.isFullPlayers;
+            return !game.isPrivate ? classic : privateFull;
+        });
     }
     gameCreationHandler(socket: io.Socket) {
-        socket.on('create-game', (game: Game) => {
-            this.createGame(game, 'multiplayer', socket.id);
-            socket.join(this.roomName);
-            this.sio.to(this.roomName).emit('create-game', game.usernameOne);
-            this.sio.emit('update-joinable-matches', this.gameList(game.mode));
-            this.changeRoomName();
+        socket.on('create-game', async (game: Game) => {
+            game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
+            game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
+            console.log('game: ', game);
+            this.createGame(game, socket.id);
+            await this.createChannel(socket, game.room, true);
+            game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
+            console.log('emetting create-game');
+            this.sio.to(game.room).emit('create-game', game);
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
 
         socket.on('dictionary-selected', (dictionary: Dictionary) => {
             this.sio.emit('dictionary-selected', dictionary);
         });
         socket.on('create-solo-game', (game: SoloGame) => {
-            this.createGame(game, 'solo', socket.id);
+            this.createGame(game, socket.id);
             game.isFinished = false;
             socket.join(this.roomName);
-            this.scrabbleGames.set(
-                this.roomName,
-                new ScrabbleClassicSolo(socket.id, game.virtualPlayerName, game.dictionary.fileName, game.difficulty, game.mode === 'LOG2990'),
-            );
-            game.usernameTwo = game.virtualPlayerName;
-            this.sio.to(socket.id).emit('send-info-to-panel', game);
-            this.sio.to(this.roomName).emit('user-turn', this.scrabbleGames.get(this.roomName)?.socketTurn);
-            if (game.mode === 'LOG2990') {
-                (this.scrabbleGames.get(this.roomName) as ScrabbleClassic).setPrivateGoalsForPlayers();
-                this.sio.to(this.roomName).emit('public-goals', this.scrabbleGames.get(this.roomName)?.getPublicGoals());
-                this.sio.to(socket.id).emit('private-goal', this.scrabbleGames.get(this.roomName)?.getPrivateGoal(socket.id));
-            }
+            // this.scrabbleGames.set(
+            //     this.roomName,
+            //     new ScrabbleClassicSolo(socket.id, game.virtualPlayerName, game.dictionary.fileName, game.difficulty, game.mode === 'LOG2990'),
+            // );
             if (this.scrabbleGames.get(game.room)?.socketTurn !== socket.id) {
                 this.gameManager.virtualPlayerPlay(game.room);
             }
@@ -88,52 +89,107 @@ export class SocketManager {
         });
     }
     waitingRoomHostHandler(socket: io.Socket) {
-        socket.on('kick-user', () => {
-            const hostUsername = this.usernames.get(socket.id) as string;
-            const room = this.usersRoom.get(socket.id) as string;
-            const game = this.gameRooms.get(room) as Game;
-            const joinSocket = this.gameManager.findOpponentSocket(socket.id);
-            this.sio.sockets.sockets.get(joinSocket)?.leave(room);
-            this.gameManager.leaveRoom(joinSocket);
-            this.sio.to(joinSocket).emit('kick-user', hostUsername);
-            (this.gameRooms.get(room) as Game).isJoined = false;
-            this.sio.emit('update-joinable-matches', this.gameList(game.mode));
-        });
-        socket.on('cancel-match', () => {
+        socket.on('cancel-match', async () => {
             const gameCanceled = this.gameRooms.get(this.usersRoom.get(socket.id) as string) as Game;
             this.gameManager.leaveRoom(socket.id);
             socket.leave(gameCanceled.room);
-            this.sio.to(gameCanceled.room).emit('kick-user');
+            this.sio.to(gameCanceled.room).emit('cancel-match');
+            for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
+            for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
             this.gameRooms.delete(gameCanceled.room);
-            this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.mode));
+            this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
+            await this.deleteChannel(gameCanceled.room);
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {
-        socket.on('joined-user-left', () => {
+        socket.on('joined-user-left', async (isObserver: boolean) => {
+            const playerUsername = this.usernames.get(socket.id) as string;
             const room = this.usersRoom.get(socket.id) as string;
-            const hostSocket = this.gameManager.findOpponentSocket(socket.id);
             const game = this.gameRooms.get(room) as Game;
-
-            socket.leave(room);
+            await this.leaveChannel(socket, game.room);
             this.gameManager.leaveRoom(socket.id);
-            this.sio.to(hostSocket).emit('joined-user-left');
-            (this.gameRooms.get(room) as Game).isJoined = false;
-            this.sio.emit('update-joinable-matches', this.gameList(game.mode));
+            if (!isObserver) {
+                game.joinedPlayers = game.joinedPlayers.filter((user) => user.username !== playerUsername);
+                game.isFullPlayers = game.joinedPlayers.length === game.humanPlayers;
+                this.sio.to(room).emit('joined-user-left', playerUsername);
+            } else {
+                game.joinedObservers = game.joinedObservers.filter((user) => user.username !== playerUsername);
+                this.sio.to(room).emit('joined-observer-left', playerUsername);
+            }
+            this.sio.to(room).emit('waiting-room-player', game);
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
-        socket.on('waiting-room-second-player', (gameParams: Game) => {
+        socket.on('waiting-room-player', async (gameParams: Game) => {
             const roomToJoin = gameParams.room;
-            socket.join(roomToJoin);
+            await this.joinChannels(socket, [roomToJoin]);
             this.usersRoom.set(socket.id, roomToJoin);
-            this.usernames.set(socket.id, gameParams.usernameTwo);
-            (this.gameRooms.get(roomToJoin) as Game).isJoined = true;
-            this.sio.to(socket.id).emit('waiting-room-second-player', gameParams.usernameTwo);
-            this.sio.to(roomToJoin).emit('add-second-player-waiting-room', gameParams);
-            this.sio.emit('update-joinable-matches', this.gameList(gameParams.mode));
+            const playerUsername = this.usernames.get(socket.id) as string;
+            const game = this.gameRooms.get(roomToJoin) as Game;
+            if (game.password) game.playersWaiting--;
+            game.joinedPlayers.push({ username: playerUsername, socketId: socket.id });
+            game.isFullPlayers = game.joinedPlayers.length === game.humanPlayers;
+            this.sio.to(socket.id).emit('waiting-player-status', false); // isObserver
+            this.sio.to(roomToJoin).emit('waiting-room-player', game);
+            this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
+        });
+        socket.on('waiting-room-observer', async (gameParams: Game) => {
+            const roomToJoin = gameParams.room;
+            await this.joinChannels(socket, [roomToJoin]);
+            this.usersRoom.set(socket.id, roomToJoin);
+            const playerUsername = this.usernames.get(socket.id) as string;
+            const game = this.gameRooms.get(roomToJoin) as Game;
+            game.joinedObservers.push({ username: playerUsername, socketId: socket.id });
+            this.sio.to(socket.id).emit('waiting-player-status', true);
+            this.sio.to(roomToJoin).emit('waiting-room-player', game);
+            this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
+        });
+        // Partie protégé par mot de passe
+        socket.on('waiting-password-game', (gameParams: Game) => {
+            const game = this.gameRooms.get(gameParams.room) as Game;
+            game.playersWaiting++;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
+        socket.on('cancel-waiting-password', (gameParams: Game) => {
+            const game = this.gameRooms.get(gameParams.room) as Game;
+            game.playersWaiting--;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
+        // Rejoindre une partie privée
+        socket.on('private-room-player', (gameParams: Game) => {
+            const playerUsername = this.usernames.get(socket.id) as string;
+            this.sio.to(gameParams.hostID).emit('private-room-player', { username: playerUsername, socketId: socket.id });
+            const game = this.gameRooms.get(gameParams.room) as Game;
+            game.playersWaiting++;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
+
+        socket.on('accept-private-player', (userInfos: PlayerInfos) => {
+            this.sio.to(userInfos.socketId).emit('accept-private-player');
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
+            game.playersWaiting--;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
+
+        socket.on('reject-private-player', (userInfos: PlayerInfos) => {
+            this.sio.to(userInfos.socketId).emit('reject-private-player');
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
+            game.playersWaiting--;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
+
+        socket.on('left-private-player', (gameParams: Game) => {
+            const username = this.usernames.get(socket.id);
+            this.sio.to(gameParams.hostID).emit('left-private-player', username);
+            const game = this.gameRooms.get(gameParams.room) as Game;
+            game.playersWaiting--;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
     }
     gameRoomsViewHandler(socket: io.Socket) {
-        socket.on('update-joinable-matches', (gameMode: string) => {
-            this.sio.emit('update-joinable-matches', this.gameList(gameMode));
+        socket.on('update-joinable-matches', (isClassicMode: boolean) => {
+            this.sio.emit('update-joinable-matches', this.gameList(isClassicMode));
         });
         socket.on('sendUsername', () => {
             const myUsername = this.usernames.get(socket.id) as string;
@@ -144,13 +200,13 @@ export class SocketManager {
         socket.on('join-game', (gamePlayer: JoinInfos) => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            if (game) game.usernameTwo = gamePlayer.playerUsername;
+            // if (game) game.usernameTwo = gamePlayer.playerUsername;
             const opponentId = this.gameManager.findOpponentSocket(socket.id);
             this.scrabbleGames.set(room, new ScrabbleClassic(socket.id, opponentId, game.dictionary.fileName, gamePlayer.mode === 'LOG2990'));
             this.sio.to(room).emit('join-game');
             const opponentGame = Object.assign({}, game);
-            opponentGame.usernameOne = game.usernameTwo;
-            opponentGame.usernameTwo = game.usernameOne;
+            // opponentGame.usernameOne = game.usernameTwo;
+            // opponentGame.usernameTwo = game.usernameOne;
             (this.scrabbleGames.get(room) as ScrabbleClassic).setPrivateGoalsForPlayers();
 
             this.sio.to(socket.id).emit('send-info-to-panel', game);
@@ -205,8 +261,9 @@ export class SocketManager {
             //const room = this.usersRoom.get(socket.id) as string;
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
-            console.log(message);
-            this.sio.emit('chatMessage', message);
+            // eslint-disable-next-line no-console
+            this.sio.to(message.channel as string).emit('chatMessage', message);
+            this.channelService.addMessageToChannel(message);
         });
     }
     placeCommandViewHandler(socket: io.Socket) {
@@ -288,50 +345,119 @@ export class SocketManager {
         socket.on('change-user-turn', () => {
             const room = this.usersRoom.get(socket.id) as string;
             this.gameManager.changeTurn(room);
-            if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
-                this.gameManager.virtualPlayerPlay(room);
-            }
+            // if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
+            //     this.gameManager.virtualPlayerPlay(room);
+            // }
         });
     }
     endGameHandler(socket: io.Socket) {
         socket.on('abandon-game', () => {
-            const room = this.usersRoom.get(socket.id) as string;
-            if ((this.gameRooms.get(room) as Game).type !== 'solo') {
-                this.gameManager.abandonGame(socket.id);
-            } else {
-                this.sio.to(room).emit('end-game', true);
-            }
+            this.gameManager.abandonGame(socket.id);
             socket.disconnect();
         });
         socket.on('quit-game', () => {
-            const room = this.usersRoom.get(socket.id) as string;
-            if ((this.gameRooms.get(room) as Game).mode !== 'solo') {
-                this.sio
-                    .to(this.gameManager.findOpponentSocket(socket.id))
-                    .emit('chatMessage', { type: 'system', message: `${this.usernames.get(socket.id)} a quitté le jeu.` });
-            }
+            this.sio
+                .to(this.gameManager.findOpponentSocket(socket.id))
+                .emit('chatMessage', { type: 'system', message: `${this.usernames.get(socket.id)} a quitté le jeu.` });
             this.gameManager.leaveRoom(socket.id);
             socket.disconnect();
         });
     }
 
-    userConnectionHandler(socket: io.Socket){
+    userConnectionHandler(socket: io.Socket) {
         socket.on('user-connection', (loginInfos) => {
-            this.usernames.set(loginInfos.socketId,loginInfos.username);
+            this.usernames.set(loginInfos.socketId, loginInfos.username);
+            this.userJoinChannels(socket);
+            this.loginService.changeConnectionState(loginInfos.username, true);
         });
     }
 
-    userDisconnectHandler(socket : io.Socket){
-        socket.on('user-disconnect',  (socketId : string) => {
-            let username = this.usernames.get(socketId);
-            if(username){
+    userDisconnectHandler(socket: io.Socket) {
+        socket.on('user-disconnect', (socketId: string) => {
+            const username = this.usernames.get(socketId);
+            if (username) {
                 this.usernames.delete(socketId);
-                this.loginService.changeConnectionState(username,false)
+                this.loginService.changeConnectionState(username, false);
             }
         });
     }
 
+    async userJoinChannels(socket: io.Socket) {
+        const username = this.usernames.get(socket.id);
+        if (username) {
+            const channels = await this.channelService.getUserChannelsName(username);
+            for (const channel of channels) {
+                socket.join(channel);
+            }
+        }
+    }
 
+    async joinChannels(socket: io.Socket, channelNames: string[]) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
+        if (Array.isArray(channelNames)) {
+            for (const channel of channelNames) {
+                socket.join(channel);
+            }
+        } else {
+            socket.join(channelNames);
+        }
+        this.sio.to(socket.id).emit('channels-joined');
+    }
+
+    async userJoinNewChannels(socket: io.Socket) {
+        socket.on('join-channel', async (channelNames: string[]) => {
+            await this.joinChannels(socket, channelNames);
+        });
+    }
+
+    async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
+        const username = this.usernames.get(socket.id);
+        const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
+        socket.join(channelName);
+        this.sio.to(channelName).emit('channel-created', channel);
+    }
+
+    async leaveChannel(socket: io.Socket, channelName: string) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.leaveChannel(channelName, username as string);
+        this.sio.to(socket.id).emit('leave-channel');
+        socket.leave(channelName);
+    }
+    async deleteChannel(channelName: string) {
+        await this.channelService.deleteChannel(channelName);
+        this.sio.to(channelName).emit('leave-channel');
+    }
+    userCreateChannel(socket: io.Socket) {
+        socket.on('channel-creation', async (channelName: string) => {
+            await this.createChannel(socket, channelName, false);
+        });
+    }
+
+    userLeaveChannel(socket: io.Socket) {
+        socket.on('leave-channel', async (channelName: string) => {
+            await this.leaveChannel(socket, channelName);
+        });
+    }
+
+    userDeleteChannel(socket: io.Socket) {
+        socket.on('delete-channel', async (channelName: string) => {
+            await this.deleteChannel(channelName);
+        });
+    }
+
+    userTyping(socket: io.Socket) {
+        socket.on('isTypingMessage', (message: ChatMessage) => {
+            if (message.message.length > 0) {
+                console.log('dans server typing');
+                this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
+            } else {
+                console.log('dans server nottyping');
+                this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
+                console.log(message.username);
+            }
+        });
+    }
 
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
@@ -341,7 +467,7 @@ export class SocketManager {
                 this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
                 this.disconnectedSocket.oldSocketId = '';
             }
-            console.log(`Connexion avec : ${socket.id}`)
+            console.log(`Connexion avec : ${socket.id}`);
             this.gameCreationHandler(socket);
             this.waitingRoomHostHandler(socket);
             this.waitingRoomJoinedPlayerHandler(socket);
@@ -358,15 +484,20 @@ export class SocketManager {
             this.endGameHandler(socket);
             this.userConnectionHandler(socket);
             this.userDisconnectHandler(socket);
+            this.userCreateChannel(socket);
+            this.userJoinNewChannels(socket);
+            this.userLeaveChannel(socket);
+            this.userDeleteChannel(socket);
+            this.userTyping(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
                     const room = this.usersRoom.get(socket.id) as string; */
                     // non couvert dans les tests car impossible a stub reason ,confirmé avec le chargé
                     if (reason === 'transport close') {
-                        this.loginService.changeConnectionState(this.usernames.get(socket.id) as string,false);
+                        this.loginService.changeConnectionState(this.usernames.get(socket.id) as string, false);
                         this.usernames.delete(socket.id);
-                       /*  this.disconnectedSocket = { oldSocketId: socket.id, newSocketId: '' };
+                        /*  this.disconnectedSocket = { oldSocketId: socket.id, newSocketId: '' };
                         setTimeout(() => {
                             if (this.disconnectedSocket.oldSocketId && this.gameRooms.get(room)?.mode !== 'solo') {
                                 this.gameManager.abandonGame(socket.id);

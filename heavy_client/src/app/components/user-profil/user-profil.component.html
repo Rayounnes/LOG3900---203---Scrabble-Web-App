@@ -1,0 +1,44 @@
+<div class="row1">
+    <div class="col1">
+        <img  [src]="currentIcon" width="150px" height="150px" (click)="chooseAvatar()"/>
+        <span class="username">{{username}}</span>
+    </div>
+    <div class="col">
+        <span class="number">45</span>
+        <span class="info">Parties jouées</span>
+    </div>
+    <div class="col">
+        <span class="number">22</span>
+        <span class="info">Parties gagnées</span>
+    </div>
+    <div class="col">
+        <span class="number">323</span>
+        <span class="info">Points en moyenne</span>
+    </div>
+    <div class="col2">
+        <span class="number">34m20s</span>
+        <span class="info">Temps moyen</span>
+    </div>
+</div>
+
+<div class="row2">
+    <div class="category">
+        <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
+            <span >Historique des parties</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Connexions' ? 'choice' : 'no-choice'" (click)="changeCategory('Connexions')">
+            <span>Historique des connexions et déconnexions</span>
+        </div>
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Connexions'">
+        <div class="data"  *ngFor="let data of connexionHistory">
+
+            <span *ngIf="data[1]" class="connect">Connexion</span>
+            <span *ngIf="!data[1]" class="disconnect">Déconnexion</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+</div>
+
+

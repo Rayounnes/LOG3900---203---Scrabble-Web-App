@@ -10,8 +10,6 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { JoindrePartieComponent } from '@app/pages/joindre-partie/joindre-partie.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
-import { PartieMultijoueurPageComponent } from '@app/pages/partie-multijoueur-page/partie-multijoueur-page.component';
-import { SoloGamePageComponent } from '@app/pages/solo-game-page/solo-game-page.component';
 import { WaitingRoomPageComponent } from '@app/pages/waiting-room-page/waiting-room-page.component';
 
 const routes: Routes = [
@@ -19,14 +17,12 @@ const routes: Routes = [
     { path : 'chatproto', component : ChatPrototypeComponent},
     { path :'connexion', component : ConnexionPageComponent},
     { path: 'home', component: MainPageComponent },
-    { path: 'game/:mode', component: GamePageComponent },
+    { path: 'game/', component: GamePageComponent },
     { path: 'material', component: MaterialPageComponent },
-    { path: 'mode/:mode', component: ClassiquePageComponent },
-    { path: 'partie-multijoueur/:mode', component: PartieMultijoueurPageComponent },
-    { path: 'joindre-partie/:mode', component: JoindrePartieComponent },
-    { path: 'waiting-room/:mode', component: WaitingRoomPageComponent },
+    { path: 'mode', component: ClassiquePageComponent },
+    { path: 'joindre-partie', component: JoindrePartieComponent },
+    { path: 'waiting-room', component: WaitingRoomPageComponent },
     { path: 'information-panel', component: InformationPanelComponent },
-    { path: 'solo-game/:mode', component: SoloGamePageComponent },
     { path: 'top-scores', component: BestScoresComponent },
     { path: 'admin', component: AdminPanelComponent },
     { path: '**', redirectTo: '/home' },

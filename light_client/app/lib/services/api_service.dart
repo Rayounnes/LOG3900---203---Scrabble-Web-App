@@ -6,6 +6,8 @@ import 'package:app/models/login_infos.dart';
 
 class ApiService {
 
+  /** ************** user Login methods *******************************/
+
   Future<int> loginUser(LoginInfos user) async {
     final response = await http.post(
       Uri.parse(ApiConstants.baseUrl + "/api/login/user"),
@@ -34,4 +36,69 @@ class ApiService {
     );
     return response.statusCode;
   }
+
+  /** ************** chat channel method *******************************/
+  Future<List<dynamic>> getUserChannels(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/channel/'+username),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get user channels');
+    }
+}
+
+Future<List<dynamic>> getAllChannels() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/allchannels'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+
+Future<List<dynamic>> getAllUsers() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/allusers'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+Future<List<dynamic>> getChannelsOfUsers(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/usersChannels/'+username),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+Future<List<dynamic>> getMessagesOfChannel(String channel) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/messagesChannels/'+channel),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception('Failed to get all channels');
+    }
+}
+
+
+
+
+
 }

@@ -1,30 +1,42 @@
-<div class="container">
-    <h1 class="title">Liste des parties joignables</h1>
-
-    <ul>
-        <button class="randomGame" [hidden]="gameList.length < 1" [disabled]="gameList.length <= 1" (click)="joinRandomGame()">Placement aléatoire</button>
-        <div *ngFor="let game of gameList; let i = index">
-            <div *ngIf="game && !game.isJoined" class = "game">
-                <h3>Joueur : {{ game.usernameOne }}</h3>
-                <h3>Temps par tour : {{ game.time }}</h3>
-                <h3>Dictionnaire : {{ game.dictionary.title }}</h3>
-                <button class = "buttonChoice" (click)="toggleUsernameForm(i)">Join game</button>
-                <form *ngIf="displayUsernameFormGame[i]" id="createUsername">
-                    <fieldset>
-                        <div>
-                            <div class="container">
-                                <label for="uname">Username</label>
-                                <input type="text" [(ngModel)]="username" placeholder="Entrez votre username" name="uname" required />
-                            </div>
-                        </div>
-                        <h4 class="error" *ngIf = "username === game.usernameOne">Erreur : Vous utilisez le meme nom de joeur que l'hote</h4>
-                        <h4 class="error" *ngIf = "!valideUsername(username)">Erreur : Vous ne pouvez pas utiliser des caractères speciaux</h4>
-                        <button  [disabled] = "!valideUsername(username)" [disabled] = "username === game.usernameOne" (click)="joinWaitingRoom(game)" [routerLink]="['/waiting-room',this.mode]"> Rejoindre </button>
-                        <button (click)="cancelToggle(i)">Annuler</button>
-                    </fieldset>
-                </form>
-            </div>
+<div class="homeDiv">
+    <div class="modesContainer">
+        <h1 class="title">Liste des parties joignables mode "{{ mode }}"</h1>
+        <div class="gameContainer" *ngFor="let game of gameList; let i = index">
+            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : true" class="example-card">
+                <mat-card-header>
+                    <mat-card-title>Partie de {{ game.hostUsername }}</mat-card-title>
+                    <mat-card-subtitle *ngIf="!game.isPrivate && game.password">Publique (protégé par mot de passe)</mat-card-subtitle>
+                    <mat-card-subtitle *ngIf="!game.isPrivate && !game.password">Publique</mat-card-subtitle>
+                    <mat-card-subtitle *ngIf="game.isPrivate">Privée</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div>
+                        <h3>Réglages de la partie:</h3>
+                        <mat-label><mat-icon>people</mat-icon> {{ game.humanPlayers }}</mat-label>
+                        <mat-label><mat-icon>smart_toy</mat-icon> {{ 4 - game.humanPlayers }}</mat-label>
+                        <mat-label><mat-icon>timer</mat-icon> {{ game.time }} (s)</mat-label>
+                        <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
+                    </div>
+                    <div>
+                        <h3>*ngIf="!game.hasStarted" Salle d'attente:</h3>
+                        <h3>*ngIf="game.hasStarted" Partie en cours:</h3>
+                        <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
+                        <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
+                    </div>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button
+                        mat-raised-button
+                        color="primary"
+                        [disabled]="game.playersWaiting + game.joinedPlayers.length === game.humanPlayers || game.isFullPlayers"
+                        (click)="joinWaitingRoom(game)"
+                    >
+                        Rejoindre
+                    </button>
+                    <button *ngIf="!game.isPrivate" mat-raised-button color="accent" (click)="joinAsObserver(game)">Observer</button>
+                </mat-card-actions>
+            </mat-card>
         </div>
-    </ul>
-    <button class="return" routerLink="/classique"> Retour </button>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/classique">Retour</button>
 </div>

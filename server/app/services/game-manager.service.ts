@@ -33,7 +33,7 @@ export class GameManager {
     }
     leaveRoom(socketId: string) {
         this.usersRoom.delete(socketId);
-        this.usernames.delete(socketId);
+        // this.usernames.delete(socketId);
     }
     changeTurn(room: string) {
         this.scrabbleGames.get(room)?.toggleTurn();
@@ -64,40 +64,39 @@ export class GameManager {
     }
     transformToSoloGame(game: SoloGame, opponentSocket: string): SoloGame {
         game.hostID = opponentSocket;
-        game.type = 'solo';
-        game.isFinished = false;
-        game.usernameOne = this.usernames.get(opponentSocket) as string;
-        game.usernameTwo = game.usernameOne.toLowerCase() !== 'marc' ? 'Marc' : 'Ben';
-        game.virtualPlayerName = game.usernameTwo;
+        // game.type = 'solo';
+        // game.isFinished = false;
+        // game.usernameOne = this.usernames.get(opponentSocket) as string;
+        // game.usernameTwo = game.usernameOne.toLowerCase() !== 'marc' ? 'Marc' : 'Ben';
+        // game.virtualPlayerName = game.usernameTwo;
         game.difficulty = LEVEL.Beginner;
         return game;
     }
     abandonGame(socketId: string) {
-        const opponentSocket: string = this.findOpponentSocket(socketId);
-        const room = this.usersRoom.get(socketId) as string;
-        const game: SoloGame = this.transformToSoloGame(this.gameRooms.get(room) as SoloGame, opponentSocket);
-        const gameScrabbleAbandonned = this.scrabbleGames.get(room) as ScrabbleClassic;
-        const scrabbleSoloGame = new ScrabbleClassicSolo(
-            game.hostID,
-            game.usernameTwo,
-            game.dictionary.fileName,
-            game.difficulty,
-            game.mode === 'LOG2990',
-        );
-        const soloGame = gameScrabbleAbandonned.transformToSoloGame(scrabbleSoloGame, game);
-        this.scrabbleGames.set(room, soloGame);
-        const abandomMessage = `${this.usernames.get(socketId)} a abandonné la partie.La partie est convertie en mode solo avec un joueur débutant.`;
-        this.sio.to(opponentSocket).emit('abandon-game');
-        this.sio.to(opponentSocket).emit('chatMessage', { type: 'system', message: abandomMessage });
-        this.sio.to(opponentSocket).emit('send-info-to-panel', game);
-        if (this.scrabbleGames.get(room)?.socketTurn !== game.hostID) {
-            this.sio.to(opponentSocket).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
-            this.virtualPlayerPlay(room);
-        }
+        // const opponentSocket: string = this.findOpponentSocket(socketId);
+        // const room = this.usersRoom.get(socketId) as string;
+        // const game: SoloGame = this.transformToSoloGame(this.gameRooms.get(room) as SoloGame, opponentSocket);
+        // const gameScrabbleAbandonned = this.scrabbleGames.get(room) as ScrabbleClassic;
+        // const scrabbleSoloGame = new ScrabbleClassicSolo(
+        //     game.hostID,
+        //     game.usernameTwo,
+        //     game.dictionary.fileName,
+        //     game.difficulty,
+        //     game.mode === 'LOG2990',
+        // );
+        // const soloGame = gameScrabbleAbandonned.transformToSoloGame(scrabbleSoloGame, game);
+        // this.scrabbleGames.set(room, soloGame);
+        // const abandomMessage = `${this.usernames.get(socketId)} a abandonné la partie.La partie est convertie en mode solo avec un joueur débutant.`;
+        // this.sio.to(opponentSocket).emit('abandon-game');
+        // this.sio.to(opponentSocket).emit('chatMessage', { type: 'system', message: abandomMessage });
+        // this.sio.to(opponentSocket).emit('send-info-to-panel', game);
+        // if (this.scrabbleGames.get(room)?.socketTurn !== game.hostID) {
+        //     this.sio.to(opponentSocket).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
+        //     this.virtualPlayerPlay(room);
+        // }
     }
     isEndGame(room: string, scrabbleGame: ScrabbleClassic): boolean {
         if (scrabbleGame.gameEnded()) {
-            if (this.gameRooms.get(room)?.mode === 'solo') (this.gameRooms.get(room) as SoloGame).isFinished = true;
             this.endGameMessage(room, scrabbleGame);
             this.sio.to(room).emit('end-game');
             return true;
@@ -151,8 +150,8 @@ export class GameManager {
             this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', game);
         } else {
             const opponentGame = Object.assign({}, game);
-            opponentGame.usernameOne = game.usernameTwo;
-            opponentGame.usernameTwo = game.usernameOne;
+            // opponentGame.usernameOne = game.usernameTwo;
+            // opponentGame.usernameTwo = game.usernameOne;
             this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', opponentGame);
         }
     }

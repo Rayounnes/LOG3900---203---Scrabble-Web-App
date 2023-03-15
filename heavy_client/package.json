@@ -15,7 +15,7 @@
     "lint:fix": "npm run lint -- --fix",
     "electron": "electron .",
     "electron-build": "ng build && electron .",
-    "start:electron" : "ng build --base-href ./ && electron .",
+    "start:electron": "ng build --base-href ./ && electron .",
     "build:electron": "ng build && electron-packager . --asar --ignore=/node_modules --ignore=/e2e --ignore=/src --overwrite --out=./build"
   },
   "private": true,
@@ -31,6 +31,7 @@
     "@angular/platform-browser-dynamic": "12.1.5",
     "@angular/router": "12.1.5",
     "@types/bcrypt": "^5.0.0",
+    "angular-opinionated-popout-window": "^1.0.10",
     "bcrypt": "^5.1.0",
     "file-saver": "^2.0.5",
     "ngx-cookie-service": "^15.0.0",

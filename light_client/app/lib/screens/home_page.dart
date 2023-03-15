@@ -13,8 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
+  int _selectedIndex = -1;
+  int _counter = 5;
   void logoutUser() async {
     String username = getIt<UserInfos>().user;
     await ApiService().logoutUser(username);
@@ -30,40 +30,71 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Channels(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              showModal(context);
-              break;
-          }
-          setState(
-            () {
-              _selectedIndex = index;
-            },
-          );
-        },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey.shade600,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: "Conversations",
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex == -1 ? 0 : _selectedIndex,
+      onTap: (int index) {
+        switch (index) {
+          case 0:
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return Channels();
+            }));
+            break;
+          case 1:
+            showModal(context);
+            break;
+        }
+        setState(
+          () {
+            _selectedIndex = index;
+          },
+        );
+      },
+      selectedItemColor:
+          _selectedIndex == -1 ? Colors.grey.shade600 : Colors.blue,
+      unselectedItemColor: Colors.grey.shade600,
+      selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+      type: BottomNavigationBarType.fixed,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.message),
+          label: "Conversations",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.logout),
+          label: "Déconnexion",
+        ),
+        BottomNavigationBarItem(
+          icon: Stack(
+            children: <Widget>[
+              Icon(Icons.notifications),
+              Positioned(
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 12,
+                    minHeight: 12,
+                  ),
+                  child: Text(
+                    '$_counter',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: "Déconnexion",
-          ),
-        ],
-      ),
+          label: 'Notifications',
+        )
+      ],
     );
   }
 
