@@ -60,6 +60,7 @@ export class ConnexionPageComponent implements OnInit {
                 this.connected = true;
                 this.router.navigate(['home']);
                 this.socketService.send('user-connection', { username: this.usernameForm.value['username'], socketId: this.socketService.socketId });
+                this.appComponent.initiatePopout();
             } else {
                 this._snackBar.open(
                     "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer",
@@ -83,6 +84,7 @@ export class ConnexionPageComponent implements OnInit {
                 this.connected = true;
                 this.router.navigate(['home']);
                 this.socketService.send('user-connection', { username: this.usernameForm.value['username'], socketId: this.socketService.socketId });
+                this.appComponent.initiatePopout();
             } else {
                 this._snackBar.open("Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.", 'Fermer');
             }
