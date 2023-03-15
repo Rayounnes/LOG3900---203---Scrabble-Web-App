@@ -392,18 +392,22 @@ export class SocketManager {
         }
     }
 
+    async joinChannels(socket: io.Socket, channelNames: string[]) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
+        if (Array.isArray(channelNames)) {
+            for (const channel of channelNames) {
+                socket.join(channel);
+            }
+        } else {
+            socket.join(channelNames);
+        }
+        this.sio.to(socket.id).emit('channels-joined');
+    }
+
     async userJoinNewChannels(socket: io.Socket) {
         socket.on('join-channel', async (channelNames: string[]) => {
-            const username = this.usernames.get(socket.id);
-            await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
-            if (Array.isArray(channelNames)) {
-                for (const channel of channelNames) {
-                    socket.join(channel);
-                }
-            } else {
-                socket.join(channelNames);
-            }
-            this.sio.to(socket.id).emit('channels-joined');
+            await this.joinChannels(socket, channelNames);
         });
     }
 
