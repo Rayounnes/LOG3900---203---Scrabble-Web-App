@@ -397,6 +397,7 @@ export class SocketManager {
             }else{
                 console.log("dans server nottyping")
                 this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
+                console.log(message.username);
             }
             
         });

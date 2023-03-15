@@ -20,6 +20,11 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    userTyping = "";
+    countUsersTyping = 0;
+    
+
+    
     handleSockets();
     
   }
@@ -30,16 +35,25 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.dispose();
     super.dispose();
   }
-
   String username = getIt<UserInfos>().user;
   List<ChatMessage> messages = [];
   String currentChat = '';
+  bool isTyping = false;
+  String userTyping = "";
+  int countUsersTyping = 0;
+  List<String> usersTyping = [];
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
   void handleSockets() async {
     ApiService().getMessagesOfChannel(widget.discussion).then((response) {
       print(widget.discussion);
+
+
+    ApiService().getUserChannels(username).then((response) {
+    }).catchError((error) {
+    print('Error fetching channels: $error');
+    });
       
       
       setState(() {
@@ -64,8 +78,6 @@ class _ChatPageState extends State<ChatPage> {
 
 
     getIt<SocketService>().on('chatMessage', (chatMessage) {
-      print('dans la socket on');
-      print(chatMessage);
       try {
         if (mounted) {
           setState(() {
@@ -77,6 +89,84 @@ class _ChatPageState extends State<ChatPage> {
         print(e);
       }
     });
+
+    getIt<SocketService>().on('isTypingMessage', (message) {
+      try {
+        if (mounted) {
+          setState(() {
+          print('quelquun ecrit');
+
+          if(message['channel'] == widget.discussion) {
+          isTyping = true;
+          countUsersTyping = countUsersTyping + 1;
+          userTyping = message['player'];
+          usersTyping.add(userTyping);
+          print(countUsersTyping);
+          
+          }
+
+        
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
+
+     getIt<SocketService>().on('isNotTypingMessage', (message) {
+      try {
+        if (mounted) {
+          setState(() {
+            if(message['channel'] == widget.discussion) {
+
+              countUsersTyping = countUsersTyping - 1;
+              usersTyping.remove(message['player']);
+              if(usersTyping.isNotEmpty) {
+                 userTyping = usersTyping[0];
+              }
+              else{
+                userTyping ="";
+              }
+              if(countUsersTyping>0) {
+                isTyping = true;
+              }
+              else {
+                isTyping = false;
+              }
+              print(countUsersTyping);
+
+              }
+          
+           
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+  }
+
+
+  void sendUserIsTyping() {
+    print("lalalalalalalala");
+    final message = ChatMessage(
+      username: username, 
+      message: 'typing', 
+      time: DateFormat.Hms().format(DateTime.now()), 
+      type: 'player');
+      getIt<SocketService>().send('isTypingMessage', message);
+  }
+
+  void sendUserIsNotTyping() {
+    print("PAS EMPTY");
+    final message = ChatMessage(
+      username: username, 
+      message: '', 
+      time: DateFormat.Hms().format(DateTime.now()), 
+      type: 'player');
+      print(message);
+      getIt<SocketService>().send('isTypingMessage', message);
   }
 
   void sendMessage(String message) {
@@ -126,6 +216,24 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
+
+          if (isTyping && countUsersTyping>1) // afficher le texte seulement lorsque isTyping est vrai
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Text(
+              "Plusieurs joueurs sont en train d'écrire ...",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ),
+          if (isTyping && countUsersTyping == 1)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Text(
+              userTyping + " est en train d'écrire ...",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ),
+
           Align(
             alignment: Alignment.topLeft,
             child:Row(children: [
@@ -200,6 +308,15 @@ class _ChatPageState extends State<ChatPage> {
               sendMessage(value);
             },
             controller: messageController,
+            onChanged: (value) {
+              if (value.isNotEmpty) {
+                sendUserIsTyping();
+            }
+              else {
+                sendUserIsNotTyping();
+              }
+
+            } ,
             decoration: InputDecoration(
               hintText: "Écris un message ...",
               hintStyle: TextStyle(color: Colors.black54),
