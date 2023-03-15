@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Command } from '@app/interfaces/command';
 import { Game } from '@app/interfaces/game';
 import { Letter } from '@app/interfaces/lettre';
