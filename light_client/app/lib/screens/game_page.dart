@@ -275,6 +275,10 @@ class _GamePageState extends State<GamePage> {
         getIt<TilePlacement>().getTilePosition(offset, tileID);
     int line = ((positionOnBoard.dy - 150) ~/ 50);
     int column = positionOnBoard.dx ~/ 50;
+    print(line);
+    print(column);
+    
+
     String? letterValue = tileLetter[tileID];
     bool isLetterInList = false;
     if (positionOnBoard.dy != RACK_START_AXISY) {
@@ -282,6 +286,10 @@ class _GamePageState extends State<GamePage> {
         removeLetterOnBoard(tileID);
       }
       lettersofBoard.add(Letter(line, column, letterValue!, tileID));
+    }
+    else{
+        removeLetterOnBoard(tileID);
+
     }
 
     // lettersofBoard.add(Letter(line, column, letterValue!));
@@ -389,8 +397,8 @@ class _GamePageState extends State<GamePage> {
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
       } else {
-        getIt<SocketService>()
-            .send('remove-letters-rack-light-client', jsonEncode(placedWord["letters"]));
+        getIt<SocketService>().send('remove-letters-rack-light-client',
+            jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
       }
     });
