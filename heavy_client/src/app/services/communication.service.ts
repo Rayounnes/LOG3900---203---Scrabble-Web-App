@@ -121,7 +121,7 @@ export class CommunicationService {
     }
 
     userLogout(username : string) : Observable<void>{
-        return this.http.post<void>(`${this.baseUrl}/user/disconnect/${username}`, {})
+        return this.http.post<void>(`${this.baseUrl}/api/login/user/disconnect/${username}`, {})
         .pipe(catchError(this.handleError<void>('logoutError')))
     }
 
@@ -129,6 +129,47 @@ export class CommunicationService {
         return this.http.put<boolean>(`${this.baseUrl}/api/login/user`,infos)
         .pipe(catchError(this.handleError<boolean>('accountCreationError')))
     }
+
+    getUserConnexions(username : string) : Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/api/login/connexionhistory/${username}`)
+        .pipe(catchError(this.handleError<any[]>('connexionHistoryError')))
+    }
+
+    /** ************** chat channels methods *******************************/
+
+
+    getUserChannels(username : string) : Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/api/channels/channel/${username}`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
+    getAllChannels() : Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/channels/allchannels`)
+        .pipe(catchError(this.handleError<void>('channelsGetError')))
+    }
+
+    /** ************** icon methods *******************************/
+
+    getAllIcons(username : string) : Observable<string[]> {
+        return this.http.get<string[]>(`${this.baseUrl}/api/icons/get/${username}`)
+        .pipe(catchError(this.handleError<string[]>('iconsGetError')))
+    }
+
+    pushIcon(icon : string,username : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/icons/add`,{image : JSON.stringify(icon), username : JSON.stringify(username)})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
+    }
+
+    getAvatar(username : string) : Observable<string[]>{
+        return this.http.get<string[]>(`${this.baseUrl}/api/icons/getusericon/${username}`)
+        .pipe(catchError(this.handleError<string[]>('userIconsGetError')))
+    }
+
+    changeIcon(username : string,icon : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/icons/change`,{image : JSON.stringify(icon), username : JSON.stringify(username)})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
+    }
+
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);

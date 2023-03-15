@@ -22,6 +22,7 @@ export class ChatPrototypeComponent implements OnInit {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
+    
 
     constructor(
         public socketService: ChatSocketClientService,

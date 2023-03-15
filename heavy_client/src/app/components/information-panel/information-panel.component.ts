@@ -27,12 +27,11 @@ export class InformationPanelComponent implements OnInit {
     dateAtStart: string = '';
     msgAbandoned: string = '';
     game = {
-        isJoined: true,
-        usernameOne: '',
-        usernameTwo: '',
+        hostUsername: 'rayan',
+        humanPlayers: 3,
+        isPrivate: true,
         time: 60,
-        dictionary: { fileName: 'dictionnary.json' } as Dictionary,
-        mode: 'classique',
+        dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
     player = {
         username: '',
@@ -102,8 +101,8 @@ export class InformationPanelComponent implements OnInit {
         this.socketService.on('send-info-to-panel', (game: Game) => {
             this.isHost = this.socketId === game.hostID;
             this.game = game;
-            this.player.username = game.usernameOne;
-            this.opponent.username = game.usernameTwo;
+            this.player.username = game.hostUsername;
+            this.opponent.username = game.hostUsername;
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
@@ -137,24 +136,18 @@ export class InformationPanelComponent implements OnInit {
     }
 
     addScore(): void {
-        const mode = this.game.mode === 'classic' ? 'Classic' : 'Log2990';
+        const mode = 'Classic';
         const firstScore: TopScore = {
             playerName: this.player.username,
             score: this.player.score,
         };
-        const secondScore: TopScore = {
-            playerName: this.opponent.username,
-            score: this.opponent.score,
-        };
         if (this.isHost) {
             this.communicationService.bestScoresPost(firstScore, mode).subscribe();
-            if (!this.isAbandon && this.game.type !== 'solo') this.communicationService.bestScoresPost(secondScore, mode).subscribe();
         }
     }
 
     addGameToHistory(): void {
-        const gameMode = this.game.mode === 'classic' ? 'Classique' : 'LOG2990';
-        if (this.isAbandon && this.game.type === 'solo') this.msgAbandoned = '***Cette partie a été abandonnée.';
+        const gameMode = 'Classique';
         const gameInfo: GameHistory = {
             duration: this.getGameDuration(),
             playerName: this.player.username,

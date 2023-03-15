@@ -1,11 +1,20 @@
 import { Dictionary } from './dictionary';
+import { PlayerInfos } from './player-infos';
 export interface Game {
-    isJoined: boolean;
-    usernameOne: string;
-    usernameTwo: string;
+    hostUsername: string;
+    hostID: string;
+    room: string;
+    isClassicMode: boolean;
+    isPrivate: boolean;
+    playersWaiting: number; // joueurs qui attendent l'acceptation du hôte
+    hasStarted: boolean;
+    isFullPlayers: boolean;
+    password: string;
+    humanPlayers: number;
+    joinedPlayers: PlayerInfos[]; // usernames
+    observers: number;
+    joinedObservers: PlayerInfos[]; // usernames
+    virtualPlayers: number;
     time: number;
     dictionary: Dictionary;
-    hostID: string;
-    mode: string;
-    type: string;
 }

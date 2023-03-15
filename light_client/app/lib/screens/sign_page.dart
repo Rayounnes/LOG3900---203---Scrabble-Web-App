@@ -1,3 +1,4 @@
+import 'package:app/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import "package:app/models/login_infos.dart";
@@ -31,17 +32,19 @@ class _SignUpState extends State<SignUp> {
     String password = passwordController.text;
     int response = await ApiService()
         .createUser(LoginInfos(username: username, password: password));
-    print(response);
     if (response == HTTP_STATUS_OK) {
-      getIt<SocketService>().connect();
       getIt<UserInfos>().setUser(username);
+      getIt<SocketService>().send("user-connection", <String, String>{
+        "username": username,
+        "socketId": getIt<SocketService>().socketId
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
             content: Text("Votre compte a été créé avec succés")),
       );
-      Navigator.pushNamed(context, '/homeScreen');
+      Navigator.pushNamed(context, '/gameChoicesScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -56,12 +59,27 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.green[800],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return LoginDemo();
+              }));
+            }),
+        title: Text(
+          "Retour",
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: Center(
         child: Container(
           height: 700,
           width: 600,
           decoration: BoxDecoration(
-            color: Colors.blue[200],
+            color: Color.fromRGBO(203, 201, 201, 1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               width: 1,

@@ -1,4 +1,4 @@
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:app/constants/http_codes.dart';
 import 'package:app/models/login_infos.dart';
@@ -18,6 +18,13 @@ class _LoginDemoState extends State<LoginDemo> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    if (!getIt<SocketService>().isSocketAlive()) getIt<SocketService>().connect();
+  }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -32,10 +39,12 @@ class _LoginDemoState extends State<LoginDemo> {
     int response = await ApiService()
         .loginUser(LoginInfos(username: username, password: password));
     if (response == HTTP_STATUS_OK) {
-      print("setting username $username");
       getIt<UserInfos>().setUser(username);
-      getIt<SocketService>().connect();
-      Navigator.pushNamed(context, '/homeScreen');
+      getIt<SocketService>().send("user-connection", <String, String>{
+        "username": username,
+        "socketId": getIt<SocketService>().socketId
+      });
+      Navigator.pushNamed(context, '/gameChoicesScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -50,12 +59,13 @@ class _LoginDemoState extends State<LoginDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.green[800],
       body: Center(
         child: Container(
           height: 700,
           width: 600,
           decoration: BoxDecoration(
-            color: Colors.blue[200],
+            color: Color.fromRGBO(203, 201, 201, 1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               width: 1,

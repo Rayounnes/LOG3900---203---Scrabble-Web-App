@@ -1,19 +1,9 @@
-<div class="container justified">
-    <div></div>
-    <div></div>
-    <h1 class="header-item">Bienvenue dans notre application de jeu {{ title }}</h1>
-    <img src="https://bit.ly/3m206ss" width="400" height="80" alt="Logo Scrabble" />
-    <section id="server-message">
-        <div class="justified">
-            <button class="button" (click)="navClassicPage()">Scrabble classique</button>
-            <button class="button" (click)="navLogPage()">Scrabble LOG2990</button>
-            <button class="button" (click)="popUp()">Meilleurs scores</button>
-            <button class="disconnectButton" (click)="userDisconnect()">Déconnexion</button>
-        </div>
-    </section>
-
-    <div class="footer-item">
-        <h4 class="team-name">Équipe 102</h4>
-        <p><span>Mehdi</span>, <span> Nabil</span>, <span> Rayan</span>, <span> Yasmine</span>, <span> Youssef</span>, <span> Zabiullah</span></p>
+<div class="homeDiv">
+    <div class="modesContainer">
+        <h1>Application Scrabble</h1>
+        <button mat-raised-button (click)="navModePage(true)" class="dataButton">Mode de jeu classique</button>
+        <button mat-raised-button (click)="navModePage(false)" class="dataButton">Mode de jeu coopératif</button>
+        <button mat-raised-button (click)="openProfile()" class="dataButton">Profil</button>
+        <button mat-raised-button (click)="userDisconnect()" class="dataButton">Déconnexion</button>
     </div>
 </div>
