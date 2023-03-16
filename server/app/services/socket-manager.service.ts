@@ -3,11 +3,11 @@ import { Command } from '@app/interfaces/command';
 import { Game } from '@app/interfaces/game';
 import { Letter } from '@app/interfaces/lettre';
 import { Placement } from '@app/interfaces/placement';
-import { JoinInfos } from '@app/interfaces/join-infos';
-import { ScrabbleClassic } from '@app/classes/scrabble-classic';
+// import { JoinInfos } from '@app/interfaces/join-infos';
+// import { ScrabbleClassic } from '@app/classes/scrabble-classic';
 // import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
-import { SocketUser } from '@app/interfaces/socket-user';
-import { SoloGame } from '@app/interfaces/solo-game';
+// import { SocketUser } from '@app/interfaces/socket-user';
+// import { SoloGame } from '@app/interfaces/solo-game';
 import { WordArgs } from '@app/interfaces/word-args';
 import { COLUMNS_LETTERS } from '@app/constants/constants';
 import * as http from 'http';
@@ -23,28 +23,28 @@ import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 
 export class SocketManager {
     private sio: io.Server;
-    private roomIncrement = 1;
-    private roomName: string;
+    // private roomIncrement = 1;
+    // private roomName: string;
     private usernames = new Map<string, string>(); // socket id - username;
     private gameRooms = new Map<string, Game>(); // roomname - game
     private scrabbleGames = new Map<string, ScrabbleClassicMode>(); // roomname - game
-    private usersRoom = new Map<string, string>(); // socket id -room
-    private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
+    private usersRoom = new Map<string, string>(); // socket id - game room
+    // private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
     private loginService: LoginService;
     private channelService: ChannelService;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
-        this.roomName = 'room' + this.roomIncrement;
+        // this.roomName = 'room' + this.roomIncrement;
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
         this.loginService = new LoginService(this.databaseService);
         this.channelService = new ChannelService(this.databaseService);
     }
-    changeRoomName() {
-        this.roomIncrement++;
-        this.roomName = 'room' + this.roomIncrement;
-    }
+    // changeRoomName() {
+    //     this.roomIncrement++;
+    //     this.roomName = 'room' + this.roomIncrement;
+    // }
     createGame(game: Game, socketId: string) {
         game.room = `Partie de ${game.hostUsername}`;
         this.gameRooms.set(game.room, game);
@@ -198,11 +198,11 @@ export class SocketManager {
         });
     }
     joinGameHandler(socket: io.Socket) {
-        socket.on('join-game', (gamePlayer: JoinInfos) => {
+        socket.on('join-game', () => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             const playerSockets: string[] = [];
-            for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
+            for (const player of game.joinedPlayers) playerSockets.push(player.socketId);
             // ajouter les joueurs virtuels
             // for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
             this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, game.dictionary.fileName));
@@ -212,7 +212,8 @@ export class SocketManager {
             // opponentGame.usernameTwo = game.usernameOne;
             // (this.scrabbleGames.get(room) as ScrabbleClassic).setPrivateGoalsForPlayers();
             // TODO send-info-to-panel regler l objet pour envoyer les 4 joueurs a tout le monde
-            this.sio.to(room).emit('send-info-to-panel', game);
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            this.sio.to(room).emit('send-info-to-panel', this.gameManager.getPanelInfo(scrabbleGame));
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
             // if (gamePlayer.mode === 'LOG2990') {
             //     this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
@@ -235,7 +236,13 @@ export class SocketManager {
         socket.on('hint-command', () => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const hintWords: string = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('chatMessage', { type: 'system', message: hintWords });
+            this.sio.to(socket.id).emit('chatMessage', {
+                username: '',
+                message: hintWords,
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'system',
+                channel: this.usersRoom.get(socket.id) as string,
+            });
         });
     }
     exchangeCommandHandler(socket: io.Socket) {
@@ -246,11 +253,14 @@ export class SocketManager {
         });
         socket.on('exchange-opponent-message', (numberLetters: number) => {
             const username = this.usernames.get(socket.id);
-            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id)) this.sio.to(opponentSocket).emit('chatMessage', {username: username,
-            message : "!échanger ${numberLetters} lettre(s)",
-            time: new Date().toTimeString(),
-            type: 'player',
-            channel : this.usersRoom.get(socket.id) as string});
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                this.sio.to(opponentSocket).emit('chatMessage', {
+                    username: username,
+                    message: `!échanger ${numberLetters} lettre(s)`,
+                    time: new Date().toTimeString().split(' ')[0],
+                    type: 'player',
+                    channel: this.usersRoom.get(socket.id) as string,
+                });
         });
     }
     passCommandHandler(socket: io.Socket) {
@@ -295,7 +305,8 @@ export class SocketManager {
         });
 
         socket.on('draw-letters-opponent', (lettersPosition) => {
-            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id)) this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPosition);
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPosition);
         });
     }
     placeCommandHandler(socket: io.Socket) {
@@ -321,14 +332,23 @@ export class SocketManager {
             // }
             this.sio.to(socket.id).emit('validate-created-words', { letters: lettersPlaced.letters, points: score });
             if (score !== 0) {
-                this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${lettersPlaced.command}` });
+                this.sio.to(room).emit('chatMessage', {
+                    username: username,
+                    message: lettersPlaced.command,
+                    time: new Date().toTimeString().split(' ')[0],
+                    type: 'player',
+                    channel: this.usersRoom.get(socket.id) as string,
+                });
                 this.gameManager.isEndGame(room, scrabbleGame);
             }
         });
     }
     playerScoreHandler(socket: io.Socket) {
         socket.on('send-player-score', () => {
-            // const room = this.usersRoom.get(socket.id) as string;
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            this.sio.to(room).emit('send-info-to-panel', this.gameManager.getPanelInfo(scrabbleGame));
+
             // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
             // const game = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             // const tilesLeft: number = game.getPlayerTilesLeft(socket.id);
@@ -359,13 +379,17 @@ export class SocketManager {
             this.gameManager.abandonGame(socket.id);
             socket.disconnect();
         });
-        socket.on('quit-game',async () => {
+        socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             await this.leaveChannel(socket, game.room);
-            this.sio
-                .to(room)
-                .emit('chatMessage', { type: 'system', message: `${this.usernames.get(socket.id)} a quitté le jeu.` });
+            this.sio.to(room).emit('chatMessage', {
+                username: '',
+                message: `${this.usernames.get(socket.id)} a quitté le jeu.`,
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'system',
+                channel: this.usersRoom.get(socket.id) as string,
+            });
             this.gameManager.leaveRoom(socket.id);
             socket.disconnect();
         });
@@ -468,12 +492,12 @@ export class SocketManager {
 
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
-            if (this.disconnectedSocket.oldSocketId) {
-                const room = this.usersRoom.get(this.disconnectedSocket.oldSocketId) as string;
-                socket.join(room);
-                this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
-                this.disconnectedSocket.oldSocketId = '';
-            }
+            // if (this.disconnectedSocket.oldSocketId) {
+            //     const room = this.usersRoom.get(this.disconnectedSocket.oldSocketId) as string;
+            //     socket.join(room);
+            //     this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
+            //     this.disconnectedSocket.oldSocketId = '';
+            // }
             console.log(`Connexion avec : ${socket.id}`);
             this.gameCreationHandler(socket);
             this.waitingRoomHostHandler(socket);

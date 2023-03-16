@@ -6,6 +6,7 @@ import { SoloGame } from '@app/interfaces/solo-game';
 // import { VirtualPlayerService } from '@app/services/virtual-player.service';
 // import { COMMANDS, LEVEL } from '@app/constants/constants';
 // import { SocketUser } from '@app/interfaces/socket-user';
+import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 
 // const THREE_SECOND = 3000;
@@ -58,7 +59,7 @@ export class GameManager {
     }
     endGameMessage(room: string, scrabbleGame: ScrabbleClassicMode) {
         const endMessage = this.transformEndGameMessage(scrabbleGame.gameEndedMessage());
-        // Transformer en popup 
+        // TODO Transformer en popup
         this.sio.to(room).emit('end-popup', endMessage);
     }
     transformToSoloGame(game: SoloGame, opponentSocket: string): SoloGame {
@@ -101,6 +102,19 @@ export class GameManager {
             return true;
         }
         return false;
+    }
+    getPanelInfo(scrabbleGame: ScrabbleClassicMode): GamePlayerInfos[] {
+        const playersInfos: GamePlayerInfos[] = [];
+        for (const playerSocket of scrabbleGame.getPlayersSockets()) {
+            const playerDetails = {
+                username: this.usernames.get(playerSocket),
+                points: scrabbleGame.getPlayerScore(playerSocket),
+                isVirtualPlayer: this.usernames.get(playerSocket) === null,
+                tiles: scrabbleGame.getPlayerTilesLeft(playerSocket),
+            } as GamePlayerInfos;
+            playersInfos.push(playerDetails);
+        }
+        return playersInfos;
     }
     // virtualPlayerPlay(room: string) {
     //     const passTime = setTimeout(() => {

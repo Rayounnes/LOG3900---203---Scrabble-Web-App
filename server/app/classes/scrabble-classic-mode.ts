@@ -9,6 +9,7 @@ import { ReserveCommandService } from '@app/services/reserve-command.service';
 import { Command } from '@app/interfaces/command';
 
 const PASS_MAX_STREAK = 6;
+const MAX_PLAYERS = 4;
 export class ScrabbleClassicMode {
     protected board;
     protected validationCountWords;
@@ -22,7 +23,6 @@ export class ScrabbleClassicMode {
     protected reserveCommandService;
     protected playersSockets: string[]; //Liste
     constructor(playersSockets: string[], fileName: string) {
-
         this.turnSocket = playersSockets[0];
         this.socketIndexTurn = 0;
         this.board = new Board();
@@ -31,8 +31,8 @@ export class ScrabbleClassicMode {
         this.reserveLetters = new ReserveService();
         this.exchangeService = new ExchangeLettersService(this.reserveLetters);
         this.reserveCommandService = new ReserveCommandService(this.reserveLetters);
-        for(const playerSocket of playersSockets) this.gamePlayers.set(playerSocket, new Player(this.reserveLetters, this.board, this.validationCountWords));
-
+        for (const playerSocket of playersSockets)
+            this.gamePlayers.set(playerSocket, new Player(this.reserveLetters, this.board, this.validationCountWords));
     }
 
     verifyPlaceCommand(lineN: number, columnN: number, letters: string, wordDirection: string): Letter[] | string {
@@ -82,9 +82,9 @@ export class ScrabbleClassicMode {
     }
 
     toggleTurn() {
-        if(this.socketIndexTurn + 1 === 4) this.socketIndexTurn = 0;
-        else  this.socketIndexTurn++;
-        this.turnSocket = this.gamePlayers.keys()[this.socketIndexTurn];
+        if (this.socketIndexTurn + 1 === MAX_PLAYERS) this.socketIndexTurn = 0;
+        else this.socketIndexTurn++;
+        this.turnSocket = Array.from(this.gamePlayers.keys())[this.socketIndexTurn];
     }
     get socketTurn(): string {
         return this.turnSocket;
@@ -95,6 +95,9 @@ export class ScrabbleClassicMode {
 
     getReserveLettersLength(): number {
         return this.reserveLetters.letterReserveSize;
+    }
+    getPlayersSockets() {
+        return this.gamePlayers.keys();
     }
 
     getPlayerRack(socketId: string): string[] {
@@ -130,33 +133,32 @@ export class ScrabbleClassicMode {
         let gameEnd = false;
         if (this.passStreak === PASS_MAX_STREAK) {
             gameEnd = true;
-            for(const playerSocket of this.gamePlayers.keys()){
-
-                    const player: Player = this.gamePlayers.get(playerSocket) as Player;
-                    const playerRackPoints = player.lettersRack.calculateRackPoints();
-                    player.score -= playerRackPoints;
+            for (const playerSocket of this.gamePlayers.keys()) {
+                const player: Player = this.gamePlayers.get(playerSocket) as Player;
+                const playerRackPoints = player.lettersRack.calculateRackPoints();
+                player.score -= playerRackPoints;
             }
         } else if (turnPlayer.lettersRack.isRackEmpty() && this.reserveLetters.letterReserveSize === 0) {
             gameEnd = true;
-            for(const playerSocket of this.gamePlayers.keys()){
-                if(playerSocket !== this.turnSocket){
+            for (const playerSocket of this.gamePlayers.keys()) {
+                if (playerSocket !== this.turnSocket) {
                     const player: Player = this.gamePlayers.get(playerSocket) as Player;
                     const playerRackPoints = player.lettersRack.calculateRackPoints();
                     player.score -= playerRackPoints;
                     turnPlayer.score += playerRackPoints;
                 }
-        }
+            }
         }
         return gameEnd;
     }
     gameEndedMessage(): string[] {
         const playersRacks: string[] = [];
-        for(const playerSocket of this.gamePlayers.keys()){
-                const rackTurnLetters: string = (this.gamePlayers?.get(playerSocket)?.lettersRack as ChevaletService).rackInString;
-                playersRacks.push(playerSocket)
-                playersRacks.push(rackTurnLetters);
-            }
-            return playersRacks;
+        for (const playerSocket of this.gamePlayers.keys()) {
+            const rackTurnLetters: string = (this.gamePlayers?.get(playerSocket)?.lettersRack as ChevaletService).rackInString;
+            playersRacks.push(playerSocket);
+            playersRacks.push(rackTurnLetters);
+        }
+        return playersRacks;
     }
     // transformToSoloGame(scrabbleSoloGame: ScrabbleClassicSolo, soloGame: SoloGame): ScrabbleClassicSolo {
     //     scrabbleSoloGame.passStreak = this.passStreak;
@@ -181,7 +183,7 @@ export class ScrabbleClassicMode {
     //     return scrabbleSoloGame;
     // }
     get notTurnSockets(): string[] {
-        let notTurnSockets: string[] = [];
+        const notTurnSockets: string[] = [];
         for (const socketId of this.gamePlayers.keys())
             if (socketId !== this.socketTurn) {
                 notTurnSockets.push(socketId);
