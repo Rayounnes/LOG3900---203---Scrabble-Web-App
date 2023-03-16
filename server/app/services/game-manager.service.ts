@@ -1,34 +1,35 @@
 import { Game } from '@app/interfaces/game';
-import { ScrabbleClassic } from '@app/classes/scrabble-classic';
+// import { ScrabbleClassic } from '@app/classes/scrabble-classic';
 import * as io from 'socket.io';
 import { SoloGame } from '@app/interfaces/solo-game';
-import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
-import { VirtualPlayerService } from '@app/services/virtual-player.service';
-import { COMMANDS, LEVEL } from '@app/constants/constants';
-import { SocketUser } from '@app/interfaces/socket-user';
+// import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
+// import { VirtualPlayerService } from '@app/services/virtual-player.service';
+// import { COMMANDS, LEVEL } from '@app/constants/constants';
+// import { SocketUser } from '@app/interfaces/socket-user';
+import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 
-const THREE_SECOND = 3000;
-const TWENTY_SECONDS = 20000;
+// const THREE_SECOND = 3000;
+// const TWENTY_SECONDS = 20000;
 
 export class GameManager {
     private sio: io.Server;
-    private virtualPlayer: VirtualPlayerService;
+    // private virtualPlayer: VirtualPlayerService;
     private usernames: Map<string, string>; // socket id - username;
-    private gameRooms: Map<string, Game>; // roomname - game
-    private scrabbleGames: Map<string, ScrabbleClassic>; // roomname - game
+    // private gameRooms: Map<string, Game>; // roomname - game
+    private scrabbleGames: Map<string, ScrabbleClassicMode>; // roomname - game
     private usersRoom: Map<string, string>; // socket id -room
     constructor(
         sio: io.Server,
         usernames: Map<string, string>,
         usersRoom: Map<string, string>,
         gameRooms: Map<string, Game>,
-        scrabbleGames: Map<string, ScrabbleClassic>,
+        scrabbleGames: Map<string, ScrabbleClassicMode>,
     ) {
         this.sio = sio;
-        this.virtualPlayer = new VirtualPlayerService(this.sio);
+        // this.virtualPlayer = new VirtualPlayerService(this.sio);
         this.usernames = usernames;
         this.usersRoom = usersRoom;
-        this.gameRooms = gameRooms;
+        // this.gameRooms = gameRooms;
         this.scrabbleGames = scrabbleGames;
     }
     leaveRoom(socketId: string) {
@@ -50,17 +51,15 @@ export class GameManager {
         }
         return message;
     }
-    findOpponentSocket(socketId: string): string {
-        const username = this.usernames.get(socketId) as string;
+    findOpponentSockets(socketId: string): string[] {
         const room = this.usersRoom.get(socketId) as string;
-        const roomSockets = this.sio.sockets.adapter.rooms.get(room) as Set<string>;
-        let joinSocket = '';
-        for (const idSocket of roomSockets) if (this.usernames.get(idSocket) !== username) joinSocket = idSocket;
-        return joinSocket;
+        const scrabbleGame = this.scrabbleGames.get(room);
+        return scrabbleGame?.notTurnSockets as string[];
     }
-    endGameMessage(room: string, scrabbleGame: ScrabbleClassic) {
+    endGameMessage(room: string, scrabbleGame: ScrabbleClassicMode) {
         const endMessage = this.transformEndGameMessage(scrabbleGame.gameEndedMessage());
-        this.sio.to(room).emit('chatMessage', { type: 'system', message: endMessage });
+        // Transformer en popup 
+        this.sio.to(room).emit('end-popup', endMessage);
     }
     transformToSoloGame(game: SoloGame, opponentSocket: string): SoloGame {
         game.hostID = opponentSocket;
@@ -69,7 +68,7 @@ export class GameManager {
         // game.usernameOne = this.usernames.get(opponentSocket) as string;
         // game.usernameTwo = game.usernameOne.toLowerCase() !== 'marc' ? 'Marc' : 'Ben';
         // game.virtualPlayerName = game.usernameTwo;
-        game.difficulty = LEVEL.Beginner;
+        // game.difficulty = LEVEL.Beginner;
         return game;
     }
     abandonGame(socketId: string) {
@@ -95,7 +94,7 @@ export class GameManager {
         //     this.virtualPlayerPlay(room);
         // }
     }
-    isEndGame(room: string, scrabbleGame: ScrabbleClassic): boolean {
+    isEndGame(room: string, scrabbleGame: ScrabbleClassicMode): boolean {
         if (scrabbleGame.gameEnded()) {
             this.endGameMessage(room, scrabbleGame);
             this.sio.to(room).emit('end-game');
@@ -103,83 +102,84 @@ export class GameManager {
         }
         return false;
     }
-    virtualPlayerPlay(room: string) {
-        const passTime = setTimeout(() => {
-            this.virtualPlayer.virtualPlayerPass(room, this.scrabbleGames.get(room) as ScrabbleClassicSolo);
-            this.isEndGame(room, this.scrabbleGames.get(room) as ScrabbleClassicSolo);
-            this.changeTurn(room);
-        }, TWENTY_SECONDS);
-        setTimeout(() => {
-            const successCommand: boolean = this.virtualPlayerCommand(room);
-            if (successCommand) {
-                clearInterval(passTime);
-                this.changeTurn(room);
-            }
-        }, THREE_SECOND);
-    }
-    virtualPlayerCommand(room: string): boolean {
-        const command: COMMANDS = (this.scrabbleGames.get(room) as ScrabbleClassicSolo).commandVirtualPlayer;
-        const scrabbleSoloGame = this.scrabbleGames.get(room) as ScrabbleClassicSolo;
-        let commandSuccess = true;
-        switch (command) {
-            case COMMANDS.Placer:
-                commandSuccess = this.virtualPlayer.virtualPlayerPlace(room, scrabbleSoloGame);
-                if (!commandSuccess && (this.gameRooms.get(room) as SoloGame).difficulty === LEVEL.Expert) {
-                    commandSuccess = this.virtualPlayer.virtualPlayerExchange(room, scrabbleSoloGame);
-                } else {
-                    this.isEndGame(room, scrabbleSoloGame);
-                }
-                break;
-            case COMMANDS.Échanger:
-                commandSuccess = this.virtualPlayer.virtualPlayerExchange(room, scrabbleSoloGame);
-                break;
-            case COMMANDS.Passer:
-                this.virtualPlayer.virtualPlayerPass(room, scrabbleSoloGame);
-                this.isEndGame(room, scrabbleSoloGame);
-                break;
-        }
-        if (scrabbleSoloGame.logMode) {
-            this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
-            this.sio.to(room).emit('private-goal-opponent', this.scrabbleGames.get(room)?.getPrivateGoal(scrabbleSoloGame.virtualName));
-        }
-        return commandSuccess;
-    }
-    updatePannel(game: Game, socketUser: SocketUser) {
-        if (game.hostID === socketUser.oldSocketId) {
-            game.hostID = socketUser.newSocketId;
-            this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', game);
-        } else {
-            const opponentGame = Object.assign({}, game);
-            // opponentGame.usernameOne = game.usernameTwo;
-            // opponentGame.usernameTwo = game.usernameOne;
-            this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', opponentGame);
-        }
-    }
-    updateScores(socketUser: SocketUser, scrabbleGame: ScrabbleClassic) {
-        this.sio.to(socketUser.newSocketId).emit('update-player-score', {
-            points: scrabbleGame.getPlayerScore(socketUser.newSocketId),
-            playerScored: true,
-            tiles: scrabbleGame.getPlayerTilesLeft(socketUser.newSocketId),
-        });
-        this.sio.to(socketUser.newSocketId).emit('update-player-score', {
-            points: scrabbleGame.getPlayerScore(scrabbleGame.notTurnSocket),
-            playerScored: false,
-            tiles: scrabbleGame.getPlayerTilesLeft(scrabbleGame.notTurnSocket),
-        });
-    }
-    refreshGame(socketId: string, disconnectedSocket: SocketUser, room: string) {
-        const socketUser = disconnectedSocket;
-        socketUser.newSocketId = socketId;
-        const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socketUser.oldSocketId) as string) as ScrabbleClassic;
-        scrabbleGame.changeSocket(socketUser);
-        this.usernames.set(socketId, this.usernames.get(socketUser.oldSocketId) as string);
-        this.usersRoom.set(socketId, room);
-        this.leaveRoom(socketUser.oldSocketId);
-        const game = this.gameRooms.get(room) as Game;
-        this.updatePannel(game, socketUser);
-        const lettersPosition = scrabbleGame.boardLetters;
-        this.sio.to(socketId).emit('draw-letters-opponent', lettersPosition);
-        this.updateScores(socketUser, scrabbleGame);
-        this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
-    }
+    // virtualPlayerPlay(room: string) {
+    //     const passTime = setTimeout(() => {
+    //         this.virtualPlayer.virtualPlayerPass(room, this.scrabbleGames.get(room) as ScrabbleClassicSolo);
+    //         this.isEndGame(room, this.scrabbleGames.get(room) as ScrabbleClassicSolo);
+    //         this.changeTurn(room);
+    //     }, TWENTY_SECONDS);
+    //     setTimeout(() => {
+    //         const successCommand: boolean = this.virtualPlayerCommand(room);
+    //         if (successCommand) {
+    //             clearInterval(passTime);
+    //             this.changeTurn(room);
+    //         }
+    //     }, THREE_SECOND);
+    // }
+    // virtualPlayerCommand(room: string): boolean {
+    //     const command: COMMANDS = (this.scrabbleGames.get(room) as ScrabbleClassicSolo).commandVirtualPlayer;
+    //     const scrabbleSoloGame = this.scrabbleGames.get(room) as ScrabbleClassicSolo;
+    //     let commandSuccess = true;
+    //     switch (command) {
+    //         case COMMANDS.Placer:
+    //             commandSuccess = this.virtualPlayer.virtualPlayerPlace(room, scrabbleSoloGame);
+    //             if (!commandSuccess && (this.gameRooms.get(room) as SoloGame).difficulty === LEVEL.Expert) {
+    //                 commandSuccess = this.virtualPlayer.virtualPlayerExchange(room, scrabbleSoloGame);
+    //             } else {
+    //                 this.isEndGame(room, scrabbleSoloGame);
+    //             }
+    //             break;
+    //         case COMMANDS.Échanger:
+    //             commandSuccess = this.virtualPlayer.virtualPlayerExchange(room, scrabbleSoloGame);
+    //             break;
+    //         case COMMANDS.Passer:
+    //             this.virtualPlayer.virtualPlayerPass(room, scrabbleSoloGame);
+    //             this.isEndGame(room, scrabbleSoloGame);
+    //             break;
+    //     }
+    //     if (scrabbleSoloGame.logMode) {
+    //         this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
+    //         this.sio.to(room).emit('private-goal-opponent', this.scrabbleGames.get(room)?.getPrivateGoal(scrabbleSoloGame.virtualName));
+    //     }
+    //     return commandSuccess;
+    // }
+    // updatePannel(game: Game, socketUser: SocketUser) {
+    //     if (game.hostID === socketUser.oldSocketId) {
+    //         game.hostID = socketUser.newSocketId;
+    //         this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', game);
+    //     } else {
+    //         const opponentGame = Object.assign({}, game);
+    //         // opponentGame.usernameOne = game.usernameTwo;
+    //         // opponentGame.usernameTwo = game.usernameOne;
+    //         this.sio.to(socketUser.newSocketId).emit('send-info-to-panel', opponentGame);
+    //     }
+    // }
+
+    // updateScores(socketUser: SocketUser, scrabbleGame: ScrabbleClassic) {
+    //     this.sio.to(socketUser.newSocketId).emit('update-player-score', {
+    //         points: scrabbleGame.getPlayerScore(socketUser.newSocketId),
+    //         playerScored: true,
+    //         tiles: scrabbleGame.getPlayerTilesLeft(socketUser.newSocketId),
+    //     });
+    //     this.sio.to(socketUser.newSocketId).emit('update-player-score', {
+    //         points: scrabbleGame.getPlayerScore(scrabbleGame.notTurnSocket),
+    //         playerScored: false,
+    //         tiles: scrabbleGame.getPlayerTilesLeft(scrabbleGame.notTurnSocket),
+    //     });
+    // }
+    // refreshGame(socketId: string, disconnectedSocket: SocketUser, room: string) {
+    //     const socketUser = disconnectedSocket;
+    //     socketUser.newSocketId = socketId;
+    //     const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socketUser.oldSocketId) as string) as ScrabbleClassic;
+    //     scrabbleGame.changeSocket(socketUser);
+    //     this.usernames.set(socketId, this.usernames.get(socketUser.oldSocketId) as string);
+    //     this.usersRoom.set(socketId, room);
+    //     this.leaveRoom(socketUser.oldSocketId);
+    //     const game = this.gameRooms.get(room) as Game;
+    //     this.updatePannel(game, socketUser);
+    //     const lettersPosition = scrabbleGame.boardLetters;
+    //     this.sio.to(socketId).emit('draw-letters-opponent', lettersPosition);
+    //     this.updateScores(socketUser, scrabbleGame);
+    //     this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
+    // }
 }
