@@ -372,7 +372,6 @@ class _GamePageState extends State<GamePage> {
     changeTurn();
   }
 
-  // Création des tuiles
   List<Widget> fillRack() {
     List<Widget> rackTiles = [];
     setState(() {

@@ -1,5 +1,8 @@
 
 export interface loginInfos {
     username : string,
-    password : string
+    password : string,
+    email? : string,
+    icon? : string,
+    socket? : string
 }

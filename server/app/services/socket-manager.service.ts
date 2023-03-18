@@ -65,7 +65,7 @@ export class SocketManager {
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
-            console.log("emetting create-game");
+            console.log('emetting create-game');
             this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
@@ -261,6 +261,7 @@ export class SocketManager {
             //const room = this.usersRoom.get(socket.id) as string;
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
+            // eslint-disable-next-line no-console
             this.sio.to(message.channel as string).emit('chatMessage', message);
             this.channelService.addMessageToChannel(message);
         });
@@ -388,6 +389,7 @@ export class SocketManager {
         socket.on('user-connection', (loginInfos) => {
             this.usernames.set(loginInfos.socketId, loginInfos.username);
             this.userJoinChannels(socket);
+            // this.loginService.changeConnectionState(loginInfos.username, true);
         });
     }
 
@@ -411,8 +413,21 @@ export class SocketManager {
         }
     }
 
+    async joinChannels(socket: io.Socket, channelNames: string[]) {
+        const username = this.usernames.get(socket.id);
+        await this.channelService.joinExistingChannels(Array.isArray(channelNames) ? channelNames : [channelNames], username as string);
+        if (Array.isArray(channelNames)) {
+            for (const channel of channelNames) {
+                socket.join(channel);
+            }
+        } else {
+            socket.join(channelNames);
+        }
+        this.sio.to(socket.id).emit('channels-joined');
+    }
+
     async userJoinNewChannels(socket: io.Socket) {
-        socket.on('join-channel', async (channelNames) => {
+        socket.on('join-channel', async (channelNames: string[]) => {
             await this.joinChannels(socket, channelNames);
         });
     }
@@ -430,16 +445,6 @@ export class SocketManager {
         this.sio.to(socket.id).emit('leave-channel');
         socket.leave(channelName);
     }
-
-    async joinChannels(socket: io.Socket, channelNames: string[]) {
-        const username = this.usernames.get(socket.id);
-        await this.channelService.joinExistingChannels(channelNames, username as string);
-        for (const channel of channelNames) {
-            socket.join(channel);
-        }
-        this.sio.to(socket.id).emit('channels-joined');
-    }
-
     async deleteChannel(channelName: string) {
         await this.channelService.deleteChannel(channelName);
         this.sio.to(channelName).emit('leave-channel');
@@ -470,6 +475,7 @@ export class SocketManager {
             } else {
                 console.log('dans server nottyping');
                 this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
+                console.log(message.username);
             }
         });
     }

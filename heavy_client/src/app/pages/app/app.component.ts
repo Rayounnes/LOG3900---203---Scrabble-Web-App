@@ -1,20 +1,37 @@
 import { PopoutWindowComponent } from 'angular-opinionated-popout-window';
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements AfterViewInit{
+export class AppComponent{
+    @ViewChild('popoutWindow', { static: false }) private popoutWindow: PopoutWindowComponent;
+    chatBoxVisible: boolean = false;
 
-    @ViewChild('popoutWindow') private popoutWindow: PopoutWindowComponent;
-    ngAfterViewInit(): void {
+    constructor(public socketService: ChatSocketClientService){}
+
+    initiatePopout(): void {
+        console.log('inside initiate popout !');
+        this.chatBoxVisible = true;
+        setTimeout(() => this.popOutParams(), 0);
+    }
+
+    popOutParams(): void {
+        console.log('inside popout !');
         this.popoutWindow.wrapperRetainSizeOnPopout = false;
         this.popoutWindow.whiteIcon = true;
         this.popoutWindow.innerWrapperStyle = { ['height']: '400px' };
         this.popoutWindow.popIn();
         this.popoutWindow.popOut();
         document.getElementsByClassName('popoutWrapper')[0].setAttribute('style', 'display : none');
+
+        this.popoutWindow.closed.subscribe((isClosed) => {
+            if (isClosed) {
+                this.popoutWindow.popOut();
+            }
+        });
     }
 }

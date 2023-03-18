@@ -1,5 +1,6 @@
 <router-outlet>
-    <popout-window #popoutWindow>
+    <!-- ngif sur le component pour le creer seulement si connecte-->
+    <popout-window *ngIf="chatBoxVisible" #popoutWindow>
         <app-chat-box></app-chat-box>
     </popout-window>
 </router-outlet>

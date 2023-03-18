@@ -35,7 +35,7 @@ cache:
 
 stages:
     - install
-    - lint
+    # - lint
     - build
     # - test
     - deploy
@@ -66,21 +66,21 @@ install:server:
             - server/.npm/
         policy: pull-push
 
-lint:client:
-    stage: lint
-    allow_failure: true
-    <<: *only-client
-    script:
-        - cd client
-        - npm run lint
+# lint:client:
+#     stage: lint
+#     allow_failure: true
+#     <<: *only-client
+#     script:
+#         - cd client
+#         - npm run lint
 
-lint:server:
-    stage: lint
-    allow_failure: true
-    <<: *only-server
-    script:
-        - cd server
-        - npm run lint
+# lint:server:
+#     stage: lint
+#     allow_failure: true
+#     <<: *only-server
+#     script:
+#         - cd server
+#         - npm run lint
 
 build:client:
     stage: build

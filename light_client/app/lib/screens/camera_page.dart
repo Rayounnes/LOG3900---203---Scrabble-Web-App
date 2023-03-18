@@ -11,26 +11,15 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController controller;
   Future<void> initializeController = Future.value();
-  String _imagePath = '';
+  String imagePath = '';
   int pictureCounter = 0;
   bool isValid = false;
+  bool isFrontCamera = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
-    _takePicture();
-  }
-
-  Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final camera = cameras.first;
-
-    controller = CameraController(
-      camera,
-      ResolutionPreset.max,
-    );
-    initializeController = controller.initialize();
+    initializeCamera(1);
   }
 
   @override
@@ -39,7 +28,30 @@ class _CameraPageState extends State<CameraPage> {
     super.dispose();
   }
 
-  Future<void> _takePicture() async {
+  Future<void> initializeCamera(int direction) async {
+    final cameras = await availableCameras();
+    var camera;
+    setState(() {
+       camera = cameras[direction];
+    });
+
+    controller = CameraController(
+      camera,
+      ResolutionPreset.max,
+    );
+    initializeController = controller.initialize();
+    if (pictureCounter == 0) takePicture();
+  }
+
+  void toggleCamera(int direction) async{
+    controller.dispose();
+    setState(() {
+      isFrontCamera = !isFrontCamera;
+      initializeCamera(direction);
+    });
+  }
+
+  Future<void> takePicture() async {
     try {
       await initializeController;
 
@@ -55,9 +67,9 @@ class _CameraPageState extends State<CameraPage> {
       //await Process.run('adb', ['pull', filePath, 'D:/ImageTest Flutter']);
 
       setState(() {
-        _imagePath = filePath;
-        pictureCounter +=1;
-        isValid = pictureCounter>1? true:false;
+        imagePath = filePath;
+        pictureCounter += 1;
+        isValid = pictureCounter > 1 ? true : false;
       });
     } catch (e) {
       print(e);
@@ -67,24 +79,29 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 218, 228, 231),
       body: FutureBuilder(
         future: initializeController,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                if(!isValid)
+                if (!isValid)
                   Center(
                     child: SizedBox(
                       height: 900,
-                      child: CameraPreview(controller),
+                      child:
+                          Hero(tag: 'camera', child: CameraPreview(controller)),
                     ),
                   ),
-                if (_imagePath.isNotEmpty && pictureCounter > 1 && isValid)
+                if (imagePath.isNotEmpty && isValid)
                   Center(
-                    child: Image.file(
-                      File(_imagePath),
-                      height: 900,
+                    child: Hero(
+                      tag: 'profile-picture',
+                      child: Image.file(
+                        File(imagePath),
+                        height: 900,
+                      ),
                     ),
                   ),
                 Align(
@@ -95,26 +112,37 @@ class _CameraPageState extends State<CameraPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         FloatingActionButton(
-                            onPressed:(){
-                              setState(() {
-                                isValid = false;
-                              });
-                            },
+                            onPressed: pictureCounter > 1
+                                ? () {
+                                    setState(() {
+                                      isValid = false;
+                                    });
+                                  }
+                                : null,
                             child: Icon(Icons.close)),
                         Padding(
-                          padding: const EdgeInsets.only(right: 50.0,left: 50),
+                          padding: const EdgeInsets.only(right: 50.0, left: 50),
                           child: FloatingActionButton(
-                            onPressed: _takePicture,
-                            child: _imagePath.isEmpty ? Icon(
-                                color:Colors.red[200],
-                                Icons.camera): Icon(
-                                color:Color.fromARGB(255, 23, 46, 65),
-                                Icons.camera_alt) ,
+                            onPressed: takePicture,
+                            child: Icon(
+                                color: Color.fromARGB(255, 23, 46, 65),
+                                Icons.camera_alt),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 50.0),
+                          child: FloatingActionButton(
+                            onPressed: () => {
+                              isFrontCamera ? toggleCamera(0) : toggleCamera(1)
+                            },
+                            child: Icon(Icons.flip_camera_ios),
                           ),
                         ),
                         FloatingActionButton(
-                          onPressed: () {},
-                          child: Icon(Icons.done)),
+                            onPressed: pictureCounter > 1 ? () {
+                              Navigator.pop(context, File(imagePath));
+                            } : null,
+                            child: Icon(Icons.done)),
                       ],
                     ),
                   ),

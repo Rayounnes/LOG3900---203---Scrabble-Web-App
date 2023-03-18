@@ -195,7 +195,7 @@ class _JoinGamesState extends State<JoinGames> {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Salle d\'attente:',
+                  game.hasStarted ? 'Partie en cours:' : 'Salle d\'attente:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),
@@ -285,12 +285,10 @@ class _JoinGamesState extends State<JoinGames> {
             ],
           );
         }).then((goodPassword) {
-      print("good Password in join WaitingRoom $goodPassword");
       if (goodPassword == null) return null;
       if (goodPassword) {
         isObserver ? observeGame(gameToJoin) : goToWaitingRoom(gameToJoin);
       } else {
-        print("cancel event");
         if (!isObserver)
           getIt<SocketService>().send('cancel-waiting-password', gameToJoin);
       }

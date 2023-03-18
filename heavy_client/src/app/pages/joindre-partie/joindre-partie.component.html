@@ -18,7 +18,8 @@
                         <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
                     </div>
                     <div>
-                        <h3>Salle d'attente:</h3>
+                        <h3>*ngIf="!game.hasStarted" Salle d'attente:</h3>
+                        <h3>*ngIf="game.hasStarted" Partie en cours:</h3>
                         <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
                         <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
                     </div>
