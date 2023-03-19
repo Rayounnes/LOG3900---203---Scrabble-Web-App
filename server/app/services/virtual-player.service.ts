@@ -1,10 +1,9 @@
-// import { ScrabbleClassic } from '@app/classes/scrabble-classic';
 import * as io from 'socket.io';
-// import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
 import { Placement } from '@app/interfaces/placement';
 import { Service } from 'typedi';
 import { Command } from '@app/interfaces/command';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
+
 @Service()
 export class VirtualPlayerService {
     private sio: io.Server;

@@ -306,14 +306,12 @@ export class SocketManager {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
-            console.log("emitting verify-place-message");
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
-            console.log("In validate-created-words: ", socket.id);
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
@@ -356,6 +354,8 @@ export class SocketManager {
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log("socket Id:", socket.id);
+            console.log("room to change user-turn: ", room);
             this.gameManager.changeTurn(room);
             // if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
             //     this.gameManager.virtualPlayerPlay(room);
@@ -364,8 +364,9 @@ export class SocketManager {
     }
     endGameHandler(socket: io.Socket) {
         socket.on('abandon-game', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            socket.leave(room);
             this.gameManager.abandonGame(socket.id);
-            // socket.disconnect();
         });
         socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;

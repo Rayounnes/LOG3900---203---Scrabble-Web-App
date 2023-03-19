@@ -12,7 +12,7 @@ export class GameManager {
     private sio: io.Server;
     private virtualPlayer: VirtualPlayerService;
     private usernames: Map<string, string>; // socket id - username;
-    // private gameRooms: Map<string, Game>; // roomname - game
+    private gameRooms: Map<string, Game>; // roomname - game
     private scrabbleGames: Map<string, ScrabbleClassicMode>; // roomname - game
     private usersRoom: Map<string, string>; // socket id -room
     constructor(
@@ -26,7 +26,7 @@ export class GameManager {
         this.virtualPlayer = new VirtualPlayerService(this.sio);
         this.usernames = usernames;
         this.usersRoom = usersRoom;
-        // this.gameRooms = gameRooms;
+        this.gameRooms = gameRooms;
         this.scrabbleGames = scrabbleGames;
     }
     leaveRoom(socketId: string) {
@@ -74,27 +74,30 @@ export class GameManager {
         return game;
     }
     abandonGame(socketId: string) {
-        // const opponentSocket: string = this.findOpponentSocket(socketId);
-        // const room = this.usersRoom.get(socketId) as string;
-        // const game: SoloGame = this.transformToSoloGame(this.gameRooms.get(room) as SoloGame, opponentSocket);
-        // const gameScrabbleAbandonned = this.scrabbleGames.get(room) as ScrabbleClassic;
-        // const scrabbleSoloGame = new ScrabbleClassicSolo(
-        //     game.hostID,
-        //     game.usernameTwo,
-        //     game.dictionary.fileName,
-        //     game.difficulty,
-        //     game.mode === 'LOG2990',
-        // );
-        // const soloGame = gameScrabbleAbandonned.transformToSoloGame(scrabbleSoloGame, game);
-        // this.scrabbleGames.set(room, soloGame);
-        // const abandomMessage = `${this.usernames.get(socketId)} a abandonné la partie.La partie est convertie en mode solo avec un joueur débutant.`;
-        // this.sio.to(opponentSocket).emit('abandon-game');
-        // this.sio.to(opponentSocket).emit('chatMessage', { type: 'system', message: abandomMessage });
-        // this.sio.to(opponentSocket).emit('send-info-to-panel', game);
-        // if (this.scrabbleGames.get(room)?.socketTurn !== game.hostID) {
-        //     this.sio.to(opponentSocket).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
-        //     this.virtualPlayerPlay(room);
-        // }
+        const room = this.usersRoom.get(socketId) as string;
+        const game: Game = this.gameRooms.get(room) as Game;
+        game.virtualPlayers++;
+        game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
+        const gameScrabbleAbandoned = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+        const virtualPlayer: string = gameScrabbleAbandoned.abandonPlayer(socketId);
+        const abandonMessage = `${this.usernames.get(
+            socketId,
+        )} a abandonné la partie. Le joueur a été remplacé par le joueur virtuel ${virtualPlayer}.`;
+        this.leaveRoom(socketId);
+        this.sio.to(room).emit('abandon-game');
+        this.sio.to(room).emit('chatMessage', {
+            username: '',
+            message: abandonMessage,
+            time: new Date().toTimeString().split(' ')[0],
+            type: 'system',
+            channel: room,
+        });
+        this.sio.to(room).emit('send-info-to-panel', gameScrabbleAbandoned.getPlayersInfo());
+        // Si le joueur a quitté pendant son tour, on fait jouer le joueur virtuel qu'il a remplacé
+        if (virtualPlayer === gameScrabbleAbandoned.socketTurn) {
+            this.sio.to(room).emit('user-turn', gameScrabbleAbandoned.socketTurn);
+            this.virtualPlayerPlay(room);
+        }
     }
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode): boolean {
         if (scrabbleGame.gameEnded()) {
