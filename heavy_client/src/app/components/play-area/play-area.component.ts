@@ -25,6 +25,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     buttonPressed = '';
     socketTurn = '';
     commandSent = false;
+    paramsObject: any;
     isEndGame = false;
     publicGoals: Goal[] = [new Goal(0, '', 0), new Goal(0, '', 0)];
     privateGoal: Goal = new Goal(0, '', 0);
@@ -33,6 +34,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     // mouse: MouseManagementService;
     // keyboard: KeyboardManagementService;
     mode: string;
+    isClassic: boolean;
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,7 +58,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.maxSizeWord = 28;
         this.minSizeWord = 23;
         this.canvasSize = { x: this.grid.defaultWidth, y: this.grid.defaultHeight };
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.mode = this.isClassic ? 'Classique' : 'Coopératif';
+        this.connect();
     }
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {

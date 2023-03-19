@@ -74,20 +74,6 @@ export class SocketManager {
         socket.on('dictionary-selected', (dictionary: Dictionary) => {
             this.sio.emit('dictionary-selected', dictionary);
         });
-        // socket.on('create-solo-game', (game: SoloGame) => {
-        //     this.createGame(game, socket.id);
-        //     game.isFinished = false;
-        //     socket.join(this.roomName);
-        //     // this.scrabbleGames.set(
-        //     //     this.roomName,
-        //     //     new ScrabbleClassicSolo(socket.id, game.virtualPlayerName, game.dictionary.fileName, game.difficulty, game.mode === 'LOG2990'),
-        //     // );
-        //     if (this.scrabbleGames.get(game.room)?.socketTurn !== socket.id) {
-        //         this.gameManager.virtualPlayerPlay(game.room);
-        //     }
-
-        //     this.changeRoomName();
-        // });
     }
     waitingRoomHostHandler(socket: io.Socket) {
         socket.on('cancel-match', async () => {
@@ -202,24 +188,29 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             const playerSockets: string[] = [];
-            for (const player of game.joinedPlayers) playerSockets.push(player.socketId);
-            // ajouter les joueurs virtuels
+            const virtualPlayers: string[] = [];
+            const playersUsernames = new Map<string, string>(); // socket id - username des joueurs
+            for (const player of game.joinedPlayers) {
+                playerSockets.push(player.socketId);
+                playersUsernames.set(player.socketId, player.username);
+            }
+            for (let i = 0; i < game.virtualPlayers; i++) {
+                const botName = `Bot ${i + 1}`;
+                virtualPlayers.push(`Bot ${i + 1}`);
+                playersUsernames.set(botName, botName);
+            }
+            // TODO ajouter les observateurs
             // for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
-            this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, game.dictionary.fileName));
+            this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
             this.sio.to(room).emit('join-game');
-            // const opponentGame = Object.assign({}, game);
-            // opponentGame.usernameOne = game.usernameTwo;
-            // opponentGame.usernameTwo = game.usernameOne;
-            // (this.scrabbleGames.get(room) as ScrabbleClassic).setPrivateGoalsForPlayers();
-            // TODO send-info-to-panel regler l objet pour envoyer les 4 joueurs a tout le monde
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            this.sio.to(room).emit('send-info-to-panel', this.gameManager.getPanelInfo(scrabbleGame));
+            this.sio.to(room).emit('send-info-to-panel', scrabbleGame.getPlayersInfo());
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
-            // if (gamePlayer.mode === 'LOG2990') {
-            //     this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
-            //     this.sio.to(socket.id).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-            //     this.sio.to(opponentId).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(opponentId));
-            // }
+            // Si jamais un des joueur virtuel est le premier joueur a jouer
+            const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
+            if (virtualPlayers.includes(socketTurn)) {
+                this.gameManager.virtualPlayerPlay(game.room);
+            }
         });
     }
     helpCommandHandler(socket: io.Socket) {
@@ -347,12 +338,11 @@ export class SocketManager {
         socket.on('send-player-score', () => {
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            this.sio.to(room).emit('send-info-to-panel', this.gameManager.getPanelInfo(scrabbleGame));
+            this.sio.to(room).emit('send-info-to-panel', scrabbleGame.getPlayersInfo());
 
             // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
             // const game = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             // const tilesLeft: number = game.getPlayerTilesLeft(socket.id);
-            // TODO Envoyer le meme objet de gameScore a toute la room
             // this.sio.to(socket.id).emit('update-player-score', {
             //     points: game.getPlayerScore(socket.id),
             //     playerScored: true,
@@ -377,7 +367,7 @@ export class SocketManager {
     endGameHandler(socket: io.Socket) {
         socket.on('abandon-game', () => {
             this.gameManager.abandonGame(socket.id);
-            socket.disconnect();
+            // socket.disconnect();
         });
         socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;
