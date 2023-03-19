@@ -18,7 +18,6 @@ export class VirtualPlayerService {
             return false;
         } else {
             this.sio.to(room).emit('draw-letters-opponent', placeCommand.letters);
-            this.sio.to(room).emit('send-info-to-panel', scrabbleClassicGame.getPlayersInfo());
             this.sio.to(room).emit('virtual-player');
             this.sio.to(room).emit('chatMessage', {
                 username: scrabbleClassicGame.socketTurn,

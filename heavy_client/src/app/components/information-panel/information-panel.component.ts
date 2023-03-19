@@ -96,6 +96,7 @@ export class InformationPanelComponent implements OnInit {
                 clearInterval(this.timer);
                 this.clock = this.game.time;
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
+                this.socketService.send('send-player-score')
             } else this.isRefresh = false;
         });
     }

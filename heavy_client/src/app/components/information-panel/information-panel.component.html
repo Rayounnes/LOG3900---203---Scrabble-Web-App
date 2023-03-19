@@ -1,5 +1,14 @@
 
 <div class="panel">
+    <div class="gameinfos">
+        <div class="tiles-perso">
+            <div class="number-perso">
+                {{reserveTilesLeft}}
+            </div>
+            <span>Tuiles dans la réserve</span>
+        </div>
+        <span>{{clock}}</span>
+    </div>
     <div class="players">
         <div *ngFor="let player of players" [ngClass]="player['isTurn'] ? 'player-active' : 'player'">
             <img  [src]="player['icon']" width="80px" height="80px"/>

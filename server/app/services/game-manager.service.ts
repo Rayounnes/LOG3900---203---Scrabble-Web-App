@@ -37,6 +37,8 @@ export class GameManager {
         const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
         scrabbleGame.toggleTurn();
         this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
+        /* let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
+        this.sio.to(room).emit('send-info-to-panel', data); */
         // Si le prochain tour est aussi un joueur virtuel, on fait jouer le prochain bot
         if (scrabbleGame.virtualNames.includes(scrabbleGame.socketTurn)) {
             this.virtualPlayerPlay(room);

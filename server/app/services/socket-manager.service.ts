@@ -203,7 +203,6 @@ export class SocketManager {
             this.sio.to(room).emit('join-game');
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
-            console.log(data)
             this.sio.to(room).emit('send-info-to-panel', data);
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
             // Si jamais un des joueur virtuel est le premier joueur a jouer
@@ -334,7 +333,6 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
-            console.log(data)
             this.sio.to(room).emit('send-info-to-panel', data);
 
             // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
