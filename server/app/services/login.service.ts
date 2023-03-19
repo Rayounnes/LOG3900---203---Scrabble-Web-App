@@ -44,7 +44,7 @@ export class LoginService {
     }
 
     private async addAccount(accountInfos: loginInfos) {
-        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email};
+        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email, icon:accountInfos.icon};
         await this.userCollection.insertOne(newAccount);
     }
 

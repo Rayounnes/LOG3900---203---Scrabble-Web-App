@@ -35,6 +35,18 @@ export class loginController {
             });
         });
 
+        this.router.put('/userClient', async (req: Request, res: Response, next): Promise<void> => {
+            const infos = req.body;
+            let newAccountInfos = { username : infos.username,
+                password : infos.password,
+                email : infos.email,
+                icon : infos.icon,
+                socket : infos.socket} as loginInfos;
+            this.loginService.createNewAccount(newAccountInfos).then((isValid): void => {
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
+
         this.router.get('/connexionhistory/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
             this.loginService.getConnexionHistory(username).then((history): void => {

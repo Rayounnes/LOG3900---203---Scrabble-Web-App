@@ -28,7 +28,7 @@ class ApiService {
 
   Future<int> createUser(LoginInfos user) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.baseUrl + '/api/login/user'),
+      Uri.parse(ApiConstants.baseUrl + '/api/login/userClient'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

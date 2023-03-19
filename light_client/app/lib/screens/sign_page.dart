@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
+
 
 import 'package:app/constants/widgets.dart';
 import 'package:app/screens/login_page.dart';
@@ -21,6 +23,8 @@ class _SignUpState extends State<SignUp> {
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final emailController = TextEditingController();
+
   final passwordCheckController = TextEditingController();
   String picturePath = "";
 
@@ -35,11 +39,6 @@ class _SignUpState extends State<SignUp> {
   @override
   void initState() {
     super.initState();
-    initializeProfilePic();
-  }
-
-  void initializeProfilePic() {
-    print("\n" + picturePath + "\n" + 'AHHHHH');
   }
 
   void setProfilePic(String imagePath) {
@@ -48,103 +47,17 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
-  Padding displayProfilePicture() {
-    Padding pictureArea = Padding(
-      padding: const EdgeInsets.only(bottom: 1.0),
-    );
-    setState(() {
-      pictureArea = Padding(
-        padding: const EdgeInsets.only(bottom: 30.0),
-        child: Container(
-            width: picturePath.isEmpty ? 250 : 150,
-            height: picturePath.isEmpty ? 250 : 260,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 253, 253, 253),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Color.fromARGB(255, 0, 0, 0),
-                width: 2,
-              ),
-            ),
-            child: picturePath.isEmpty
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Hero(
-                        tag: 'galleryButton',
-                        child: IconButton(
-                          icon: Icon(Icons.collections,
-                              size: TILE_SIZE,
-                              color: Color.fromARGB(255, 0, 0, 0)),
-                          onPressed: () {
-                            setState(() async {
-                              File? imageFile = await Navigator.pushNamed(
-                                  context, '/galleryScreen') as File?;
-                              if (imageFile != null) {
-                                initializeProfilePic();
-                                setProfilePic(imageFile.path);
-                                //picturePath = imageFile.path;
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                      IconButton(
-                          icon: Icon(Icons.compare_arrows,
-                              size: TILE_SIZE / 2,
-                              color: Color.fromARGB(255, 12, 12, 12)),
-                          onPressed: () {}),
-                      Hero(
-                        tag: 'pictureButton',
-                        child: IconButton(
-                          icon: Icon(Icons.add_a_photo,
-                              size: TILE_SIZE,
-                              color: Color.fromARGB(255, 0, 0, 0)),
-                          onPressed: () async{
-                            File? imageFile = await Navigator.pushNamed(context, '/cameraScreen') as File?;
-                            if (imageFile != null) {
-                              initializeProfilePic();
-                              setProfilePic(imageFile.path);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  )
-                : Stack(
-                      children: <Widget>[
-                        Center(
-                          child: Image.file(
-                            File(picturePath),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  picturePath = "";
-                                });
-                              },
-                              child: Icon(
-                                Icons.close,
-                                color: Colors.red,
-                              )),
-                        ),
-                      ],
-                    ),
-                )
-      );
-    });
-    return pictureArea;
-  }
-
   void createAccount() async {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
     String password = passwordController.text;
-    int response = await ApiService()
-        .createUser(LoginInfos(username: username, password: password));
+    String email = emailController.text;
+    File imageFile = File(picturePath);
+    List<int> imageBytes = await imageFile.readAsBytes();
+    String imageBase64 = base64Encode(imageBytes);
+
+    int response = await ApiService().createUser(LoginInfos(
+        username: username, password: password,email:email, icon: imageBase64));
     if (response == HTTP_STATUS_OK) {
       getIt<UserInfos>().setUser(username);
       getIt<SocketService>().send("user-connection", <String, String>{
@@ -217,51 +130,6 @@ class _SignUpState extends State<SignUp> {
                           )),
                     )),
                 displayProfilePicture(),
-                //Padding(
-                //  padding: const EdgeInsets.only(bottom: 30.0),
-                //  child: Container(
-                //      width: 200,
-                //      height: 200,
-                //      decoration: BoxDecoration(
-                //        color: Color.fromARGB(255, 253, 253, 253),
-                //        borderRadius: BorderRadius.circular(10),
-                //        border: Border.all(
-                //          color: Color.fromARGB(255, 0, 0, 0),
-                //          width: 2,
-                //        ),
-                //      ),
-                //      child:
-                //      Row(
-                //        mainAxisAlignment: MainAxisAlignment.center,
-                //        children: [
-                //          IconButton(
-                //            icon: Icon(Icons.collections,
-                //                size: TILE_SIZE,
-                //                color: Color.fromARGB(255, 0, 0, 0)),
-                //            onPressed: () async {
-                //              final imageFile = await Navigator.pushNamed(context, '/galleryScreen');
-                //              if (imageFile != null) {
-//
-                //              }
-                //            },
-                //          ),
-                //          IconButton(
-                //              icon: Icon(Icons.compare_arrows,
-                //                  size: TILE_SIZE / 2,
-                //                  color: Color.fromARGB(255, 12, 12, 12)),
-                //              onPressed: () {}
-                //          ),
-                //          IconButton(
-                //            icon: Icon(Icons.add_a_photo,
-                //                size: TILE_SIZE,
-                //                color: Color.fromARGB(255, 0, 0, 0)),
-                //            onPressed: () {
-                //              Navigator.pushNamed(context, '/cameraScreen');
-                //            },
-                //          ),
-                //        ],)
-                //  ),
-                //),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
@@ -278,6 +146,24 @@ class _SignUpState extends State<SignUp> {
                         return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
                       } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
                         return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      hintText: 'Addresse email',
+                      icon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (String? value) {
+                      if (value!.isEmpty || !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b').hasMatch(value)) {
+                        return 'Entrez une adresse email valide.';
                       }
                       return null;
                     },
@@ -340,5 +226,93 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
+  }
+
+  Padding displayProfilePicture() {
+    Padding pictureArea = Padding(
+      padding: const EdgeInsets.only(bottom: 1.0),
+    );
+    setState(() {
+      pictureArea = Padding(
+          padding: const EdgeInsets.only(bottom: 30.0),
+          child: Container(
+            width: picturePath.isEmpty ? 250 : 150,
+            height: picturePath.isEmpty ? 250 : 260,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 253, 253, 253),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Color.fromARGB(255, 0, 0, 0),
+                width: 2,
+              ),
+            ),
+            child: picturePath.isEmpty
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Hero(
+                        tag: 'galleryButton',
+                        child: IconButton(
+                          icon: Icon(Icons.collections,
+                              size: TILE_SIZE,
+                              color: Color.fromARGB(255, 0, 0, 0)),
+                          onPressed: () {
+                            setState(() async {
+                              File? imageFile = await Navigator.pushNamed(
+                                  context, '/galleryScreen') as File?;
+                              if (imageFile != null) {
+                                setProfilePic(imageFile.path);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      IconButton(
+                          icon: Icon(Icons.compare_arrows,
+                              size: TILE_SIZE / 2,
+                              color: Color.fromARGB(255, 12, 12, 12)),
+                          onPressed: () {}),
+                      Hero(
+                        tag: 'pictureButton',
+                        child: IconButton(
+                          icon: Icon(Icons.add_a_photo,
+                              size: TILE_SIZE,
+                              color: Color.fromARGB(255, 0, 0, 0)),
+                          onPressed: () async {
+                            File? imageFile = await Navigator.pushNamed(
+                                context, '/cameraScreen') as File?;
+                            if (imageFile != null) {
+                              setProfilePic(imageFile.path);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                : Stack(
+                    children: <Widget>[
+                      Center(
+                        child: Image.file(
+                          File(picturePath),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                picturePath = "";
+                              });
+                            },
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.red,
+                            )),
+                      ),
+                    ],
+                  ),
+          ));
+    });
+    return pictureArea;
   }
 }
