@@ -25,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     userTyping = "";
     countUsersTyping = 0;
-    // initNotifications();
+    initNotifications();
     
 
     
@@ -60,16 +60,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
 
-//   void showNotification(String message, String channel) async {
-//   var androidDetails = AndroidNotificationDetails(
-//       'channel_id', 'Channel Name',
-//       importance: Importance.max, priority: Priority.high, showWhen: false);
+  void showNotification(String message, String channel) async {
+  var androidDetails = AndroidNotificationDetails(
+      'channel_id', 'Channel Name',
+      importance: Importance.max, priority: Priority.high, showWhen: false);
 
-//   var notificationDetails = NotificationDetails(android: androidDetails);
+  var notificationDetails = NotificationDetails(android: androidDetails);
 
-//   await flutterLocalNotificationsPlugin.show(
-//       0, 'Nouveau message dans $channel', message, notificationDetails);
-// }
+  await flutterLocalNotificationsPlugin.show(
+      0, 'Nouveau message dans $channel', message, notificationDetails);
+}
 
 
   void handleSockets() async {
@@ -109,7 +109,7 @@ class _ChatPageState extends State<ChatPage> {
             print('CEST CAAAAAA');
             print(message['message']);
             print(message['channel']);
-            // showNotification(message['message'], message['channel']);
+            showNotification(message['message'], message['channel']);
           });
         }
       } catch (e) {
@@ -241,6 +241,7 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: messages.length,
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
+              reverse: true,
               itemBuilder: (context, index) {
                   if(messages[index].channel == widget.discussion){
                      return Message(
