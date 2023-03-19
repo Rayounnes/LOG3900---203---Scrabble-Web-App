@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
 /* import { GameHistory } from '@app/interfaces/game-historic-info'; *//* 
@@ -18,7 +18,7 @@ const RESERVE_START_LENGTH = 102;
     templateUrl: './information-panel.component.html',
     styleUrls: ['./information-panel.component.scss'],
 })
-export class InformationPanelComponent implements OnInit {
+export class InformationPanelComponent implements OnInit, OnDestroy {
     isHost = false;
     isGameFinished = false;
     isAbandon = false;
@@ -73,6 +73,10 @@ export class InformationPanelComponent implements OnInit {
         if (!this.isRefresh) this.dateAtStart = this.getDate();
         this.connect();
     }
+    ngOnDestroy(): void {
+        console.log("Destroying pannel");
+        clearInterval(this.timer);
+    }
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('update-reserve');
@@ -83,6 +87,7 @@ export class InformationPanelComponent implements OnInit {
         if (this.clock === 0) {
             if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
             clearInterval(this.timer);
+            console.log("Time is finished, changing turn");
             this.socketService.send('change-user-turn');
         }
     }

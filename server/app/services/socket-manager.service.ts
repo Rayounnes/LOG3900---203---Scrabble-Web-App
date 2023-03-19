@@ -353,6 +353,8 @@ export class SocketManager {
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log("socket Id:", socket.id);
+            console.log("room to change user-turn: ", room);
             this.gameManager.changeTurn(room);
             // if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
             //     this.gameManager.virtualPlayerPlay(room);
@@ -361,8 +363,9 @@ export class SocketManager {
     }
     endGameHandler(socket: io.Socket) {
         socket.on('abandon-game', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            socket.leave(room);
             this.gameManager.abandonGame(socket.id);
-            // socket.disconnect();
         });
         socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;

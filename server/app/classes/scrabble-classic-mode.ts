@@ -22,6 +22,7 @@ export class ScrabbleClassicMode {
     protected firstTurn: boolean = true;
     protected gamePlayers: Map<string, Player> = new Map();
     protected turnSocket;
+    protected turnPlayers: string[];
     protected socketIndexTurn;
     protected reserveLetters;
     protected passStreak;
@@ -46,11 +47,18 @@ export class ScrabbleClassicMode {
         this.reserveLetters = new ReserveService();
         this.exchangeService = new ExchangeLettersService(this.reserveLetters);
         this.reserveCommandService = new ReserveCommandService(this.reserveLetters);
-        for (const playerSocket of playersSockets)
+        // turn players: liste des sockets des joueurs et nom des JV pour modifier facilement le nom d'un joueur
+        // lorsqu'il abandonne
+        this.turnPlayers = [];
+        for (const playerSocket of playersSockets) {
             this.gamePlayers.set(playerSocket, new Player(this.reserveLetters, this.board, this.validationCountWords));
+            this.turnPlayers.push(playerSocket);
+        }
         // Virtual players
-        for (const virtualPlayer of virtualPlayers)
+        for (const virtualPlayer of virtualPlayers) {
             this.gamePlayers.set(virtualPlayer, new Player(this.reserveLetters, this.board, this.validationCountWords));
+            this.turnPlayers.push(virtualPlayer);
+        }
         this.virtualPlayers = virtualPlayers;
         this.randomVirtualChoices = new RandomPlayerChoices();
         this.playerDifficulty = LEVEL.Expert;
@@ -105,7 +113,8 @@ export class ScrabbleClassicMode {
     toggleTurn() {
         if (this.socketIndexTurn + 1 === MAX_PLAYERS) this.socketIndexTurn = 0;
         else this.socketIndexTurn++;
-        this.turnSocket = Array.from(this.gamePlayers.keys())[this.socketIndexTurn];
+        console.log(this.turnPlayers);
+        this.turnSocket = this.turnPlayers[this.socketIndexTurn];
     }
     get socketTurn(): string {
         return this.turnSocket;
@@ -135,7 +144,7 @@ export class ScrabbleClassicMode {
     }
     getPlayersInfo(): GamePlayerInfos[] {
         const playersInfos: GamePlayerInfos[] = [];
-        for (const playerSocket of this.getPlayersSockets()) {
+        for (const playerSocket of this.turnPlayers) {
             const playerDetails = {
                 username: this.playersUsernames.get(playerSocket),
                 points: this.getPlayerScore(playerSocket),
@@ -197,28 +206,19 @@ export class ScrabbleClassicMode {
         }
         return playersRacks;
     }
-    // transformToSoloGame(scrabbleSoloGame: ScrabbleClassicSolo, soloGame: SoloGame): ScrabbleClassicSolo {
-    //     scrabbleSoloGame.passStreak = this.passStreak;
-    //     scrabbleSoloGame.firstTurn = this.firstTurn;
-    //     scrabbleSoloGame.board = this.board;
-    //     scrabbleSoloGame.validationCountWords = this.validationCountWords;
-    //     scrabbleSoloGame.exchangeService = this.exchangeService;
-    //     scrabbleSoloGame.reserveLetters = this.reserveLetters;
-    //     scrabbleSoloGame.reserveCommandService = this.reserveCommandService;
-    //     scrabbleSoloGame.modeLog = this.modeLog;
-    //     scrabbleSoloGame.counterPlayer = this.counterPlayer;
-    //     for (const socketId of this.gamePlayers.keys()) {
-    //         if (socketId === soloGame.hostID) {
-    //             scrabbleSoloGame.gamePlayers.set(socketId, this.gamePlayers.get(socketId) as Player);
-    //             scrabbleSoloGame.counterPlayer.set(socketId, this.counterPlayer.get(socketId) as ScrabbleLog2990);
-    //         } else {
-    //             scrabbleSoloGame.gamePlayers.set(soloGame.virtualPlayerName, this.gamePlayers.get(socketId) as Player);
-    //             scrabbleSoloGame.counterPlayer.set(soloGame.virtualPlayerName, this.counterPlayer.get(socketId) as ScrabbleLog2990);
-    //         }
-    //         if (this.socketTurn !== soloGame.hostID) scrabbleSoloGame.turnSocket = soloGame.virtualPlayerName;
-    //     }
-    //     return scrabbleSoloGame;
-    // }
+    abandonPlayer(abandonPlayerSocket: string): string {
+        const playerGame = this.gamePlayers.get(abandonPlayerSocket) as Player;
+        const newVirtualPlayerName = `Bot ${this.virtualPlayers.length + 1}`;
+        this.virtualPlayers.push(newVirtualPlayerName);
+        this.playersUsernames.set(newVirtualPlayerName, newVirtualPlayerName);
+        // modifier la liste de tours en inserant le nouveau JV
+        const index = this.turnPlayers.indexOf(abandonPlayerSocket);
+        this.turnPlayers[index] = newVirtualPlayerName;
+        this.gamePlayers.delete(abandonPlayerSocket);
+        this.gamePlayers.set(newVirtualPlayerName, playerGame);
+        if (this.turnSocket === abandonPlayerSocket) this.turnSocket = newVirtualPlayerName;
+        return newVirtualPlayerName;
+    }
     get notTurnSockets(): string[] {
         const notTurnSockets: string[] = [];
         for (const socketId of this.gamePlayers.keys())
@@ -232,7 +232,7 @@ export class ScrabbleClassicMode {
         this.passStreak++;
     }
 
-    // Virtual player behaviour
+    // Virtual player behavior
     findPlacement(): Placement {
         let placement: Placement;
         let pointsWanted: POINTS;
