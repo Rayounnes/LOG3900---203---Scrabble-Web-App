@@ -7,6 +7,7 @@ import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
+
 class ChatPage extends StatefulWidget {
   final String discussion;
   
@@ -58,14 +59,13 @@ class _ChatPageState extends State<ChatPage> {
       
       setState(() {
       if(widget.discussion == 'General') {
+        response.remove(120);
         response.removeAt(49);
         response.removeAt(0);
 
       }
 
-      print(response);
       for (dynamic res in response) {
-      print(res);
       ChatMessage message = ChatMessage.fromJson(res);
       messages.add(message);
     }
@@ -94,14 +94,13 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() {
-          print('quelquun ecrit');
+        
 
           if(message['channel'] == widget.discussion) {
           isTyping = true;
           countUsersTyping = countUsersTyping + 1;
           userTyping = message['player'];
           usersTyping.add(userTyping);
-          print(countUsersTyping);
           
           }
 
@@ -134,7 +133,7 @@ class _ChatPageState extends State<ChatPage> {
               else {
                 isTyping = false;
               }
-              print(countUsersTyping);
+            
 
               }
           
@@ -149,7 +148,6 @@ class _ChatPageState extends State<ChatPage> {
 
 
   void sendUserIsTyping() {
-    print("lalalalalalalala");
     final message = ChatMessage(
       username: username, 
       message: 'typing', 
@@ -159,13 +157,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void sendUserIsNotTyping() {
-    print("PAS EMPTY");
     final message = ChatMessage(
       username: username, 
       message: '', 
       time: DateFormat.Hms().format(DateTime.now()), 
       type: 'player');
-      print(message);
       getIt<SocketService>().send('isTypingMessage', message);
   }
 
@@ -177,8 +173,6 @@ class _ChatPageState extends State<ChatPage> {
         message: messageController.text,
         time: DateFormat.Hms().format(DateTime.now()),
         channel: widget.discussion);
-    print('dnas la socket send');
-    print(message.channel);
     getIt<SocketService>().send('chatMessage', message);
     messageController.clear();
   }
@@ -334,7 +328,6 @@ class _ChatPageState extends State<ChatPage> {
           padding: const EdgeInsets.all(8.0),
           child: FloatingActionButton(
             onPressed: () {
-              print(messages);
               sendMessage(messageController.text);
             },
             child: Icon(

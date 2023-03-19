@@ -262,7 +262,9 @@ export class SocketManager {
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
             // eslint-disable-next-line no-console
+            console.log("un message envoye!");
             this.sio.to(message.channel as string).emit('chatMessage', message);
+            this.sio.to(message.channel as string).emit('notify-message', message);
             this.channelService.addMessageToChannel(message);
         });
     }

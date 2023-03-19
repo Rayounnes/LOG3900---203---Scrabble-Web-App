@@ -6,8 +6,9 @@ import 'package:app/screens/channels_page.dart';
 
 class Channel extends StatefulWidget {
   String name;
+  final Function updateMessageState;
   Channel(
-      {required this.name});
+      {required this.name, required this.updateMessageState});
   @override
   _ChannelState createState() => _ChannelState();
 }
@@ -17,7 +18,7 @@ class _ChannelState extends State<Channel> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-  
+          widget.updateMessageState();
           Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChatPage(discussion: widget.name),
