@@ -6,6 +6,8 @@ import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Message;
+
 
 
 class ChatPage extends StatefulWidget {
@@ -23,6 +25,7 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     userTyping = "";
     countUsersTyping = 0;
+    // initNotifications();
     
 
     
@@ -45,6 +48,29 @@ class _ChatPageState extends State<ChatPage> {
   List<String> usersTyping = [];
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  
+
+  void initNotifications() {
+  var initializationSettingsAndroid =AndroidInitializationSettings('app_icon');
+  var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  
+  }
+
+
+//   void showNotification(String message, String channel) async {
+//   var androidDetails = AndroidNotificationDetails(
+//       'channel_id', 'Channel Name',
+//       importance: Importance.max, priority: Priority.high, showWhen: false);
+
+//   var notificationDetails = NotificationDetails(android: androidDetails);
+
+//   await flutterLocalNotificationsPlugin.show(
+//       0, 'Nouveau message dans $channel', message, notificationDetails);
+// }
+
 
   void handleSockets() async {
     ApiService().getMessagesOfChannel(widget.discussion).then((response) {
@@ -75,6 +101,21 @@ class _ChatPageState extends State<ChatPage> {
       }).catchError((error) {
       print('Error fetching channels: $error');
       });
+    
+    getIt<SocketService>().on("notify-message", (message) {
+      try {
+        if (mounted) {
+          setState(() {
+            print('CEST CAAAAAA');
+            print(message['message']);
+            print(message['channel']);
+            // showNotification(message['message'], message['channel']);
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
 
 
     getIt<SocketService>().on('chatMessage', (chatMessage) {
@@ -201,12 +242,16 @@ class _ChatPageState extends State<ChatPage> {
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
               itemBuilder: (context, index) {
-                  return Message(
+                  if(messages[index].channel == widget.discussion){
+                     return Message(
                     name: messages[index].username,
                     messageContent: messages[index].message,
                     isSender: messages[index].username == username,
                     time: messages[index].time,
                     );
+
+                  }
+                 
               },
             ),
           ),
