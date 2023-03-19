@@ -62,11 +62,9 @@ export class SocketManager {
         socket.on('create-game', async (game: Game) => {
             game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
             game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
-            console.log('game: ', game);
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
-            console.log('emetting create-game');
             this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
@@ -204,7 +202,9 @@ export class SocketManager {
             this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
             this.sio.to(room).emit('join-game');
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            this.sio.to(room).emit('send-info-to-panel', scrabbleGame.getPlayersInfo());
+            let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
+            console.log(data)
+            this.sio.to(room).emit('send-info-to-panel', data);
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
             // Si jamais un des joueur virtuel est le premier joueur a jouer
             const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
@@ -280,7 +280,6 @@ export class SocketManager {
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
         });
         socket.on('remove-letters-rack', (letters: Letter[]) => {
-            console.log("removing letters from rack");
             const room = this.usersRoom.get(socket.id) as string;
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
@@ -306,14 +305,12 @@ export class SocketManager {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
-            console.log("emitting verify-place-message");
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
-            console.log("In validate-created-words: ", socket.id);
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
@@ -336,7 +333,9 @@ export class SocketManager {
         socket.on('send-player-score', () => {
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            this.sio.to(room).emit('send-info-to-panel', scrabbleGame.getPlayersInfo());
+            let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
+            console.log(data)
+            this.sio.to(room).emit('send-info-to-panel', data);
 
             // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
             // const game = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
@@ -468,12 +467,9 @@ export class SocketManager {
     userTyping(socket: io.Socket) {
         socket.on('isTypingMessage', (message: ChatMessage) => {
             if (message.message.length > 0) {
-                console.log('dans server typing');
                 this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
             } else {
-                console.log('dans server nottyping');
                 this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
-                console.log(message.username);
             }
         });
     }

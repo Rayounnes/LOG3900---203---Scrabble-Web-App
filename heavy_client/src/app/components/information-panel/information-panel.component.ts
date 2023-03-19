@@ -1,13 +1,14 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
-import { GameHistory } from '@app/interfaces/game-historic-info';
-import { Player } from '@app/interfaces/player';
-import { PlayerState } from '@app/interfaces/player-state';
-import { TopScore } from '@app/interfaces/top-scores';
-import { CommunicationService } from '@app/services/communication.service';
+/* import { GameHistory } from '@app/interfaces/game-historic-info'; *//* 
+import { Player } from '@app/interfaces/player'; */
+/* import { PlayerState } from '@app/interfaces/player-state'; *//* 
+import { TopScore } from '@app/interfaces/top-scores'; *//* */
+import { CommunicationService } from '@app/services/communication.service'; 
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import { PROFILE } from 'src/constants/profile-picture-constants';
+import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -33,7 +34,8 @@ export class InformationPanelComponent implements OnInit {
         time: 60,
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
-    player = {
+    players : GamePlayerInfos[] = [];
+    /* player = {
         username: '',
         score: 0,
         tilesLeft: 7,
@@ -42,12 +44,12 @@ export class InformationPanelComponent implements OnInit {
         username: '',
         score: 0,
         tilesLeft: 7,
-    } as Player;
+    } as Player; */
     isPlayersTurn: boolean = false;
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
-    constructor(public socketService: ChatSocketClientService, private communicationService: CommunicationService) {}
+    constructor(public socketService: ChatSocketClientService , private communicationService: CommunicationService ) {}
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
@@ -98,17 +100,53 @@ export class InformationPanelComponent implements OnInit {
         });
     }
     panelDisplaySockets() {
-        this.socketService.on('send-info-to-panel', (players: any) => {
-            console.log(players);
+        this.socketService.on('send-info-to-panel', async (infos: any) => {
+            this.players = infos['players'];
+            for(let player of this.players){
+                if(player['socket'] == infos['turnSocket']){
+                    player['isTurn'] = true
+                }else{
+                    player['isTurn'] = false;
+                }
+            }
+            for(let player of this.players){
+                if(player['isVirtualPlayer']){
+                    await this.communicationService.getAvatar("Bottt").subscribe((icon : string[])=>{
+                        if(icon.length>0){
+                        player['icon'] = icon[0]
+                        }
+                    })
+                    
+                }else{
+                    await this.communicationService.getAvatar(player['username']).subscribe((icon : string[])=>{
+                        if(icon.length>0){
+                        player['icon'] = icon[0]
+                        }
+                    })
+                }
+            }
+            console.log(this.players)
             // this.isHost = this.socketId === game.hostID;
             // this.game = game;
             // this.player.username = game.hostUsername;
             // this.opponent.username = game.hostUsername;
+            0
+        /*  
+        {username: 'hajaa', points: 0, isVirtualPlayer: false, tiles: 7}
+        1
+        : 
+        {username: 'hajaa1', points: 0, isVirtualPlayer: false, tiles: 7}
+        2
+        : 
+        {username: 'Bot 1', points: 0, isVirtualPlayer: true, tiles: 7}
+        3
+        : 
+        {username: 'Bot 2', points: 0, isVirtualPlayer: true, tiles: 7} */
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
         });
-        this.socketService.on('update-player-score', (updatedGameInfos: PlayerState) => {
+        /* this.socketService.on('update-player-score', (updatedGameInfos: PlayerState) => {
             if (updatedGameInfos.playerScored) {
                 this.player.score = updatedGameInfos.points;
                 this.player.tilesLeft = updatedGameInfos.tiles;
@@ -116,7 +154,7 @@ export class InformationPanelComponent implements OnInit {
                 this.opponent.score = updatedGameInfos.points;
                 this.opponent.tilesLeft = updatedGameInfos.tiles;
             }
-        });
+        }); */
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
         });
@@ -137,18 +175,18 @@ export class InformationPanelComponent implements OnInit {
     }
 
     addScore(): void {
-        const mode = 'Classic';
+        /* const mode = 'Classic';
         const firstScore: TopScore = {
             playerName: this.player.username,
             score: this.player.score,
         };
         if (this.isHost) {
             this.communicationService.bestScoresPost(firstScore, mode).subscribe();
-        }
+        } */
     }
 
     addGameToHistory(): void {
-        const gameMode = 'Classique';
+        /* const gameMode = 'Classique';
         const gameInfo: GameHistory = {
             duration: this.getGameDuration(),
             playerName: this.player.username,
@@ -159,7 +197,7 @@ export class InformationPanelComponent implements OnInit {
             date: this.dateAtStart,
             abandoned: this.msgAbandoned,
         };
-        if (this.isHost) this.communicationService.gameHistoryPost(gameInfo).subscribe();
+        if (this.isHost) this.communicationService.gameHistoryPost(gameInfo).subscribe(); */
     }
 
     getDate() {

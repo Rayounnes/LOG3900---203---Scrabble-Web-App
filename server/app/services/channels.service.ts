@@ -21,7 +21,6 @@ export class ChannelService {
     async getUserChannelsName(username: string) {
         const document = await this.userCollection.findOne({ username: username });
         if (document) {
-            console.log(document['channels']);
             return document['channels'];
         }
         return null;
@@ -30,7 +29,6 @@ export class ChannelService {
     async getUserChannels(username: string): Promise<any[]> {
         let userChannels: any[] = [];
         await this.getUserChannelsName(username).then(async (userChannelsName) => {
-            console.log('user channels name: ', userChannelsName);
             userChannels = await this.channelCollection.find({ name: { $in: userChannelsName } }).toArray();
         });
         return userChannels;
@@ -54,9 +52,7 @@ export class ChannelService {
         if (channelDocument) {
             try {
                 await this.channelCollection.updateOne({ _id: channelDocument['_id'] }, { $push: { messages: message } });
-                console.log('Message added to channel successfully!');
             } catch (error) {
-                console.error('Error writing message to database: ', error);
             }
         }
     }
@@ -64,7 +60,6 @@ export class ChannelService {
     async createNewChannel(channelName: string, username: string, isGame: boolean) {
         const user = await this.userCollection.findOne({ username: username });
         if (user) {
-            console.log(user);
             await this.userCollection.updateOne({ _id: user['_id'] }, { $push: { channels: channelName } });
         }
 

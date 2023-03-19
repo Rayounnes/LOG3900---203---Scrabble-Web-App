@@ -141,6 +141,7 @@ export class ScrabbleClassicMode {
                 points: this.getPlayerScore(playerSocket),
                 isVirtualPlayer: this.virtualPlayers.includes(playerSocket),
                 tiles: this.getPlayerTilesLeft(playerSocket),
+                socket : playerSocket
             } as GamePlayerInfos;
             playersInfos.push(playerDetails);
         }

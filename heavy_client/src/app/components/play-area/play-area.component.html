@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-<div id="grid-container">
-    <app-surrender-game></app-surrender-game>
+<div class="grid-container">
+    
     <div id="grid-buttons">
         <div>
             <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
@@ -12,7 +12,7 @@
             <button class="font-size-buttons" id="button2" (click)="reduceSize()">-</button>
 
         </div>
-        <div *ngIf="this.mode === 'LOG2990'" id="goals">
+        <!-- <div *ngIf="this.mode === 'LOG2990'" id="goals">
             <div id="public-goals">
                 <p id="public-goals-title">Objectifs publics</p>
                 <div [ngClass]="this.publicGoals[0].isVerified ? 'goal1' : 'goal2'">
@@ -42,11 +42,15 @@
                     Points: {{ this.privateGoalOpponent.points }}
                 </p>
             </div>
-        </div>
+        </div> -->
+        
+        
+
+    </div>
+    <div class="twobuttons">
         <button class="pass-turn-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="passTurn()">
             Passer
         </button>
         <button class="play-btn" [disabled]="socketService.socketId !== socketTurn || commandSent" (click)="buttonPlayPressed()">Jouer</button>
-
     </div>
 </div>

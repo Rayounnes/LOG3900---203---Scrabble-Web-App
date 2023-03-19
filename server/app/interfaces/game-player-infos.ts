@@ -3,4 +3,5 @@ export interface GamePlayerInfos {
     points: number;
     isVirtualPlayer: boolean;
     tiles: number;
+    socket? : string
 }

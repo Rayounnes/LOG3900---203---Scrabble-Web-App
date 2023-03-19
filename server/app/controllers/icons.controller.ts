@@ -13,7 +13,6 @@ export class iconController {
 
     private configureRouter(): void {
         this.router = Router();
-        console.log("la")
         this.router.post('/add',async (req: Request, res: Response, next): Promise<void> => {
             const icon : string = JSON.parse(req.body.image);
             const username : string = JSON.parse(req.body.username);

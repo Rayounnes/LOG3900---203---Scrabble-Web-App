@@ -60,7 +60,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('Destroying!');
     }
     connect() {
         this.configureBaseSocketFeatures();
@@ -196,12 +195,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.isGameFinished = true;
         });
         this.socketService.on('channel-created', (newChannel: any) => {
-            console.log('channel-created');
             newChannel['unread'] = false;
             newChannel['typing'] = [false, 0];
             this.allUserChannels.push(newChannel);
             this.changeChannel(newChannel);
-            console.log('channel-created: ', this.allUserChannels);
         });
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();
@@ -250,7 +247,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     placerCommand(): void {
         const placeCommand = this.arg.formatInput(this.chatMessage);
         if (placeCommand) {
-            console.log("sending from chat-message");
             this.socketService.send('verify-place-message', placeCommand);
         } else {
             this.isCommandSent = false;
@@ -464,7 +460,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         if (this.currentSearch.length === 0 || this.userChannelsNames.indexOf(this.currentSearch) !== -1) {
             return;
         }
-        console.log('envoie 1 du client ');
         this.socketService.send('channel-creation', this.currentSearch);
         this.currentSearch = '';
         this.searching = false;
@@ -496,9 +491,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     getUserChannels() {
-        console.log('getting user channels');
         this.communicationService.getUserChannels(this.username).subscribe((userChannels: any): void => {
-            console.log('getuserChannels: ',userChannels);
             this.allUserChannels = userChannels;
             this.currentChannel = 'General';
             let channel: any;

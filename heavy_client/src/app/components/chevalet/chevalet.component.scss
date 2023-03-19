@@ -1,19 +1,19 @@
 #canvas
 {
     border: 1px solid black;
-    margin-left: 185px;
+    //margin-left: 185px;
 
 }
 .exchange-button {
     border-radius: 10px;
-    padding: 10px 20px;
+    //padding: 10px 20px;
     cursor: pointer;
     width: 120px;
     height : 50px;
     justify-content: center;
     position: absolute;
-    margin-left: 58px;
-    margin-top: 10px;
+    //margin-left: 58px;
+    //margin-top: 10px;
     background-color: rgb(79, 168, 94);
     text-align: center;
 }
@@ -21,7 +21,7 @@
 .exchange-button{
     // width: 190px;
     // height : 50px;
-    position: absolute;
+    //position: absolute;
     // padding: 16px 42px;
     box-shadow: 0px 0px 12px -2px rgba(0, 0, 0, 0.5);
     line-height: 1.25;
@@ -38,14 +38,14 @@
 }
 .cancel-button {
     border-radius: 10px;
-    padding: 10px 20px;
+    //padding: 10px 20px;
     cursor: pointer;
     // width: 200px;
     // height : 50px;
     justify-content: center;
-    position: absolute;
-    margin-left: 8px;
-    margin-top: 10px;
+    //position: absolute;
+    //margin-left: 8px;
+    //margin-top: 10px;
     background-color: rgb(79, 168, 94);
     text-align: center;
 }

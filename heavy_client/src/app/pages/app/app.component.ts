@@ -14,13 +14,11 @@ export class AppComponent{
     constructor(public socketService: ChatSocketClientService){}
 
     initiatePopout(): void {
-        console.log('inside initiate popout !');
         this.chatBoxVisible = true;
         setTimeout(() => this.popOutParams(), 0);
     }
 
     popOutParams(): void {
-        console.log('inside popout !');
         this.popoutWindow.wrapperRetainSizeOnPopout = false;
         this.popoutWindow.whiteIcon = true;
         this.popoutWindow.innerWrapperStyle = { ['height']: '400px' };

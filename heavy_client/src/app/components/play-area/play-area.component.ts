@@ -97,7 +97,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     verifyPlaceSocket() {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
-            console.log("received verify-place-message: ", this.socketService);
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
@@ -105,7 +104,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 this.commandSent = true;
                 this.socketService.send('remove-letters-rack', placedWord.letters);
                 this.gridService.placeLetter(placedWord.letters as Letter[]);
-                console.log("Sending validate-created-words");
                 this.socketService.send('validate-created-words', placedWord);
             }
             this.gridService.board.resetStartTile();
@@ -128,7 +126,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 this.socketService.send('send-player-score');
                 this.socketService.send('update-reserve');
             }
-            console.log("sending change-user-turn and draw-letters-rack");
             this.socketService.send('change-user-turn');
             this.socketService.send('draw-letters-rack');
         });
@@ -170,7 +167,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         });
     }
     ngOnInit(): void {
-        console.log("Initing component");
         this.connect();
     }
     ngAfterViewInit(): void {
@@ -181,7 +177,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.gridCanvas.nativeElement.focus();
     }
     connect() {
-        console.log("connecting socket");
         this.configureBaseSocketFeatures();
     }
     get width(): number {

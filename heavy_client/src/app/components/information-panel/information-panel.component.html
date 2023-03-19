@@ -1,4 +1,26 @@
-<p> Tour du joueur: {{ this.isPlayersTurn }}</p>
+
+<div class="panel">
+    <div class="players">
+        <div *ngFor="let player of players" [ngClass]="player['isTurn'] ? 'player-active' : 'player'">
+            <img  [src]="player['icon']" width="80px" height="80px"/>
+            <div class="infos">
+                <span>{{player['username']}}</span>
+                <div class="tiles">
+                    <div class="number">
+                        {{player['tiles']}}
+                    </div>
+                    <span>Tuiles restantes</span>
+                </div>
+            </div>
+            <div class="score">
+                {{player['points']}}
+            </div>
+        </div>
+    </div>
+    
+    <app-surrender-game></app-surrender-game>
+</div>
+
 <!-- <section class="container">
     <div class="topper">
         <h1 id="title-pannel">PANNEAU INFORMATIF</h1>
