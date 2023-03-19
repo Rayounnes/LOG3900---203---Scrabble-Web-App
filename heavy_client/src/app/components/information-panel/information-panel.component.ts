@@ -98,11 +98,12 @@ export class InformationPanelComponent implements OnInit {
         });
     }
     panelDisplaySockets() {
-        this.socketService.on('send-info-to-panel', (game: Game) => {
-            this.isHost = this.socketId === game.hostID;
-            this.game = game;
-            this.player.username = game.hostUsername;
-            this.opponent.username = game.hostUsername;
+        this.socketService.on('send-info-to-panel', (players: any) => {
+            console.log(players);
+            // this.isHost = this.socketId === game.hostID;
+            // this.game = game;
+            // this.player.username = game.hostUsername;
+            // this.opponent.username = game.hostUsername;
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);

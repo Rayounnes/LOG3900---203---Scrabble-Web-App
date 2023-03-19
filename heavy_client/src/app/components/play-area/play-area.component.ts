@@ -10,6 +10,7 @@ import { MouseManagementService } from '@app/services/mouse-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
+import { Letter } from '@app/interfaces/letter';
 
 const THREE_SECONDS = 3000;
 
@@ -63,7 +64,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.mode = this.isClassic ? 'Classique' : 'Coopératif';
-        this.connect();
     }
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
@@ -95,37 +95,72 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.gridService.changeSizeLetters(--this.size);
         }
     }
-    goalsSockets() {
-        this.socketService.on('public-goals', (goals: Goal[]) => {
-            this.publicGoals = goals;
-        });
-        this.socketService.on('private-goal', (goal: Goal) => {
-            this.privateGoal = goal;
-        });
-        this.socketService.on('private-goal-opponent', (goal: Goal) => {
-            this.privateGoalOpponent = goal;
-        });
-    }
-    placeSockets() {
+    verifyPlaceSocket() {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
+            console.log("received verify-place-message: ", this.socketService);
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
             } else {
                 this.commandSent = true;
+                this.socketService.send('remove-letters-rack', placedWord.letters);
+                this.gridService.placeLetter(placedWord.letters as Letter[]);
+                console.log("Sending validate-created-words");
+                this.socketService.send('validate-created-words', placedWord);
             }
+            this.gridService.board.resetStartTile();
+            this.gridService.board.wordStarted = false;
+            this.keyboard.playPressed = false;
+            this.keyboard.enterPressed = false;
         });
-        this.socketService.on('validate-created-words', (placedWord: Placement) => {
-            if (placedWord.points === 0) setTimeout(() => (this.commandSent = false), THREE_SECONDS);
-            else this.commandSent = false;
+    }
+    validatePlaceSockets() {
+        this.socketService.on('validate-created-words', async (placedWord: Placement) => {
+            this.socketService.send('freeze-timer');
+            if (placedWord.points === 0) {
+                setTimeout(() => (this.commandSent = false), THREE_SECONDS);
+                this.gridService.removeLetter(placedWord.letters);
+            } else {
+                this.commandSent = false;
+                this.socketService.send('draw-letters-opponent', placedWord.letters);
+                this.gridService.board.isFilledForEachLetter(placedWord.letters);
+                this.gridService.board.setLetterForEachLetters(placedWord.letters);
+                this.socketService.send('send-player-score');
+                this.socketService.send('update-reserve');
+            }
+            console.log("sending change-user-turn and draw-letters-rack");
+            this.socketService.send('change-user-turn');
+            this.socketService.send('draw-letters-rack');
+        });
+        this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
+            this.gridService.placeLetter(lettersPosition as Letter[]);
+            this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
+            this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
         });
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
         });
     }
+    // placeSockets() {
+    //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
+    //         if (typeof placedWord.letters === 'string') {
+    //             this.commandSent = false;
+    //             this.removeLetterAndArrow();
+    //         } else {
+    //             this.commandSent = true;
+    //         }
+    //     });
+    //     this.socketService.on('validate-created-words', (placedWord: Placement) => {
+    //         if (placedWord.points === 0) setTimeout(() => (this.commandSent = false), THREE_SECONDS);
+    //         else this.commandSent = false;
+    //     });
+    //     this.socketService.on('remove-arrow-and-letter', () => {
+    //         this.removeLetterAndArrow();
+    //     });
+    // }
     configureBaseSocketFeatures() {
-        this.goalsSockets();
-        this.placeSockets();
+        this.verifyPlaceSocket();
+        this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
         });
@@ -135,6 +170,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         });
     }
     ngOnInit(): void {
+        console.log("Initing component");
         this.connect();
     }
     ngAfterViewInit(): void {
@@ -145,6 +181,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.gridCanvas.nativeElement.focus();
     }
     connect() {
+        console.log("connecting socket");
         this.configureBaseSocketFeatures();
     }
     get width(): number {

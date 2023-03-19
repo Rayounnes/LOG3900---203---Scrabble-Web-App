@@ -5,8 +5,8 @@ import { Command } from '@app/interfaces/command';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import { ArgumentManagementService } from '@app/services/argument-management.service';
 import { GridService } from '@app/services/grid.service';
-import { Letter } from '@app/interfaces/letter';
-import { Placement } from '@app/interfaces/placement';
+// import { Letter } from '@app/interfaces/letter';
+// import { Placement } from '@app/interfaces/placement';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { CommunicationService } from '@app/services/communication.service';
 import { FormControl } from '@angular/forms';
@@ -15,7 +15,7 @@ import { of } from 'rxjs';
 
 const GAME_COMMANDS: string[] = ['placer', 'échanger', 'passer'];
 const HELP_COMMANDS: string[] = ['indice', 'réserve', 'aide'];
-const THREE_SECOND = 3000;
+// const THREE_SECOND = 3000;
 
 @Component({
     selector: 'app-chat-box',
@@ -66,58 +66,61 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
     }
-    verifyPlaceSocket() {
-        this.socketService.on('verify-place-message', (placedWord: Placement) => {
-            if (typeof placedWord.letters === 'string') {
-                this.isCommandSent = false;
-                this.chatMessages.push({
-                    username: '',
-                    message: placedWord.letters,
-                    type: 'system',
-                    time: '',
-                });
-            } else {
-                this.socketService.send('remove-letters-rack', placedWord.letters);
-                this.gridService.placeLetter(placedWord.letters as Letter[]);
-                this.socketService.send('validate-created-words', placedWord);
-            }
-            this.gridService.board.resetStartTile();
-            this.gridService.board.wordStarted = false;
-            this.keyboardService.playPressed = false;
-            this.keyboardService.enterPressed = false;
-            setTimeout(() => this.automaticScroll(), 1);
-        });
-    }
-    validatePlaceSockets() {
-        this.socketService.on('validate-created-words', async (placedWord: Placement) => {
-            this.socketService.send('freeze-timer');
-            if (placedWord.points === 0) {
-                await new Promise((r) => setTimeout(r, THREE_SECOND));
-                this.chatMessages.push({
-                    username: '',
-                    message: 'Erreur : les mots crées sont invalides',
-                    type: 'system',
-                    time: '',
-                });
-                setTimeout(() => this.automaticScroll(), 1);
-                this.gridService.removeLetter(placedWord.letters);
-            } else {
-                this.socketService.send('draw-letters-opponent', placedWord.letters);
-                this.gridService.board.isFilledForEachLetter(placedWord.letters);
-                this.gridService.board.setLetterForEachLetters(placedWord.letters);
-                this.socketService.send('send-player-score');
-                this.socketService.send('update-reserve');
-            }
-            this.isCommandSent = false;
-            this.socketService.send('change-user-turn');
-            this.socketService.send('draw-letters-rack');
-        });
-        this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
-            this.gridService.placeLetter(lettersPosition as Letter[]);
-            this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
-            this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
-        });
-    }
+    // verifyPlaceSocket() {
+    //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
+    //         if (typeof placedWord.letters === 'string') {
+    //             this.isCommandSent = false;
+    //             this.chatMessages.push({
+    //                 username: '',
+    //                 message: placedWord.letters,
+    //                 type: 'system',
+    //                 time: '',
+    //             });
+    //         } else {
+    //             this.socketService.send('remove-letters-rack', placedWord.letters);
+    //             this.gridService.placeLetter(placedWord.letters as Letter[]);
+    //             console.log("Sending validate-created-words");
+    //             this.socketService.send('validate-created-words', placedWord);
+    //         }
+    //         this.gridService.board.resetStartTile();
+    //         this.gridService.board.wordStarted = false;
+    //         this.keyboardService.playPressed = false;
+    //         this.keyboardService.enterPressed = false;
+    //         setTimeout(() => this.automaticScroll(), 1);
+    //     });
+    // }
+    // validatePlaceSockets() {
+    //     this.socketService.on('validate-created-words', async (placedWord: Placement) => {
+    //         console.log("received validate-created-words");
+    //         this.socketService.send('freeze-timer');
+    //         if (placedWord.points === 0) {
+    //             await new Promise((r) => setTimeout(r, THREE_SECOND));
+    //             this.chatMessages.push({
+    //                 username: '',
+    //                 message: 'Erreur : les mots crées sont invalides',
+    //                 type: 'system',
+    //                 time: '',
+    //             });
+    //             setTimeout(() => this.automaticScroll(), 1);
+    //             this.gridService.removeLetter(placedWord.letters);
+    //         } else {
+    //             this.socketService.send('draw-letters-opponent', placedWord.letters);
+    //             this.gridService.board.isFilledForEachLetter(placedWord.letters);
+    //             this.gridService.board.setLetterForEachLetters(placedWord.letters);
+    //             this.socketService.send('send-player-score');
+    //             this.socketService.send('update-reserve');
+    //         }
+    //         this.isCommandSent = false;
+    //         console.log("sending change-user-turn and draw-letters-rack");
+    //         this.socketService.send('change-user-turn');
+    //         this.socketService.send('draw-letters-rack');
+    //     });
+    //     this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
+    //         this.gridService.placeLetter(lettersPosition as Letter[]);
+    //         this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
+    //         this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
+    //     });
+    // }
     gameCommandSockets() {
         this.socketService.on('reserve-command', (command: Command) => {
             this.isCommandSent = false;
@@ -161,8 +164,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         });
     }
     configureBaseSocketFeatures() {
-        this.verifyPlaceSocket();
-        this.validatePlaceSockets();
+        // this.verifyPlaceSocket();
+        // this.validatePlaceSockets();
         this.gameCommandSockets();
         this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
             let channel: any;
@@ -247,6 +250,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     placerCommand(): void {
         const placeCommand = this.arg.formatInput(this.chatMessage);
         if (placeCommand) {
+            console.log("sending from chat-message");
             this.socketService.send('verify-place-message', placeCommand);
         } else {
             this.isCommandSent = false;

@@ -280,6 +280,7 @@ export class SocketManager {
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
         });
         socket.on('remove-letters-rack', (letters: Letter[]) => {
+            console.log("removing letters from rack");
             const room = this.usersRoom.get(socket.id) as string;
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
@@ -305,22 +306,19 @@ export class SocketManager {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
+            console.log("emitting verify-place-message");
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
+            console.log("In validate-created-words: ", socket.id);
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             const score = scrabbleGame.validateCalculateWordsPoints(lettersPlaced.letters);
-            // if (scrabbleGame.logMode) {
-            //     this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
-            //     this.sio.to(socket.id).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-            //     this.sio.to(opponentSocket).emit('private-goal-opponent', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-            // }
             this.sio.to(socket.id).emit('validate-created-words', { letters: lettersPlaced.letters, points: score });
             if (score !== 0) {
                 this.sio.to(room).emit('chatMessage', {
