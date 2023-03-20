@@ -29,7 +29,7 @@ export class GridConstants {
     shiftFactorLine = 0.25;
     shiftFactorColumn = 0.9;
     aAscii = 97;
-    defaultWidth = 635;
-    defaultHeight = 635;
+    defaultWidth = 637;
+    defaultHeight = 637;
     oAscii = 111;
 }

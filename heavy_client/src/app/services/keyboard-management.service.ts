@@ -47,6 +47,7 @@ export class KeyboardManagementService {
         let positionStart = this.gridService.board.getStartTile() as Vec2;
         this.initializeWordArg(positionStart);
         if (positionStart !== undefined) {
+            console.log("rnetrejrijeirhh")
             while (this.conditionsDirections(positionStart)) {
                 positionStart = this.incrementePosition(positionStart);
             }

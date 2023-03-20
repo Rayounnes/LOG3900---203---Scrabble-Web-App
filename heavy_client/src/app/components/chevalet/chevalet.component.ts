@@ -4,9 +4,9 @@ import { KeyboardManagementService } from '@app/services/keyboard-management.ser
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
 
-const RESERVE_START_LENGTH = 102;
+const RESERVE_START_LENGTH = 102;/* 
 const CLASSNAME_INI = 'mat-typography vsc-initialized';
-const CLASSNAME = 'mat-typography';
+const CLASSNAME = 'mat-typography'; */
 
 @Component({
     selector: 'app-chevalet',
@@ -27,7 +27,7 @@ export class ChevaletComponent implements AfterViewInit {
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-    ) {}
+    ) {}/* 
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +39,7 @@ export class ChevaletComponent implements AfterViewInit {
             this.chevaletService.moveLetter(this.buttonPressed);
             this.chevaletService.selectLetterKeyboard(this.buttonPressed);
         }
-    }
+    } */
 
     @HostListener('mousewheel', ['$event'])
     // le chargé m'a dit de mettre any car le type mouseEvent ne reconnait pas wheelDelta
@@ -101,13 +101,13 @@ export class ChevaletComponent implements AfterViewInit {
     get height(): number {
         return this.chevalet.height;
     }
-    rightMouseHitDetect(event: MouseEvent) {
+    /* rightMouseHitDetect(event: MouseEvent) {
         event.preventDefault();
         if (this.socketService.socketId === this.socketTurn && !this.isEndGame) this.chevaletService.changeRackTile(event);
     }
     leftMouseHitDetect(event: MouseEvent) {
         this.chevaletService.changeRackTile(event);
-    }
+    } */
 
     exchange() {
         this.socketService.send('exchange-command', this.chevaletService.lettersToExchange());

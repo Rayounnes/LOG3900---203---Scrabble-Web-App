@@ -132,22 +132,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 }
             }
             console.log(this.players)
-            // this.isHost = this.socketId === game.hostID;
-            // this.game = game;
-            // this.player.username = game.hostUsername;
-            // this.opponent.username = game.hostUsername;
-            0
-        /*  
-        {username: 'hajaa', points: 0, isVirtualPlayer: false, tiles: 7}
-        1
-        : 
-        {username: 'hajaa1', points: 0, isVirtualPlayer: false, tiles: 7}
-        2
-        : 
-        {username: 'Bot 1', points: 0, isVirtualPlayer: true, tiles: 7}
-        3
-        : 
-        {username: 'Bot 2', points: 0, isVirtualPlayer: true, tiles: 7} */
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
