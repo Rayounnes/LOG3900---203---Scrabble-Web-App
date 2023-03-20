@@ -22,7 +22,6 @@ class _ChannelState extends State<Channel> {
           Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChatPage(discussion: widget.name),
-
                 ),
               );
         },
