@@ -27,6 +27,7 @@ class _ChannelsState extends State<Channels> {
   List<dynamic> allUsersChannels = [];
   List<String> selectedList = [];
   int count = -1;
+  int countJoin = 0;
 
   List<dynamic> channelsUsers = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
@@ -89,9 +90,6 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() {
-            print('CEST CAAAAAA');
-            print(message['message']);
-            print(message['channel']);
             for(int i=0; i< discussions.length; i++) {
               if(message['channel'] == discussions[i]) {
                 newMessage[i] = true;
@@ -110,8 +108,18 @@ class _ChannelsState extends State<Channels> {
     getIt<SocketService>().on("channels-joined", (dynamic) {
       try {
         if (mounted) {
+          countJoin = countJoin + 1;
+          print(countJoin);
           setState(() {
-            discussions.add(selectedList[count]);
+          
+           
+            if(countJoin == selectedList.length) {
+              for(String channel in selectedList) {
+                  discussions.add(channel);
+                  print(discussions);
+                  print(selectedList);
+              }
+            }
           });
         }
       } catch (e) {
@@ -462,11 +470,12 @@ class _ChannelsState extends State<Channels> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print(selectedList);
                       for(String channel in selectedList ) {
-                        count = count + 1;
+                       
                         getIt<SocketService>().send("join-channel", channel);
+                        
                       }
+                      countJoin = 0;
                      
                       Navigator.of(context).pop();
                     },

@@ -76,17 +76,24 @@ class _ChatPageState extends State<ChatPage> {
       print(widget.discussion);
 
 
-    ApiService().getUserChannels(username).then((response) {
-    }).catchError((error) {
-    print('Error fetching channels: $error');
-    });
+    // ApiService().getUserChannels(username).then((response) {
+    // }).catchError((error) {
+    // print('Error fetching channels: $error');
+    // });
       
       
       setState(() {
       if(widget.discussion == 'General') {
+
         response.remove(120);
+        response.removeRange(112, 115);
+        response.removeRange(92, 93);
         response.removeAt(49);
+        response.removeAt(13);
         response.removeAt(0);
+
+
+        print(response);
 
       }
 
@@ -105,10 +112,9 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() async {
-            print('CEST CAAAAAA');
-            print(message['message']);
-            print(message['channel']);
-            showNotification(message['message'], message['channel']);
+            if(message['channel'] != widget.discussion) {
+                 showNotification(message['message'], message['channel']);
+            }
           });
         }
       } catch (e) {
@@ -173,8 +179,6 @@ class _ChatPageState extends State<ChatPage> {
               else {
                 isTyping = false;
               }
-            
-
               }
           
            
