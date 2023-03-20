@@ -119,6 +119,9 @@ export class ScrabbleClassicMode {
     get socketTurn(): string {
         return this.turnSocket;
     }
+    get humansPlayerInGame(): number {
+        return this.playersSockets.length;
+    }
     get boardLetters(): Letter[] {
         return this.board.allPlacedLetters;
     }
@@ -219,7 +222,7 @@ export class ScrabbleClassicMode {
         // On enleve le joueur humain des players sockets et recalcule le passMaxStreak
         const indexPlayerSocket = this.playersSockets.indexOf(abandonPlayerSocket);
         if (indexPlayerSocket > -1) {
-            this.playersSockets.splice(index, 1);
+            this.playersSockets.splice(indexPlayerSocket, 1);
         }
         this.passMaxStreak = this.playersSockets.length * 2;
         if (this.turnSocket === abandonPlayerSocket) this.turnSocket = newVirtualPlayerName;

@@ -94,6 +94,11 @@ export class GameManager {
             type: 'system',
             channel: room,
         });
+        // Tous les joueurs humains ont abandonné la partie, on arrete la partie
+        if (gameScrabbleAbandoned.humansPlayerInGame === 0) {
+            this.endGameBehavior(room, gameScrabbleAbandoned);
+            return;
+        }
         // Si le joueur a quitté pendant son tour, on fait jouer le joueur virtuel qu'il a remplacé
         if (virtualPlayer === gameScrabbleAbandoned.socketTurn) {
             this.sio.to(room).emit('user-turn', gameScrabbleAbandoned.socketTurn);
@@ -105,11 +110,16 @@ export class GameManager {
     }
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode): boolean {
         if (scrabbleGame.gameEnded()) {
-            this.endGameMessage(room, scrabbleGame);
-            this.sio.to(room).emit('end-game');
+            this.endGameBehavior(room, scrabbleGame);
             return true;
         }
         return false;
+    }
+    endGameBehavior(room: string, scrabbleGame: ScrabbleClassicMode) {
+        const gameFinished = this.gameRooms.get(room) as Game;
+        gameFinished.isFinished = true;
+        this.endGameMessage(room, scrabbleGame);
+        this.sio.to(room).emit('end-game');
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {

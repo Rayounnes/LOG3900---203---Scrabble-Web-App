@@ -53,7 +53,7 @@ export class SocketManager {
     }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
-            const classic = game.isClassicMode === isClassic;
+            const classic = game.isClassicMode === isClassic && !game.isFinished;
             const privateFull = classic && game.isPrivate && !game.isFullPlayers;
             return !game.isPrivate ? classic : privateFull;
         });

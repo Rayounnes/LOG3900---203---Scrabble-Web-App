@@ -2,7 +2,7 @@
     <div class="modesContainer">
         <h1 class="title">Liste des parties joignables mode "{{ mode }}"</h1>
         <div class="gameContainer" *ngFor="let game of gameList; let i = index">
-            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : true" class="example-card">
+            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : !game.isFinished" class="example-card">
                 <mat-card-header>
                     <mat-card-title>Partie de {{ game.hostUsername }}</mat-card-title>
                     <mat-card-subtitle *ngIf="!game.isPrivate && game.password">Publique (protégé par mot de passe)</mat-card-subtitle>
