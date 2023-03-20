@@ -23,11 +23,11 @@ const LINE_F = 6;
 const END = 16;
 
 enum Colors {
-    Green = '#97BC62FF',
+    Green = '#f3ae48',
     Pink = 'rgb(255, 192,203)',
-    Red = 'rgb(255, 83, 73)',
-    LightBlue = 'rgb(0, 200,255)',
-    DarkBlue = 'rgb(0, 140,255)',
+    Red = 'rgb(192 112 112)',
+    LightBlue = 'rgb(111 186 241)',
+    DarkBlue = 'rgb(75 50 238)',
 }
 
 @Injectable({
@@ -60,8 +60,8 @@ export class GridService {
 
     drawGrid() {
         this.gridContext.beginPath();
-        this.gridContext.strokeStyle = this.grid.black;
-        this.gridContext.lineWidth = 1.5;
+        this.gridContext.strokeStyle = this.grid.gray;
+        this.gridContext.lineWidth = 0.5;
 
         for (let i = 1; i < this.grid.endColumn; i++) {
             this.gridContext.moveTo((this.width * 1) / END, (this.height * i) / END);
@@ -105,8 +105,27 @@ export class GridService {
 
     fillColor(pos1: number, pos2: number, color: string) {
         this.gridContext.fillStyle = color;
-        this.gridContext.fillRect((pos1 * this.width) / END, (pos2 * this.height) / END, (this.width * 1) / END, (this.height * 1) / END);
+        //this.gridContext.fillRect((pos1 * this.width) / END, (pos2 * this.height) / END, (this.width * 1) / END, (this.height * 1) / END);
+        const cornerRadius = 8; // Adjust this value to change the corner radius
+        this.drawRoundedRect((pos1 * this.width) / END, (pos2 * this.height) / END, (this.width * 1) / END, (this.height * 1) / END, cornerRadius); 
     }
+
+
+    private drawRoundedRect(x: number, y: number, width: number, height: number, radius: number): void {
+        this.gridContext.beginPath();
+        this.gridContext.moveTo(x + radius, y);
+        this.gridContext.lineTo(x + width - radius, y);
+        this.gridContext.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.gridContext.lineTo(x + width, y + height - radius);
+        this.gridContext.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.gridContext.lineTo(x + radius, y + height);
+        this.gridContext.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.gridContext.lineTo(x, y + radius);
+        this.gridContext.quadraticCurveTo(x, y, x + radius, y);
+        this.gridContext.closePath();
+        this.gridContext.fill();
+      }
+
     drawWordFactorTwo(pos1: number, pos2: number, wordSize: number) {
         this.drawWord(
             this.grid.factorTwo,
@@ -222,8 +241,8 @@ export class GridService {
         // Nous avons besoin des positions et pas des elements de la liste
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < listLetters.length; i++) {
-            this.drawWord(listLetters[i], (posX * this.width) / END, ((i + shiftColumn) * this.height) / END, '40px system-ui', END);
-            this.drawWord(String(i + 1), ((i + 1) * this.width) / END, (posY * this.height) / END, '40px system-ui', END);
+            this.drawWord(listLetters[i], (posX * this.width) / END, ((i + shiftColumn) * this.height) / END, '20px bolder sans-serif', END);
+            this.drawWord(String(i + 1), ((i + 1) * this.width)  / END, (posY * this.height) / END, '20px bolder serif', END);
         }
     }
     drawWord(word: string, xpos: number, ypos: number, font: string, steps: number) {
@@ -231,6 +250,7 @@ export class GridService {
         const step = steps;
         this.gridContext.font = font;
         for (let i = 0; i < word.length; i++) {
+
             this.gridContext.fillText(word[i], startPosition.x + step * i, startPosition.y);
         }
     }
@@ -241,8 +261,9 @@ export class GridService {
     }
     fillPositions() {
         for (let i = 0; i < END; i++) {
-            this.fillColor(i, 0, '#2C5F2D');
-            this.fillColor(0, i, '#2C5F2D');
+            this.gridContext.strokeStyle = '#4c5050';
+            this.fillColor(i, 0, '#4c5050');
+            this.fillColor(0, i, '#4c5050');
         }
     }
     buildBoard(wordSize: number) {
