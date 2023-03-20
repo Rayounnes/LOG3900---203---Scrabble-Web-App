@@ -32,6 +32,57 @@
 
 }
 
+.timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 20%;
+    animation: moveUpDown 2s infinite; // Add this line
+}
+
+.timer-text {
+    font-size: 30px;
+    font-family: revert;
+    text-anchor: middle;
+    fill: #3f9540;
+  }
+
+.circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+}
+
+.circle__background {
+    stroke: #eee;
+}
+
+.circle__progress {
+    stroke: #3f9540;
+    animation: progress 0s infinite;
+    transform-origin: 50% 50%;
+}
+
+@keyframes progress {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: 100;
+    }
+}
+
+@keyframes moveUpDown {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
 .number-perso{
     height: 50%;
     width: 15%;

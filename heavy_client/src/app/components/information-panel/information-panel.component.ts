@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
+import { ElementRef, ViewChild } from '@angular/core';
 /* import { GameHistory } from '@app/interfaces/game-historic-info'; *//* 
 import { Player } from '@app/interfaces/player'; */
 /* import { PlayerState } from '@app/interfaces/player-state'; *//* 
@@ -19,6 +20,7 @@ const RESERVE_START_LENGTH = 102;
     styleUrls: ['./information-panel.component.scss'],
 })
 export class InformationPanelComponent implements OnInit, OnDestroy {
+    @ViewChild('circleProgress') circleProgress!: ElementRef<SVGElement>;
     isHost = false;
     isGameFinished = false;
     isAbandon = false;
@@ -81,7 +83,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.configureBaseSocketFeatures();
         this.socketService.send('update-reserve');
     }
-    intervalHandler() {
+    /* intervalHandler() {
         this.gameDuration++;
         this.clock--;
         if (this.clock === 0) {
@@ -90,7 +92,18 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             console.log("Time is finished, changing turn");
             this.socketService.send('change-user-turn');
         }
-    }
+    } */
+    intervalHandler() {
+        this.gameDuration++;
+        this.clock--;
+        this.updateProgress(this.clock / this.game.time);
+        if (this.clock === 0) {
+          if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
+          clearInterval(this.timer);
+          console.log("Time is finished, changing turn");
+          this.socketService.send('change-user-turn');
+        }
+      }
     turnSockets() {
         this.socketService.on('refresh-user-turn', (playerTurnId: string) => {
             this.isPlayersTurn = playerTurnId === this.socketId;
@@ -100,6 +113,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             if (!this.isRefresh) {
                 clearInterval(this.timer);
                 this.clock = this.game.time;
+                this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
                 this.socketService.send('send-player-score')
             } else this.isRefresh = false;
@@ -200,4 +214,20 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         const seconds = Math.floor(this.gameDuration - minutes * DEFAULT_CLOCK);
         return (minutes + 'min' + seconds + 'sec').toString();
     }
+
+    updateProgress(timeFraction: number): void {
+        const circle = this.circleProgress.nativeElement;
+        const radius = parseFloat(circle.getAttribute('r')!);
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference * (1 - timeFraction);
+      
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = `${offset}`;
+      }
+      
+      resetProgressCircle(): void {
+        if (this.circleProgress) {
+          this.updateProgress(1);
+        }
+      }
 }
