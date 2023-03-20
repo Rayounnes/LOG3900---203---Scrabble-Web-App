@@ -51,24 +51,23 @@ class _ChatPageState extends State<ChatPage> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   
 
-  void initNotifications() {
-  var initializationSettingsAndroid =AndroidInitializationSettings('app_icon');
+  void initNotifications() async {
+  var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
   var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-  flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   
   }
 
 
   void showNotification(String message, String channel) async {
-  var androidDetails = AndroidNotificationDetails(
-      'channel_id', 'Channel Name',
-      importance: Importance.max, priority: Priority.high, showWhen: false);
+    var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
+    importance: Importance.max, priority: Priority.high, showWhen: false);
 
-  var notificationDetails = NotificationDetails(android: androidDetails);
+    var notificationDetails = NotificationDetails(android: androidDetails);
 
-  await flutterLocalNotificationsPlugin.show(
-      0, 'Nouveau message dans $channel', message, notificationDetails);
+    await flutterLocalNotificationsPlugin.show(
+    0, 'Nouveau message dans $channel', message, notificationDetails);
 }
 
 
@@ -102,10 +101,10 @@ class _ChatPageState extends State<ChatPage> {
       print('Error fetching channels: $error');
       });
     
-    getIt<SocketService>().on("notify-message", (message) {
+    getIt<SocketService>().on("notify-message", (message) async {
       try {
         if (mounted) {
-          setState(() {
+          setState(() async {
             print('CEST CAAAAAA');
             print(message['message']);
             print(message['channel']);
@@ -241,7 +240,6 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: messages.length,
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
-              reverse: true,
               itemBuilder: (context, index) {
                   if(messages[index].channel == widget.discussion){
                      return Message(
