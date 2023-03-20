@@ -229,6 +229,25 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         circle.style.strokeDashoffset = `${offset}`;
     }
 
+    getCircleClass() {
+        if (this.clock < 20) {
+            return 'circle__progress--red';
+        } else if (this.clock < 40) {
+            return 'circle__progress--orange';
+        } else {
+            return 'circle__progress';
+        }
+    }
+
+    getTextColor() {
+        if (this.clock < 20) {
+            return 'red';
+        } else if (this.clock < 40) {
+            return 'orange';
+        } else {
+            return '#3f9540';
+        }
+    }
     resetProgressCircle(): void {
         if (this.circleProgress) {
             this.updateProgress(1);

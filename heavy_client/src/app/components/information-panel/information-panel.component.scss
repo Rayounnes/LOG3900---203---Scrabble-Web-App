@@ -45,7 +45,6 @@
     font-size: 30px;
     font-family: revert;
     text-anchor: middle;
-    fill: #3f9540;
   }
 
 .circle {
@@ -63,6 +62,19 @@
     animation: progress 0s infinite;
     transform-origin: 50% 50%;
 }
+
+.circle__progress--orange {
+    stroke: orange;
+    animation: progress 0s infinite;
+    transform-origin: 50% 50%;
+  }
+  
+  .circle__progress--red {
+    stroke: red;
+    animation: progress 0s infinite;
+    transform-origin: 50% 50%;
+  }
+
 
 @keyframes progress {
     0% {

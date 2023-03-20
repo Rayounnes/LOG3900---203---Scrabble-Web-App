@@ -10,8 +10,8 @@
         <div class="timer-container">
             <svg viewBox="0 0 100 100" width="60" height="60">
                 <circle class="circle circle__background" cx="50" cy="50" r="45"></circle>
-                <circle #circleProgress class="circle circle__progress" cx="50" cy="50" r="45"></circle>
-                <text class="timer-text" x="50" y="55">{{ clock }}</text>
+                <circle #circleProgress [attr.class]="'circle ' + getCircleClass()" cx="50" cy="50" r="45"></circle>
+                <text class="timer-text" [attr.fill]="getTextColor()" x="50" y="55">{{ clock }}</text>
             </svg>
         </div>
     </div>
