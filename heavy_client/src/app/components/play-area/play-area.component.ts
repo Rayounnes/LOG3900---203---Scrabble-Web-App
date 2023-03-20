@@ -11,6 +11,7 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
 import { Letter } from '@app/interfaces/letter';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const THREE_SECONDS = 3000;
 
@@ -52,6 +53,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         private route: ActivatedRoute,
         public mouse: MouseManagementService,
         public keyboard: KeyboardManagementService,
+        private snackBar: MatSnackBar,
     ) {
         // this.mouse = new MouseManagementService(gridService);
         // this.keyboard = new KeyboardManagementService(gridService, chevaletService, this.mouse, socketService);
@@ -105,6 +107,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
+                this.snackBar.open(placedWord.letters, 'Fermer', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
             } else {
                 this.commandSent = true;
                 this.socketService.send('remove-letters-rack', placedWord.letters);
@@ -121,16 +127,20 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.on('validate-created-words', async (placedWord: Placement) => {
             this.socketService.send('freeze-timer');
             if (placedWord.points === 0) {
-                setTimeout(() => (this.commandSent = false), THREE_SECONDS);
+                await new Promise((r) => setTimeout(r, THREE_SECONDS));
+                this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
                 this.gridService.removeLetter(placedWord.letters);
             } else {
-                this.commandSent = false;
                 this.socketService.send('draw-letters-opponent', placedWord.letters);
                 this.gridService.board.isFilledForEachLetter(placedWord.letters);
                 this.gridService.board.setLetterForEachLetters(placedWord.letters);
                 this.socketService.send('send-player-score');
                 this.socketService.send('update-reserve');
             }
+            this.commandSent = false;
             this.socketService.send('change-user-turn');
             this.socketService.send('draw-letters-rack');
         });

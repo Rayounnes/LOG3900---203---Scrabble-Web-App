@@ -53,7 +53,7 @@ export class SocketManager {
     }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
-            const classic = game.isClassicMode === isClassic;
+            const classic = game.isClassicMode === isClassic && !game.isFinished;
             const privateFull = classic && game.isPrivate && !game.isFullPlayers;
             return !game.isPrivate ? classic : privateFull;
         });
@@ -202,7 +202,7 @@ export class SocketManager {
             this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
             this.sio.to(room).emit('join-game');
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
+            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
             this.sio.to(room).emit('send-info-to-panel', data);
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
             // Si jamais un des joueur virtuel est le premier joueur a jouer
@@ -332,7 +332,7 @@ export class SocketManager {
         socket.on('send-player-score', () => {
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            let data = {players : scrabbleGame.getPlayersInfo(), turnSocket :scrabbleGame.socketTurn}
+            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
             this.sio.to(room).emit('send-info-to-panel', data);
 
             // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
@@ -353,12 +353,8 @@ export class SocketManager {
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
             const room = this.usersRoom.get(socket.id) as string;
-            console.log("socket Id:", socket.id);
-            console.log("room to change user-turn: ", room);
-            this.gameManager.changeTurn(room);
-            // if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
-            //     this.gameManager.virtualPlayerPlay(room);
-            // }
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            if (!scrabbleGame.isEndGame) this.gameManager.changeTurn(room);
         });
     }
     endGameHandler(socket: io.Socket) {

@@ -37,6 +37,7 @@ export class ScrabbleClassicMode {
     private playerDifficulty: string;
     constructor(playersSockets: string[], virtualPlayers: string[], playerUsernames: Map<string, string>, fileName: string) {
         this.turnSocket = playersSockets[0];
+        this.playersSockets = playersSockets;
         this.playersUsernames = playerUsernames;
         this.socketIndexTurn = 0;
         this.board = new Board();
@@ -113,11 +114,13 @@ export class ScrabbleClassicMode {
     toggleTurn() {
         if (this.socketIndexTurn + 1 === MAX_PLAYERS) this.socketIndexTurn = 0;
         else this.socketIndexTurn++;
-        console.log(this.turnPlayers);
         this.turnSocket = this.turnPlayers[this.socketIndexTurn];
     }
     get socketTurn(): string {
         return this.turnSocket;
+    }
+    get humansPlayerInGame(): number {
+        return this.playersSockets.length;
     }
     get boardLetters(): Letter[] {
         return this.board.allPlacedLetters;
@@ -150,7 +153,7 @@ export class ScrabbleClassicMode {
                 points: this.getPlayerScore(playerSocket),
                 isVirtualPlayer: this.virtualPlayers.includes(playerSocket),
                 tiles: this.getPlayerTilesLeft(playerSocket),
-                socket : playerSocket
+                socket: playerSocket,
             } as GamePlayerInfos;
             playersInfos.push(playerDetails);
         }
@@ -216,6 +219,12 @@ export class ScrabbleClassicMode {
         this.turnPlayers[index] = newVirtualPlayerName;
         this.gamePlayers.delete(abandonPlayerSocket);
         this.gamePlayers.set(newVirtualPlayerName, playerGame);
+        // On enleve le joueur humain des players sockets et recalcule le passMaxStreak
+        const indexPlayerSocket = this.playersSockets.indexOf(abandonPlayerSocket);
+        if (indexPlayerSocket > -1) {
+            this.playersSockets.splice(indexPlayerSocket, 1);
+        }
+        this.passMaxStreak = this.playersSockets.length * 2;
         if (this.turnSocket === abandonPlayerSocket) this.turnSocket = newVirtualPlayerName;
         return newVirtualPlayerName;
     }
@@ -302,6 +311,9 @@ export class ScrabbleClassicMode {
     }
     get virtualNames(): string[] {
         return this.virtualPlayers;
+    }
+    get isEndGame(): boolean {
+        return this.isGameEnded;
     }
     get commandVirtualPlayer(): COMMANDS {
         if (this.playerDifficulty === LEVEL.Expert) return COMMANDS.Placer;

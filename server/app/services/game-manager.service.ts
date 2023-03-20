@@ -86,7 +86,7 @@ export class GameManager {
             socketId,
         )} a abandonné la partie. Le joueur a été remplacé par le joueur virtuel ${virtualPlayer}.`;
         this.leaveRoom(socketId);
-        this.sio.to(room).emit('abandon-game');
+        this.sio.to(room).emit('abandon-game', abandonMessage);
         this.sio.to(room).emit('chatMessage', {
             username: '',
             message: abandonMessage,
@@ -94,20 +94,32 @@ export class GameManager {
             type: 'system',
             channel: room,
         });
-        this.sio.to(room).emit('send-info-to-panel', gameScrabbleAbandoned.getPlayersInfo());
+        // Tous les joueurs humains ont abandonné la partie, on arrete la partie
+        if (gameScrabbleAbandoned.humansPlayerInGame === 0) {
+            this.endGameBehavior(room, gameScrabbleAbandoned);
+            return;
+        }
         // Si le joueur a quitté pendant son tour, on fait jouer le joueur virtuel qu'il a remplacé
         if (virtualPlayer === gameScrabbleAbandoned.socketTurn) {
             this.sio.to(room).emit('user-turn', gameScrabbleAbandoned.socketTurn);
             this.virtualPlayerPlay(room);
+        } else {
+            const data = { players: gameScrabbleAbandoned.getPlayersInfo(), turnSocket: gameScrabbleAbandoned.socketTurn };
+            this.sio.to(room).emit('send-info-to-panel', data);
         }
     }
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode): boolean {
         if (scrabbleGame.gameEnded()) {
-            this.endGameMessage(room, scrabbleGame);
-            this.sio.to(room).emit('end-game');
+            this.endGameBehavior(room, scrabbleGame);
             return true;
         }
         return false;
+    }
+    endGameBehavior(room: string, scrabbleGame: ScrabbleClassicMode) {
+        const gameFinished = this.gameRooms.get(room) as Game;
+        gameFinished.isFinished = true;
+        this.endGameMessage(room, scrabbleGame);
+        this.sio.to(room).emit('end-game');
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {
@@ -117,24 +129,25 @@ export class GameManager {
             this.changeTurn(room);
         }, TWENTY_SECONDS);
         setTimeout(() => {
-            const successCommand: boolean = this.virtualPlayerCommand(room);
+            const [successCommand, isEndGame] = this.virtualPlayerCommand(room);
             if (successCommand) {
                 clearInterval(passTime);
-                this.changeTurn(room);
+                if (!isEndGame) this.changeTurn(room);
             }
         }, THREE_SECOND);
     }
-    virtualPlayerCommand(room: string): boolean {
+    virtualPlayerCommand(room: string): boolean[] {
         const command: COMMANDS = (this.scrabbleGames.get(room) as ScrabbleClassicMode).commandVirtualPlayer;
         const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
         let commandSuccess = true;
+        let isEndGame = false;
         switch (command) {
             case COMMANDS.Placer:
                 commandSuccess = this.virtualPlayer.virtualPlayerPlace(room, scrabbleGame);
                 if (!commandSuccess) {
                     commandSuccess = this.virtualPlayer.virtualPlayerExchange(room, scrabbleGame);
                 } else {
-                    this.isEndGame(room, scrabbleGame);
+                    isEndGame = this.isEndGame(room, scrabbleGame);
                 }
                 break;
             case COMMANDS.Échanger:
@@ -145,7 +158,7 @@ export class GameManager {
                 // this.isEndGame(room, scrabbleGame);
                 break;
         }
-        return commandSuccess;
+        return [commandSuccess, isEndGame];
     }
     // updatePannel(game: Game, socketUser: SocketUser) {
     //     if (game.hostID === socketUser.oldSocketId) {
