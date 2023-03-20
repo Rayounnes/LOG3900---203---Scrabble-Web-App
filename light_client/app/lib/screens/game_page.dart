@@ -24,41 +24,6 @@ import '../models/placement.dart';
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-class _HorizontalDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.deepPurpleAccent,
-              ),
-            ),
-          ),
-          const Divider(
-            color: Colors.grey,
-            height: 20,
-            thickness: 1,
-            indent: 20,
-            endIndent: 0,
-          ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.deepOrangeAccent,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -242,6 +207,7 @@ class _GamePageState extends State<GamePage> {
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
+  List<Letter> lettersOpponent = [];
 
   @override
   void initState() {
@@ -277,34 +243,27 @@ class _GamePageState extends State<GamePage> {
     int column = positionOnBoard.dx ~/ 50;
     print(line);
     print(column);
-    
 
     String? letterValue = tileLetter[tileID];
     bool isLetterInList = false;
-    if (positionOnBoard.dy != RACK_START_AXISY) {
+    if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
       lettersofBoard.add(Letter(line, column, letterValue!, tileID));
-    }
-    else{
-        removeLetterOnBoard(tileID);
-
+    } else {
+      removeLetterOnBoard(tileID);
     }
 
-    // lettersofBoard.add(Letter(line, column, letterValue!));
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
   }
 
   void validatePlacement() {
-    board.isFilledForEachLetter(lettersofBoard);
     dynamic word = board.verifyPlacement(lettersofBoard);
     if (word != null) {
-      print("the word is valid");
-
       getIt<SocketService>().send('verify-place-message', word);
     } else {
-      print("the word is invalid");
+      setTileOnRack();
     }
   }
 
@@ -379,8 +338,9 @@ class _GamePageState extends State<GamePage> {
                             .getOpponentPosition(line, column),
                         index += 1,
                       },
-                    updateRackID(true, opponentTileID)
-                  })
+                    updateRackID(true, opponentTileID),
+                  }),
+              board.isFilledForEachLetter(board.createOpponentLetters(letters)),
             });
 
     getIt<SocketService>().on(
@@ -405,16 +365,17 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('validate-created-words', (placedWord) {
       if (placedWord["points"] != 0) {
-        lettersofBoard = [];
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
 
         getIt<SocketService>().send('send-player-score');
         switchRack(false);
-        // getIt<SocketService>().send('freeze-timer');
+        board.isFilledForEachLetter(lettersofBoard);
       } else {
         setTileOnRack();
+        changeTurn();
       }
+      lettersofBoard = [];
     });
   }
 
@@ -486,22 +447,6 @@ class _GamePageState extends State<GamePage> {
             ),
           ),
           body: Stack(children: <Widget>[
-            // Positioned(
-            //   left: 370,
-            //   top: 45,
-            //   child: FloatingActionButton(
-            //     heroTag: "btn0",
-            //     onPressed: () {
-            //       print(isTileLocked);
-            //     },
-            //     backgroundColor: Colors.blue,
-            //     child: Icon(
-            //       Icons.abc,
-            //       color: Colors.white,
-            //       size: 25,
-            //     ),
-            //   ),
-            // ),
             Positioned(
               left: 370,
               top: 45,
@@ -579,7 +524,6 @@ class _GamePageState extends State<GamePage> {
                 onPressed: () {
                   setState(() {
                     validatePlacement();
-                    // switchRack(false);
                   });
                 },
                 backgroundColor: Color.fromARGB(255, 159, 201, 165),

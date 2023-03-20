@@ -45,8 +45,18 @@ class Board {
 
   isTileFilled(int line, int column) {
     if (line <= 14 && line >= 0 && column <= 14 && column >= 0) {
+      print('line + column');
+      print(line);
+      print(column);
       boardMatrix[line][column].isFilled = true;
     }
+  }
+
+  verifyRangeBoard(int line, int column) {
+    if (line <= 14 && line >= 0 && column <= 14 && column >= 0) {
+      return true;
+    }
+    return false;
   }
 
   isNotFilled(int line, int column) {
@@ -54,7 +64,11 @@ class Board {
   }
 
   getIsFilled(int line, int column) {
-    return boardMatrix[line - 1][column - 1].isFilled;
+    print('line');
+    print(line);
+    print('column');
+    print(column);
+    return boardMatrix[line][column].isFilled;
   }
 
   setLetter(int line, int column, String letter) {
@@ -65,6 +79,16 @@ class Board {
   // getColor(line: number, column: number) {
   //     return boardMatrix[line - 1][column - 1].color;
   // }
+  createOpponentLetters(dynamic lettersReceived) {
+    print("okhizdoaiufhahbfadsksdhfb");
+    print(lettersReceived);
+    List<Letter> lettersOpponent = [];
+    for (dynamic letter in lettersReceived) {
+      lettersOpponent
+          .add(Letter(letter['line'], letter['column'], letter['value'], 0));
+    }
+    return lettersOpponent;
+  }
 
   isFilledForEachLetter(List<Letter> letters) {
     for (var letter in letters) {
@@ -144,12 +168,7 @@ class Board {
         currentPos++;
       }
     }
-    // for (var i = 1; i < letters.length; i++) {
-    //   if (letters[i].column != letters[i - 1].column + 1) {
-    //     return;
-    //   }
-    // }
-    print("the word is valid horizoooooooooontal");
+
     print(createWord(letters, 'h'));
     return createWord(letters, 'h');
   }
@@ -168,12 +187,12 @@ class Board {
         return;
       }
       currentPos++;
-      while (getIsFilled(startLetter.column, currentPos)) {
+      print(getIsFilled(currentPos, startLetter.column));
+      while (getIsFilled(currentPos, startLetter.column)) {
         currentPos++;
       }
     }
 
-    print("the word is valid horizoooooooooontal");
     print(createWord(letters, 'v'));
     return createWord(letters, 'v');
   }
