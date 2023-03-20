@@ -1,15 +1,15 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
-import { ElementRef, ViewChild } from '@angular/core';
-/* import { GameHistory } from '@app/interfaces/game-historic-info'; *//* 
+/* import { GameHistory } from '@app/interfaces/game-historic-info'; */ /* 
 import { Player } from '@app/interfaces/player'; */
-/* import { PlayerState } from '@app/interfaces/player-state'; *//* 
-import { TopScore } from '@app/interfaces/top-scores'; *//* */
-import { CommunicationService } from '@app/services/communication.service'; 
+/* import { PlayerState } from '@app/interfaces/player-state'; */ /* 
+import { TopScore } from '@app/interfaces/top-scores'; */ /* */
+import { CommunicationService } from '@app/services/communication.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import { PROFILE } from 'src/constants/profile-picture-constants';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -36,7 +36,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         time: 60,
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
-    players : GamePlayerInfos[] = [];
+    players: GamePlayerInfos[] = [];
     /* player = {
         username: '',
         score: 0,
@@ -51,7 +51,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
-    constructor(public socketService: ChatSocketClientService , private communicationService: CommunicationService ) {}
+    constructor(public socketService: ChatSocketClientService, private communicationService: CommunicationService, private snackBar: MatSnackBar) {}
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
@@ -76,7 +76,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.connect();
     }
     ngOnDestroy(): void {
-        console.log("Destroying pannel");
         clearInterval(this.timer);
     }
     connect() {
@@ -89,7 +88,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         if (this.clock === 0) {
             if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
             clearInterval(this.timer);
-            console.log("Time is finished, changing turn");
             this.socketService.send('change-user-turn');
         }
     } */
@@ -98,12 +96,11 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.clock--;
         this.updateProgress(this.clock / this.game.time);
         if (this.clock === 0) {
-          if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
-          clearInterval(this.timer);
-          console.log("Time is finished, changing turn");
-          this.socketService.send('change-user-turn');
+            if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
+            clearInterval(this.timer);
+            this.socketService.send('change-user-turn');
         }
-      }
+    }
     turnSockets() {
         this.socketService.on('refresh-user-turn', (playerTurnId: string) => {
             this.isPlayersTurn = playerTurnId === this.socketId;
@@ -115,37 +112,36 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 this.clock = this.game.time;
                 this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
-                this.socketService.send('send-player-score')
+                this.socketService.send('send-player-score');
             } else this.isRefresh = false;
         });
     }
     panelDisplaySockets() {
         this.socketService.on('send-info-to-panel', async (infos: any) => {
-            this.players = infos['players'];
-            for(let player of this.players){
-                if(player['socket'] == infos['turnSocket']){
-                    player['isTurn'] = true
-                }else{
-                    player['isTurn'] = false;
+            this.players = infos.players;
+            for (const player of this.players) {
+                if (player.socket === infos.turnSocket) {
+                    player.isTurn = true;
+                } else {
+                    player.isTurn = false;
                 }
             }
-            for(let player of this.players){
-                if(player['isVirtualPlayer']){
-                    await this.communicationService.getAvatar("Bottt").subscribe((icon : string[])=>{
-                        if(icon.length>0){
-                        player['icon'] = icon[0]
+            for (const player of this.players) {
+                if (player.isVirtualPlayer) {
+                    await this.communicationService.getAvatar('Bottt').subscribe((icon: string[]) => {
+                        if (icon.length > 0) {
+                            player.icon = icon[0];
                         }
-                    })
-                    
-                }else{
-                    await this.communicationService.getAvatar(player['username']).subscribe((icon : string[])=>{
-                        if(icon.length>0){
-                        player['icon'] = icon[0]
+                    });
+                } else {
+                    await this.communicationService.getAvatar(player.username).subscribe((icon: string[]) => {
+                        if (icon.length > 0) {
+                            player.icon = icon[0];
                         }
-                    })
+                    });
                 }
             }
-            console.log(this.players)
+            console.log(this.players);
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
@@ -166,12 +162,20 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     configureBaseSocketFeatures() {
         this.turnSockets();
         this.panelDisplaySockets();
-        this.socketService.on('abandon-game', () => {
+        this.socketService.on('abandon-game', (abandonMessage: string) => {
             this.isAbandon = true;
+            this.snackBar.open(abandonMessage, 'Fermer', {
+                duration: 1000,
+                panelClass: ['snackbar'],
+            });
         });
         this.socketService.on('end-game', (isAbandoned: boolean) => {
             if (isAbandoned) this.isAbandon = true;
             this.isGameFinished = true;
+            this.snackBar.open('La partie est terminée', 'Fermer', {
+                duration: 1000,
+                panelClass: ['snackbar'],
+            });
             clearInterval(this.timer);
             this.addScore();
             this.addGameToHistory();
@@ -220,14 +224,14 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         const radius = parseFloat(circle.getAttribute('r')!);
         const circumference = 2 * Math.PI * radius;
         const offset = circumference * (1 - timeFraction);
-      
+
         circle.style.strokeDasharray = `${circumference} ${circumference}`;
         circle.style.strokeDashoffset = `${offset}`;
-      }
-      
-      resetProgressCircle(): void {
+    }
+
+    resetProgressCircle(): void {
         if (this.circleProgress) {
-          this.updateProgress(1);
+            this.updateProgress(1);
         }
-      }
+    }
 }
