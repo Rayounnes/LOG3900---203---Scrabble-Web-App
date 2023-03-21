@@ -35,7 +35,7 @@ export class ChannelService {
     }
 
     async getAllChannels() {
-        const allChannels = await this.channelCollection.find().toArray();
+        const allChannels = await this.channelCollection.find({ isGameChannel: false }).toArray();
         const allChannelsName = allChannels.map((obj) => obj.name);
         return allChannelsName;
     }
