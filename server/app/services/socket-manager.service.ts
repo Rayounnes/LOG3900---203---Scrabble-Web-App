@@ -80,8 +80,14 @@ export class SocketManager {
             this.gameManager.leaveRoom(socket.id);
             socket.leave(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
-            for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
-            for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
+            for (const player of gameCanceled.joinedPlayers){
+                this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
+                await this.leaveChannelWithSocketId(player.socketId, gameCanceled.room);
+            } 
+            for (const observer of gameCanceled.joinedObservers) {
+                this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
+                await this.leaveChannelWithSocketId(observer.socketId, gameCanceled.room);
+            }
             this.gameRooms.delete(gameCanceled.room);
             this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
             await this.deleteChannel(gameCanceled.room);
@@ -441,6 +447,14 @@ export class SocketManager {
         this.sio.to(socket.id).emit('leave-channel');
         socket.leave(channelName);
     }
+
+    async leaveChannelWithSocketId(socket: string, channelName: string) {
+        const username = this.usernames.get(socket);
+        await this.channelService.leaveChannel(channelName, username as string);
+        this.sio.to(socket).emit('leave-channel');
+    }
+
+
     async deleteChannel(channelName: string) {
         await this.channelService.deleteChannel(channelName);
         this.sio.to(channelName).emit('leave-channel');
