@@ -58,14 +58,20 @@ export class ChannelService {
     }
 
     async createNewChannel(channelName: string, username: string, isGame: boolean) {
-        const user = await this.userCollection.findOne({ username: username });
-        if (user) {
-            await this.userCollection.updateOne({ _id: user['_id'] }, { $push: { channels: channelName } });
-        }
+        const existing = await this.channelCollection.findOne({name : channelName});
+        if(existing){
+            return false;
+        }else{
+            const user = await this.userCollection.findOne({ username: username });
+            if (user) {
+                await this.userCollection.updateOne({ _id: user['_id'] }, { $push: { channels: channelName } });
+            }
 
-        const newChannel = { name: channelName, isGameChannel: isGame, users: 1, messages: [] };
-        await this.channelCollection.insertOne(newChannel);
-        return newChannel;
+            const newChannel = { name: channelName, isGameChannel: isGame, users: 1, messages: [] };
+            await this.channelCollection.insertOne(newChannel);
+            return newChannel;
+        }
+        
     }
 
     async joinExistingChannels(channelsNames: string | string[], username: string) {

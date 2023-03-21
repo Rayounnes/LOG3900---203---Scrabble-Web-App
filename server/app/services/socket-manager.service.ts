@@ -437,8 +437,13 @@ export class SocketManager {
     async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
         const username = this.usernames.get(socket.id);
         const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
-        socket.join(channelName);
-        this.sio.to(channelName).emit('channel-created', channel);
+        if(channel){
+            
+            socket.join(channelName);
+            this.sio.to(channelName).emit('channel-created', channel);
+        }else{
+            this.sio.to(socket.id).emit("duplicate-name");
+        }
     }
 
     async leaveChannel(socket: io.Socket, channelName: string) {

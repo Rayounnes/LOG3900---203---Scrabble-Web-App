@@ -12,6 +12,7 @@ import { CommunicationService } from '@app/services/communication.service';
 import { FormControl } from '@angular/forms';
 import { debounceTime, switchMap, startWith } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const GAME_COMMANDS: string[] = ['placer', 'échanger', 'passer'];
 const HELP_COMMANDS: string[] = ['indice', 'réserve', 'aide'];
@@ -51,6 +52,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         public arg: ArgumentManagementService,
         public keyboardService: KeyboardManagementService,
         private communicationService: CommunicationService,
+        private _snackBar: MatSnackBar,
     ) {}
     automaticScroll() {
         this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -200,6 +202,12 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.allUserChannels.push(newChannel);
             this.changeChannel(newChannel);
         });
+        this.socketService.on('duplicate-name',()=>{
+            this._snackBar.open(
+                "Un channel avec le meme nom existe deja !",
+                'Fermer',
+            );
+        })
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();
         });
