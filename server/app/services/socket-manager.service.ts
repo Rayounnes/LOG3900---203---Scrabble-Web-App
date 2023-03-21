@@ -276,12 +276,30 @@ export class SocketManager {
         });
         socket.on('draw-letters-rack', () => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
+
         });
-        socket.on('remove-letters-rack', (letters: Letter[]) => {
+        socket.on('remove-letters-rack', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+        
+            // letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
+                
+            
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
+        });
+
+        socket.on('remove-letters-rack-light-client', (letters) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+        
+            letters =  JSON.parse(letters as unknown as string);
+                
+            
+            this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
+            // this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
         socket.on('freeze-timer', () => {
             const room = this.usersRoom.get(socket.id) as string;
@@ -303,13 +321,17 @@ export class SocketManager {
         socket.on('verify-place-message', (command: WordArgs) => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
+            console.log(command.line, command.column, command.orientation, command.value);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
+            console.log(lettersPosition);
+
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
+            
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
