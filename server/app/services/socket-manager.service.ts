@@ -37,9 +37,10 @@ export class SocketManager {
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         // this.roomName = 'room' + this.roomIncrement;
-        this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
+        
         this.loginService = new LoginService(this.databaseService);
         this.channelService = new ChannelService(this.databaseService);
+        this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
     }
     // changeRoomName() {
     //     this.roomIncrement++;
