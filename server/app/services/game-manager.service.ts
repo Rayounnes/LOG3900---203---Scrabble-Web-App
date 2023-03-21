@@ -120,6 +120,8 @@ export class GameManager {
         gameFinished.isFinished = true;
         this.endGameMessage(room, scrabbleGame);
         this.sio.to(room).emit('end-game');
+        const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
+        this.sio.to(room).emit('send-info-to-panel', data);
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {
