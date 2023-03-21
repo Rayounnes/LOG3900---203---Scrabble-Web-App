@@ -126,6 +126,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 } else {
                     player.isTurn = false;
                 }
+                if(player.socket == this.socketId){
+                    player.username += " (You)"
+                }
             }
             for (const player of this.players) {
                 if (player.isVirtualPlayer) {
@@ -143,7 +146,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     if(this.icons.get(player.username)){
                         player.icon = this.icons.get(player.username)
                     }else{
-                        await this.communicationService.getAvatar(player.username).subscribe((icon: string[]) => {
+                        await this.communicationService.getAvatar(player.username.split(" ")[0]).subscribe((icon: string[]) => {
                             if (icon.length > 0) {
                                 this.icons.set(player.username,icon[0])
                                 player.icon = icon[0];
@@ -153,6 +156,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     
                 }
             }
+            this.players.sort((a, b) => b.points - a.points);
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
