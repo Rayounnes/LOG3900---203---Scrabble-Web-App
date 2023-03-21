@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
 import 'package:app/screens/game_modes_page.dart';
@@ -23,7 +24,6 @@ import '../models/placement.dart';
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -208,6 +208,10 @@ class _GamePageState extends State<GamePage> {
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
+  final List<String> letters =
+      List.generate(26, (index) => String.fromCharCode(index + 65));
+
+  String selectedLetter = '';
 
   @override
   void initState() {
@@ -215,6 +219,53 @@ class _GamePageState extends State<GamePage> {
     handleSockets();
     getReserveLetter();
     setTileOnRack();
+    selectedLetter = '';
+  }
+
+  void _showLetterPicker(int line, int column, int tileId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            height: 400.0,
+            child: GridView.builder(
+              itemCount: letters.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+              ),
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedLetter = letters[index];
+                      lettersofBoard
+                          .add(Letter(line, column, selectedLetter, tileId));
+
+                      tileLetter[tileId] = selectedLetter;
+                      print(selectedLetter);
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    color: Colors.blueGrey,
+                    alignment: Alignment.center,
+                    child: Text(
+                      letters[index],
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   verifyLetterOnBoard(int tileID) {
@@ -241,16 +292,20 @@ class _GamePageState extends State<GamePage> {
         getIt<TilePlacement>().getTilePosition(offset, tileID);
     int line = ((positionOnBoard.dy - 150) ~/ 50);
     int column = positionOnBoard.dx ~/ 50;
-    print(line);
-    print(column);
+
 
     String? letterValue = tileLetter[tileID];
+    selectedLetter = '';
     bool isLetterInList = false;
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
-      lettersofBoard.add(Letter(line, column, letterValue!, tileID));
+      if (letterValue == '*') {
+        _showLetterPicker(line, column, tileID);
+      } else {
+        lettersofBoard.add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+      }
     } else {
       removeLetterOnBoard(tileID);
     }
@@ -341,7 +396,7 @@ class _GamePageState extends State<GamePage> {
                     updateRackID(true, opponentTileID),
                   }),
               board.isFilledForEachLetter(board.createOpponentLetters(letters)),
-            });
+      });
 
     getIt<SocketService>().on(
         'draw-letters-rack',
@@ -353,7 +408,6 @@ class _GamePageState extends State<GamePage> {
               })
             });
     getIt<SocketService>().on('verify-place-message', (placedWord) {
-      // getIt<SocketService>()
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
       } else {
@@ -411,7 +465,7 @@ class _GamePageState extends State<GamePage> {
               width: TILE_SIZE,
               child: Center(
                 child: Text(
-                  "${tileLetter[id]}",
+                  "${tileLetter[id]?.toUpperCase()}",
                   style: TextStyle(
                       fontSize: 35, color: Color.fromARGB(255, 255, 255, 255)),
                 ),
