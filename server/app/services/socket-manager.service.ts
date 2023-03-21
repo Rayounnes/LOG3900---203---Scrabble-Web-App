@@ -359,9 +359,10 @@ export class SocketManager {
         });
     }
     endGameHandler(socket: io.Socket) {
-        socket.on('abandon-game', () => {
+        socket.on('abandon-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;
             socket.leave(room);
+            await this.leaveChannel(socket, room);
             this.gameManager.abandonGame(socket.id);
         });
         socket.on('quit-game', async () => {
