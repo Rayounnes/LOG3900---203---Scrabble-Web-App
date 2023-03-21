@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 // c'est le fichier de constantes qui nous permets d'eviter d'avoir des nombres magiques
-export const DEFAULT_WIDTH = 635;
-export const DEFAULT_HEIGHT = 635;
+export const DEFAULT_WIDTH = 800;
+export const DEFAULT_HEIGHT = 800;
 export class GridConstants {
     black = 'rgb(76,80,80)';
     lightGreen = '#f3ae48';
@@ -30,7 +30,7 @@ export class GridConstants {
     shiftFactorLine = 0.25;
     shiftFactorColumn = 0.9;
     aAscii = 97;
-    defaultWidth = 637;
-    defaultHeight = 637;
+    defaultWidth = 800;
+    defaultHeight = 800;
     oAscii = 111;
 }

@@ -304,7 +304,7 @@ export class KeyboardManagementService {
         this.letterRemoved(letterToRemove);
         this.manageArrow(letterToRemove.column, letterToRemove.line);
         this.updateWord();
-        this.gridService.drawGrid();
+        //this.gridService.drawGrid();
         this.setWordStartedFalse(letterToRemove, positionStart);
         this.chevaletService.putBackLetter(letterToRemove.value);
     }

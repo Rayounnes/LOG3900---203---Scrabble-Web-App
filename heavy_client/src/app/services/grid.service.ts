@@ -52,16 +52,22 @@ export class GridService {
     }
     drawWordSpecificLightBlue(line: number, wordSize: number) {
         this.gridContext.fillStyle = this.grid.black;
-        this.drawLetterAndFactorTwo(3, line, wordSize);
+        /* this.drawLetterAndFactorTwo(3, line, wordSize);
         this.drawLetterAndFactorTwo(LINE_G, line, wordSize);
         this.drawLetterAndFactorTwo(LINE_I, line, wordSize);
-        this.drawLetterAndFactorTwo(LINE_M, line, wordSize);
+        this.drawLetterAndFactorTwo(LINE_M, line, wordSize); */
     }
 
-    drawGrid() {
+    drawGrid(line? : boolean) {
         this.gridContext.beginPath();
-        this.gridContext.strokeStyle = this.grid.gray;
-        this.gridContext.lineWidth = 0.5;
+        
+        if(line){
+            this.gridContext.lineWidth = 0;
+        }else{
+            
+            this.gridContext.lineWidth = 0.5;
+            this.gridContext.strokeStyle = this.grid.gray;
+        }
 
         for (let i = 1; i < this.grid.endColumn; i++) {
             this.gridContext.moveTo((this.width * 1) / END, (this.height * i) / END);
@@ -70,7 +76,11 @@ export class GridService {
             this.gridContext.moveTo((this.width * i) / END, (this.height * 1) / END);
             this.gridContext.lineTo((this.width * i) / END, (this.height * END) / END);
         }
-        this.gridContext.stroke();
+
+        /* if(!line){
+            this.gridContext.stroke();
+        } */
+        
     }
 
     drawWordMot(pos1: number, pos2: number, wordSize: number) {
@@ -124,6 +134,9 @@ export class GridService {
         this.gridContext.quadraticCurveTo(x, y, x + radius, y);
         this.gridContext.closePath();
         this.gridContext.fill();
+        this.gridContext.lineWidth = 0.5;
+        this.gridContext.strokeStyle = this.grid.gray;
+        this.gridContext.stroke()
       }
 
     drawWordFactorTwo(pos1: number, pos2: number, wordSize: number) {
@@ -168,7 +181,7 @@ export class GridService {
             }
         }
     }
-    drawWordDarkBlue(wordSize: number) {
+    /* drawWordDarkBlue(wordSize: number) {
         for (let j = 2; j < END; j += LINE_D) {
             for (let i = 2; i < END; i += LINE_D) {
                 this.gridContext.fillStyle = this.grid.black;
@@ -176,7 +189,7 @@ export class GridService {
                 this.drawWordFactorThree(i + this.grid.shiftFactorLine, j + this.grid.shiftFactorColumn, wordSize);
             }
         }
-    }
+    } */
 
     fillLightBlue() {
         this.fillSpecificLightBlue(LINE_C);
@@ -191,12 +204,12 @@ export class GridService {
         }
     }
 
-    drawLetterAndFactorTwo(posx: number, posy: number, wordSize: number) {
+    /* drawLetterAndFactorTwo(posx: number, posy: number, wordSize: number) {
         this.drawWordLetter(posx + this.grid.shiftLetterLine, posy + this.grid.shiftLetterColumn, wordSize);
         this.drawWordFactorTwo(posx + this.grid.shiftFactorLine, posy + this.grid.shiftFactorColumn, wordSize);
-    }
+    } */
 
-    drawWordLightBlue(wordSize: number) {
+    /* drawWordLightBlue(wordSize: number) {
         this.drawWordSpecificLightBlue(LINE_C, wordSize);
         this.drawWordSpecificLightBlue(LINE_G, wordSize);
         this.drawWordSpecificLightBlue(LINE_I, wordSize);
@@ -208,7 +221,7 @@ export class GridService {
             this.drawLetterAndFactorTwo(i, COLUMN_FOUR, wordSize);
             this.drawLetterAndFactorTwo(i, COLUMN_TWELVE, wordSize);
         }
-    }
+    } */
     fillPink() {
         for (let i = LINE_B; i < LINE_F; i++) {
             this.fillAndSetColor(i, i, this.grid.pink);
@@ -222,7 +235,7 @@ export class GridService {
         this.drawWordMot(posx + this.grid.shiftLetterLine, posy + this.grid.shiftLetterColumn, wordSize);
         this.drawWordFactorTwo(posx + this.grid.shiftFactorLine, posy + this.grid.shiftFactorColumn, wordSize);
     }
-    drawWordPink(wordSize: number) {
+    /* drawWordPink(wordSize: number) {
         for (let i = 2; i < LINE_F; i++) {
             this.gridContext.fillStyle = this.grid.black;
             this.drawMotAndFactorTwo(i, i, wordSize);
@@ -231,8 +244,8 @@ export class GridService {
             this.drawMotAndFactorTwo(this.grid.endLine - i, this.grid.endColumn - i, wordSize);
         }
         this.drawMotAndFactorTwo(LINE_H, COLUMN_EIGHT, wordSize);
-    }
-    drawPosition() {
+    } */
+    /* drawPosition() {
         const shiftColumn = 1.85;
         const posX = 0.1;
         const posY = 0.85;
@@ -244,7 +257,7 @@ export class GridService {
             this.drawWord(listLetters[i], (posX * this.width) / END, ((i + shiftColumn) * this.height) / END, '20px bolder sans-serif', END);
             this.drawWord(String(i + 1), ((i + 1) * this.width)  / END, (posY * this.height) / END, '20px bolder serif', END);
         }
-    }
+    } */
     drawWord(word: string, xpos: number, ypos: number, font: string, steps: number) {
         const startPosition: Vec2 = { x: xpos, y: ypos };
         const step = steps;
@@ -269,16 +282,16 @@ export class GridService {
     buildBoard(wordSize: number) {
         this.board.intializeBoard();
         this.fillGreenTiles();
-        this.fillRed();
-        this.drawWordRed(wordSize);
-        this.fillDarkBlue();
-        this.drawWordDarkBlue(wordSize);
-        this.fillLightBlue();
-        this.drawWordLightBlue(wordSize);
-        this.fillPink();
-        this.drawWordPink(wordSize);
-        this.drawStar();
-        this.drawGrid();
+        this.fillRed();/* 
+        this.drawWordRed(wordSize); */
+        this.fillDarkBlue();/* 
+        this.drawWordDarkBlue(wordSize); */
+        this.fillLightBlue();/* 
+        this.drawWordLightBlue(wordSize); */
+        this.fillPink();/* 
+        this.drawWordPink(wordSize); *//* 
+        this.drawStar(); */
+        //this.drawGrid();
     }
     writePoint(letter: string, posx: number, posy: number, size: number) {
         const stepGreaterTen = 0.6;
@@ -313,7 +326,7 @@ export class GridService {
             this.fillColor(letter.column + 1, letter.line + 1, '#F9E076');
             this.writeLetter(letter.value, letter.column + 1, letter.line + 1, size);
         }
-        this.drawGrid();
+        //this.drawGrid(true);
     }
     get width(): number {
         return this.canvasSize.x;
@@ -329,32 +342,32 @@ export class GridService {
             this.fillColor(letter.column + 1, letter.line + 1, this.board.getColor(letter.line + 1, letter.column + 1));
             this.drawDependColor(letter.column + 1, letter.line + 1, this.board.getColor(letter.line + 1, letter.column + 1));
         }
-        this.drawGrid();
+        //this.drawGrid(true);
     }
     drawDependColor(posX: number, posY: number, color: string) {
         if (color === Colors.Pink) {
             if (posX === COLUMN_EIGHT && posY === COLUMN_EIGHT) {
                 this.drawStar();
-            } else {
+            } else {/* 
                 this.gridContext.fillStyle = this.grid.black;
-                this.drawMotAndFactorTwo(posX, posY, LINE_M);
+                this.drawMotAndFactorTwo(posX, posY, LINE_M); */
             }
         }
-        if (color === Colors.LightBlue) {
+        if (color === Colors.LightBlue) {/* 
             this.gridContext.fillStyle = this.grid.black;
-            this.drawLetterAndFactorTwo(posX, posY, LINE_M);
+            this.drawLetterAndFactorTwo(posX, posY, LINE_M); */
         }
 
         if (color === Colors.Red) {
-            this.gridContext.fillStyle = this.grid.black;
+            /* this.gridContext.fillStyle = this.grid.black */;/* 
             this.drawWordMot(posX + this.grid.shiftLetterLine, posY + this.grid.shiftLetterColumn, LINE_M);
-            this.drawWordFactorThree(posX + this.grid.shiftFactorLine, posY + this.grid.shiftFactorColumn, LINE_M);
+            this.drawWordFactorThree(posX + this.grid.shiftFactorLine, posY + this.grid.shiftFactorColumn, LINE_M); */
         }
 
         if (color === Colors.DarkBlue) {
-            this.gridContext.fillStyle = this.grid.black;
+            /* this.gridContext.fillStyle = this.grid.black */;/* 
             this.drawWordLetter(posX + this.grid.shiftLetterLine, posY + this.grid.shiftLetterColumn, LINE_M);
-            this.drawWordFactorThree(posX + this.grid.shiftFactorLine, posY + this.grid.shiftFactorColumn, LINE_M);
+            this.drawWordFactorThree(posX + this.grid.shiftFactorLine, posY + this.grid.shiftFactorColumn, LINE_M); */
         }
     }
     changeSizeLetters(size: number) {
@@ -366,6 +379,6 @@ export class GridService {
                 }
             }
         }
-        this.drawGrid();
+        //this.drawGrid(true);
     }
 }

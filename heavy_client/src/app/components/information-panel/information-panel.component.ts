@@ -37,6 +37,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
     players: GamePlayerInfos[] = [];
+    icons : Map<string,string> = new Map<string, string>()
     /* player = {
         username: '',
         score: 0,
@@ -128,20 +129,30 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             }
             for (const player of this.players) {
                 if (player.isVirtualPlayer) {
-                    await this.communicationService.getAvatar('Bottt').subscribe((icon: string[]) => {
-                        if (icon.length > 0) {
-                            player.icon = icon[0];
-                        }
-                    });
+                    if(this.icons.get(player.username)){
+                        player.icon = this.icons.get(player.username)
+                    }else{
+                        await this.communicationService.getAvatar('Bottt').subscribe((icon: string[]) => {
+                            if (icon.length > 0) {
+                                this.icons.set(player.username,icon[0])
+                                player.icon = icon[0];
+                            }
+                        });
+                    }
                 } else {
-                    await this.communicationService.getAvatar(player.username).subscribe((icon: string[]) => {
-                        if (icon.length > 0) {
-                            player.icon = icon[0];
-                        }
-                    });
+                    if(this.icons.get(player.username)){
+                        player.icon = this.icons.get(player.username)
+                    }else{
+                        await this.communicationService.getAvatar(player.username).subscribe((icon: string[]) => {
+                            if (icon.length > 0) {
+                                this.icons.set(player.username,icon[0])
+                                player.icon = icon[0];
+                            }
+                        });
+                    }
+                    
                 }
             }
-            console.log(this.players);
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);

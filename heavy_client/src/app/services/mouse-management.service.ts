@@ -32,7 +32,7 @@ export class MouseManagementService {
             this.gridService.board.setStartTile(this.findTileWithMouse(this.mousePosition).y, this.findTileWithMouse(this.mousePosition).x);
             this.fillTheTile(this.findTileWithMouse(this.mousePosition), this.grid.beige);
             this.drawArrow(this.findTileWithMouse(this.mousePosition));
-            this.gridService.drawGrid();
+            //this.gridService.drawGrid();
         }
     }
 

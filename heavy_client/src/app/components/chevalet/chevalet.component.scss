@@ -1,9 +1,33 @@
 #canvas
 {
-    border: 1px solid black;
+    //border: 1px solid black;
     //margin-left: 185px;
 
 }
+
+
+div{
+  padding-left: 1%;
+  padding-bottom: 1%;
+  padding-top: 1%;
+  padding-right: 1%;
+  width: max-content;
+  background-color: cornsilk;
+  height: max-content;/* 
+  border-radius: 20px; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* border: 8px outset;
+  border-color: #dbb773; */
+  box-shadow: 16px 16px 16px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  margin-left: 6.5%;
+
+}
+
+
+
+
 .exchange-button {
     border-radius: 10px;
     //padding: 10px 20px;

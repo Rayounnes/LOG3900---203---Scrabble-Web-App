@@ -1,3 +1,7 @@
-<button *ngIf="chevaletService.display" [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="exchange-button"  (click)="exchange()">Echanger</button>
-<canvas id="canvas" #chevaletCanvas  [attr.width]="width" [attr.height]="height"></canvas>
-<button *ngIf="chevaletService.display" [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="cancel-button"  (click)="cancel()">Annuler</button>
+<!-- <button *ngIf="chevaletService.display" [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="exchange-button"  (click)="exchange()">Echanger</button> -->
+
+<!-- <button *ngIf="chevaletService.display" [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="cancel-button"  (click)="cancel()">Annuler</button> -->
+
+<div>
+    <canvas id="canvas" #chevaletCanvas  [attr.width]="width" [attr.height]="height"></canvas>
+</div>

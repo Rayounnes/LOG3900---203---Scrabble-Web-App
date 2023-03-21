@@ -95,7 +95,7 @@ export class ChevaletComponent implements AfterViewInit {
         });
     }
     get width(): number {
-        return this.chevalet.width;
+        return this.chevalet.width + 9;
     }
 
     get height(): number {

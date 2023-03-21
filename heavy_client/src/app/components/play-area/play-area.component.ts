@@ -188,7 +188,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.gridService.gridContext = this.gridCanvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         this.gridService.buildBoard(this.defaultSize);
         this.gridService.fillPositions();
-        this.gridService.drawPosition();
+        /* this.gridService.drawPosition(); */
         this.gridCanvas.nativeElement.focus();
     }
     connect() {

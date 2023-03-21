@@ -13,7 +13,7 @@
 
 .grid-container{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
     height: 100%;
     justify-content: center;
@@ -21,10 +21,10 @@
 }
 
 .buttons{
-    width: 100%;
+    width: min-content;
     height: min-content;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-evenly;
 }
 
