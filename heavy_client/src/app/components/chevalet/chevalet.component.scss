@@ -1,12 +1,13 @@
-#canvas
-{
-    //border: 1px solid black;
-    //margin-left: 185px;
-
+.main{
+  display: flex;
+  flex-direction: row;
+  width: min-content;
+  height: min-content;
+  align-items: center;
 }
 
 
-div{
+div.canvas{
   padding-left: 1%;
   padding-bottom: 1%;
   padding-top: 1%;
@@ -39,6 +40,27 @@ div{
   margin-top: 10px;
   background-color: rgb(25, 66, 31);
   text-align: center;
+}
+
+
+.svg-icon {
+  width: 8em;
+    height: 5em
+}
+
+.svg-icon:hover{
+  cursor: pointer;
+}
+
+.svg-icon path,
+.svg-icon polygon,
+.svg-icon rect {
+  fill: #3f9540;
+}
+
+.svg-icon circle {
+  stroke: #3f9540;
+  stroke-width: 1;
 }
 
 // .exchange-button:hover {
