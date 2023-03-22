@@ -18,6 +18,8 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+    
 }
 
 .tiles-perso{
@@ -29,6 +31,7 @@
     align-items: center;
     background-color: #ababab;
     border-radius: 12px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 
 }
 
@@ -36,9 +39,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    width: 20%;
-    animation: moveUpDown 2s infinite; // Add this line
+    height: max-content;
+    width: max-content;
+    animation: moveUpDown 1.8s infinite;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    border-radius: 1000px;
 }
 
 .timer-text {
@@ -54,7 +59,7 @@
 }
 
 .circle__background {
-    stroke: #eee;
+    stroke: #888989;
 }
 
 .circle__progress {
@@ -104,6 +109,7 @@
     justify-content: center;
     align-items: center;
     margin-right: 5%;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 app-surrender-game{
@@ -122,6 +128,7 @@ app-surrender-game{
     border-radius: 12px;
     justify-content: space-evenly;
     align-items: center;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 
 
 }
@@ -136,6 +143,7 @@ app-surrender-game{
     
     align-items: center;
     justify-content: space-evenly;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset
 }
 
 .player-active{
@@ -148,6 +156,7 @@ app-surrender-game{
     
     align-items: center;
     justify-content: space-evenly;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset
 
 }
 
@@ -184,6 +193,7 @@ app-surrender-game{
     justify-content: center;
     align-items: center;
     margin-right: 5%;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 
