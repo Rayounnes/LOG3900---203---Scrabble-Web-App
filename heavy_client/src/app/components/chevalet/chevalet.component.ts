@@ -3,6 +3,8 @@ import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
+import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 const RESERVE_START_LENGTH = 102;/* 
 const CLASSNAME_INI = 'mat-typography vsc-initialized';
@@ -22,11 +24,15 @@ export class ChevaletComponent implements AfterViewInit {
     socketTurn: string;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
+    lettersExchange = '';
+    items : string[] = [];
+    
 
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
+        public dialog : MatDialog
     ) {}/* 
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
@@ -77,6 +83,8 @@ export class ChevaletComponent implements AfterViewInit {
 
     configureBaseSocketFeatures() {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
+            this.items = letters;
+
             this.chevaletService.updateRack(letters);
             this.chevaletLetters = letters;
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
@@ -110,11 +118,36 @@ export class ChevaletComponent implements AfterViewInit {
     } */
 
     exchange() {
-        this.socketService.send('exchange-command', this.chevaletService.lettersToExchange());
+        this.socketService.send('exchange-command', this.lettersExchange);
         this.chevaletService.makerackTilesIn();
         this.chevaletService.deselectAllLetters();
     }
     cancel() {
         this.chevaletService.deselectAllLetters();
+    }
+
+    openExchangeDialog(){
+
+
+        // this.position0.x = 42; //42 et 1
+        // this.position0.y = 1;
+        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+                width: '200px', 
+                data: {rackList: this.items}
+            });
+
+            dialogRef.afterClosed().subscribe((result  )=> {
+                console.log(result)
+                this.lettersExchange = result;
+                this.exchangePopUp(result);
+
+            });
+    }
+
+
+    exchangePopUp(result: any){
+        if(result !== undefined){
+            this.exchange();
+        }
     }
 }

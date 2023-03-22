@@ -242,8 +242,10 @@ export class ChevaletService {
         return false;
     }
     lettersToExchange() {
+        console.log(this.rackArray)
         let lettersToExchange = '';
         for (const tile of this.rackArray) {
+            console.log(tile)
             if (tile.selection === 'echanger') {
                 lettersToExchange += tile.letter;
             }

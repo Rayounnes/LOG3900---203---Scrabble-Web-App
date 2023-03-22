@@ -1,0 +1,96 @@
+.checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 50px;
+
+  }
+  
+  /* Style the label */
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #2d2d2d;
+  }
+  
+  /* Style the checkbox */
+  .checkbox-input {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  /* Style the checkbox when it's checked */
+  .checkbox-input:checked {
+    background-color: #52f55a;
+    border-color: #f5a5c8;
+  }
+  
+  /* Style the checkmark inside the checkbox */
+  .checkbox-input::before {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: auto;
+    border-radius: 50%;
+    background-color: #73faa0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+  }
+  
+  /* Style the checkmark when the checkbox is checked */
+  .checkbox-input:checked::before {
+    transform: scale(1);
+  }
+  
+  /* Style the hover effect for the checkbox */
+  .checkbox-input:hover:not(:checked) {
+    border-color: #84ec5a;
+  }
+  
+  /* Style the hover effect for the label */
+  .checkbox-label:hover {
+    color: #c9f5a5;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  /* Style the buttons */
+  button {
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  
+  /* Style the "Annuler" button */
+  button:first-child {
+    color: #2d2d2d;
+    background-color: #ccc;
+  }
+  
+  /* Style the "Echanger" button */
+  button:last-child {
+    color: white;
+    background-color: #b6f8b9;
+  }
+  
+  /* Style the hover effect for the buttons */
+  button:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+  }
