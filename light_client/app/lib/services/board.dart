@@ -104,7 +104,9 @@ class Board {
 
   verifyHorizontal(List<Letter> letters) {
     int firstLetterLine = letters[0].line;
+    print("firstLetterLine ${letters[0].line}");
     for (var letter in letters) {
+      print("letter ${letter.value}");
       if (firstLetterLine != letter.line) {
         return false;
       }
@@ -164,7 +166,7 @@ class Board {
         return;
       }
       currentPos++;
-      while (getIsFilled(startLetter.line, currentPos)) {
+      while (currentPos < 15 && getIsFilled(startLetter.line, currentPos)) {
         currentPos++;
       }
     }
@@ -188,7 +190,7 @@ class Board {
       }
       currentPos++;
       print(getIsFilled(currentPos, startLetter.column));
-      while (getIsFilled(currentPos, startLetter.column)) {
+      while (currentPos < 15 && getIsFilled(currentPos, startLetter.column)) {
         currentPos++;
       }
     }
@@ -202,7 +204,8 @@ class Board {
     int firstLetterColumn = letters[0].column;
     bool horizontal = verifyHorizontal(letters);
     bool vertical = verifyVertical(letters);
-
+    print("horizontal $horizontal");
+    print("vertical $vertical");
     if (verifyHorizontal(letters)) {
       return verifyStraightHorizontal(letters);
     }

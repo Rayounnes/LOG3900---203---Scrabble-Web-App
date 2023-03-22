@@ -69,6 +69,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
     });
     getIt<SocketService>().on('waiting-room-player', (gameJson) {
       setState(() {
+        print("received game waiting room $gameJson");
         game = Game.fromJson(gameJson);
       });
     });
@@ -98,7 +99,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
       );
     });
     getIt<SocketService>().on('join-game', (_) {
-      // this.router.navigate([`/game/${this.mode}`]);
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return GamePage();
+      }));
     });
     getIt<SocketService>().on('cancel-match', (_) {
       print(".on cancel-match");
@@ -175,8 +178,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                               );
                             } else {
                               return ListTile(
-                                title: Text(game.joinedPlayers[index - 1]
-                                    .username),
+                                title: Text(
+                                    game.joinedPlayers[index - 1].username),
                               );
                             }
                           },
@@ -203,8 +206,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                                   );
                                 } else {
                                   return ListTile(
-                                    title: Text(game.joinedObservers[index - 1]
-                                        .username),
+                                    title: Text(game
+                                        .joinedObservers[index - 1].username),
                                   );
                                 }
                               },
@@ -244,7 +247,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             padding: 16.0,
                             name: "Lancer Partie",
                             route: () {
-                              cancelWaiting();
+                              getIt<SocketService>().send('join-game');
                             },
                             isButtonDisabled:
                                 game.humanPlayers != game.joinedPlayers.length,

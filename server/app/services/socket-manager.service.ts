@@ -313,8 +313,10 @@ export class SocketManager {
         });
 
         socket.on('draw-letters-opponent', (lettersPosition) => {
+            // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
+            const lettersPositionTransformed = Array.isArray(lettersPosition) ? lettersPosition : lettersPosition.letters;
             for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
-                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPosition);
+                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
         });
     }
     placeCommandHandler(socket: io.Socket) {
@@ -331,7 +333,7 @@ export class SocketManager {
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
-            
+            console.log("lettersPlaced du client: ", lettersPlaced);
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
@@ -449,10 +451,10 @@ export class SocketManager {
     }
 
     async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
-        const username = this.usernames.get(socket.id);
-        const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
+        // const username = this.usernames.get(socket.id);
+        // const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
         socket.join(channelName);
-        this.sio.to(channelName).emit('channel-created', channel);
+        // this.sio.to(channelName).emit('channel-created', channel);
     }
 
     async leaveChannel(socket: io.Socket, channelName: string) {

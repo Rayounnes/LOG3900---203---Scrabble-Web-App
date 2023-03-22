@@ -4,7 +4,7 @@ import 'dart:convert';
 import '../constants/constants.dart';
 
 class Game {
-  bool isClassicMode, isPrivate, hasStarted, isFullPlayers;
+  bool isClassicMode, isPrivate, hasStarted, isFullPlayers, isFinished;
   int playersWaiting, humanPlayers, observers, virtualPlayers, time;
   String hostUsername, hostID, room, password;
   List<PlayerInfos> joinedPlayers, joinedObservers;
@@ -20,6 +20,7 @@ class Game {
     this.joinedObservers = const [],
     this.joinedPlayers = const [],
     this.hasStarted = false,
+    this.isFinished = false,
     this.humanPlayers = 2,
     this.isClassicMode = false,
     this.isPrivate = false,
@@ -43,6 +44,7 @@ class Game {
       humanPlayers: json['humanPlayers'],
       isClassicMode: json['isClassicMode'],
       isPrivate: json['isPrivate'],
+      isFinished: json['isFinished'],
       observers: json['observers'],
       playersWaiting: json['playersWaiting'],
       virtualPlayers: json['virtualPlayers'],
@@ -66,6 +68,7 @@ class Game {
         'humanPlayers': humanPlayers,
         'isClassicMode': isClassicMode,
         'isPrivate': isPrivate,
+        'isFinished': isFinished,
         'observers': observers,
         'playersWaiting': playersWaiting,
         'virtualPlayers': virtualPlayers,

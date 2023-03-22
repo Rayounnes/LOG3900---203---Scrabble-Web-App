@@ -1,29 +1,20 @@
-import 'dart:collection';
 import 'dart:convert';
-
 import 'package:app/main.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:intl/intl.dart';
-import 'package:app/models/chat_message_model.dart';
-import 'package:app/widgets/chat_message.dart';
-import 'package:app/services/user_infos.dart';
-
+import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
 import '../models/letter.dart';
-import '../models/Words_Args.dart';
-import '../models/placement.dart';
 
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
@@ -239,8 +230,8 @@ class _GamePageState extends State<GamePage> {
   Offset setTileOnBoard(Offset offset, int tileID) {
     Offset positionOnBoard =
         getIt<TilePlacement>().getTilePosition(offset, tileID);
-    int line = ((positionOnBoard.dy - 150) ~/ 50);
-    int column = positionOnBoard.dx ~/ 50;
+    int line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
+    int column = positionOnBoard.dx ~/ TILE_SIZE;
     print(line);
     print(column);
 
@@ -250,6 +241,7 @@ class _GamePageState extends State<GamePage> {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
+      print("adding to lettersofBoard");
       lettersofBoard.add(Letter(line, column, letterValue!, tileID));
     } else {
       removeLetterOnBoard(tileID);
@@ -260,9 +252,13 @@ class _GamePageState extends State<GamePage> {
 
   void validatePlacement() {
     dynamic word = board.verifyPlacement(lettersofBoard);
+    // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+    lettersofBoard = [];
     if (word != null) {
+      print("sending verify-place-message");
       getIt<SocketService>().send('verify-place-message', word);
     } else {
+      print("mot mal placé");
       setTileOnRack();
     }
   }
@@ -356,6 +352,7 @@ class _GamePageState extends State<GamePage> {
       // getIt<SocketService>()
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
+        setState(() => setTileOnRack());
       } else {
         getIt<SocketService>().send('remove-letters-rack-light-client',
             jsonEncode(placedWord["letters"]));
@@ -366,7 +363,9 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('validate-created-words', (placedWord) {
       if (placedWord["points"] != 0) {
         final lettersjson = jsonEncode(placedWord["letters"]);
-        getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
+        print(placedWord["letters"]);
+        print(lettersjson);
+        getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
         getIt<SocketService>().send('send-player-score');
         switchRack(false);
@@ -401,22 +400,53 @@ class _GamePageState extends State<GamePage> {
               width: TILE_SIZE,
               height: TILE_SIZE,
               color: isTileLocked[id] == true
-                  ? Color.fromARGB(0, 255, 255, 255)
+                  ? Color.fromARGB(255, 249, 224, 118)
                   : Color.fromARGB(255, 26, 219, 100).withOpacity(0.6),
             ),
             child: AnimatedContainer(
-              duration: Duration(seconds: 1),
-              color: Color.fromARGB(255, 39, 45, 46),
-              height: TILE_SIZE,
-              width: TILE_SIZE,
-              child: Center(
-                child: Text(
-                  "${tileLetter[id]}",
-                  style: TextStyle(
-                      fontSize: 35, color: Color.fromARGB(255, 255, 255, 255)),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 249, 224, 118),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 0.5,
+                  ),
                 ),
-              ),
-            ),
+                duration: Duration(seconds: 1),
+                height: TILE_SIZE,
+                width: TILE_SIZE,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text(
+                          "${tileLetter[id]?.toUpperCase()}",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text(
+                          tileLetter[id]?.toUpperCase() == tileLetter[id] ? "0" : LETTERS_POINTS[tileLetter[id]].toString(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
             onDraggableCanceled: (velocity, offset) {
               setState(() {
                 if (isTileLocked[id] != true) {
@@ -440,27 +470,32 @@ class _GamePageState extends State<GamePage> {
     return ParentWidget(
       child: Scaffold(
           appBar: AppBar(
+            leadingWidth: 10,
             automaticallyImplyLeading: false,
             title: const Text(
               'Page de jeu',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+            actions: [
+              FloatingActionButton(
+                heroTag: "btn1",
+                onPressed: () {
+                  getIt<SocketService>().send('quit-game');
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return GameModes();
+                  }));
+                },
+                backgroundColor: Color.fromARGB(255, 255, 110, 74),
+                child: Icon(
+                  Icons.output,
+                  color: Color.fromARGB(255, 219, 224, 213),
+                  size: TILE_SIZE,
+                ),
+              )
+            ],
           ),
           body: Stack(children: <Widget>[
-            Positioned(
-              left: 370,
-              top: 45,
-              child: FloatingActionButton(
-                heroTag: "btn0",
-                onPressed: () {},
-                backgroundColor: Colors.blue,
-                child: Icon(
-                  Icons.abc,
-                  color: Colors.white,
-                  size: 25,
-                ),
-              ),
-            ),
+            Positioned(left: 0, top: 10, child: TimerPage()),
             Positioned(
               left: LEFT_BOARD_POSITION,
               top: TOP_BOARD_POSITION,
@@ -477,26 +512,26 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             ...fillRack(),
-            Positioned(
-              left: LEFT_BOARD_POSITION,
-              bottom: LEFT_BOARD_POSITION,
-              width: 100,
-              child: FloatingActionButton(
-                heroTag: "btn1",
-                onPressed: () {
-                  getIt<SocketService>().send('quit-game');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return GameModes();
-                  }));
-                },
-                backgroundColor: Color.fromARGB(255, 255, 110, 74),
-                child: Icon(
-                  Icons.output,
-                  color: Color.fromARGB(255, 219, 224, 213),
-                  size: TILE_SIZE,
-                ),
-              ),
-            ),
+            // Positioned(
+            //   left: LEFT_BOARD_POSITION,
+            //   bottom: LEFT_BOARD_POSITION,
+            //   width: 100,
+            //   child: FloatingActionButton(
+            //     heroTag: "btn1",
+            //     onPressed: () {
+            //       getIt<SocketService>().send('quit-game');
+            //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+            //         return GameModes();
+            //       }));
+            //     },
+            //     backgroundColor: Color.fromARGB(255, 255, 110, 74),
+            //     child: Icon(
+            //       Icons.output,
+            //       color: Color.fromARGB(255, 219, 224, 213),
+            //       size: TILE_SIZE,
+            //     ),
+            //   ),
+            // ),
             Positioned(
               left: LEFT_BOARD_POSITION,
               top: RACK_START_AXISY,
@@ -517,7 +552,7 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             Positioned(
-              right: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
+              right: 45.0 + TILE_ADJUSTMENT,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "confirmPlacement",
