@@ -156,7 +156,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     
                 }
             }
-            this.players.sort((a, b) => b.points - a.points);
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
