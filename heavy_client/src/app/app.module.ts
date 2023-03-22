@@ -45,6 +45,7 @@ import { PopoutWindowModule } from 'angular-opinionated-popout-window';
 import { AvatarSelectionComponent } from './components/avatar-selection/avatar-selection.component';
 import { UserProfilComponent } from './components/user-profil/user-profil.component';
 import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-dialog.component';
+import { UsernameEditComponent } from './components/username-edit/username-edit.component';
 
 /**
  * Main module that is used in main.ts.
@@ -80,6 +81,7 @@ import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-d
         AvatarSelectionComponent,
         UserProfilComponent,
         ExchangeDialogComponent,
+        UsernameEditComponent,
     ],
     imports: [
         MatProgressSpinnerModule,

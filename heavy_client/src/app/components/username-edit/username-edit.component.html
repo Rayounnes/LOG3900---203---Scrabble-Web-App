@@ -1,0 +1,14 @@
+<div class="main">
+        <mat-form-field class="example-full-width">
+          <mat-label>Username</mat-label>
+          <input matInput [(ngModel)]="newUsername">
+          <mat-hint align="start"><strong>5 caracteres minimum</strong> </mat-hint>
+        </mat-form-field>
+    <div class="buttons">
+        <button mat-raised-button color="warn" (click)="cancel()">Annuler</button>
+        <button class="valid" mat-raised-button [disabled]="newUsername.length < 5" (click)="sendNewUsername()">Confirmer</button>
+    </div>
+</div>
+
+
+

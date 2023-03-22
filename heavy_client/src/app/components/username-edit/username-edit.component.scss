@@ -1,0 +1,13 @@
+div.main{
+    display: flex;
+    flex-direction: column;
+    width: min-content;
+    height: min-content;
+}
+
+div.buttons{
+    display: flex;
+    flex-direction: row;
+    width: min-content;
+    height: min-content;
+}

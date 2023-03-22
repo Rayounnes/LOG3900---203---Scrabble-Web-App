@@ -1,7 +1,7 @@
 <div class="row1">
     <div class="col1">
         <img  [src]="currentIcon" width="150px" height="150px" (click)="chooseAvatar()"/>
-        <span class="username">{{username}}</span>
+        <span class="username" (click)="changeUsername()">{{username}}</span>
     </div>
     <div class="col">
         <span class="number">45</span>

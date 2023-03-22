@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { CommunicationService } from '@app/services/communication.service';
+import { UsernameEditComponent } from '@app/components/username-edit/username-edit.component';
 import { AvatarSelectionComponent } from '../avatar-selection/avatar-selection.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-profil',
@@ -19,7 +21,7 @@ export class UserProfilComponent implements OnInit {
   avatarChoosed : string = "";
 
   constructor(private communicationService : CommunicationService,
-    public socketService: ChatSocketClientService,private dialog : MatDialog) { 
+    public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
       this.connect()
     }
 
@@ -73,6 +75,33 @@ export class UserProfilComponent implements OnInit {
 
         subscription.unsubscribe();
       }
+    })
+
+  }
+
+  changeUsername(){
+    this.dialogRef = this.dialog.open(UsernameEditComponent);
+
+    const subscription = this.dialogRef.componentInstance.username.subscribe((newUsername : string) =>{
+      if(newUsername.length > 4 && newUsername !== this.username){
+        this.communicationService.changeUsername(this.username,newUsername).subscribe((isValid : boolean) =>{
+          if(isValid){
+            this.username = newUsername;
+            this.socketService.send('change-username',newUsername)
+          }else{
+            this._snackBar.open(
+              "Ce username est deja utilisé !",
+              'Fermer',
+          );
+          }
+        })
+        subscription.unsubscribe()
+      }else{
+        this._snackBar.open(
+          "Vous possédes deja ce username !",
+          'Fermer',)
+      }
+
     })
 
   }

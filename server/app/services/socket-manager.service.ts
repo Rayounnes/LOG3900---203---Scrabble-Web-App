@@ -38,7 +38,7 @@ export class SocketManager {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         // this.roomName = 'room' + this.roomIncrement;
         
-        this.loginService = new LoginService(this.databaseService);
+        this.loginService = new LoginService(this.databaseService,this.channelService);
         this.channelService = new ChannelService(this.databaseService);
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
     }
@@ -492,6 +492,16 @@ export class SocketManager {
         });
     }
 
+    changeUsername(socket : io.Socket){
+        socket.on('change-username',(newUsername : string)=>{
+            this.usernames.delete(socket.id);
+            console.log(newUsername)
+            this.usernames.set(socket.id,newUsername);
+            this.sio.emit('change-username', {username :newUsername, id : socket.id});
+
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -522,6 +532,7 @@ export class SocketManager {
             this.userLeaveChannel(socket);
             this.userDeleteChannel(socket);
             this.userTyping(socket);
+            this.changeUsername(socket)
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

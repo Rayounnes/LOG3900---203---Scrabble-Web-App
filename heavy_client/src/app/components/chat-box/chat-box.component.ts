@@ -187,6 +187,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.username = uname;
             this.getUserChannels();
         });
+        this.socketService.on('change-username', (infos: any) => {
+            if(infos['id'] == this.socketService.socketId){
+                this.username = infos['username'];
+            }
+            
+            this.getUserChannels();
+        });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
         });
