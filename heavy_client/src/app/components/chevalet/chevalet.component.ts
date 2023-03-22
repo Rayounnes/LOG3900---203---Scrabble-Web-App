@@ -17,6 +17,7 @@ const CLASSNAME = 'mat-typography'; */
 })
 export class ChevaletComponent implements AfterViewInit {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
     chevaletLetters: string[] = [];
@@ -127,11 +128,9 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     openExchangeDialog(){
-
-
-        // this.position0.x = 42; //42 et 1
-        // this.position0.y = 1;
-        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+        this.rotate()
+        setTimeout(() => {
+            const dialogRef = this.dialog.open(ExchangeDialogComponent, {
                 width: '200px', 
                 data: {rackList: this.items}
             });
@@ -142,6 +141,10 @@ export class ChevaletComponent implements AfterViewInit {
                 this.exchangePopUp(result);
 
             });
+        }, 600);
+        // this.position0.x = 42; //42 et 1
+        // this.position0.y = 1;
+        
     }
 
 
@@ -150,4 +153,16 @@ export class ChevaletComponent implements AfterViewInit {
             this.exchange();
         }
     }
+
+    rotate(): void {
+        const btn = this.rotateBtn.nativeElement;
+        btn.classList.remove('rotate-animation');
+    
+        // Use setTimeout() to ensure that the animation is reset before reapplying the class
+        setTimeout(() => {
+          btn.offsetWidth; // Trigger a reflow to reset the animation
+          btn.classList.add('rotate-animation');
+        }, 0);
+      }
+    
 }
