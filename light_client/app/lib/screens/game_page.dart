@@ -199,13 +199,62 @@ class _GamePageState extends State<GamePage> {
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
-
+  bool isPlayerTurn = false;
+  final List<String> letters =
+      List.generate(26, (index) => String.fromCharCode(index + 65));
+  String selectedLetter = '';
   @override
   void initState() {
     super.initState();
     handleSockets();
     getReserveLetter();
     setTileOnRack();
+    selectedLetter = '';
+  }
+
+  void _showLetterPicker(int line, int column, int tileId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            height: 400.0,
+            child: GridView.builder(
+              itemCount: letters.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+              ),
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedLetter = letters[index];
+                      lettersofBoard
+                          .add(Letter(line, column, selectedLetter, tileId));
+
+                      tileLetter[tileId] = selectedLetter;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    color: Colors.blueGrey,
+                    alignment: Alignment.center,
+                    child: Text(
+                      letters[index],
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   verifyLetterOnBoard(int tileID) {
@@ -232,17 +281,20 @@ class _GamePageState extends State<GamePage> {
         getIt<TilePlacement>().getTilePosition(offset, tileID);
     int line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
     int column = positionOnBoard.dx ~/ TILE_SIZE;
-    print(line);
-    print(column);
 
     String? letterValue = tileLetter[tileID];
+    selectedLetter = '';
     bool isLetterInList = false;
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
-      print("adding to lettersofBoard");
-      lettersofBoard.add(Letter(line, column, letterValue!, tileID));
+      if (letterValue == '*') {
+        _showLetterPicker(line, column, tileID);
+      } else {
+        lettersofBoard
+            .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+      }
     } else {
       removeLetterOnBoard(tileID);
     }
@@ -268,6 +320,8 @@ class _GamePageState extends State<GamePage> {
       for (var index in rackIDList) {
         isTileLocked[index] = false;
         tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
+        if (tileLetter[index]?.toUpperCase() == tileLetter[index])
+          tileLetter[index] = '*';
       }
     });
   }
@@ -363,8 +417,6 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('validate-created-words', (placedWord) {
       if (placedWord["points"] != 0) {
         final lettersjson = jsonEncode(placedWord["letters"]);
-        print(placedWord["letters"]);
-        print(lettersjson);
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
         getIt<SocketService>().send('send-player-score');
@@ -375,6 +427,13 @@ class _GamePageState extends State<GamePage> {
         changeTurn();
       }
       lettersofBoard = [];
+    });
+
+    getIt<SocketService>().on('user-turn', (playerTurnId) {
+      setState(() {
+        print("setting is player turn in game page");
+        isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+      });
     });
   }
 
@@ -436,7 +495,9 @@ class _GamePageState extends State<GamePage> {
                       child: Padding(
                         padding: EdgeInsets.all(4),
                         child: Text(
-                          tileLetter[id]?.toUpperCase() == tileLetter[id] ? "0" : LETTERS_POINTS[tileLetter[id]].toString(),
+                          tileLetter[id]?.toUpperCase() == tileLetter[id]
+                              ? "0"
+                              : LETTERS_POINTS[tileLetter[id]].toString(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -449,7 +510,8 @@ class _GamePageState extends State<GamePage> {
                 )),
             onDraggableCanceled: (velocity, offset) {
               setState(() {
-                if (isTileLocked[id] != true) {
+                print("draggable canceled");
+                if (isTileLocked[id] != true && isPlayerTurn) {
                   offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                   Offset boardPosition = setTileOnBoard(offset, id);
                   if (!tilePosition.containsValue(boardPosition)) {
@@ -480,7 +542,7 @@ class _GamePageState extends State<GamePage> {
               FloatingActionButton(
                 heroTag: "btn1",
                 onPressed: () {
-                  getIt<SocketService>().send('quit-game');
+                  getIt<SocketService>().send('abandon-game');
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return GameModes();
                   }));
@@ -512,41 +574,27 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             ...fillRack(),
-            // Positioned(
-            //   left: LEFT_BOARD_POSITION,
-            //   bottom: LEFT_BOARD_POSITION,
-            //   width: 100,
-            //   child: FloatingActionButton(
-            //     heroTag: "btn1",
-            //     onPressed: () {
-            //       getIt<SocketService>().send('quit-game');
-            //       Navigator.push(context, MaterialPageRoute(builder: (context) {
-            //         return GameModes();
-            //       }));
-            //     },
-            //     backgroundColor: Color.fromARGB(255, 255, 110, 74),
-            //     child: Icon(
-            //       Icons.output,
-            //       color: Color.fromARGB(255, 219, 224, 213),
-            //       size: TILE_SIZE,
-            //     ),
-            //   ),
-            // ),
             Positioned(
               left: LEFT_BOARD_POSITION,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "passTurn",
-                onPressed: () {
-                  setState(() {
-                    getIt<SocketService>().send('pass-turn');
-                    switchRack(true);
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 253, 174, 101),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        setState(() {
+                          getIt<SocketService>().send('pass-turn');
+                          switchRack(true);
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey
+                    : Color.fromARGB(255, 253, 174, 101),
                 child: Icon(
                   Icons.double_arrow_rounded,
-                  color: Color.fromARGB(255, 0, 123, 172),
+                  color: !isPlayerTurn
+                      ? Colors.grey[200]
+                      : Color.fromARGB(255, 0, 123, 172),
                   size: TILE_SIZE,
                 ),
               ),
@@ -556,15 +604,21 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "confirmPlacement",
-                onPressed: () {
-                  setState(() {
-                    validatePlacement();
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 159, 201, 165),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        setState(() {
+                          validatePlacement();
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey[200]
+                    : Color.fromARGB(255, 159, 201, 165),
                 child: Icon(
                   Icons.check_box,
-                  color: Color.fromARGB(255, 22, 82, 0),
+                  color: !isPlayerTurn
+                      ? Colors.grey
+                      : Color.fromARGB(255, 22, 82, 0),
                   size: TILE_SIZE,
                 ),
               ),
@@ -574,24 +628,29 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "exchangeLetters",
-                onPressed: () {
-                  showDialog<List<String>>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        List<String> exchangeableTile = [];
-                        for (var index in rackIDList) {
-                          exchangeableTile.add(tileLetter[index].toString());
-                        }
-                        return TileExchangeMenu(
-                          tileLetters: exchangeableTile,
-                        );
-                      }).then((List<String>? result) {
-                    if (result != null) {
-                      switchRack(true);
-                    }
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 55, 151, 189),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        showDialog<List<String>>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              List<String> exchangeableTile = [];
+                              for (var index in rackIDList) {
+                                exchangeableTile
+                                    .add(tileLetter[index].toString());
+                              }
+                              return TileExchangeMenu(
+                                tileLetters: exchangeableTile,
+                              );
+                            }).then((List<String>? result) {
+                          if (result != null) {
+                            switchRack(true);
+                          }
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey
+                    : Color.fromARGB(255, 55, 151, 189),
                 child: Icon(
                   Icons.compare_arrows,
                   color: Color.fromARGB(255, 255, 255, 255),

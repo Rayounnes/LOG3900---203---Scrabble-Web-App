@@ -58,7 +58,7 @@ class _TimerPageState extends State<TimerPage> {
 
   void handleSockets() {
     getIt<SocketService>().on('user-turn', (playerTurnId) {
-      print("In user-turn");
+      print("In user-turn pannel");
       setState(() {
         isPlayersTurn = playerTurnId == getIt<SocketService>().socketId;
       });
@@ -232,6 +232,9 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   Widget playerInfos(GamePlayerInfos player) {
+    final usernamePlayer = getIt<SocketService>().socketId == player.socket
+        ? "${player.username} (You)"
+        : player.username;
     return Expanded(
       child: Card(
         color: player.isTurn ? Colors.green : Colors.grey[300],
@@ -240,7 +243,7 @@ class _TimerPageState extends State<TimerPage> {
             radius: 30,
             backgroundImage: icons[player.username],
           ),
-          title: Text(player.username),
+          title: Text(usernamePlayer),
           subtitle: Text('Tiles left: ${player.tiles}'),
           trailing: Text(player.points.toString()),
         ),
