@@ -380,6 +380,11 @@ export class SocketManager {
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             if (!scrabbleGame.isEndGame) this.gameManager.changeTurn(room);
         });
+        socket.on('user-turn', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
+        });
     }
     endGameHandler(socket: io.Socket) {
         socket.on('abandon-game', () => {

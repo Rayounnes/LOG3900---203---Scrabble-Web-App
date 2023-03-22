@@ -100,7 +100,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
     });
     getIt<SocketService>().on('join-game', (_) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return GamePage();
+        return GamePage(
+          joinGameSocket: () {
+            getIt<SocketService>().send('user-turn');
+          },
+        );
       }));
     });
     getIt<SocketService>().on('cancel-match', (_) {
@@ -247,7 +251,12 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             padding: 16.0,
                             name: "Lancer Partie",
                             route: () {
-                              getIt<SocketService>().send('join-game');
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return GamePage(joinGameSocket: () {
+                                  getIt<SocketService>().send('join-game');
+                                });
+                              }));
                             },
                             isButtonDisabled:
                                 game.humanPlayers != game.joinedPlayers.length,

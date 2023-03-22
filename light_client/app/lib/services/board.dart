@@ -45,9 +45,7 @@ class Board {
 
   isTileFilled(int line, int column) {
     if (line <= 14 && line >= 0 && column <= 14 && column >= 0) {
-      print('line + column');
-      print(line);
-      print(column);
+      print('line: ${line} + column ${column}');
       boardMatrix[line][column].isFilled = true;
     }
   }

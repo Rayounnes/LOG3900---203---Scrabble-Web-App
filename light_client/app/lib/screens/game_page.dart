@@ -17,7 +17,8 @@ import '../models/letter.dart';
 // found in the LICENSE file.
 
 class GamePage extends StatefulWidget {
-  const GamePage({super.key});
+  final Function joinGameSocket;
+  const GamePage({super.key, required this.joinGameSocket});
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -207,6 +208,7 @@ class _GamePageState extends State<GamePage> {
   void initState() {
     super.initState();
     handleSockets();
+    widget.joinGameSocket();
     getReserveLetter();
     setTileOnRack();
     selectedLetter = '';
@@ -431,6 +433,7 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('user-turn', (playerTurnId) {
       setState(() {
+        print("---------------------------------------------------");
         print("setting is player turn in game page");
         isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
       });

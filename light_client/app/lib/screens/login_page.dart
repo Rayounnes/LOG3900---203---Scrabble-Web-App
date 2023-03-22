@@ -18,11 +18,12 @@ class _LoginDemoState extends State<LoginDemo> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
-  
+
   @override
   void initState() {
     super.initState();
-    if (!getIt<SocketService>().isSocketAlive()) getIt<SocketService>().connect();
+    if (!getIt<SocketService>().isSocketAlive())
+      getIt<SocketService>().connect();
   }
 
   @override
