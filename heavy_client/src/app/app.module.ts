@@ -38,6 +38,7 @@ import { ConnexionPageComponent } from './components/connexion-page/connexion-pa
 import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototype.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-dialog.component';
+import { HintDialogComponent } from './components/hint-dialog/hint-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -69,6 +70,7 @@ import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-d
         ConnexionPageComponent,
         ChatPrototypeComponent,
         ExchangeDialogComponent,
+        HintDialogComponent,
 
     ],
     imports: [

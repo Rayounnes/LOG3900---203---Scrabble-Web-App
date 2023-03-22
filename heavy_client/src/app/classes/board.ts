@@ -84,6 +84,7 @@ export class Board {
             }
         }
     }
+    
     verifyHorizontal(letters: Letter[]) {
         let firstLetterLine = letters[0].line;
         for (var letter of letters) {
@@ -167,6 +168,9 @@ export class Board {
       }
     
       verifyPlacement(letters:Letter[]) {
+        if (letters.length === 0){
+          return;
+        }
         if (this.verifyHorizontal(letters)) {
           return this.verifyStraightHorizontal(letters);
         }

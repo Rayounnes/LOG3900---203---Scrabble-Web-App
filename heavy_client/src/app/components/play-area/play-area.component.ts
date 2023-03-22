@@ -14,7 +14,7 @@ import { CdkDragDrop, CdkDragEnd, moveItemInArray, transferArrayItem } from '@an
 import { Letter } from '@app/interfaces/letter';
 import { WordArgs } from '@app/interfaces/word-args';
 import {MatDialog} from '@angular/material/dialog';
-import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
+import { HintDialogComponent } from '../hint-dialog/hint-dialog.component';
 const THREE_SECONDS = 3000;
 
 @Component({
@@ -54,12 +54,15 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     position= {x: 0, y: 0};
     dragOrType = 'free';
     typeAccepted = ['free', 'type']
+    firstLetterPos: Vec2;
+    hintWords: WordArgs[] = [];
+
 
 
 
 
     constructor(
-        private gridService: GridService,
+        public gridService: GridService,
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         private route: ActivatedRoute,
@@ -89,15 +92,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         if(this.buttonPressed==='Enter'){
             
 
-            if( this.dragOrType === 'drag' && this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
-    
+            if(this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
                 this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
-                console.log(this.keyboard.word);
                 this.dragOrType = 'free';
             }
 
         }
-        this.keyboard.importantKey(this.buttonPressed);
+        this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
             this.keyboard.placerOneLetter(letter);
@@ -113,20 +114,24 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.keyboard.removeAllLetters();
     }
     onTileDragStart(event: any, tile: string) {
-        console.log(event);
         this.selectedTile = tile;
         this.selectedTileInitialPosition = { x: event.clientX, y: event.clientY };
         // event.source._dragRef.disabled = false; // Enable dragging
       }
 
-    setDragFree(event: string){
+      setDragFree(event: string){
         console.log(event);
         this.dragOrType = 'free';
     }
 
+
     returnRackTile(letter: Letter){
         this.keyboard.removeLetterOnBoard(letter);
+        if(this.keyboard.letters.length === 0){
+            this.dragOrType = 'free';
+        }
     }
+
     receiveDroppedTile(letter: Letter){
         if (this.keyboard.verifyLetterOnBoard(letter)) {
             this.keyboard.removeLetterOnBoard(letter);
@@ -136,19 +141,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
 
     onDragEnded(event: CdkDragEnd){
-        console.log(event);
         this.position = { x: 200, y: 400 };
 
     }
 
 
       drop(event: CdkDragDrop<string[]>) {
-        console.log('in the drop');
         if (event.previousContainer === event.container) {
-            console.log(event.previousContainer);
-            console.log(event.container);
 
-            console.log('in the canvas');
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
           transferArrayItem(
@@ -198,18 +198,53 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
         });
+
     }
     configureBaseSocketFeatures() {
         this.goalsSockets();
         this.placeSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
+            
+            this.socketService.send('hint-command');
+
             this.socketTurn = socketTurn;
-            this.dragOrType;
+            this.dragOrType = 'free';
         });
         this.socketService.on('end-game', () => {
             this.commandSent = true;
             this.isEndGame = true;
         });
+        this.socketService.on('hint-command', (hints: string) => {
+            if (hints != undefined){
+                this.hintWords = [];
+                this.createWord(hints);
+            }
+            console.log(hints.split("\n"));
+
+        });
+    }
+
+    createWord(hints: string){
+        console.log(hints);
+        let splitedList = hints.split("\n");
+        console.log(splitedList);
+        for(let command of splitedList){
+            if(command === 'Ces seuls placements ont été trouvés:'){
+                continue;
+            }
+            if(command === "Aucun placement n'a été trouvé,Essayez d'échanger vos lettres !"){
+                return;
+            }
+            let splitedCommand = command.split(' ');
+
+            let columnWord = Number(splitedCommand[1].substring(1,splitedCommand[1].length - 1))- 1;
+            let lineWord = splitedCommand[1][0].charCodeAt(0) - 97;
+            let valueWord = splitedCommand[splitedCommand.length - 1];
+            let orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
+            console.log({line:Number(lineWord), column:columnWord, value: valueWord, orientation:orientationWord});
+            console.log
+            this.hintWords.push({line:lineWord, column:Number(columnWord), value: valueWord, orientation:orientationWord} as WordArgs);
+        }
     }
     ngOnInit(): void {
         this.connect();
@@ -249,10 +284,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     buttonPlayPressed() {
 
-        if(this.dragOrType === 'drag' && this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
+        if(this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
             this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
         }
-        console.log("the word", this.keyboard.word);
         this.keyboard.buttonPlayPressed();
         this.chevaletService.makerackTilesIn();
         this.dragOrType = 'free';
@@ -269,17 +303,27 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.chevaletService.makerackTilesIn();
     }
 
-    openExchangeDialog(){
-        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
-            width: '250px',
-            data: {rackList: this.rackItems}
-          });
-      
-          dialogRef.afterClosed().subscribe(result => {
-            console.log('The dialog was closed');
-            
-          });
-        }
-    
+    openHintDialog(){
 
+    const dialogRef = this.dialog.open(HintDialogComponent, {
+        width: '200px', 
+        data: {hints: this.hintWords}
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if(result){
+            this.placeHintWord(result);
+        }
+        
+      });
+    }
+
+    placeHintWord(result: WordArgs){
+        this.keyboard.word = result;
+        this.keyboard.placeWordHint(result);
+        for(let letter of result.value){
+            this.chevaletService.removeLetterOnRack(letter);
+        }
+        this.buttonPlayPressed();
+    }
 }

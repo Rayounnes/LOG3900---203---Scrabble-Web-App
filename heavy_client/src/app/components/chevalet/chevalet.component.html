@@ -1,4 +1,3 @@
-<!-- <button  [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="exchange-button"  (click)="exchange()">Echanger</button> -->
 
 <button  class="exchange-button"  (click)="openExchangeDialog()">Echanger</button>
 
@@ -7,28 +6,15 @@
 <div class="rack-group">
     <canvas id="canvas" #chevaletCanvas (contextmenu)="rightMouseHitDetect($event)" (click)="leftMouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
     <ul class="list-box" cdkDropListOrientation="horizontal" cdkDropList (cdkDropListDropped)="drop($event)">
-        <!-- <il class="example-box" *ngFor="let item of items" cdkDrag>
-          {{ item }}
-        </il> -->
           <div class="tile-container">
 
-          <!-- <div class="example-handle" cdkDragHandle>
-            <svg width="20px" fill="currentColor" viewBox="0 0 0 0">
-              <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
-              <path d="M0 0h24v24H0z" fill="none"></path>
-            </svg>
-          </div> -->
-        <div id ='tile0' class="example-box" [style.left.px]="position0.x" [style.top.px]="position0.y" *ngIf="items[0] && dragAccepted.includes(dragUsed)" cdkDrag #tile1>{{ items[0] }}</div> 
-        <div id ='tile1' class="example-box" [style.left.px]="position1.x" [style.top.px]="position1.y" *ngIf="items[1] && dragAccepted.includes(dragUsed)" cdkDrag #tile2>{{ items[1] }}</div> 
-        <div id ='tile2' class="example-box" [style.left.px]="position2.x" [style.top.px]="position2.y" *ngIf="items[2] && dragAccepted.includes(dragUsed)" cdkDrag #tile3>{{ items[2] }}</div> 
-        <div id ='tile3' class="example-box" [style.left.px]="position3.x" [style.top.px]="position3.y" *ngIf="items[3]&& dragAccepted.includes(dragUsed)" cdkDrag #tile4>{{ items[3] }}</div> 
-        <div id ='tile4' class="example-box" [style.left.px]="position4.x" [style.top.px]="position4.y" *ngIf="items[4]&& dragAccepted.includes(dragUsed)" cdkDrag #tile5>{{ items[4] }}</div> 
-        <div id ='tile5' class="example-box" [style.left.px]="position5.x" [style.top.px]="position5.y" *ngIf="items[5]&& dragAccepted.includes(dragUsed)" cdkDrag #tile6>{{ items[5] }}</div> 
-        <div id ='tile6' class="example-box" [style.left.px]="position6.x" [style.top.px]="position6.y" *ngIf="items[6]&& dragAccepted.includes(dragUsed)" cdkDrag #tile7>{{ items[6] }}</div> 
+          <div id ='tile0' class="example-box" [style.left.px]="position0.x" [style.top.px]="position0.y" *ngIf="items[0] && dragAccepted.includes(dragUsed)" cdkDrag #tile1>{{ items[0] }}</div> 
+          <div id ='tile1' class="example-box" [style.left.px]="position1.x" [style.top.px]="position1.y" *ngIf="items[1] && dragAccepted.includes(dragUsed)" cdkDrag #tile2>{{ items[1] }}</div> 
+          <div id ='tile2' class="example-box" [style.left.px]="position2.x" [style.top.px]="position2.y" *ngIf="items[2] && dragAccepted.includes(dragUsed)" cdkDrag #tile3>{{ items[2] }}</div> 
+          <div id ='tile3' class="example-box" [style.left.px]="position3.x" [style.top.px]="position3.y" *ngIf="items[3] && dragAccepted.includes(dragUsed)" cdkDrag #tile4>{{ items[3] }}</div> 
+          <div id ='tile4' class="example-box" [style.left.px]="position4.x" [style.top.px]="position4.y" *ngIf="items[4] && dragAccepted.includes(dragUsed)" cdkDrag #tile5>{{ items[4] }}</div> 
+          <div id ='tile5' class="example-box" [style.left.px]="position5.x" [style.top.px]="position5.y" *ngIf="items[5] && dragAccepted.includes(dragUsed)" cdkDrag #tile6>{{ items[5] }}</div> 
+          <div id ='tile6' class="example-box" [style.left.px]="position6.x" [style.top.px]="position6.y" *ngIf="items[6] && dragAccepted.includes(dragUsed)" cdkDrag #tile7>{{ items[6] }}</div> 
         </div>
       </ul>
 </div>
-<!-- <button *ngIf="chevaletService.display" [disabled]="chevaletService.validationReserve(this.reserveTilesLeft) || this.socketService.socketId !== this.socketTurn " class="cancel-button"  (click)="cancel()">Annuler</button> -->
-  <!-- <div class="example-box" *ngFor="let item of items" cdkDrag>
-    Drag me around
-  </div> -->

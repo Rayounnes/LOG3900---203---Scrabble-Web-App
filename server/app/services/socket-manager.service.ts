@@ -176,7 +176,7 @@ export class SocketManager {
         socket.on('hint-command', () => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
             const hintWords: string = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('chatMessage', { type: 'system', message: hintWords });
+            this.sio.to(socket.id).emit('hint-command', hintWords );
         });
     }
     exchangeCommandHandler(socket: io.Socket) {
