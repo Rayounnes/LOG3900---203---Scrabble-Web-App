@@ -233,13 +233,7 @@ export class SocketManager {
         socket.on('hint-command', () => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const hintWords: string = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('chatMessage', {
-                username: '',
-                message: hintWords,
-                time: new Date().toTimeString().split(' ')[0],
-                type: 'system',
-                channel: this.usersRoom.get(socket.id) as string,
-            });
+            this.sio.to(socket.id).emit('hint-command', hintWords );
         });
     }
     exchangeCommandHandler(socket: io.Socket) {

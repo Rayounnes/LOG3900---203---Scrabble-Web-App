@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+
 import 'package:app/main.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
@@ -393,7 +395,7 @@ class _GamePageState extends State<GamePage> {
                     updateRackID(true, opponentTileID),
                   }),
               board.isFilledForEachLetter(board.createOpponentLetters(letters)),
-            });
+      });
 
     getIt<SocketService>().on(
         'draw-letters-rack',
@@ -405,7 +407,6 @@ class _GamePageState extends State<GamePage> {
               })
             });
     getIt<SocketService>().on('verify-place-message', (placedWord) {
-      // getIt<SocketService>()
       if (placedWord["letters"] is String) {
         print("erreur le mot nest paas valide");
         setState(() => setTileOnRack());

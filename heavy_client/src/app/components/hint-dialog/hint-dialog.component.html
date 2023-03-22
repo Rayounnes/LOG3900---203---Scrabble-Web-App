@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v6.1.0-alpha3/css/all.css" integrity="sha384-YzjTmzOqf3d3p4M6aKHRyjeiM2/P7Rf6U5x5U5x6U5z6U5jwGz2IQl1ETyDgcRGn9" crossorigin="anonymous">
+</head>
+<body>
+<body>
+<div class="element-container">
+
+    <a class="element">
+      <button class="element-label"  (click)="onNoClick(items[0])" >Mot 1: {{items[0].value}}</button>Position: {{items[0].line}},{{items[0].column}},<br> Word: {{items[0].value}}, Orientation: {{items[0].orientation}}
+    </a>
+    <a class="element">
+      <button class="element-label"  (click)="onNoClick(items[1])">Mot 2: {{items[1].value}}</button>Position: {{items[1].line}},{{items[1].column}},<br> Word: {{items[1].value}}, Orientation: {{items[1].orientation}}
+    </a>
+    <a class="element">
+      <button class="element-label" (click)="onNoClick(items[2])">Mot 3: {{items[2].value}}</button>Position: {{items[2].line}},{{items[2].column}},<br> Word: {{items[2].value}}, Orientation: {{items[2].orientation}}
+    </a>
+    <a class="element">
+      <button class="element-label"  (click)="onNoClick(items[3])">Mot 4: {{items[3].value}}</button>Position: {{items[3].line}},{{items[3].column}},<br> Word: {{items[3].value}}, Orientation: {{items[3].orientation}}
+    </a>
+    <a class="element">
+      <button class="element-label" (click)="onNoClick(items[4])">Mot 5: {{items[4].value}}</button>Position: {{items[4].line}},{{items[4].column}},<br> Word: {{items[4].value}}, Orientation: {{items[4].orientation}}
+    </a>
+  </div>
+
+  <div class="button-container" mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" > &#10006;</button>
+    <button mat-button  cdkFocusInitial>ok</button>
+  </div>
+</body>

@@ -11,6 +11,9 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
 import { Letter } from '@app/interfaces/letter';
+import { WordArgs } from '@app/interfaces/word-args';
+import {MatDialog} from '@angular/material/dialog';
+import { HintDialogComponent } from '../hint-dialog/hint-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 const THREE_SECONDS = 3000;
@@ -38,6 +41,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     // keyboard: KeyboardManagementService;
     mode: string;
     isClassic: boolean;
+    dialog : MatDialog;
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,9 +49,20 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     private defaultSize: number;
     private maxSizeWord: number;
     private minSizeWord: number;
+    selectedTile: string;
+    selectedTileInitialPosition: { x: any; y: any; };
+    position= {x: 0, y: 0};
+    dragOrType = 'free';
+    typeAccepted = ['free', 'type']
+    firstLetterPos: Vec2;
+    hintWords: WordArgs[] = [];
+
+
+
+
 
     constructor(
-        private gridService: GridService,
+        public gridService: GridService,
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         private route: ActivatedRoute,
@@ -70,15 +85,21 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        if(this.boardClicked){
-            this.buttonPressed = event.key;
-            this.keyboard.importantKey(this.buttonPressed);
-            const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
-            if (this.keyboard.verificationKeyboard(letter)) {
-                console.log(letter)
-                this.keyboard.placerOneLetter(letter);
-                this.chevaletService.removeLetterOnRack(letter);
+        this.buttonPressed = event.key;
+        if(this.buttonPressed==='Enter'){
+            
+
+            if(this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
+                this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+                this.dragOrType = 'free';
             }
+
+        }
+        this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
+        const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
+        if (this.keyboard.verificationKeyboard(letter)) {
+            this.keyboard.placerOneLetter(letter);
+            this.chevaletService.removeLetterOnRack(letter);
         }
         
     }
@@ -90,6 +111,34 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         if (event.target.id === 'canvas') return;
         this.keyboard.removeAllLetters();
     }
+    onTileDragStart(event: any, tile: string) {
+        this.selectedTile = tile;
+        this.selectedTileInitialPosition = { x: event.clientX, y: event.clientY };
+        // event.source._dragRef.disabled = false; // Enable dragging
+      }
+
+      setDragFree(event: string){
+        console.log(event);
+        this.dragOrType = 'free';
+    }
+
+
+    returnRackTile(letter: Letter){
+        this.keyboard.removeLetterOnBoard(letter);
+        if(this.keyboard.letters.length === 0){
+            this.dragOrType = 'free';
+        }
+    }
+
+    receiveDroppedTile(letter: Letter){
+        if (this.keyboard.verifyLetterOnBoard(letter)) {
+            this.keyboard.removeLetterOnBoard(letter);
+          }
+        this.keyboard.addDropLettersArray(letter);
+        this.dragOrType = 'drag';
+    }
+
+    
 
     enlargeSize() {
         if (this.size < this.maxSizeWord) {
@@ -152,6 +201,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
         });
+
     }
     // placeSockets() {
     //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -174,12 +224,47 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.verifyPlaceSocket();
         this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
+            
+            this.socketService.send('hint-command');
+
             this.socketTurn = socketTurn;
+            this.dragOrType = 'free';
         });
         this.socketService.on('end-game', () => {
             this.commandSent = true;
             this.isEndGame = true;
         });
+        this.socketService.on('hint-command', (hints: string) => {
+            if (hints != undefined){
+                this.hintWords = [];
+                this.createWord(hints);
+            }
+            console.log(hints.split("\n"));
+
+        });
+    }
+
+    createWord(hints: string){
+        console.log(hints);
+        let splitedList = hints.split("\n");
+        console.log(splitedList);
+        for(let command of splitedList){
+            if(command === 'Ces seuls placements ont été trouvés:'){
+                continue;
+            }
+            if(command === "Aucun placement n'a été trouvé,Essayez d'échanger vos lettres !"){
+                return;
+            }
+            let splitedCommand = command.split(' ');
+
+            let columnWord = Number(splitedCommand[1].substring(1,splitedCommand[1].length - 1))- 1;
+            let lineWord = splitedCommand[1][0].charCodeAt(0) - 97;
+            let valueWord = splitedCommand[splitedCommand.length - 1];
+            let orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
+            console.log({line:Number(lineWord), column:columnWord, value: valueWord, orientation:orientationWord});
+            console.log
+            this.hintWords.push({line:lineWord, column:Number(columnWord), value: valueWord, orientation:orientationWord} as WordArgs);
+        }
     }
     ngOnInit(): void {
         this.connect();
@@ -217,6 +302,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
 
     buttonPlayPressed() {
+
+        if(this.gridService.board.verifyPlacement(this.keyboard.letters)!== undefined){
+            this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+        }
         this.keyboard.buttonPlayPressed();
         this.chevaletService.makerackTilesIn();
     }
@@ -230,5 +319,29 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.keyboard.letters = [];
         this.gridService.board.wordStarted = false;
         this.chevaletService.makerackTilesIn();
+    }
+
+    openHintDialog(){
+
+    const dialogRef = this.dialog.open(HintDialogComponent, {
+        width: '200px', 
+        data: {hints: this.hintWords}
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if(result){
+            this.placeHintWord(result);
+        }
+        
+      });
+    }
+
+    placeHintWord(result: WordArgs){
+        this.keyboard.word = result;
+        this.keyboard.placeWordHint(result);
+        for(let letter of result.value){
+            this.chevaletService.removeLetterOnRack(letter);
+        }
+        this.buttonPlayPressed();
     }
 }
