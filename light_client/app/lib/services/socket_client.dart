@@ -45,7 +45,6 @@ class SocketService {
 
   void send(String event, [dynamic data]) {
     print("In send socket $event");
-    print(isSocketAlive());
     if (!isSocketAlive()) connect();
     if (data != null) {
       socket.emit(event, data);
@@ -67,6 +66,7 @@ class SocketService {
   }
 
   void on(String event, dynamic Function(dynamic) action) {
+    print("setting on $event");
     socket.on(event, action);
   }
 }

@@ -251,12 +251,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             padding: 16.0,
                             name: "Lancer Partie",
                             route: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return GamePage(joinGameSocket: () {
-                                  getIt<SocketService>().send('join-game');
-                                });
-                              }));
+                              getIt<SocketService>().send('join-game');
                             },
                             isButtonDisabled:
                                 game.humanPlayers != game.joinedPlayers.length,

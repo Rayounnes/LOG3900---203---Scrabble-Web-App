@@ -6,9 +6,6 @@ import 'dart:typed_data';
 import 'package:app/services/socket_client.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app/main.dart';
-
-import '../models/game_player_infos.dart';
-import '../models/player_infos.dart';
 import '../services/api_service.dart';
 
 const DEFAULT_CLOCK = 60;
@@ -43,6 +40,7 @@ class _TimerPageState extends State<TimerPage> {
           _start -= 1;
           if (_start == 0) {
             timer.cancel();
+            print("sending change-user-turn from timer");
             getIt<SocketService>().send('change-user-turn');
           }
         },
@@ -56,24 +54,21 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   void handleSockets() {
+    print("handle sockets information pannel");
     getIt<SocketService>().on('user-turn', (playerTurnId) {
-      print("-------------------------------------------");
-      print("In user-turn pannel");
+      print("-------------------------------------------In user-turn pannel");
       setState(() {
         isPlayersTurn = playerTurnId == getIt<SocketService>().socketId;
       });
       clearInterval();
-      print("Starting timer");
-      //this.clock = this.game.time;
-
+      print("-------------------------------------------Starting timer");
       startTimer();
       getIt<SocketService>().send('send-player-score');
     });
     getIt<SocketService>().on('send-info-to-panel', (infos) async {
       // d'abord get les photos ensuite executer setState
       // ne pas mettre setState a async
-      print("-------------------------------------");
-      print("getting send info to pannel");
+      print("-------------------------------------getting send info to pannel");
       var playersList = List<GamePlayerInfos>.from(infos['players']
           .map((player) => GamePlayerInfos.fromJson(player))
           .toList());
@@ -88,7 +83,7 @@ class _TimerPageState extends State<TimerPage> {
         if (player.isVirtualPlayer) {
           if (icons[player.username] == null) {
             try {
-              await ApiService().getAvatar("Bottt").then((response) {
+              ApiService().getAvatar("Bottt").then((response) {
                 icons[player.username] =
                     MemoryImage(base64Decode(response[0].split(',')[1]));
               }).catchError((error) {
@@ -101,7 +96,7 @@ class _TimerPageState extends State<TimerPage> {
         } else {
           if (icons[player.username] == null) {
             try {
-              await ApiService().getAvatar(player.username).then((response) {
+              ApiService().getAvatar(player.username).then((response) {
                 icons[player.username] =
                     MemoryImage(base64Decode(response[0].split(',')[1]));
               }).catchError((error) {
@@ -114,7 +109,6 @@ class _TimerPageState extends State<TimerPage> {
         }
       }
       setState(() {
-        print("setting players images");
         players = playersList;
       });
     });
@@ -147,8 +141,8 @@ class _TimerPageState extends State<TimerPage> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(Duration(milliseconds: 1), () {});
     handleSockets();
+    _timer = Timer(Duration(milliseconds: 1), () {});
     getIt<SocketService>().send('update-reserve');
     // startTimer();
   }

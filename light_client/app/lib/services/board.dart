@@ -45,7 +45,7 @@ class Board {
 
   isTileFilled(int line, int column) {
     if (line <= 14 && line >= 0 && column <= 14 && column >= 0) {
-      print('line: ${line} + column ${column}');
+      // print('line: ${line} + column ${column}');
       boardMatrix[line][column].isFilled = true;
     }
   }
@@ -62,10 +62,6 @@ class Board {
   }
 
   getIsFilled(int line, int column) {
-    print('line');
-    print(line);
-    print('column');
-    print(column);
     return boardMatrix[line][column].isFilled;
   }
 
@@ -78,8 +74,6 @@ class Board {
   //     return boardMatrix[line - 1][column - 1].color;
   // }
   createOpponentLetters(dynamic lettersReceived) {
-    print("okhizdoaiufhahbfadsksdhfb");
-    print(lettersReceived);
     List<Letter> lettersOpponent = [];
     for (dynamic letter in lettersReceived) {
       lettersOpponent
@@ -102,9 +96,7 @@ class Board {
 
   verifyHorizontal(List<Letter> letters) {
     int firstLetterLine = letters[0].line;
-    print("firstLetterLine ${letters[0].line}");
     for (var letter in letters) {
-      print("letter ${letter.value}");
       if (firstLetterLine != letter.line) {
         return false;
       }
@@ -168,8 +160,6 @@ class Board {
         currentPos++;
       }
     }
-
-    print(createWord(letters, 'h'));
     return createWord(letters, 'h');
   }
 
@@ -187,23 +177,18 @@ class Board {
         return;
       }
       currentPos++;
-      print(getIsFilled(currentPos, startLetter.column));
       while (currentPos < 15 && getIsFilled(currentPos, startLetter.column)) {
         currentPos++;
       }
     }
-
-    print(createWord(letters, 'v'));
     return createWord(letters, 'v');
   }
 
   verifyPlacement(List<Letter> letters) {
     //verifier horizontal
-    int firstLetterColumn = letters[0].column;
+    // int firstLetterColumn = letters[0].column;
     bool horizontal = verifyHorizontal(letters);
     bool vertical = verifyVertical(letters);
-    print("horizontal $horizontal");
-    print("vertical $vertical");
     if (verifyHorizontal(letters)) {
       return verifyStraightHorizontal(letters);
     }

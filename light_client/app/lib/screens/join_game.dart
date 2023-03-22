@@ -33,7 +33,6 @@ class _JoinGamesState extends State<JoinGames> {
 
   @override
   void dispose() {
-    print("dispose called");
     getIt<SocketService>().userSocket.off('update-joinable-matches');
     super.dispose();
   }
@@ -51,12 +50,10 @@ class _JoinGamesState extends State<JoinGames> {
   }
 
   goToWaitingRoom(Game gameToJoin) {
-    print("going to waiting room");
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return WaitingRoom(
         modeName: widget.modeName,
         waitingSocket: () {
-          print("sending socket");
           getIt<SocketService>().send('waiting-room-player', gameToJoin);
         },
       );

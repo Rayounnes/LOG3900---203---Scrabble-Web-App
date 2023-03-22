@@ -206,9 +206,10 @@ class _GamePageState extends State<GamePage> {
   String selectedLetter = '';
   @override
   void initState() {
+    print("-------------------------Initiation game-page-------------------");
     super.initState();
     handleSockets();
-    widget.joinGameSocket();
+    // widget.joinGameSocket();
     getReserveLetter();
     setTileOnRack();
     selectedLetter = '';
@@ -309,10 +310,8 @@ class _GamePageState extends State<GamePage> {
     // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
     lettersofBoard = [];
     if (word != null) {
-      print("sending verify-place-message");
       getIt<SocketService>().send('verify-place-message', word);
     } else {
-      print("mot mal placé");
       setTileOnRack();
     }
   }
@@ -365,12 +364,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void changeTurn() {
-    setState(() {
-      getIt<SocketService>().send('change-user-turn');
-    });
+    print("sending change-turn from game-page");
+    getIt<SocketService>().send('change-user-turn');
   }
 
   void handleSockets() {
+    print("game page handle sockets");
     getIt<SocketService>().on('end-game', (val) => {});
     int index;
     int column;
@@ -407,7 +406,6 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('verify-place-message', (placedWord) {
       // getIt<SocketService>()
       if (placedWord["letters"] is String) {
-        print("erreur le mot nest paas valide");
         setState(() => setTileOnRack());
       } else {
         getIt<SocketService>().send('remove-letters-rack-light-client',
@@ -513,7 +511,6 @@ class _GamePageState extends State<GamePage> {
                 )),
             onDraggableCanceled: (velocity, offset) {
               setState(() {
-                print("draggable canceled");
                 if (isTileLocked[id] != true && isPlayerTurn) {
                   offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                   Offset boardPosition = setTileOnBoard(offset, id);
