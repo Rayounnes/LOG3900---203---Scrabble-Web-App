@@ -44,7 +44,7 @@ class SocketService {
   }
 
   void send(String event, [dynamic data]) {
-    print("In send socket");
+    print("In send socket $event");
     print(isSocketAlive());
     if (!isSocketAlive()) connect();
     if (data != null) {

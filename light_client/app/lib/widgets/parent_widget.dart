@@ -41,7 +41,7 @@ class _ParentWidgetState extends State<ParentWidget> {
   }
 
   Widget chatPopup(BuildContext context) {
-    getIt<SocketService>().send("sendUsername"); 
+    // getIt<SocketService>().send("sendUsername"); 
     return Center(
       child: AnimatedContainer(
         decoration: BoxDecoration(

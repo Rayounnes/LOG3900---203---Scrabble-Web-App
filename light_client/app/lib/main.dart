@@ -37,7 +37,6 @@ class MyApp extends StatelessWidget {
         '/chatScreen': (context) => Channels(),
         '/gameChoicesScreen': (context) => GameModes(),
         '/signScreen': (context) => SignUp(),
-        '/gameScreen': (context) => GamePage(),
       },
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

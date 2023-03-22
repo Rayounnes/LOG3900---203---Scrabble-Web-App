@@ -5,7 +5,6 @@ import 'package:app/constants/server_api.dart';
 import 'package:app/models/login_infos.dart';
 
 class ApiService {
-
   /** ************** user Login methods *******************************/
 
   Future<int> loginUser(LoginInfos user) async {
@@ -40,16 +39,16 @@ class ApiService {
   /** ************** chat channel method *******************************/
   Future<List<dynamic>> getUserChannels(String username) async {
     final response = await http.get(
-      Uri.parse(ApiConstants.baseUrl + '/api/channels/channel/'+username),
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/channel/' + username),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to get user channels');
     }
-}
+  }
 
-Future<List<dynamic>> getAllChannels() async {
+  Future<List<dynamic>> getAllChannels() async {
     final response = await http.get(
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allchannels'),
     );
@@ -58,47 +57,52 @@ Future<List<dynamic>> getAllChannels() async {
     } else {
       throw Exception('Failed to get all channels');
     }
-}
+  }
 
-
-Future<List<dynamic>> getAllUsers() async {
+  Future<List<dynamic>> getAllUsers() async {
     final response = await http.get(
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allusers'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception('Failed to get all channels');
     }
-}
+  }
 
-Future<List<dynamic>> getChannelsOfUsers(String username) async {
+  Future<List<dynamic>> getChannelsOfUsers(String username) async {
     final response = await http.get(
-      Uri.parse(ApiConstants.baseUrl + '/api/channels/usersChannels/'+username),
+      Uri.parse(
+          ApiConstants.baseUrl + '/api/channels/usersChannels/' + username),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception('Failed to get all channels');
     }
-}
+  }
 
-Future<List<dynamic>> getMessagesOfChannel(String channel) async {
+  Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     final response = await http.get(
-      Uri.parse(ApiConstants.baseUrl + '/api/channels/messagesChannels/'+channel),
+      Uri.parse(
+          ApiConstants.baseUrl + '/api/channels/messagesChannels/' + channel),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception('Failed to get all channels');
     }
-}
+  }
 
-
-
-
-
+  /** ************** avatar method *******************************/
+  Future<List<dynamic>> getAvatar(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/icons/getusericon/' + username),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get user icon');
+    }
+  }
 }
