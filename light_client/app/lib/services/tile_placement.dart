@@ -19,12 +19,19 @@ class TilePlacement {
   }
 
   TilePlacement._internal();
+  Offset getTilePosition(Offset position, int tileID) {
+    Offset tilePosition = findTileCenter(position);
+    double dx = findTileInterval(axisX, tilePosition.dx);
+    double dy = findTileInterval(axisY, tilePosition.dy);
+    tilePosition = Offset(dx, dy);
+    return tilePosition;
+  }
 
   Offset setTileOnBoard(Offset position, int tileID) {
     Offset tilePosition = findTileCenter(position);
     double dx = findTileInterval(axisX, tilePosition.dx);
     double dy = findTileInterval(axisY, tilePosition.dy);
-    tilePosition = Offset(dx, dy - 25);
+    tilePosition = Offset(dx, dy);
 
     if (dx == 0 || dy == 0) {
       tilePosition = setTileOnRack(tileID);
@@ -53,5 +60,10 @@ class TilePlacement {
       }
     }
     return res;
+  }
+
+  Offset getOpponentPosition(int line, int column) {
+    return Offset(
+        LEFT_BOARD_POSITION + column * 50, TOP_BOARD_POSITION + line * 50);
   }
 }

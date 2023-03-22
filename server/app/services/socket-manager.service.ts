@@ -37,8 +37,8 @@ export class SocketManager {
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
         // this.roomName = 'room' + this.roomIncrement;
-        
-        this.loginService = new LoginService(this.databaseService,this.channelService);
+
+        this.loginService = new LoginService(this.databaseService, this.channelService);
         this.channelService = new ChannelService(this.databaseService);
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
     }
@@ -80,10 +80,10 @@ export class SocketManager {
             this.gameManager.leaveRoom(socket.id);
             socket.leave(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
-            for (const player of gameCanceled.joinedPlayers){
+            for (const player of gameCanceled.joinedPlayers) {
                 this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
                 await this.leaveChannelWithSocketId(player.socketId, gameCanceled.room);
-            } 
+            }
             for (const observer of gameCanceled.joinedObservers) {
                 this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
                 await this.leaveChannelWithSocketId(observer.socketId, gameCanceled.room);
@@ -283,12 +283,27 @@ export class SocketManager {
         });
         socket.on('draw-letters-rack', () => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
         });
-        socket.on('remove-letters-rack', (letters: Letter[]) => {
+        socket.on('remove-letters-rack', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+
+            // letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
+
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
+        });
+
+        socket.on('remove-letters-rack-light-client', (letters) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            console.log(letters);
+
+            letters = JSON.parse(letters as unknown as string);
+
+            this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
+            // this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
         socket.on('freeze-timer', () => {
             const room = this.usersRoom.get(socket.id) as string;
@@ -302,21 +317,27 @@ export class SocketManager {
         });
 
         socket.on('draw-letters-opponent', (lettersPosition) => {
+            // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
+            const lettersPositionTransformed = Array.isArray(lettersPosition) ? lettersPosition : lettersPosition.letters;
             for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
-                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPosition);
+                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
         });
     }
     placeCommandHandler(socket: io.Socket) {
         socket.on('verify-place-message', (command: WordArgs) => {
             const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
+            console.log(command.line, command.column, command.orientation, command.value);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
+            console.log(lettersPosition);
+
             this.sio.to(socket.id).emit('verify-place-message', {
                 letters: lettersPosition as string | Letter[],
                 command: writtenCommand,
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
+            console.log('lettersPlaced du client: ', lettersPlaced);
             const room = this.usersRoom.get(socket.id) as string;
             // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
@@ -362,6 +383,11 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             if (!scrabbleGame.isEndGame) this.gameManager.changeTurn(room);
+        });
+        socket.on('user-turn', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
         });
     }
     endGameHandler(socket: io.Socket) {
@@ -437,12 +463,11 @@ export class SocketManager {
     async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
         const username = this.usernames.get(socket.id);
         const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
-        if(channel){
-            
+        if (channel) {
             socket.join(channelName);
             this.sio.to(channelName).emit('channel-created', channel);
-        }else{
-            this.sio.to(socket.id).emit("duplicate-name");
+        } else {
+            this.sio.to(socket.id).emit('duplicate-name');
         }
     }
 
@@ -458,7 +483,6 @@ export class SocketManager {
         await this.channelService.leaveChannel(channelName, username as string);
         this.sio.to(socket).emit('leave-channel');
     }
-
 
     async deleteChannel(channelName: string) {
         await this.channelService.deleteChannel(channelName);
@@ -492,14 +516,13 @@ export class SocketManager {
         });
     }
 
-    changeUsername(socket : io.Socket){
-        socket.on('change-username',(newUsername : string)=>{
+    changeUsername(socket: io.Socket) {
+        socket.on('change-username', (newUsername: string) => {
             this.usernames.delete(socket.id);
-            console.log(newUsername)
-            this.usernames.set(socket.id,newUsername);
-            this.sio.emit('change-username', {username :newUsername, id : socket.id});
-
-        })
+            console.log(newUsername);
+            this.usernames.set(socket.id, newUsername);
+            this.sio.emit('change-username', { username: newUsername, id: socket.id });
+        });
     }
 
     handleSockets(): void {
@@ -532,7 +555,7 @@ export class SocketManager {
             this.userLeaveChannel(socket);
             this.userDeleteChannel(socket);
             this.userTyping(socket);
-            this.changeUsername(socket)
+            this.changeUsername(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

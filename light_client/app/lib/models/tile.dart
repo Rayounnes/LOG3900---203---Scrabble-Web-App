@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Tile {
-  int tileID;
+  int? tileID;
   String letter;
+  String? color;
   Offset? position;
   bool? isFilled;
   bool? isStart;
   String? direction;
   Tile(
-      {required this.tileID,
+      {this.tileID,
       required this.letter,
+      this.color,
       this.position,
       this.isFilled,
       this.isStart,
@@ -19,6 +21,7 @@ class Tile {
     return Tile(
       tileID: json['tileID'],
       letter: json['letter'],
+      color: json['color'],
       position: json['position'],
       isFilled: json['isFilled'],
       isStart: json['isStart'],
@@ -29,6 +32,7 @@ class Tile {
   Map toJson() => {
         'tileID': tileID,
         'letter': letter,
+        'color': color,
         'position': position,
         'isFilled': isFilled,
         'isStart': isStart,
