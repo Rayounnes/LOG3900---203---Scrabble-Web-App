@@ -75,6 +75,7 @@ export const DB_COLLECTION_LOG2990 = 'BESTSCORESLOG2990';
 export const DB_COLLECTION_CHANNEL = 'Channels'
 export const DB_COLLECTION_GAME_HISTORY = 'GAMEHISTORY';
 export const DB_COLLECTION_ICONS = 'avatars'
+export const DB_COLLECTION_WORDS = 'WordsOrthography';
 export const TOP_FIVE_SCORES = 5;
 export const DESCENDING_ORDER = -1;
 

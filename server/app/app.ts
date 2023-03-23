@@ -20,6 +20,7 @@ import { loginController } from './controllers/login.controller';
 import * as fileupload from 'express-fileupload';
 import { ChannelController } from './controllers/channels.controller';
 import { iconController } from './controllers/icons.controller';
+import { ModeOrthographyController } from './controllers/mode-orthography.controller';
 
 @Service()
 export class Application {
@@ -36,7 +37,8 @@ export class Application {
         private readonly gameHistoryController: GameHistoryController,
         private readonly loginController : loginController,
         private readonly channelController : ChannelController,
-        private readonly iconController : iconController
+        private readonly iconController : iconController,
+        private readonly modeOrthographyController: ModeOrthographyController,
     ) {
         this.app = express();
 
@@ -68,6 +70,7 @@ export class Application {
         this.app.use('/api/login',this.loginController.router);
         this.app.use('/api/channels',this.channelController.router);
         this.app.use('/api/icons',this.iconController.router);
+        this.app.use('/api/modeOrthography', this.modeOrthographyController.router);
         this.app.use('/', (req, res) => {
             res.redirect('/api/docs');
         });

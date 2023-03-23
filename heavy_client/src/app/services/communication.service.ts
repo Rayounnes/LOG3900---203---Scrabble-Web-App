@@ -174,4 +174,12 @@ export class CommunicationService {
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
     }
+
+     /** ************** word of mode orthography methods *******************************/
+
+    getAllWords() : Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/modeOrthography/allWordsOrthography`)
+        .pipe(catchError(this.handleError<void>('WordsGetError')))
+    }
+
 }

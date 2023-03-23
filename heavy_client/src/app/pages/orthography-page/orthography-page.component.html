@@ -1,0 +1,17 @@
+<div class="homeDiv">
+  <button (click)="startCountdown()" *ngIf="!hideButton">Commencer l'entrainement</button>
+  <div *ngIf="countdown > 0">{{ countdown }}</div>
+  <div *ngIf="countdown === 0">
+    <ng-container *ngFor="let words of this.wordOfTraining">
+      <ng-container *ngFor="let word of words">
+        <button (click)="onClick(word)" class="dataButton">{{word.word}}</button>
+      </ng-container>
+    </ng-container>
+    <p>Chances: <span [textContent]="chances"></span></p>
+  </div>
+  <button (click)="leavePage()">Quitter</button>
+</div>
+
+
+
+
