@@ -209,7 +209,7 @@ class _GamePageState extends State<GamePage> {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
     handleSockets();
-    // widget.joinGameSocket();
+    widget.joinGameSocket();
     getReserveLetter();
     setTileOnRack();
     selectedLetter = '';

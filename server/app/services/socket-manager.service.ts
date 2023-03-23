@@ -64,7 +64,9 @@ export class SocketManager {
             game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
             game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
             this.createGame(game, socket.id);
-            await this.createChannel(socket, game.room, true);
+            // TODO remettre createChannel
+            // await this.createChannel(socket, game.room, true);
+            socket.join(game.room);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
             this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
@@ -188,8 +190,20 @@ export class SocketManager {
             this.sio.to(socket.id).emit('sendUsername', myUsername);
         });
     }
+    startGame(room: string, game: Game) {
+        const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+        const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
+        this.sio.to(room).emit('send-game-timer', game.time);
+        this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
+        this.sio.to(room).emit('send-info-to-panel', data);
+        // Si jamais un des joueur virtuel est le premier joueur a jouer
+        const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
+        if (scrabbleGame.virtualNames.includes(socketTurn)) {
+            this.gameManager.virtualPlayerPlay(game.room);
+        }
+    }
     joinGameHandler(socket: io.Socket) {
-        socket.on('join-game', () => {
+        socket.on('join-game', (isLightClient: boolean) => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             const playerSockets: string[] = [];
@@ -208,15 +222,12 @@ export class SocketManager {
             // for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
             this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
             this.sio.to(room).emit('join-game');
-            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
-            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
-            this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
-            this.sio.to(room).emit('send-info-to-panel', data);
-            // Si jamais un des joueur virtuel est le premier joueur a jouer
-            const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
-            if (virtualPlayers.includes(socketTurn)) {
-                this.gameManager.virtualPlayerPlay(game.room);
-            }
+            if (!isLightClient) this.startGame(room, game);
+        });
+        socket.on('start-game-light-client', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
+            this.startGame(room, game);
         });
     }
     helpCommandHandler(socket: io.Socket) {

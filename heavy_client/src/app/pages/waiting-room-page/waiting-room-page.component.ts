@@ -107,7 +107,8 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
     }
 
     startGame(): void {
-        this.socketService.send('join-game');
+        // false: isLightClient
+        this.socketService.send('join-game', false);
     }
 
     cancelWaiting() {

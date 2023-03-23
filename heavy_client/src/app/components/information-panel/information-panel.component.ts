@@ -49,6 +49,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         tilesLeft: 7,
     } as Player; */
     isPlayersTurn: boolean = false;
+    gameTime: number = DEFAULT_CLOCK;
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
@@ -110,7 +111,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.isPlayersTurn = playerTurnId === this.socketId;
             if (!this.isRefresh) {
                 clearInterval(this.timer);
-                this.clock = this.game.time;
+                this.clock = this.gameTime;
                 this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
                 this.socketService.send('send-player-score');
@@ -159,6 +160,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
+        });
+        this.socketService.on('send-game-timer', (seconds: number) => {
+            this.gameTime = seconds;
         });
         /* this.socketService.on('update-player-score', (updatedGameInfos: PlayerState) => {
             if (updatedGameInfos.playerScored) {

@@ -25,10 +25,9 @@ class _TimerPageState extends State<TimerPage> {
   bool isPlayersTurn = false;
   List<GamePlayerInfos> players = [];
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
-  int clock = DEFAULT_CLOCK;
   int reserveTilesLeft = RESERVE_START_LENGTH;
   int _start = 60;
-  int timerDuration = 60;
+  int timerDuration = DEFAULT_CLOCK;
   late Timer _timer;
 
   void startTimer() {
@@ -50,7 +49,7 @@ class _TimerPageState extends State<TimerPage> {
 
   void clearInterval() {
     _timer.cancel();
-    _start = 60;
+    _start = timerDuration;
   }
 
   void handleSockets() {
@@ -114,6 +113,11 @@ class _TimerPageState extends State<TimerPage> {
     });
     getIt<SocketService>().on('freeze-timer', (_) {
       _timer.cancel();
+    });
+    getIt<SocketService>().on('send-game-timer', (seconds) {
+      setState(() {
+        timerDuration = seconds;
+      });
     });
     getIt<SocketService>().on('update-reserve', (reserveLength) {
       setState(() {
