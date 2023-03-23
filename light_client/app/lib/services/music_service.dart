@@ -26,7 +26,6 @@ class MusicService {
   void playMusic(String musicPath, [bool isBackgroundMusic = true]) async {
     await audioPlayer.setAsset(musicPath);
     await audioPlayer.setVolume(isBackgroundMusic ? 0.7 : 1.0);
-    print("\n $musicPath Bonnn");
     isPlaying = true;
     await audioPlayer.play();
   }

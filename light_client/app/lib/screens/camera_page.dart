@@ -63,8 +63,6 @@ class _CameraPageState extends State<CameraPage> {
       final filePath = '${directory.path}/$fileName.png';
       print(filePath);
       await File(filePath).writeAsBytes(await image.readAsBytes());
-      //await Process.run('adb', ['shell', 'chmod', '644', filePath]);
-      //await Process.run('adb', ['pull', filePath, 'D:/ImageTest Flutter']);
 
       setState(() {
         imagePath = filePath;

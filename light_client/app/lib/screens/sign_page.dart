@@ -54,31 +54,46 @@ class _SignUpState extends State<SignUp> {
     String email = emailController.text;
     File imageFile = File(picturePath);
     List<int> imageBytes = await imageFile.readAsBytes();
-    String imageBase64 = base64Encode(imageBytes);
+    String imageBase64 = BASE64PREFIX+base64Encode(imageBytes);
 
-    int response = await ApiService().createUser(LoginInfos(
-        username: username, password: password,email:email, icon: imageBase64));
-    if (response == HTTP_STATUS_OK) {
-      getIt<UserInfos>().setUser(username);
-      getIt<SocketService>().send("user-connection", <String, String>{
-        "username": username,
-        "socketId": getIt<SocketService>().socketId
-      });
+    bool iconResponse = await ApiService().pushIcon(imageBase64, username);
+    if(iconResponse) {
+      int response = await ApiService().createUser(LoginInfos(
+          username: username,
+          password: password,
+          email: email,
+          icon: imageBase64,
+          socket: getIt<SocketService>().socketId));
+      if (response == HTTP_STATUS_OK) {
+        getIt<UserInfos>().setUser(username);
+        getIt<SocketService>().send("user-connection", <String, String>{
+          "username": username,
+          "socketId": getIt<SocketService>().socketId
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
+              content: Text("Votre compte a été créé avec succés")),
+        );
+
+        Navigator.pushNamed(context, '/gameChoicesScreen');
+      } else if (response == HTTP_STATUS_UNAUTHORIZED) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
+              content: Text(
+                  "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
+        );
+      }
+    }
+    else{
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
-            content: Text("Votre compte a été créé avec succés")),
-      );
-
-      Navigator.pushNamed(context, '/gameChoicesScreen');
-    } else if (response == HTTP_STATUS_UNAUTHORIZED) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-            content: Text(
-                "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
+            content: Text("L'image est trop grande")),
       );
     }
   }
@@ -103,7 +118,7 @@ class _SignUpState extends State<SignUp> {
       ),
       body: Center(
         child: Container(
-          height: 900,
+          height: 1000,
           width: 600,
           decoration: BoxDecoration(
             color: Color.fromRGBO(203, 201, 201, 1),
@@ -118,7 +133,7 @@ class _SignUpState extends State<SignUp> {
             child: Column(
               children: <Widget>[
                 Padding(
-                    padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+                    padding: const EdgeInsets.only(top:8.0),
                     child: SizedBox(
                       width: 400,
                       child: Text('Création de compte',
@@ -210,9 +225,9 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(30.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: picturePath.isEmpty ? null:  () {
                       if (_formKey.currentState!.validate()) {
                         createAccount();
                       }
@@ -234,15 +249,15 @@ class _SignUpState extends State<SignUp> {
     );
     setState(() {
       pictureArea = Padding(
-          padding: const EdgeInsets.only(bottom: 30.0),
+          padding: const EdgeInsets.all(10.0),
           child: Container(
-            width: picturePath.isEmpty ? 250 : 150,
-            height: picturePath.isEmpty ? 250 : 260,
+            width: picturePath.isEmpty ? 200 : 200,
+            height: picturePath.isEmpty ? 200 : 230,
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 253, 253, 253),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Color.fromARGB(255, 0, 0, 0),
+                color:picturePath.isEmpty ?Colors.red : Color.fromARGB(255, 0, 0, 0),
                 width: 2,
               ),
             ),

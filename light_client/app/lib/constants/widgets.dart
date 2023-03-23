@@ -22,3 +22,5 @@ const MUSIC_PATH = [
   'assets/Fumetsu Music.mp3',
   'assets/AOT Music.mp3',
 ];
+
+const BASE64PREFIX = 'data:image/png;base64,';

@@ -36,21 +36,23 @@ class _MusicAppBarState extends State<MusicAppBar> {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(45.0),
-      child: Container(
-        height: TILE_ADJUSTMENT + TILE_SIZE,
-        width: TILE_ADJUSTMENT,
-        color: Color.fromARGB(255, 107, 182, 201),
-        child: Center(
-          child: IconButton(
-            icon: Icon(Icons.audiotrack,
-                size: TILE_SIZE, color: Color.fromARGB(255, 12, 12, 12)),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return musicPopup(context);
-                  });
-            },
+      child: Padding(
+        padding: const EdgeInsets.only(top:8.0,bottom: 5.0,left: 8.0,right: 8.0),
+        child: Container(
+          width: TILE_ADJUSTMENT,
+          color: Color.fromARGB(255, 80, 154, 64),
+          child: Center(
+            child: IconButton(
+              icon: Icon(Icons.audiotrack,
+                  size: 35, color: Color.fromARGB(255, 234, 238, 239)),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return musicPopup(context);
+                    });
+              },
+            ),
           ),
         ),
       ),

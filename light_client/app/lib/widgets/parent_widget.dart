@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 
+import 'music_appBar.dart';
+
 class ParentWidget extends StatefulWidget {
   final Widget child;
   ParentWidget({super.key, required this.child});
@@ -41,7 +43,7 @@ class _ParentWidgetState extends State<ParentWidget> {
   }
 
   Widget chatPopup(BuildContext context) {
-    getIt<SocketService>().send("sendUsername"); 
+    getIt<SocketService>().send("sendUsername");
     return Center(
       child: AnimatedContainer(
         decoration: BoxDecoration(

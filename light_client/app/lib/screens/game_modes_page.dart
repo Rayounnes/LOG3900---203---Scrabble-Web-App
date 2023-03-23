@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:app/constants/widgets.dart';
 import 'package:app/screens/game_mode_choices.dart';
+import 'package:app/screens/user_account_page.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +14,41 @@ import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
 class GameModes extends StatefulWidget {
-  const GameModes({super.key});
+  final String name;
+  const GameModes({super.key, this.name = ''});
 
   @override
   State<GameModes> createState() => _GameModesState();
 }
 
 class _GameModesState extends State<GameModes> {
+  List<dynamic> connexionHistory = [];
+  List<dynamic> iconList = [];
+  Uint8List decodedBytes = Uint8List(1);
+  String userName = "user";
+  int userPoints = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    getUserInfo();
+    print(widget.name + 'AUGHHH');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void getUserInfo() async {
+    if(mounted){
+      userName = widget.name != '' ? widget.name : getIt<UserInfos>().user;
+      connexionHistory = await ApiService().getConnexionHistory(userName);
+      iconList = await ApiService().getUserIcon(userName);
+      decodedBytes = base64Decode(iconList[0].toString().substring(BASE64PREFIX.length));
+    }
+  }
+
   void logoutUser() async {
     String username = getIt<UserInfos>().user;
     await ApiService().logoutUser(username);
@@ -36,7 +69,7 @@ class _GameModesState extends State<GameModes> {
       children: [
         Center(
           child: Container(
-            height: 500,
+            height: 600,
             width: 500,
             decoration: BoxDecoration(
               color: Color.fromRGBO(203, 201, 201, 1),
@@ -77,6 +110,17 @@ class _GameModesState extends State<GameModes> {
                           MaterialPageRoute(builder: (context) {
                         return GameChoices(
                           modeName: GameNames.cooperative,
+                        );
+                      }));
+                    }),
+                GameButton(
+                    padding: 32.0,
+                    name: "Profil",
+                    route: () {
+                      Navigator.push(
+                          context,MaterialPageRoute(builder: (context) {
+                            getUserInfo();
+                        return UserAccountPage(connexionHistory: connexionHistory, userName: userName, userPoints: userPoints, iconList: iconList, decodedBytes: decodedBytes,
                         );
                       }));
                     }),

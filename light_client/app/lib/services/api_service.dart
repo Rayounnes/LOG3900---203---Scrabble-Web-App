@@ -28,7 +28,7 @@ class ApiService {
 
   Future<int> createUser(LoginInfos user) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.baseUrl + '/api/login/userClient'),
+      Uri.parse(ApiConstants.baseUrl + '/api/login/userLightClient'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -97,7 +97,78 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     }
 }
 
+  Future<bool> pushIcon(String icon, String username) async {
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/icons/add'),
+      body: {
+        'image': jsonEncode(icon),
+        'username': jsonEncode(username),
+      },
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to push icon');
 
+    }
+  }
+
+  Future<bool> changeUsername(String newUsername, String oldUsername) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/username'),
+      body: {
+        'newUsername': jsonEncode(newUsername),
+        'oldUsername': jsonEncode(oldUsername),
+      },
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to push icon');
+
+    }
+  }
+
+  Future<bool> changeIcon(String newUsername, String oldUsername, String icon) async {
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/icons/replace'),
+      body: {
+        'newUsername': jsonEncode(newUsername),
+        'oldUsername': jsonEncode(oldUsername),
+        'image': jsonEncode(icon),
+      },
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to push icon');
+
+    }
+  }
+
+  Future<List<dynamic>> getUserIcon(String username) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/icons/getusericon/$username'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération d'image");
+    }
+  }
+
+  Future<List<dynamic>> getConnexionHistory(String username) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/connexionhistory/$username'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération d'image");
+    }
+  }
 
 
 
