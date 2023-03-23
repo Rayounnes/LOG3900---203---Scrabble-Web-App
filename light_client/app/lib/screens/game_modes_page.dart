@@ -43,8 +43,8 @@ class _GameModesState extends State<GameModes> {
   void getUserInfo() async {
     if(mounted){
       userName = widget.name != '' ? widget.name : getIt<UserInfos>().user;
-      connexionHistory = await ApiService().getConnexionHistory(userName);
       iconList = await ApiService().getUserIcon(userName);
+      connexionHistory = await ApiService().getConnexionHistory(userName);
       decodedBytes = base64Decode(iconList[0].toString().substring(BASE64PREFIX.length));
     }
   }
@@ -120,7 +120,7 @@ class _GameModesState extends State<GameModes> {
                       Navigator.push(
                           context,MaterialPageRoute(builder: (context) {
                             getUserInfo();
-                        return UserAccountPage(connexionHistory: connexionHistory, userName: userName, userPoints: userPoints, iconList: iconList, decodedBytes: decodedBytes,
+                        return UserAccountPage(connexionHistory: connexionHistory, userName: userName, userPoints: userPoints, decodedBytes: decodedBytes,
                         );
                       }));
                     }),

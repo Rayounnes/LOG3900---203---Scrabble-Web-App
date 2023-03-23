@@ -1,5 +1,4 @@
 import 'package:app/screens/gallery_page.dart';
-import 'package:app/screens/game_page.dart';
 import 'package:app/screens/camera_page.dart';
 import 'package:app/services/music_service.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +40,6 @@ class MyApp extends StatelessWidget {
         '/chatScreen': (context) => Channels(),
         '/gameChoicesScreen': (context) => GameModes(),
         '/signScreen': (context) => SignUp(),
-        '/gameScreen': (context) => GamePage(),
         '/cameraScreen': (context) => CameraPage(),
         '/galleryScreen': (context) => GalleryPage(),
       },

@@ -5,9 +5,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
-import '../main.dart';
 import '../services/api_service.dart';
-import '../services/socket_client.dart';
 import 'game_modes_page.dart';
 
 class UserAccountEditPage extends StatefulWidget {
@@ -50,8 +48,8 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         File imageFile = File(picturePath);
         List<int> imageBytes = await imageFile.readAsBytes();
         String imageBase64 = BASE64PREFIX + base64Encode(imageBytes);
-        await ApiService().changeIcon(newUsernameController.text,
-            usernameValidationController.text, imageBase64);
+        bool response = await ApiService().pushIcon(imageBase64, newUsernameController.text);
+        if(response) await ApiService().changeIcon(usernameValidationController.text, imageBase64);
       }
       if (newUsernameController.text != '') {
         await ApiService().changeUsername(

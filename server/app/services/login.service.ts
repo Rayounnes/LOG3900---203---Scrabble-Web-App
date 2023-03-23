@@ -69,47 +69,6 @@ export class LoginService {
         await this.userCollection.updateOne({ username: username },{ $push: {connexions : [new Date().toLocaleString(),state ]}});
     }
 
-    async changeUsername(oldUsername : string, newUsername : string) : Promise<boolean>{
-        let usernameExists = await this.userCollection.findOne({ username: newUsername });
-        if(usernameExists){
-            console.log("fauxxxx")
-            return false;
-        }else{
-            //Update le nom du username dans la collection Users
-            await this.userCollection.updateOne({username: oldUsername},{$set : {username : newUsername}})
-
-            //On modifie le field "creator" de tout les icons que ce user a créé
-            let avatars = await this.iconsCollection.find({creator : oldUsername}).toArray();
-            if(avatars.length > 0){
-                for(let avatar of avatars){
-                    this.iconsCollection.updateOne({_id : avatar["_id"]},{$set : {creator : newUsername}});
-                }
-            }
-
-            //On enleve l'ancien username du array 'active' de l'icon du username, et on push le nouveau username dans l'array
-            let currentIcon = await this.iconsCollection.findOne({active : oldUsername});
-            if(currentIcon){
-                let usersWithIcon = currentIcon['active'] as string[];
-                usersWithIcon = usersWithIcon.filter(username => username != oldUsername);
-                usersWithIcon.push(newUsername);
-                this.iconsCollection.updateOne({_id : currentIcon["_id"]},{$set : {active : usersWithIcon}})
-            }
-
-            //On modifie tout les messages qui ont été envoyés par ce user dans tout ses channels, afin de mettre le nouveau nom.
-            //Si on ne fait pas ca, le user verra les anciens messages qu'il a emmener dans un channel avec son ancien username comme si ce sont des messages de quelqu'un d'autre
-            let userChannels = await this.channelService.getUserChannels(newUsername);
-            for(let channel of userChannels){
-                for(let message of channel['messages']){
-                    if(typeof(message) == "object" && message['username'] == oldUsername){
-                        message['username'] = newUsername
-                    }
-                }
-                await this.channelService.channelCollection.updateOne({_id : channel["_id"]},{$set : {messages : channel['messages']}})
-            }
-            return true
-        }
-    }
-
     async getConnexionHistory(username : string){
         let history = await this.userCollection.findOne({username : username});
         if(history){

@@ -35,14 +35,6 @@ export class loginController {
             });
         });
 
-        this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {
-            const oldUsername: string = req.body.old;
-            const newUsername = req.body.newU;
-            this.loginService.changeUsername(oldUsername,newUsername).then((isValid) =>{
-                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
-            })
-        });
-
         this.router.put('/userLightClient', async (req: Request, res: Response, next): Promise<void> => {
             const infos = req.body;
             let newAccountInfos = { username : infos.username,

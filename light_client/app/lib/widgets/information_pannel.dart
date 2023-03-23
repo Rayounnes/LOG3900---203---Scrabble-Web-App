@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:app/models/game_player_infos.dart';
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 import 'package:app/services/socket_client.dart';
-import 'package:get_it/get_it.dart';
 import 'package:app/main.dart';
 import '../services/api_service.dart';
 
@@ -83,7 +81,7 @@ class _TimerPageState extends State<TimerPage> {
         if (player.isVirtualPlayer) {
           if (icons[player.username] == null) {
             try {
-              ApiService().getAvatar("Bottt").then((response) {
+              ApiService().getUserIcon("Bottt").then((response) {
                 icons[player.username] =
                     MemoryImage(base64Decode(response[0].split(',')[1]));
               }).catchError((error) {
@@ -96,7 +94,7 @@ class _TimerPageState extends State<TimerPage> {
         } else {
           if (icons[player.username] == null) {
             try {
-              ApiService().getAvatar(player.username).then((response) {
+              ApiService().getUserIcon(player.username).then((response) {
                 icons[player.username] =
                     MemoryImage(base64Decode(response[0].split(',')[1]));
               }).catchError((error) {

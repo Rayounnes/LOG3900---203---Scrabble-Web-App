@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/constants/server_api.dart';
@@ -114,11 +113,11 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
   }
 
   Future<bool> changeUsername(String newUsername, String oldUsername) async {
-    final response = await http.put(
-      Uri.parse('${ApiConstants.baseUrl}/api/login/username'),
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/user/changeusername'),
       body: {
-        'newUsername': jsonEncode(newUsername),
-        'oldUsername': jsonEncode(oldUsername),
+        'newU': jsonEncode(newUsername),
+        'old': jsonEncode(oldUsername),
       },
     );
     if (response.statusCode == 200) {
@@ -129,12 +128,11 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     }
   }
 
-  Future<bool> changeIcon(String newUsername, String oldUsername, String icon) async {
+  Future<bool> changeIcon(String oldUsername, String icon) async {
     final response = await http.post(
-      Uri.parse('${ApiConstants.baseUrl}/api/icons/replace'),
+      Uri.parse('${ApiConstants.baseUrl}/api/icons/change'),
       body: {
-        'newUsername': jsonEncode(newUsername),
-        'oldUsername': jsonEncode(oldUsername),
+        'username': jsonEncode(oldUsername),
         'image': jsonEncode(icon),
       },
     );

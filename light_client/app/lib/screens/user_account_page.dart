@@ -11,9 +11,8 @@ class UserAccountPage extends StatefulWidget {
   final int userPoints ;
   final Uint8List decodedBytes;
   final List<dynamic> connexionHistory;
-  final List<dynamic> iconList;
 
-  const UserAccountPage({super.key, required this.userName,required this.userPoints, required this.connexionHistory, required this.iconList, required this.decodedBytes});
+  const UserAccountPage({super.key, required this.userName,required this.userPoints, required this.connexionHistory, required this.decodedBytes});
 
   @override
   _UserAccountPageState createState() => _UserAccountPageState();
@@ -22,6 +21,7 @@ class UserAccountPage extends StatefulWidget {
 class _UserAccountPageState extends State<UserAccountPage> {
   List<String> newList = [];
   bool isShow = false;
+  bool isEmpty = true;
 
   @override
   void initState() {
@@ -35,9 +35,9 @@ class _UserAccountPageState extends State<UserAccountPage> {
   }
 
   void fillHistoryLit(){
-    print(widget.connexionHistory);
     for(var element in widget.connexionHistory){
       newList.add(element[0]);
+      isEmpty = false;
     }
   }
 
@@ -57,8 +57,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
               children: [
                 Container(
                   padding: EdgeInsets.all(12),
-                  child: Text(widget.connexionHistory != []?
-                      "Dernière connexion : ${widget.connexionHistory[widget.connexionHistory.length-1][0]}": '',
+                  child: Text(isEmpty? '':
+                      "Dernière connexion : ${widget.connexionHistory[widget.connexionHistory.length-1][0]}",
                     style: TextStyle(fontSize: 16),),
 
                 ),
@@ -79,7 +79,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                 ),
                 Container(
                   padding: EdgeInsets.all(20),
-                  child: Image.memory(widget.decodedBytes),
+                  child: Image.memory(widget.decodedBytes, height:180 ,width: 180),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
