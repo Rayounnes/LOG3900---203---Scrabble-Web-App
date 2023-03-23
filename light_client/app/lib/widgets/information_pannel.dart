@@ -126,18 +126,22 @@ class _TimerPageState extends State<TimerPage> {
     });
     getIt<SocketService>().on('abandon-game', (abandonMessage) {
       isAbandon = true;
-      // this.snackBar.open(abandonMessage, 'Fermer', {
-      //     duration: 1000,
-      //     panelClass: ['snackbar'],
-      // });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 1),
+            content: Text(abandonMessage)),
+      );
     });
     getIt<SocketService>().on('end-game', (_) {
       // if (isAbandoned) isAbandon = true;
       isGameFinished = true;
-      // this.snackBar.open('La partie est terminée', 'Fermer', {
-      //     duration: 1000,
-      //     panelClass: ['snackbar'],
-      // });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+            content: Text('La partie est terminée')),
+      );
       clearInterval();
     });
   }

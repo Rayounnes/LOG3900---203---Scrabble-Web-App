@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
 
+import '../constants/letters_points.dart';
 import '../services/socket_client.dart';
+import '../widgets/tile.dart';
 
 class TileExchangeMenu extends StatefulWidget {
   final List<String> tileLetters;
@@ -56,8 +58,8 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
     return Center(
       child: Dialog(
         child: Container(
-          height: 1000,
-          width: 600,
+          height: 700,
+          width: 400,
           color: Color.fromARGB(255, 187, 225, 243),
           child: Center(
             child: Column(
@@ -69,21 +71,31 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                 ),
                 SizedBox(height: 50.0),
                 for (int i = 0; i < RACK_SIZE; i++)
-                  CheckboxListTile(
-                    checkColor: Color.fromARGB(255, 61, 59, 58),
-                    activeColor: Color.fromARGB(255, 255, 238, 84),
-                    title: Text(
-                      'Option $i : ${widget.tileLetters[i]}',
-                      style: TextStyle(fontSize: 24),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TileWidget(
+                            letter: widget.tileLetters[i],
+                            points: widget.tileLetters[i].toUpperCase() ==
+                                    widget.tileLetters[i]
+                                ? "0"
+                                : LETTERS_POINTS[widget.tileLetters[i]]
+                                    .toString()),
+                        Checkbox(
+                          checkColor: Color.fromARGB(255, 61, 59, 58),
+                          activeColor: Color.fromARGB(255, 255, 238, 84),
+                          value: isCheckedList[i],
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isCheckedList[i] = value!;
+                              sendLetterToExchange(i);
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                    value: isCheckedList[i],
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isCheckedList[i] = value!;
-                        sendLetterToExchange(i);
-                      });
-                    },
-                    contentPadding: EdgeInsets.all(20),
                   ),
                 SizedBox(height: 50.0),
                 Padding(
@@ -106,6 +118,8 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                                     lettersToExchange +=
                                         widget.tileLetters[index];
                                   }
+                                  print(
+                                      "letters to exchange: $lettersToExchange");
                                   getIt<SocketService>().send(
                                       'exchange-command', lettersToExchange);
                                   Navigator.of(context).pop(widget.tileLetters);

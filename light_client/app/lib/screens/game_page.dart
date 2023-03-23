@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:app/main.dart';
+import 'package:app/models/tile.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
+import 'package:app/widgets/tile.dart';
 import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
@@ -210,7 +212,7 @@ class _GamePageState extends State<GamePage> {
     super.initState();
     handleSockets();
     widget.joinGameSocket();
-    getReserveLetter();
+    getRack();
     setTileOnRack();
     selectedLetter = '';
   }
@@ -239,18 +241,7 @@ class _GamePageState extends State<GamePage> {
                       Navigator.pop(context);
                     });
                   },
-                  child: Container(
-                    color: Colors.blueGrey,
-                    alignment: Alignment.center,
-                    child: Text(
-                      letters[index],
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  child: TileWidget(letter: letters[index], points: "0"),
                 );
               },
             ),
@@ -274,6 +265,10 @@ class _GamePageState extends State<GamePage> {
       if (letter.tileID == tileID) {
         lettersofBoard
             .removeWhere((element) => element.tileID == letter.tileID);
+        String? letterValue = tileLetter[tileID];
+        // on remet la tuile a * lorsqu on remet la tuile * dans le chevalet
+        tileLetter[tileID] =
+            letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
         return;
       }
     }
@@ -328,17 +323,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void lockTileOnBoard(bool isForExchange) {
-    var lettersToExchange = '';
     for (var index in rackIDList) {
-      if (tilePosition[index]?.dy != RACK_START_AXISY && !isForExchange) {
-        lettersToExchange += "${tileLetter[index]}";
+      if (tilePosition[index]?.dy != RACK_START_AXISY) {
         isTileLocked[index] = true;
       } else {
         removeTileOnRack(index);
       }
-    }
-    if (lettersToExchange != '') {
-      getIt<SocketService>().send('exchange-command', lettersToExchange);
     }
   }
 
@@ -357,10 +347,8 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  void getReserveLetter() {
-    setState(() {
-      getIt<SocketService>().send('draw-letters-rack');
-    });
+  void getRack() {
+    getIt<SocketService>().send('draw-letters-rack');
   }
 
   void changeTurn() {
@@ -404,8 +392,13 @@ class _GamePageState extends State<GamePage> {
               })
             });
     getIt<SocketService>().on('verify-place-message', (placedWord) {
-      // getIt<SocketService>()
       if (placedWord["letters"] is String) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+              content: Text(placedWord["letters"])),
+        );
         setState(() => setTileOnRack());
       } else {
         getIt<SocketService>().send('remove-letters-rack-light-client',
@@ -414,7 +407,8 @@ class _GamePageState extends State<GamePage> {
       }
     });
 
-    getIt<SocketService>().on('validate-created-words', (placedWord) {
+    getIt<SocketService>().on('validate-created-words', (placedWord) async {
+      getIt<SocketService>().send('freeze-timer');
       if (placedWord["points"] != 0) {
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
@@ -423,16 +417,32 @@ class _GamePageState extends State<GamePage> {
         switchRack(false);
         board.isFilledForEachLetter(lettersofBoard);
       } else {
+        await Future.delayed(Duration(seconds: 3));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+              content: Text('Erreur : les mots crées sont invalides')),
+        );
         setTileOnRack();
         changeTurn();
       }
       lettersofBoard = [];
     });
-
+    getIt<SocketService>().on('exchange-command', (command) {
+      if (command["type"] == 'system') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
+              content: Text(command["name"])),
+        );
+      } else {
+        switchRack(true);
+      }
+    });
     getIt<SocketService>().on('user-turn', (playerTurnId) {
       setState(() {
-        print("---------------------------------------------------");
-        print("setting is player turn in game page");
         isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
       });
     });
@@ -441,7 +451,7 @@ class _GamePageState extends State<GamePage> {
   void switchRack(bool isForExchange) {
     lockTileOnBoard(isForExchange);
     updateRackID(isForExchange, rackIDList);
-    getReserveLetter();
+    getRack();
     setTileOnRack();
     fillRack();
     changeTurn();
@@ -452,76 +462,37 @@ class _GamePageState extends State<GamePage> {
     List<Widget> rackTiles = [];
     setState(() {
       for (var id in tilePosition.keys) {
-        rackTiles.add(Positioned(
-          left: tilePosition[id]?.dx,
-          top: tilePosition[id]?.dy,
-          child: Draggable(
-            feedback: Container(
-              width: TILE_SIZE,
-              height: TILE_SIZE,
-              color: isTileLocked[id] == true
-                  ? Color.fromARGB(255, 249, 224, 118)
-                  : Color.fromARGB(255, 26, 219, 100).withOpacity(0.6),
-            ),
-            child: AnimatedContainer(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 249, 224, 118),
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 0.5,
-                  ),
-                ),
-                duration: Duration(seconds: 1),
-                height: TILE_SIZE,
-                width: TILE_SIZE,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Text(
-                          "${tileLetter[id]?.toUpperCase()}",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Text(
-                          tileLetter[id]?.toUpperCase() == tileLetter[id]
-                              ? "0"
-                              : LETTERS_POINTS[tileLetter[id]].toString(),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-            onDraggableCanceled: (velocity, offset) {
-              setState(() {
-                if (isTileLocked[id] != true && isPlayerTurn) {
-                  offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
-                  Offset boardPosition = setTileOnBoard(offset, id);
-                  if (!tilePosition.containsValue(boardPosition)) {
-                    tilePosition[id] = boardPosition;
+        if (tileLetter[id] != '') {
+          rackTiles.add(Positioned(
+            left: tilePosition[id]?.dx,
+            top: tilePosition[id]?.dy,
+            child: Draggable(
+              feedback: isTileLocked[id] == true
+                  ? Container()
+                  : TileWidget(
+                      letter: tileLetter[id]!,
+                      points: tileLetter[id]?.toUpperCase() == tileLetter[id]
+                          ? "0"
+                          : LETTERS_POINTS[tileLetter[id]].toString()),
+              child: TileWidget(
+                  letter: tileLetter[id]!,
+                  points: tileLetter[id]?.toUpperCase() == tileLetter[id]
+                      ? "0"
+                      : LETTERS_POINTS[tileLetter[id]].toString()),
+              onDraggableCanceled: (velocity, offset) {
+                setState(() {
+                  if (isTileLocked[id] != true && isPlayerTurn) {
+                    offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
+                    Offset boardPosition = setTileOnBoard(offset, id);
+                    if (!tilePosition.containsValue(boardPosition)) {
+                      tilePosition[id] = boardPosition;
+                    }
                   }
-                }
-              });
-            },
-          ),
-        ));
+                });
+              },
+            ),
+          ));
+        }
       }
     });
     return rackTiles;
@@ -644,7 +615,7 @@ class _GamePageState extends State<GamePage> {
                               );
                             }).then((List<String>? result) {
                           if (result != null) {
-                            switchRack(true);
+                            // switchRack(true);
                           }
                         });
                       },
