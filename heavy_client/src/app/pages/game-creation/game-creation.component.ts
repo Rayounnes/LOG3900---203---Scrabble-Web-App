@@ -21,6 +21,7 @@ export class GameCreationComponent implements OnInit {
         hasStarted: false,
         isPrivate: false,
         isFullPlayers: false,
+        isFinished: false,
         password: '',
         humanPlayers: 2,
         observers: 0,

@@ -28,6 +28,7 @@ class _GameChoicesState extends State<GameChoices> {
       hasStarted: false,
       isPrivate: false,
       isFullPlayers: false,
+      isFinished: false,
       password: '',
       humanPlayers: 2,
       observers: 0,

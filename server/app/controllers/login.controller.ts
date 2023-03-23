@@ -61,5 +61,13 @@ export class loginController {
                 res.status(history.length > 0 ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(history);
             });
         });
+
+        this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {
+            const oldUsername: string = req.body.old;
+            const newUsername = req.body.newU;
+            this.loginService.changeUsername(oldUsername,newUsername).then((isValid) =>{
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            })
+        });
     }
 }

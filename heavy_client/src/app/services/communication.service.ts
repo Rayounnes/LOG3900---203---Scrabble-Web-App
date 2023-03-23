@@ -135,6 +135,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<any[]>('connexionHistoryError')))
     }
 
+    changeUsername(old : string, newU : string) : Observable<boolean>{
+        return this.http.post<boolean>(`${this.baseUrl}/api/login/user/changeusername`, {old : old, newU : newU})
+        .pipe(catchError(this.handleError<boolean>('logoutError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 

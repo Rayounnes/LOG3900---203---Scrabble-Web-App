@@ -47,6 +47,7 @@ export class KeyboardManagementService {
         let positionStart = this.gridService.board.getStartTile() as Vec2;
         this.initializeWordArg(positionStart);
         if (positionStart !== undefined) {
+            console.log("rnetrejrijeirhh")
             while (this.conditionsDirections(positionStart)) {
                 positionStart = this.incrementePosition(positionStart);
             }
@@ -303,7 +304,7 @@ export class KeyboardManagementService {
         this.letterRemoved(letterToRemove);
         this.manageArrow(letterToRemove.column, letterToRemove.line);
         this.updateWord();
-        this.gridService.drawGrid();
+        //this.gridService.drawGrid();
         this.setWordStartedFalse(letterToRemove, positionStart);
         this.chevaletService.putBackLetter(letterToRemove.value);
     }

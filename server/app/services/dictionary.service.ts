@@ -20,7 +20,6 @@ export class DictionaryManager {
     getAllDictionaries() {
         this.dictionaries = [];
         const files = this.getListOfFiles;
-        console.log(files);
         for (let i = 0; i < files.length; i++) {
             this.dictionaries.push(JSON.parse(fs.readFileSync('../server/assets/' + files[i], { encoding: 'utf8', flag: 'r' })));
             this.dictionaries[i].words = [];
@@ -62,7 +61,6 @@ export class DictionaryManager {
     }
     resetDictionaries(): void {
         const filesNamesList = this.getListOfFiles;
-        console.log(filesNamesList);
         const assetsPath = '../server/assets/';
         for (const fileName of filesNamesList) {
             if (fileName !== 'dictionnary.json') {
@@ -96,7 +94,6 @@ export class DictionaryManager {
 
     isFileNameUnique(fileName: string) {
         const files = this.getListOfFiles;
-        console.log(files);
         for (const file of files) {
             if (fileName === file) return false;
         }

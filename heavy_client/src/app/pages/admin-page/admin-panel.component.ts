@@ -176,7 +176,6 @@ export class AdminPanelComponent implements OnInit {
 
         this.communicationService.postFile(file).subscribe((res: number) => {
             this.status = res;
-            console.log(res);
         });
 
         setTimeout(() => {

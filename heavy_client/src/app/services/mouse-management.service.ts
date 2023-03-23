@@ -26,12 +26,13 @@ export class MouseManagementService {
         }
 
         if (!this.letterOnGrid(this.findTileWithMouse(this.mousePosition))) {
+            console.log("KSIJHIDFHI")
             this.disablePreviousStart();
             this.gridService.board.resetStartTile();
             this.gridService.board.setStartTile(this.findTileWithMouse(this.mousePosition).y, this.findTileWithMouse(this.mousePosition).x);
             this.fillTheTile(this.findTileWithMouse(this.mousePosition), this.grid.beige);
             this.drawArrow(this.findTileWithMouse(this.mousePosition));
-            this.gridService.drawGrid();
+            //this.gridService.drawGrid();
         }
     }
 
@@ -41,12 +42,14 @@ export class MouseManagementService {
     disablePreviousStart() {
         const position = this.gridService.board.getStartTile();
         if (position !== undefined) {
+            console.log("HSHSHSHSHH")
             this.gridService.fillColor(position.x + 1, position.y + 1, this.gridService.board.getColor(position.y + 1, position.x + 1));
             this.gridService.drawDependColor(position.x + 1, position.y + 1, this.gridService.board.getColor(position.y + 1, position.x + 1));
         }
     }
 
     findPosition(position: number) {
+        console.log(Math.trunc((this.grid.numberOfTiles / this.grid.defaultHeight) * position))
         return Math.trunc((this.grid.numberOfTiles / this.grid.defaultHeight) * position);
     }
 

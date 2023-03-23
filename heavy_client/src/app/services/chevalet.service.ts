@@ -49,20 +49,41 @@ export class ChevaletService {
                 (this.height * this.chevalet.squareNumber) / this.chevalet.squareNumber,
             );
         }
-        this.chevaletContext.stroke();
+        //this.chevaletContext.stroke();
     }
     fillChevalet() {
         this.chevaletContext.fillStyle = this.chevalet.colorRack;
         for (let i = this.chevalet.startLine; i < this.chevalet.squareNumber; i++) {
-            this.chevaletContext.fillRect((i * this.width) / this.chevalet.squareNumber, 0, this.width / this.chevalet.squareNumber, this.height);
+            /* this.chevaletContext.fillRect(((i * this.width) / this.chevalet.squareNumber)+(1.5*i), 0, this.width / this.chevalet.squareNumber, this.height) */;
+            const cornerRadius = 0; // Adjust this value to change the corner radius
+            this.drawRoundedRect(((i * this.width) / this.chevalet.squareNumber)+(1.5*i), 0, this.width / this.chevalet.squareNumber, this.height, cornerRadius);
         }
     }
+
+
+    private drawRoundedRect(x: number, y: number, width: number, height: number, radius: number): void {
+        console.log(x)
+        console.log(y)
+        this.chevaletContext.beginPath();
+        this.chevaletContext.moveTo(x + radius, y);
+        this.chevaletContext.lineTo(x + width - radius, y);
+        this.chevaletContext.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.chevaletContext.lineTo(x + width, y + height - radius);
+        this.chevaletContext.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.chevaletContext.lineTo(x + radius, y + height);
+        this.chevaletContext.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.chevaletContext.lineTo(x, y + radius);
+        this.chevaletContext.quadraticCurveTo(x, y, x + radius, y);
+        this.chevaletContext.closePath();
+        this.chevaletContext.fill();
+      }
+
     writeOneLetterOnRack(letter: string, posx: number) {
         this.chevaletContext.fillStyle = this.grid.black;
         this.chevaletContext.font = this.chevalet.rackFont;
         this.chevaletContext.fillText(
             letter.toUpperCase(),
-            ((posx + this.chevalet.shiftPosX) * this.width) / this.chevalet.squareNumber,
+            (((posx + this.chevalet.shiftPosX) * this.width) / this.chevalet.squareNumber)+(1.5*posx),
             this.height / this.chevalet.factorPosY,
         );
     }
@@ -153,7 +174,9 @@ export class ChevaletService {
 
     fillTheTile(position: number, color: string) {
         this.chevaletContext.fillStyle = color;
-        this.chevaletContext.fillRect((position * this.width) / this.chevalet.squareNumber, 0, this.width / this.chevalet.squareNumber, this.height);
+        const cornerRadius = 14; // Adjust this value to change the corner radius
+        this.drawRoundedRect((position * this.width) / this.chevalet.squareNumber, 0, this.width / this.chevalet.squareNumber, this.height, cornerRadius);
+        //this.chevaletContext.fillRect((position * this.width) / this.chevalet.squareNumber, 0, this.width / this.chevalet.squareNumber, this.height);
     }
 
     deselectAllLetters() {
@@ -219,8 +242,10 @@ export class ChevaletService {
         return false;
     }
     lettersToExchange() {
+        console.log(this.rackArray)
         let lettersToExchange = '';
         for (const tile of this.rackArray) {
+            console.log(tile)
             if (tile.selection === 'echanger') {
                 lettersToExchange += tile.letter;
             }

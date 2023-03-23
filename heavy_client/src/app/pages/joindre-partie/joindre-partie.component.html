@@ -2,7 +2,7 @@
     <div class="modesContainer">
         <h1 class="title">Liste des parties joignables mode "{{ mode }}"</h1>
         <div class="gameContainer" *ngFor="let game of gameList; let i = index">
-            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : true" class="example-card">
+            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : !game.isFinished" class="example-card">
                 <mat-card-header>
                     <mat-card-title>Partie de {{ game.hostUsername }}</mat-card-title>
                     <mat-card-subtitle *ngIf="!game.isPrivate && game.password">Publique (protégé par mot de passe)</mat-card-subtitle>
@@ -18,8 +18,8 @@
                         <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
                     </div>
                     <div>
-                        <h3>*ngIf="!game.hasStarted" Salle d'attente:</h3>
-                        <h3>*ngIf="game.hasStarted" Partie en cours:</h3>
+                        <h3 *ngIf="!game.hasStarted"> Salle d'attente:</h3>
+                        <h3 *ngIf="game.hasStarted"> Partie en cours:</h3>
                         <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
                         <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
                     </div>

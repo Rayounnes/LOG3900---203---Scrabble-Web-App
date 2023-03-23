@@ -17,7 +17,6 @@ export class ClassiquePageComponent implements OnInit {
     ngOnInit(): void {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
-            console.log(this.paramsObject);
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.mode = this.isClassic ? 'Classique' : 'Coopératif';

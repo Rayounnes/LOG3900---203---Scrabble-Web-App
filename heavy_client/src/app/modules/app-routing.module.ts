@@ -17,7 +17,7 @@ const routes: Routes = [
     { path : 'chatproto', component : ChatPrototypeComponent},
     { path :'connexion', component : ConnexionPageComponent},
     { path: 'home', component: MainPageComponent },
-    { path: 'game/', component: GamePageComponent },
+    { path: 'game', component: GamePageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'mode', component: ClassiquePageComponent },
     { path: 'joindre-partie', component: JoindrePartieComponent },

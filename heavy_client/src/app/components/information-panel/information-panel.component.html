@@ -1,4 +1,42 @@
-<section class="container">
+
+<div class="panel">
+    <div class="gameinfos">
+        <div class="tiles-perso">
+            <div class="number-perso">
+                {{reserveTilesLeft}}
+            </div>
+            <span>Tuiles dans la réserve</span>
+        </div>
+        <div class="timer-container">
+            <svg viewBox="0 0 100 100" width="60" height="60">
+                <circle class="circle circle__background" cx="50" cy="50" r="45"></circle>
+                <circle #circleProgress [attr.class]="'circle ' + getCircleClass()" cx="50" cy="50" r="45"></circle>
+                <text class="timer-text" [attr.fill]="getTextColor()" x="50" y="55">{{ clock }}</text>
+            </svg>
+        </div>
+    </div>
+    <div class="players">
+        <div *ngFor="let player of players" [ngClass]="player['isTurn'] ? 'player-active' : 'player'">
+            <img  [src]="player['icon']" width="80px" height="80px"/>
+            <div class="infos">
+                <span>{{player['username']}}</span>
+                <div class="tiles">
+                    <div class="number">
+                        {{player['tiles']}}
+                    </div>
+                    <span>Tuiles restantes</span>
+                </div>
+            </div>
+            <div class="score">
+                {{player['points']}}
+            </div>
+        </div>
+    </div>
+    
+    <app-surrender-game></app-surrender-game>
+</div>
+
+<!-- <section class="container">
     <div class="topper">
         <h1 id="title-pannel">PANNEAU INFORMATIF</h1>
         <p> Tuiles restantes : {{ this.reserveTilesLeft }}</p>
@@ -47,4 +85,4 @@
         <p *ngIf="!isPlayersTurn && !isGameFinished" id="time">{{ clock }}</p>
         <h3 *ngIf="opponent.tilesLeft < 7" id="tile2">Tuiles restantes: {{ opponent.tilesLeft }}</h3>
     </div>
-</section>
+</section> -->

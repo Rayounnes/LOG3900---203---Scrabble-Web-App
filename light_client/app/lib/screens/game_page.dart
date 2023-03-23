@@ -1,22 +1,24 @@
 import 'dart:convert';
-
 import 'package:app/main.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
-
+import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
-
 import '../models/letter.dart';
-import '../widgets/music_appbar.dart';
 
+// Copyright 2019 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 class GamePage extends StatefulWidget {
-  const GamePage({super.key});
+  final Function joinGameSocket;
+  const GamePage({super.key, required this.joinGameSocket});
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -27,6 +29,9 @@ class BoardPaint extends CustomPainter {
   Size rectSize = Size(50, 50);
   @override
   void paint(Canvas canvas, Size size) {
+    final vLines = (size.width ~/ TILE_SIZE) + 1;
+    final hLines = (size.height ~/ TILE_SIZE) + 1;
+
     final paintRack = Paint()
       ..strokeWidth = 1
       ..color = Color.fromARGB(255, 239, 181, 64)
@@ -191,17 +196,68 @@ class _GamePageState extends State<GamePage> {
   final Map<int, String> tileLetter = {};
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
-
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
-
+  List<Letter> lettersOpponent = [];
+  bool isPlayerTurn = false;
+  final List<String> letters =
+      List.generate(26, (index) => String.fromCharCode(index + 65));
+  String selectedLetter = '';
   @override
   void initState() {
+    print("-------------------------Initiation game-page-------------------");
     super.initState();
     handleSockets();
+    // widget.joinGameSocket();
     getReserveLetter();
     setTileOnRack();
+    selectedLetter = '';
+  }
+
+  void _showLetterPicker(int line, int column, int tileId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            height: 400.0,
+            child: GridView.builder(
+              itemCount: letters.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+              ),
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedLetter = letters[index];
+                      lettersofBoard
+                          .add(Letter(line, column, selectedLetter, tileId));
+
+                      tileLetter[tileId] = selectedLetter;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    color: Colors.blueGrey,
+                    alignment: Alignment.center,
+                    child: Text(
+                      letters[index],
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   verifyLetterOnBoard(int tileID) {
@@ -226,29 +282,37 @@ class _GamePageState extends State<GamePage> {
   Offset setTileOnBoard(Offset offset, int tileID) {
     Offset positionOnBoard =
         getIt<TilePlacement>().getTilePosition(offset, tileID);
-    int line = ((positionOnBoard.dy - 150) ~/ 50);
-    int column = positionOnBoard.dx ~/ 50;
+    int line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
+    int column = positionOnBoard.dx ~/ TILE_SIZE;
+
     String? letterValue = tileLetter[tileID];
-    if (positionOnBoard.dy != RACK_START_AXISY) {
+    selectedLetter = '';
+    bool isLetterInList = false;
+    if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
-      lettersofBoard.add(Letter(line, column, letterValue!, tileID));
+      if (letterValue == '*') {
+        _showLetterPicker(line, column, tileID);
+      } else {
+        lettersofBoard
+            .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+      }
+    } else {
+      removeLetterOnBoard(tileID);
     }
 
-    // lettersofBoard.add(Letter(line, column, letterValue!));
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
   }
 
   void validatePlacement() {
-    board.isFilledForEachLetter(lettersofBoard);
     dynamic word = board.verifyPlacement(lettersofBoard);
+    // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+    lettersofBoard = [];
     if (word != null) {
-      print("the word is valid");
-
       getIt<SocketService>().send('verify-place-message', word);
     } else {
-      print("the word is invalid");
+      setTileOnRack();
     }
   }
 
@@ -257,6 +321,8 @@ class _GamePageState extends State<GamePage> {
       for (var index in rackIDList) {
         isTileLocked[index] = false;
         tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
+        if (tileLetter[index]?.toUpperCase() == tileLetter[index])
+          tileLetter[index] = '*';
       }
     });
   }
@@ -298,12 +364,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void changeTurn() {
-    setState(() {
-      getIt<SocketService>().send('change-user-turn');
-    });
+    print("sending change-turn from game-page");
+    getIt<SocketService>().send('change-user-turn');
   }
 
   void handleSockets() {
+    print("game page handle sockets");
     getIt<SocketService>().on('end-game', (val) => {});
     int index;
     int column;
@@ -323,8 +389,9 @@ class _GamePageState extends State<GamePage> {
                             .getOpponentPosition(line, column),
                         index += 1,
                       },
-                    updateRackID(true, opponentTileID)
-                  })
+                    updateRackID(true, opponentTileID),
+                  }),
+              board.isFilledForEachLetter(board.createOpponentLetters(letters)),
             });
 
     getIt<SocketService>().on(
@@ -339,27 +406,35 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('verify-place-message', (placedWord) {
       // getIt<SocketService>()
       if (placedWord["letters"] is String) {
-        print("erreur le mot nest paas valide");
+        setState(() => setTileOnRack());
       } else {
-        getIt<SocketService>().send('remove-letters-rack-LightClient',
+        getIt<SocketService>().send('remove-letters-rack-light-client',
             jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
-        print("$tileLetter /n le socket coupable");
       }
     });
 
     getIt<SocketService>().on('validate-created-words', (placedWord) {
       if (placedWord["points"] != 0) {
-        lettersofBoard = [];
         final lettersjson = jsonEncode(placedWord["letters"]);
-        getIt<SocketService>().send('draw-letters-opponent', (lettersjson));
+        getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
         getIt<SocketService>().send('send-player-score');
         switchRack(false);
-        // getIt<SocketService>().send('freeze-timer');
+        board.isFilledForEachLetter(lettersofBoard);
       } else {
         setTileOnRack();
+        changeTurn();
       }
+      lettersofBoard = [];
+    });
+
+    getIt<SocketService>().on('user-turn', (playerTurnId) {
+      setState(() {
+        print("---------------------------------------------------");
+        print("setting is player turn in game page");
+        isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+      });
     });
   }
 
@@ -372,6 +447,7 @@ class _GamePageState extends State<GamePage> {
     changeTurn();
   }
 
+  // Création des tuiles
   List<Widget> fillRack() {
     List<Widget> rackTiles = [];
     setState(() {
@@ -384,25 +460,58 @@ class _GamePageState extends State<GamePage> {
               width: TILE_SIZE,
               height: TILE_SIZE,
               color: isTileLocked[id] == true
-                  ? Color.fromARGB(0, 255, 255, 255)
+                  ? Color.fromARGB(255, 249, 224, 118)
                   : Color.fromARGB(255, 26, 219, 100).withOpacity(0.6),
             ),
             child: AnimatedContainer(
-              duration: Duration(seconds: 1),
-              color: Color.fromARGB(255, 39, 45, 46),
-              height: TILE_SIZE,
-              width: TILE_SIZE,
-              child: Center(
-                child: Text(
-                  tileLetter[id].toString().toUpperCase(),
-                  style: TextStyle(
-                      fontSize: 35, color: Color.fromARGB(255, 255, 255, 255)),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 249, 224, 118),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 0.5,
+                  ),
                 ),
-              ),
-            ),
+                duration: Duration(seconds: 1),
+                height: TILE_SIZE,
+                width: TILE_SIZE,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text(
+                          "${tileLetter[id]?.toUpperCase()}",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text(
+                          tileLetter[id]?.toUpperCase() == tileLetter[id]
+                              ? "0"
+                              : LETTERS_POINTS[tileLetter[id]].toString(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
             onDraggableCanceled: (velocity, offset) {
               setState(() {
-                if (isTileLocked[id] != true) {
+                if (isTileLocked[id] != true && isPlayerTurn) {
                   offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                   Offset boardPosition = setTileOnBoard(offset, id);
                   if (!tilePosition.containsValue(boardPosition)) {
@@ -423,27 +532,32 @@ class _GamePageState extends State<GamePage> {
     return ParentWidget(
       child: Scaffold(
           appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text(
-                'Page de Jeu',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              ),
-              actions: [MusicAppBar()]),
-          body: Stack(children: <Widget>[
-            Positioned(
-              left: 370,
-              top: 45,
-              child: FloatingActionButton(
-                heroTag: "btn0",
-                onPressed: () {},
-                backgroundColor: Colors.blue,
-                child: Icon(
-                  Icons.abc,
-                  color: Colors.white,
-                  size: 25,
-                ),
-              ),
+            leadingWidth: 10,
+            automaticallyImplyLeading: false,
+            title: const Text(
+              'Page de jeu',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+            actions: [
+              FloatingActionButton(
+                heroTag: "btn1",
+                onPressed: () {
+                  getIt<SocketService>().send('abandon-game');
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return GameModes();
+                  }));
+                },
+                backgroundColor: Color.fromARGB(255, 255, 110, 74),
+                child: Icon(
+                  Icons.output,
+                  color: Color.fromARGB(255, 219, 224, 213),
+                  size: TILE_SIZE,
+                ),
+              )
+            ],
+          ),
+          body: Stack(children: <Widget>[
+            Positioned(left: 0, top: 10, child: TimerPage()),
             Positioned(
               left: LEFT_BOARD_POSITION,
               top: TOP_BOARD_POSITION,
@@ -462,57 +576,49 @@ class _GamePageState extends State<GamePage> {
             ...fillRack(),
             Positioned(
               left: LEFT_BOARD_POSITION,
-              bottom: LEFT_BOARD_POSITION,
-              width: 100,
-              child: FloatingActionButton(
-                heroTag: "btn1",
-                onPressed: () {
-                  getIt<SocketService>().send('quit-game');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return GameModes();
-                  }));
-                },
-                backgroundColor: Color.fromARGB(255, 255, 110, 74),
-                child: Icon(
-                  Icons.output,
-                  color: Color.fromARGB(255, 219, 224, 213),
-                  size: TILE_SIZE,
-                ),
-              ),
-            ),
-            Positioned(
-              left: LEFT_BOARD_POSITION,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "passTurn",
-                onPressed: () {
-                  setState(() {
-                    getIt<SocketService>().send('pass-turn');
-                    switchRack(true);
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 253, 174, 101),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        setState(() {
+                          getIt<SocketService>().send('pass-turn');
+                          switchRack(true);
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey
+                    : Color.fromARGB(255, 253, 174, 101),
                 child: Icon(
                   Icons.double_arrow_rounded,
-                  color: Color.fromARGB(255, 0, 123, 172),
+                  color: !isPlayerTurn
+                      ? Colors.grey[200]
+                      : Color.fromARGB(255, 0, 123, 172),
                   size: TILE_SIZE,
                 ),
               ),
             ),
             Positioned(
-              right: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
+              right: 45.0 + TILE_ADJUSTMENT,
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "confirmPlacement",
-                onPressed: () {
-                  setState(() {
-                    validatePlacement();
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 159, 201, 165),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        setState(() {
+                          validatePlacement();
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey[200]
+                    : Color.fromARGB(255, 159, 201, 165),
                 child: Icon(
                   Icons.check_box,
-                  color: Color.fromARGB(255, 22, 82, 0),
+                  color: !isPlayerTurn
+                      ? Colors.grey
+                      : Color.fromARGB(255, 22, 82, 0),
                   size: TILE_SIZE,
                 ),
               ),
@@ -522,24 +628,29 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "exchangeLetters",
-                onPressed: () {
-                  showDialog<List<String>>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        List<String> exchangeableTile = [];
-                        for (var index in rackIDList) {
-                          exchangeableTile.add(tileLetter[index].toString());
-                        }
-                        return TileExchangeMenu(
-                          tileLetters: exchangeableTile,
-                        );
-                      }).then((List<String>? result) {
-                    if (result != null) {
-                      switchRack(true);
-                    }
-                  });
-                },
-                backgroundColor: Color.fromARGB(255, 55, 151, 189),
+                onPressed: !isPlayerTurn
+                    ? null
+                    : () {
+                        showDialog<List<String>>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              List<String> exchangeableTile = [];
+                              for (var index in rackIDList) {
+                                exchangeableTile
+                                    .add(tileLetter[index].toString());
+                              }
+                              return TileExchangeMenu(
+                                tileLetters: exchangeableTile,
+                              );
+                            }).then((List<String>? result) {
+                          if (result != null) {
+                            switchRack(true);
+                          }
+                        });
+                      },
+                backgroundColor: !isPlayerTurn
+                    ? Colors.grey
+                    : Color.fromARGB(255, 55, 151, 189),
                 child: Icon(
                   Icons.compare_arrows,
                   color: Color.fromARGB(255, 255, 255, 255),

@@ -3,11 +3,11 @@ import { Command } from '@app/interfaces/command';
 import { Game } from '@app/interfaces/game';
 import { Letter } from '@app/interfaces/lettre';
 import { Placement } from '@app/interfaces/placement';
-import { JoinInfos } from '@app/interfaces/join-infos';
-import { ScrabbleClassic } from '@app/classes/scrabble-classic';
+// import { JoinInfos } from '@app/interfaces/join-infos';
+// import { ScrabbleClassic } from '@app/classes/scrabble-classic';
 // import { ScrabbleClassicSolo } from '@app/classes/scrabble-classic-solo';
-import { SocketUser } from '@app/interfaces/socket-user';
-import { SoloGame } from '@app/interfaces/solo-game';
+// import { SocketUser } from '@app/interfaces/socket-user';
+// import { SoloGame } from '@app/interfaces/solo-game';
 import { WordArgs } from '@app/interfaces/word-args';
 import { COLUMNS_LETTERS } from '@app/constants/constants';
 import * as http from 'http';
@@ -19,31 +19,33 @@ import { DatabaseService } from './database.service';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { PlayerInfos } from '@app/interfaces/player-infos';
 import { ChannelService } from './channels.service';
+import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 
 export class SocketManager {
     private sio: io.Server;
-    private roomIncrement = 1;
-    private roomName: string;
+    // private roomIncrement = 1;
+    // private roomName: string;
     private usernames = new Map<string, string>(); // socket id - username;
     private gameRooms = new Map<string, Game>(); // roomname - game
-    private scrabbleGames = new Map<string, ScrabbleClassic>(); // roomname - game
-    private usersRoom = new Map<string, string>(); // socket id -room
-    private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
+    private scrabbleGames = new Map<string, ScrabbleClassicMode>(); // roomname - game
+    private usersRoom = new Map<string, string>(); // socket id - game room
+    // private disconnectedSocket: SocketUser = { oldSocketId: '', newSocketId: '' };
     private gameManager: GameManager;
     private loginService: LoginService;
     private channelService: ChannelService;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
-        this.roomName = 'room' + this.roomIncrement;
-        this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
-        this.loginService = new LoginService(this.databaseService);
+        // this.roomName = 'room' + this.roomIncrement;
+
+        this.loginService = new LoginService(this.databaseService, this.channelService);
         this.channelService = new ChannelService(this.databaseService);
+        this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
     }
-    changeRoomName() {
-        this.roomIncrement++;
-        this.roomName = 'room' + this.roomIncrement;
-    }
+    // changeRoomName() {
+    //     this.roomIncrement++;
+    //     this.roomName = 'room' + this.roomIncrement;
+    // }
     createGame(game: Game, socketId: string) {
         game.room = `Partie de ${game.hostUsername}`;
         this.gameRooms.set(game.room, game);
@@ -52,7 +54,7 @@ export class SocketManager {
     }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
-            const classic = game.isClassicMode === isClassic;
+            const classic = game.isClassicMode === isClassic && !game.isFinished;
             const privateFull = classic && game.isPrivate && !game.isFullPlayers;
             return !game.isPrivate ? classic : privateFull;
         });
@@ -61,31 +63,15 @@ export class SocketManager {
         socket.on('create-game', async (game: Game) => {
             game.joinedPlayers = typeof game.joinedPlayers === 'string' ? JSON.parse(game.joinedPlayers) : game.joinedPlayers;
             game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
-            console.log('game: ', game);
             this.createGame(game, socket.id);
             await this.createChannel(socket, game.room, true);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
-            console.log('emetting create-game');
             this.sio.to(game.room).emit('create-game', game);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
 
         socket.on('dictionary-selected', (dictionary: Dictionary) => {
             this.sio.emit('dictionary-selected', dictionary);
-        });
-        socket.on('create-solo-game', (game: SoloGame) => {
-            this.createGame(game, socket.id);
-            game.isFinished = false;
-            socket.join(this.roomName);
-            // this.scrabbleGames.set(
-            //     this.roomName,
-            //     new ScrabbleClassicSolo(socket.id, game.virtualPlayerName, game.dictionary.fileName, game.difficulty, game.mode === 'LOG2990'),
-            // );
-            if (this.scrabbleGames.get(game.room)?.socketTurn !== socket.id) {
-                this.gameManager.virtualPlayerPlay(game.room);
-            }
-
-            this.changeRoomName();
         });
     }
     waitingRoomHostHandler(socket: io.Socket) {
@@ -94,8 +80,14 @@ export class SocketManager {
             this.gameManager.leaveRoom(socket.id);
             socket.leave(gameCanceled.room);
             this.sio.to(gameCanceled.room).emit('cancel-match');
-            for (const player of gameCanceled.joinedPlayers) this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
-            for (const observer of gameCanceled.joinedObservers) this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
+            for (const player of gameCanceled.joinedPlayers) {
+                this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);
+                await this.leaveChannelWithSocketId(player.socketId, gameCanceled.room);
+            }
+            for (const observer of gameCanceled.joinedObservers) {
+                this.sio.sockets.sockets.get(observer.socketId)?.leave(gameCanceled.room);
+                await this.leaveChannelWithSocketId(observer.socketId, gameCanceled.room);
+            }
             this.gameRooms.delete(gameCanceled.room);
             this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
             await this.deleteChannel(gameCanceled.room);
@@ -197,61 +189,80 @@ export class SocketManager {
         });
     }
     joinGameHandler(socket: io.Socket) {
-        socket.on('join-game', (gamePlayer: JoinInfos) => {
+        socket.on('join-game', () => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            // if (game) game.usernameTwo = gamePlayer.playerUsername;
-            const opponentId = this.gameManager.findOpponentSocket(socket.id);
-            this.scrabbleGames.set(room, new ScrabbleClassic(socket.id, opponentId, game.dictionary.fileName, gamePlayer.mode === 'LOG2990'));
+            const playerSockets: string[] = [];
+            const virtualPlayers: string[] = [];
+            const playersUsernames = new Map<string, string>(); // socket id - username des joueurs
+            for (const player of game.joinedPlayers) {
+                playerSockets.push(player.socketId);
+                playersUsernames.set(player.socketId, player.username);
+            }
+            for (let i = 0; i < game.virtualPlayers; i++) {
+                const botName = `Bot ${i + 1}`;
+                virtualPlayers.push(`Bot ${i + 1}`);
+                playersUsernames.set(botName, botName);
+            }
+            // TODO ajouter les observateurs
+            // for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
+            this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
             this.sio.to(room).emit('join-game');
-            const opponentGame = Object.assign({}, game);
-            // opponentGame.usernameOne = game.usernameTwo;
-            // opponentGame.usernameTwo = game.usernameOne;
-            (this.scrabbleGames.get(room) as ScrabbleClassic).setPrivateGoalsForPlayers();
-
-            this.sio.to(socket.id).emit('send-info-to-panel', game);
-            this.sio.to(opponentId).emit('send-info-to-panel', opponentGame);
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
             this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
-            if (gamePlayer.mode === 'LOG2990') {
-                this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
-                this.sio.to(socket.id).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-                this.sio.to(opponentId).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(opponentId));
+            this.sio.to(room).emit('send-info-to-panel', data);
+            // Si jamais un des joueur virtuel est le premier joueur a jouer
+            const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
+            if (virtualPlayers.includes(socketTurn)) {
+                this.gameManager.virtualPlayerPlay(game.room);
             }
         });
     }
     helpCommandHandler(socket: io.Socket) {
         socket.on('reserve-command', () => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const reserveResult: Command = scrabbleGame.reserveState();
             this.sio.to(socket.id).emit('reserve-command', reserveResult);
         });
-        socket.on('help-command', () => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
-            const helpMessage: Command = scrabbleGame.commandInfo();
-            this.sio.to(socket.id).emit('help-command', helpMessage);
-        });
+        // socket.on('help-command', () => {
+        //     const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
+        //     const helpMessage: Command = scrabbleGame.commandInfo();
+        //     this.sio.to(socket.id).emit('help-command', helpMessage);
+        // });
         socket.on('hint-command', () => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const hintWords: string = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('chatMessage', { type: 'system', message: hintWords });
+            this.sio.to(socket.id).emit('chatMessage', {
+                username: '',
+                message: hintWords,
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'system',
+                channel: this.usersRoom.get(socket.id) as string,
+            });
         });
     }
     exchangeCommandHandler(socket: io.Socket) {
         socket.on('exchange-command', (letters: string) => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const exchangeResult: Command = scrabbleGame.exchangeLetters(letters);
-            scrabbleGame.changeExchangeCounter();
             this.sio.to(socket.id).emit('exchange-command', exchangeResult);
         });
         socket.on('exchange-opponent-message', (numberLetters: number) => {
             const username = this.usernames.get(socket.id);
-            const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
-            this.sio.to(opponentSocket).emit('chatMessage', { type: 'player', message: `${username} : !échanger ${numberLetters} lettre(s)` });
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                this.sio.to(opponentSocket).emit('chatMessage', {
+                    username: username,
+                    message: `!échanger ${numberLetters} lettre(s)`,
+                    time: new Date().toTimeString().split(' ')[0],
+                    type: 'player',
+                    channel: this.usersRoom.get(socket.id) as string,
+                });
         });
     }
     passCommandHandler(socket: io.Socket) {
         socket.on('pass-turn', () => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             scrabbleGame.incrementStreakPass();
             this.gameManager.isEndGame(this.usersRoom.get(socket.id) as string, scrabbleGame);
         });
@@ -274,47 +285,47 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             console.log(this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
             this.sio.to(socket.id).emit('draw-letters-rack', this.scrabbleGames.get(room)?.getPlayerRack(socket.id));
-
         });
         socket.on('remove-letters-rack', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
             console.log(letters);
-        
-            letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
-                
-            
+
+            // letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
+
             const playerRackLettersRemoved = this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
             this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
         });
 
-        socket.on('remove-letters-rack-LightClient', (letters) => {
+        socket.on('remove-letters-rack-light-client', (letters) => {
             const room = this.usersRoom.get(socket.id) as string;
             console.log(letters);
-        
-            letters = (typeof letters === "string") ? JSON.parse(letters as unknown as string): letters;
-            
-           this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
-        });
 
+            letters = JSON.parse(letters as unknown as string);
+
+            this.scrabbleGames.get(room)?.removeLettersRackForValidation(socket.id, letters) as string[];
+            // this.sio.to(socket.id).emit('draw-letters-rack', playerRackLettersRemoved);
+        });
         socket.on('freeze-timer', () => {
             const room = this.usersRoom.get(socket.id) as string;
             this.sio.to(room).emit('freeze-timer');
         });
         socket.on('update-reserve', () => {
             const room = this.usersRoom.get(socket.id) as string;
-            const game = this.scrabbleGames.get(room) as ScrabbleClassic;
+            const game = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             const reserveLength: number = game.getReserveLettersLength();
             this.sio.to(room).emit('update-reserve', reserveLength);
         });
 
         socket.on('draw-letters-opponent', (lettersPosition) => {
-            const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
-            this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPosition);
+            // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
+            const lettersPositionTransformed = Array.isArray(lettersPosition) ? lettersPosition : lettersPosition.letters;
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
         });
     }
     placeCommandHandler(socket: io.Socket) {
         socket.on('verify-place-message', (command: WordArgs) => {
-            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
             const lettersPosition = scrabbleGame.verifyPlaceCommand(command.line, command.column, command.value, command.orientation);
             console.log(command.line, command.column, command.orientation, command.value);
             const writtenCommand = '!placer ' + COLUMNS_LETTERS[command.line] + (command.column + 1) + command.orientation + ' ' + command.value;
@@ -326,60 +337,77 @@ export class SocketManager {
             } as Placement);
         });
         socket.on('validate-created-words', (lettersPlaced: Placement) => {
-            
+            console.log('lettersPlaced du client: ', lettersPlaced);
             const room = this.usersRoom.get(socket.id) as string;
-            const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
+            // const opponentSocket = this.gameManager.findOpponentSocket(socket.id);
             const username = this.usernames.get(socket.id) as string;
-            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassic;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
             const score = scrabbleGame.validateCalculateWordsPoints(lettersPlaced.letters);
-            if (scrabbleGame.logMode) {
-                this.sio.to(room).emit('public-goals', this.scrabbleGames.get(room)?.getPublicGoals());
-                this.sio.to(socket.id).emit('private-goal', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-                this.sio.to(opponentSocket).emit('private-goal-opponent', this.scrabbleGames.get(room)?.getPrivateGoal(socket.id));
-            }
             this.sio.to(socket.id).emit('validate-created-words', { letters: lettersPlaced.letters, points: score });
             if (score !== 0) {
-                this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${lettersPlaced.command}` });
+                this.sio.to(room).emit('chatMessage', {
+                    username: username,
+                    message: lettersPlaced.command,
+                    time: new Date().toTimeString().split(' ')[0],
+                    type: 'player',
+                    channel: this.usersRoom.get(socket.id) as string,
+                });
                 this.gameManager.isEndGame(room, scrabbleGame);
             }
         });
     }
     playerScoreHandler(socket: io.Socket) {
         socket.on('send-player-score', () => {
-            // const room = this.usersRoom.get(socket.id) as string;
-            const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
-            const game = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassic;
-            const tilesLeft: number = game.getPlayerTilesLeft(socket.id);
-            this.sio.to(socket.id).emit('update-player-score', {
-                points: game.getPlayerScore(socket.id),
-                playerScored: true,
-                tiles: tilesLeft,
-            });
-            this.sio.to(opponentSocket).emit('update-player-score', {
-                points: game.getPlayerScore(socket.id),
-                playerScored: false,
-                tiles: tilesLeft,
-            });
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
+            this.sio.to(room).emit('send-info-to-panel', data);
+
+            // const opponentSocket: string = this.gameManager.findOpponentSocket(socket.id);
+            // const game = this.scrabbleGames.get(this.usersRoom.get(socket.id) as string) as ScrabbleClassicMode;
+            // const tilesLeft: number = game.getPlayerTilesLeft(socket.id);
+            // this.sio.to(socket.id).emit('update-player-score', {
+            //     points: game.getPlayerScore(socket.id),
+            //     playerScored: true,
+            //     tiles: tilesLeft,
+            // });
+            // this.sio.to(opponentSocket).emit('update-player-score', {
+            //     points: game.getPlayerScore(socket.id),
+            //     playerScored: false,
+            //     tiles: tilesLeft,
+            // });
         });
     }
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
             const room = this.usersRoom.get(socket.id) as string;
-            this.gameManager.changeTurn(room);
-            // if (this.gameRooms.get(this.usersRoom.get(socket.id) as string)?.type === 'solo' && !(this.gameRooms.get(room) as SoloGame).isFinished) {
-            //     this.gameManager.virtualPlayerPlay(room);
-            // }
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            if (!scrabbleGame.isEndGame) this.gameManager.changeTurn(room);
+        });
+        socket.on('user-turn', () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+            this.sio.to(room).emit('user-turn', scrabbleGame.socketTurn);
         });
     }
     endGameHandler(socket: io.Socket) {
-        socket.on('abandon-game', () => {
+        socket.on('abandon-game', async () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            socket.leave(room);
+            await this.leaveChannel(socket, room);
             this.gameManager.abandonGame(socket.id);
-            socket.disconnect();
         });
-        socket.on('quit-game', () => {
-            this.sio
-                .to(this.gameManager.findOpponentSocket(socket.id))
-                .emit('chatMessage', { type: 'system', message: `${this.usernames.get(socket.id)} a quitté le jeu.` });
+        socket.on('quit-game', async () => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
+            await this.leaveChannel(socket, game.room);
+            this.sio.to(room).emit('chatMessage', {
+                username: '',
+                message: `${this.usernames.get(socket.id)} a quitté le jeu.`,
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'system',
+                channel: this.usersRoom.get(socket.id) as string,
+            });
             this.gameManager.leaveRoom(socket.id);
             socket.disconnect();
         });
@@ -435,8 +463,12 @@ export class SocketManager {
     async createChannel(socket: io.Socket, channelName: string, isGameChannel: boolean) {
         const username = this.usernames.get(socket.id);
         const channel = await this.channelService.createNewChannel(channelName, username as string, isGameChannel);
-        socket.join(channelName);
-        this.sio.to(channelName).emit('channel-created', channel);
+        if (channel) {
+            socket.join(channelName);
+            this.sio.to(channelName).emit('channel-created', channel);
+        } else {
+            this.sio.to(socket.id).emit('duplicate-name');
+        }
     }
 
     async leaveChannel(socket: io.Socket, channelName: string) {
@@ -445,6 +477,13 @@ export class SocketManager {
         this.sio.to(socket.id).emit('leave-channel');
         socket.leave(channelName);
     }
+
+    async leaveChannelWithSocketId(socket: string, channelName: string) {
+        const username = this.usernames.get(socket);
+        await this.channelService.leaveChannel(channelName, username as string);
+        this.sio.to(socket).emit('leave-channel');
+    }
+
     async deleteChannel(channelName: string) {
         await this.channelService.deleteChannel(channelName);
         this.sio.to(channelName).emit('leave-channel');
@@ -470,24 +509,30 @@ export class SocketManager {
     userTyping(socket: io.Socket) {
         socket.on('isTypingMessage', (message: ChatMessage) => {
             if (message.message.length > 0) {
-                console.log('dans server typing');
                 this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
             } else {
-                console.log('dans server nottyping');
                 this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
-                console.log(message.username);
             }
+        });
+    }
+
+    changeUsername(socket: io.Socket) {
+        socket.on('change-username', (newUsername: string) => {
+            this.usernames.delete(socket.id);
+            console.log(newUsername);
+            this.usernames.set(socket.id, newUsername);
+            this.sio.emit('change-username', { username: newUsername, id: socket.id });
         });
     }
 
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
-            if (this.disconnectedSocket.oldSocketId) {
-                const room = this.usersRoom.get(this.disconnectedSocket.oldSocketId) as string;
-                socket.join(room);
-                this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
-                this.disconnectedSocket.oldSocketId = '';
-            }
+            // if (this.disconnectedSocket.oldSocketId) {
+            //     const room = this.usersRoom.get(this.disconnectedSocket.oldSocketId) as string;
+            //     socket.join(room);
+            //     this.gameManager.refreshGame(socket.id, this.disconnectedSocket, room);
+            //     this.disconnectedSocket.oldSocketId = '';
+            // }
             console.log(`Connexion avec : ${socket.id}`);
             this.gameCreationHandler(socket);
             this.waitingRoomHostHandler(socket);
@@ -510,6 +555,7 @@ export class SocketManager {
             this.userLeaveChannel(socket);
             this.userDeleteChannel(socket);
             this.userTyping(socket);
+            this.changeUsername(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

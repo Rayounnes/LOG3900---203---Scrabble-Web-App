@@ -52,7 +52,6 @@ export class ScrabbleClassic {
 
     verifyPlaceCommand(lineN: number, columnN: number, letters: string, wordDirection: string): Letter[] | string {
         let validation = false;
-        console.log(this.gamePlayers?.get(this.turnSocket)?.lettersRack.lettersRack);
         if (!this.gamePlayers?.get(this.turnSocket)?.lettersRack.areLettersInRack(letters))
             return 'Erreur de syntaxe : les lettres écrites dans la commande ne sont pas dans votre chevalet';
         if (this.firstTurn) {

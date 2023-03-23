@@ -57,6 +57,7 @@ export class Board {
     }
     setStartTile(line: number, column: number) {
         this.boardMatrix[line - 1][column - 1].isStart = true;
+        console.log(this.getStartTile())
     }
     getStartTile(): Vec2 | undefined {
         for (let i = 0; i < this.endBoard; i++) {

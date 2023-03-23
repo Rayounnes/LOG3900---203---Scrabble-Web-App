@@ -37,10 +37,6 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
         private snackBar: MatSnackBar,
     ) {}
 
-    onCreateGameClick(): void {
-        console.log('Creating game...');
-    }
-
     ngOnInit(): void {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
@@ -98,7 +94,7 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
             });
         });
         this.socketService.on('join-game', () => {
-            this.router.navigate([`/game/${this.mode}`]);
+            this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic } });
         });
         this.socketService.on('cancel-match', () => {
             const message = 'La partie a été annulée.';
@@ -108,6 +104,10 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
             });
             this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
         });
+    }
+
+    startGame(): void {
+        this.socketService.send('join-game');
     }
 
     cancelWaiting() {

@@ -1,9 +1,12 @@
 <div class="container" (contextmenu)="rightMouseOutsideCanvas($event)" >
-    <app-sidebar ></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0">
-        </app-play-area>
+    <div class="info-container">
+        <app-information-panel></app-information-panel>
+    </div>
+    
+    <div class="play-area-container">
+        <!-- <app-play-area class="play-area" tabindex="0">
+        </app-play-area> -->
+        <app-play-area></app-play-area>
         <app-chevalet class="chevalet"></app-chevalet>
-        
-    </section>
+    </div>
 </div>

@@ -5,17 +5,18 @@ import { Command } from '@app/interfaces/command';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import { ArgumentManagementService } from '@app/services/argument-management.service';
 import { GridService } from '@app/services/grid.service';
-import { Letter } from '@app/interfaces/letter';
-import { Placement } from '@app/interfaces/placement';
+// import { Letter } from '@app/interfaces/letter';
+// import { Placement } from '@app/interfaces/placement';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { CommunicationService } from '@app/services/communication.service';
 import { FormControl } from '@angular/forms';
 import { debounceTime, switchMap, startWith } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const GAME_COMMANDS: string[] = ['placer', 'échanger', 'passer'];
 const HELP_COMMANDS: string[] = ['indice', 'réserve', 'aide'];
-const THREE_SECOND = 3000;
+// const THREE_SECOND = 3000;
 
 @Component({
     selector: 'app-chat-box',
@@ -51,6 +52,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         public arg: ArgumentManagementService,
         public keyboardService: KeyboardManagementService,
         private communicationService: CommunicationService,
+        private _snackBar: MatSnackBar,
     ) {}
     automaticScroll() {
         this.scrollMessages.nativeElement.scrollTop = this.scrollMessages.nativeElement.scrollHeight;
@@ -60,67 +62,66 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('Destroying!');
     }
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
     }
-    verifyPlaceSocket() {
-        this.socketService.on('verify-place-message', (placedWord: Placement) => {
-            if (typeof placedWord.letters === 'string') {
-                this.isCommandSent = false;
-                this.chatMessages.push({
-                    username: '',
-                    message: placedWord.letters,
-                    type: 'system',
-                    time: '',
-                });
-            } else {
-                this.socketService.send('remove-letters-rack', placedWord.letters);
-                this.gridService.placeLetter(placedWord.letters as Letter[]);
-                this.socketService.send('validate-created-words', placedWord);
-            }
-            this.gridService.board.resetStartTile();
-            this.gridService.board.wordStarted = false;
-            this.keyboardService.playPressed = false;
-            this.keyboardService.enterPressed = false;
-            setTimeout(() => this.automaticScroll(), 1);
-        });
-    }
-    validatePlaceSockets() {
-        this.socketService.on('validate-created-words', async (placedWord: Placement) => {
-            this.socketService.send('freeze-timer');
-            if (placedWord.points === 0) {
-                await new Promise((r) => setTimeout(r, THREE_SECOND));
-                this.chatMessages.push({
-                    username: '',
-                    message: 'Erreur : les mots crées sont invalides',
-                    type: 'system',
-                    time: '',
-                });
-                setTimeout(() => this.automaticScroll(), 1);
-                this.gridService.removeLetter(placedWord.letters);
-            } else {
-                this.socketService.send('draw-letters-opponent', placedWord.letters);
-                this.gridService.board.isFilledForEachLetter(placedWord.letters);
-                this.gridService.board.setLetterForEachLetters(placedWord.letters);
-                this.socketService.send('send-player-score');
-                this.socketService.send('update-reserve');
-            }
-            this.isCommandSent = false;
-            this.socketService.send('change-user-turn');
-            this.socketService.send('draw-letters-rack');
-        });
-        this.socketService.on('draw-letters-opponent', (lettersPosition) => {
-            lettersPosition = JSON.parse(lettersPosition as string)
-            lettersPosition = (typeof lettersPosition === "string") ? JSON.parse(lettersPosition as unknown as string): lettersPosition;
-
-            this.gridService.placeLetter(lettersPosition as Letter[]);
-            this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
-            this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
-        });
-    }
+    // verifyPlaceSocket() {
+    //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
+    //         if (typeof placedWord.letters === 'string') {
+    //             this.isCommandSent = false;
+    //             this.chatMessages.push({
+    //                 username: '',
+    //                 message: placedWord.letters,
+    //                 type: 'system',
+    //                 time: '',
+    //             });
+    //         } else {
+    //             this.socketService.send('remove-letters-rack', placedWord.letters);
+    //             this.gridService.placeLetter(placedWord.letters as Letter[]);
+    //             console.log("Sending validate-created-words");
+    //             this.socketService.send('validate-created-words', placedWord);
+    //         }
+    //         this.gridService.board.resetStartTile();
+    //         this.gridService.board.wordStarted = false;
+    //         this.keyboardService.playPressed = false;
+    //         this.keyboardService.enterPressed = false;
+    //         setTimeout(() => this.automaticScroll(), 1);
+    //     });
+    // }
+    // validatePlaceSockets() {
+    //     this.socketService.on('validate-created-words', async (placedWord: Placement) => {
+    //         console.log("received validate-created-words");
+    //         this.socketService.send('freeze-timer');
+    //         if (placedWord.points === 0) {
+    //             await new Promise((r) => setTimeout(r, THREE_SECOND));
+    //             this.chatMessages.push({
+    //                 username: '',
+    //                 message: 'Erreur : les mots crées sont invalides',
+    //                 type: 'system',
+    //                 time: '',
+    //             });
+    //             setTimeout(() => this.automaticScroll(), 1);
+    //             this.gridService.removeLetter(placedWord.letters);
+    //         } else {
+    //             this.socketService.send('draw-letters-opponent', placedWord.letters);
+    //             this.gridService.board.isFilledForEachLetter(placedWord.letters);
+    //             this.gridService.board.setLetterForEachLetters(placedWord.letters);
+    //             this.socketService.send('send-player-score');
+    //             this.socketService.send('update-reserve');
+    //         }
+    //         this.isCommandSent = false;
+    //         console.log("sending change-user-turn and draw-letters-rack");
+    //         this.socketService.send('change-user-turn');
+    //         this.socketService.send('draw-letters-rack');
+    //     });
+    //     this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
+    //         this.gridService.placeLetter(lettersPosition as Letter[]);
+    //         this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
+    //         this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
+    //     });
+    // }
     gameCommandSockets() {
         this.socketService.on('reserve-command', (command: Command) => {
             this.isCommandSent = false;
@@ -164,8 +165,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         });
     }
     configureBaseSocketFeatures() {
-        this.verifyPlaceSocket();
-        this.validatePlaceSockets();
+        // this.verifyPlaceSocket();
+        // this.validatePlaceSockets();
         this.gameCommandSockets();
         this.socketService.on('chatMessage', (chatMessage: ChatMessage) => {
             let channel: any;
@@ -186,6 +187,13 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.username = uname;
             this.getUserChannels();
         });
+        this.socketService.on('change-username', (infos: any) => {
+            if(infos['id'] == this.socketService.socketId){
+                this.username = infos['username'];
+            }
+            
+            this.getUserChannels();
+        });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
         });
@@ -196,13 +204,17 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.isGameFinished = true;
         });
         this.socketService.on('channel-created', (newChannel: any) => {
-            console.log('channel-created');
             newChannel['unread'] = false;
             newChannel['typing'] = [false, 0];
             this.allUserChannels.push(newChannel);
             this.changeChannel(newChannel);
-            console.log('channel-created: ', this.allUserChannels);
         });
+        this.socketService.on('duplicate-name',()=>{
+            this._snackBar.open(
+                "Un channel avec le meme nom existe deja !",
+                'Fermer',
+            );
+        })
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();
         });
@@ -463,7 +475,6 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         if (this.currentSearch.length === 0 || this.userChannelsNames.indexOf(this.currentSearch) !== -1) {
             return;
         }
-        console.log('envoie 1 du client ');
         this.socketService.send('channel-creation', this.currentSearch);
         this.currentSearch = '';
         this.searching = false;
@@ -495,9 +506,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     getUserChannels() {
-        console.log('getting user channels');
         this.communicationService.getUserChannels(this.username).subscribe((userChannels: any): void => {
-            console.log('getuserChannels: ',userChannels);
             this.allUserChannels = userChannels;
             this.currentChannel = 'General';
             let channel: any;

@@ -79,7 +79,6 @@ export class AvatarSelectionComponent implements OnInit {
         for (let icon of this.avatars) {
             if (choice == icon[0]) {
                 icon[1] = !icon[1]; //Change selected boolean to the opposite
-                console.log(icon);
                 this.currentIcon = icon[1] ? icon[0]['changingThisBreaksApplicationSecurity'] : ''; //Si icon[1] ( c.a.d qu'un avatar a ete sélectionné), on update la propriete
             } else {
                 icon[1] = false; //On s'assure que tout les autres avatar ont "Selected" a false (si jamais un autre avatar avait ete choisi avant), vu qu'on viens d'en selectionner un nouveau

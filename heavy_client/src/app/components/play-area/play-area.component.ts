@@ -10,6 +10,8 @@ import { MouseManagementService } from '@app/services/mouse-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
+import { Letter } from '@app/interfaces/letter';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const THREE_SECONDS = 3000;
 
@@ -25,14 +27,17 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     buttonPressed = '';
     socketTurn = '';
     commandSent = false;
+    paramsObject: any;
     isEndGame = false;
     publicGoals: Goal[] = [new Goal(0, '', 0), new Goal(0, '', 0)];
     privateGoal: Goal = new Goal(0, '', 0);
     privateGoalOpponent: Goal = new Goal(0, '', 0);
     size: number;
+    boardClicked : boolean = false;
     // mouse: MouseManagementService;
     // keyboard: KeyboardManagementService;
     mode: string;
+    isClassic: boolean;
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +53,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         private route: ActivatedRoute,
         public mouse: MouseManagementService,
         public keyboard: KeyboardManagementService,
+        private snackBar: MatSnackBar,
     ) {
         // this.mouse = new MouseManagementService(gridService);
         // this.keyboard = new KeyboardManagementService(gridService, chevaletService, this.mouse, socketService);
@@ -56,17 +62,25 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.maxSizeWord = 28;
         this.minSizeWord = 23;
         this.canvasSize = { x: this.grid.defaultWidth, y: this.grid.defaultHeight };
-        this.mode = this.route.snapshot.paramMap.get('mode') as string;
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.mode = this.isClassic ? 'Classique' : 'Coopératif';
     }
-    @HostListener('keydown', ['$event'])
+    @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        this.buttonPressed = event.key;
-        this.keyboard.importantKey(this.buttonPressed);
-        const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
-        if (this.keyboard.verificationKeyboard(letter)) {
-            this.keyboard.placerOneLetter(letter);
-            this.chevaletService.removeLetterOnRack(letter);
+        if(this.boardClicked){
+            this.buttonPressed = event.key;
+            this.keyboard.importantKey(this.buttonPressed);
+            const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
+            if (this.keyboard.verificationKeyboard(letter)) {
+                console.log(letter)
+                this.keyboard.placerOneLetter(letter);
+                this.chevaletService.removeLetterOnRack(letter);
+            }
         }
+        
     }
 
     @HostListener('document:click', ['$event'])
@@ -88,37 +102,77 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.gridService.changeSizeLetters(--this.size);
         }
     }
-    goalsSockets() {
-        this.socketService.on('public-goals', (goals: Goal[]) => {
-            this.publicGoals = goals;
-        });
-        this.socketService.on('private-goal', (goal: Goal) => {
-            this.privateGoal = goal;
-        });
-        this.socketService.on('private-goal-opponent', (goal: Goal) => {
-            this.privateGoalOpponent = goal;
-        });
-    }
-    placeSockets() {
+    verifyPlaceSocket() {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
+                this.snackBar.open(placedWord.letters, 'Fermer', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
             } else {
                 this.commandSent = true;
+                this.socketService.send('remove-letters-rack', placedWord.letters);
+                this.gridService.placeLetter(placedWord.letters as Letter[]);
+                this.socketService.send('validate-created-words', placedWord);
             }
+            this.gridService.board.resetStartTile();
+            this.gridService.board.wordStarted = false;
+            this.keyboard.playPressed = false;
+            this.keyboard.enterPressed = false;
         });
-        this.socketService.on('validate-created-words', (placedWord: Placement) => {
-            if (placedWord.points === 0) setTimeout(() => (this.commandSent = false), THREE_SECONDS);
-            else this.commandSent = false;
+    }
+    validatePlaceSockets() {
+        this.socketService.on('validate-created-words', async (placedWord: Placement) => {
+            this.socketService.send('freeze-timer');
+            if (placedWord.points === 0) {
+                await new Promise((r) => setTimeout(r, THREE_SECONDS));
+                this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
+                this.gridService.removeLetter(placedWord.letters);
+            } else {
+                this.socketService.send('draw-letters-opponent', placedWord.letters);
+                this.gridService.board.isFilledForEachLetter(placedWord.letters);
+                this.gridService.board.setLetterForEachLetters(placedWord.letters);
+                this.socketService.send('send-player-score');
+                this.socketService.send('update-reserve');
+            }
+            this.commandSent = false;
+            this.socketService.send('change-user-turn');
+            this.socketService.send('draw-letters-rack');
+        });
+        this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
+            this.gridService.placeLetter(lettersPosition as Letter[]);
+            this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
+            this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
         });
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
         });
     }
+    // placeSockets() {
+    //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
+    //         if (typeof placedWord.letters === 'string') {
+    //             this.commandSent = false;
+    //             this.removeLetterAndArrow();
+    //         } else {
+    //             this.commandSent = true;
+    //         }
+    //     });
+    //     this.socketService.on('validate-created-words', (placedWord: Placement) => {
+    //         if (placedWord.points === 0) setTimeout(() => (this.commandSent = false), THREE_SECONDS);
+    //         else this.commandSent = false;
+    //     });
+    //     this.socketService.on('remove-arrow-and-letter', () => {
+    //         this.removeLetterAndArrow();
+    //     });
+    // }
     configureBaseSocketFeatures() {
-        this.goalsSockets();
-        this.placeSockets();
+        this.verifyPlaceSocket();
+        this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
         });
@@ -134,7 +188,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.gridService.gridContext = this.gridCanvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         this.gridService.buildBoard(this.defaultSize);
         this.gridService.fillPositions();
-        this.gridService.drawPosition();
+        /* this.gridService.drawPosition(); */
         this.gridCanvas.nativeElement.focus();
     }
     connect() {
@@ -156,6 +210,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     mouseHitDetect(event: MouseEvent) {
         if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame) {
+            console.log("fdhyeghegwg")
+            this.boardClicked = true;
             this.mouse.detectOnCanvas(event);
         }
     }

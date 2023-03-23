@@ -3,10 +3,12 @@ import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
+import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
-const RESERVE_START_LENGTH = 102;
+const RESERVE_START_LENGTH = 102;/* 
 const CLASSNAME_INI = 'mat-typography vsc-initialized';
-const CLASSNAME = 'mat-typography';
+const CLASSNAME = 'mat-typography'; */
 
 @Component({
     selector: 'app-chevalet',
@@ -15,6 +17,7 @@ const CLASSNAME = 'mat-typography';
 })
 export class ChevaletComponent implements AfterViewInit {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
     chevaletLetters: string[] = [];
@@ -22,12 +25,16 @@ export class ChevaletComponent implements AfterViewInit {
     socketTurn: string;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
+    lettersExchange = '';
+    items : string[] = [];
+    
 
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-    ) {}
+        public dialog : MatDialog
+    ) {}/* 
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +46,7 @@ export class ChevaletComponent implements AfterViewInit {
             this.chevaletService.moveLetter(this.buttonPressed);
             this.chevaletService.selectLetterKeyboard(this.buttonPressed);
         }
-    }
+    } */
 
     @HostListener('mousewheel', ['$event'])
     // le chargé m'a dit de mettre any car le type mouseEvent ne reconnait pas wheelDelta
@@ -77,6 +84,8 @@ export class ChevaletComponent implements AfterViewInit {
 
     configureBaseSocketFeatures() {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
+            this.items = letters;
+
             this.chevaletService.updateRack(letters);
             this.chevaletLetters = letters;
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
@@ -95,26 +104,65 @@ export class ChevaletComponent implements AfterViewInit {
         });
     }
     get width(): number {
-        return this.chevalet.width;
+        return this.chevalet.width + 9;
     }
 
     get height(): number {
         return this.chevalet.height;
     }
-    rightMouseHitDetect(event: MouseEvent) {
+    /* rightMouseHitDetect(event: MouseEvent) {
         event.preventDefault();
         if (this.socketService.socketId === this.socketTurn && !this.isEndGame) this.chevaletService.changeRackTile(event);
     }
     leftMouseHitDetect(event: MouseEvent) {
         this.chevaletService.changeRackTile(event);
-    }
+    } */
 
     exchange() {
-        this.socketService.send('exchange-command', this.chevaletService.lettersToExchange());
+        this.socketService.send('exchange-command', this.lettersExchange);
         this.chevaletService.makerackTilesIn();
         this.chevaletService.deselectAllLetters();
     }
     cancel() {
         this.chevaletService.deselectAllLetters();
     }
+
+    openExchangeDialog(){
+        this.rotate()
+        setTimeout(() => {
+            const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+                width: '200px', 
+                data: {rackList: this.items}
+            });
+
+            dialogRef.afterClosed().subscribe((result  )=> {
+                console.log(result)
+                this.lettersExchange = result;
+                this.exchangePopUp(result);
+
+            });
+        }, 600);
+        // this.position0.x = 42; //42 et 1
+        // this.position0.y = 1;
+        
+    }
+
+
+    exchangePopUp(result: any){
+        if(result !== undefined){
+            this.exchange();
+        }
+    }
+
+    rotate(): void {
+        const btn = this.rotateBtn.nativeElement;
+        btn.classList.remove('rotate-animation');
+    
+        // Use setTimeout() to ensure that the animation is reset before reapplying the class
+        setTimeout(() => {
+          btn.offsetWidth; // Trigger a reflow to reset the animation
+          btn.classList.add('rotate-animation');
+        }, 0);
+      }
+    
 }
