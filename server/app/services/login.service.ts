@@ -44,7 +44,7 @@ export class LoginService {
     }
 
     private async addAccount(accountInfos: loginInfos) {
-        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email, connexions : []};
+        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email, connexions : [], securityQstId: accountInfos.qstIndex, securityAnswer : accountInfos.qstAnswer};
         await this.userCollection.insertOne(newAccount);
     }
 
@@ -75,6 +75,27 @@ export class LoginService {
             return history['connexions']
         }else{
             return []
+        }
+    }
+
+    async getSecurityInfos(username : string, query : string){
+        let document = await this.userCollection.findOne({username : username});
+        console.log(document,'SERVICEEE')
+        if(document){
+            return document[query];
+        }else{
+            return '';
+        }
+    }
+
+    async changePassword(username : string, password : string){
+        try {
+            let document = await this.userCollection.findOne({username : username});
+            if(document!['connected'] == true) return false;
+            await this.userCollection.updateOne({username : username},{$set : {password : password}});
+            return true
+        } catch (error) {
+            return false;
         }
     }
 
@@ -115,9 +136,9 @@ export class LoginService {
                 }
                 await this.channelService.channelCollection.updateOne({_id : channel["_id"]},{$set : {messages : channel['messages']}})
             }
-            
 
-            
+
+
             return true
         }
     }

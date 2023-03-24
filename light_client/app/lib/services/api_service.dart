@@ -123,7 +123,23 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     if (response.statusCode == 200) {
       return true;
     } else {
-      throw Exception('Failed to push icon');
+      throw Exception('Failed to change username');
+
+    }
+  }
+
+  Future<bool> changePassword(String username, String password) async {
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/user/changepassword'),
+      body: {
+        'username': jsonEncode(username),
+        'password': jsonEncode(password),
+      },
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to change password');
 
     }
   }
@@ -139,7 +155,7 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     if (response.statusCode == 200) {
       return true;
     } else {
-      throw Exception('Failed to push icon');
+      throw Exception('Failed to change icon');
 
     }
   }
@@ -153,6 +169,54 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
 
     } else {
       throw Exception("Échec de récupération d'image");
+    }
+  }
+
+  Future<List<dynamic>> getSecurityQsts() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/security/questions'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération des questions de sécurité");
+    }
+  }
+
+  Future<dynamic> getSecurityQst(int index) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/security/questions/$index'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération de la question de sécurité");
+    }
+  }
+
+  Future<dynamic> getSecurityQstID() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/securityId'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération de l'ID de sécurité");
+    }
+  }
+
+  Future<dynamic> getSecurityAnswer() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/login/securityAnswer'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération de la réponse de sécurité");
     }
   }
 

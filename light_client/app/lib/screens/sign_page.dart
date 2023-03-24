@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:convert';
 
 
@@ -24,21 +23,41 @@ class _SignUpState extends State<SignUp> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final emailController = TextEditingController();
-
   final passwordCheckController = TextEditingController();
+  final securityResponseController = TextEditingController();
+  final securityQuestionController = TextEditingController();
+
+  String selectedQuestion = "";
   String picturePath = "";
+
+  final List<String> questions = [
+    "Quel est votre destination de rêve ?",
+    "Quel est votre nourriture préféré ?",
+    "Quel est votre animal préféré ?",
+    "Quel est votre sport préféré ?",
+    "Quel est votre langage de programmation préféré ?",
+  ];
 
   @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
     passwordCheckController.dispose();
+    emailController.dispose();
+    securityResponseController.dispose();
+    securityQuestionController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    getSecurityQst();
+  }
+
+  void getSecurityQst() async{ //erreur HTTP 302
+    List questions = await ApiService().getSecurityQsts();
+    print(questions);
   }
 
   void setProfilePic(String imagePath) {
@@ -50,8 +69,6 @@ class _SignUpState extends State<SignUp> {
   void createAccount() async {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
-    String password = passwordController.text;
-    String email = emailController.text;
     File imageFile = File(picturePath);
     List<int> imageBytes = await imageFile.readAsBytes();
     String imageBase64 = BASE64PREFIX+base64Encode(imageBytes);
@@ -60,10 +77,13 @@ class _SignUpState extends State<SignUp> {
     if(iconResponse) {
       int response = await ApiService().createUser(LoginInfos(
           username: username,
-          password: password,
-          email: email,
+          password: passwordController.text,
+          email: emailController.text,
           icon: imageBase64,
-          socket: getIt<SocketService>().socketId));
+          socket: getIt<SocketService>().socketId,
+          qstIndex: selectedQuestion,
+          qstAnswer: securityResponseController.text
+      ));
       if (response == HTTP_STATUS_OK) {
         getIt<UserInfos>().setUser(username);
         getIt<SocketService>().send("user-connection", <String, String>{
@@ -100,6 +120,13 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    final List<DropdownMenuEntry<String>> qsts =
+    <DropdownMenuEntry<String>>[];
+    for (int i = 0; i<questions.length; i++) {
+      qsts.add(DropdownMenuEntry<String>(
+          value: '$i', label: questions[i]));
+    }
+
     return Scaffold(
       backgroundColor: Colors.green[800],
       appBar: AppBar(
@@ -130,112 +157,157 @@ class _SignUpState extends State<SignUp> {
           ),
           child: Form(
             key: _formKey,
-            child: Column(
-              children: <Widget>[
-                Padding(
-                    padding: const EdgeInsets.only(top:8.0),
-                    child: SizedBox(
-                      width: 400,
-                      child: Text('Création de compte',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 23,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w700,
-                          )),
-                    )),
-                displayProfilePicture(),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: usernameController,
-                    decoration: const InputDecoration(
-                      hintText: "Nom d'utilisateur",
-                      border: OutlineInputBorder(),
-                      icon: Icon(Icons.account_box),
+            child: Scrollbar(
+              child: ListView(
+                children: <Widget>[
+                  Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(top:20.0),
+                            child: Text('Création de compte',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 23,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                ))),
+                        displayProfilePicture(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: usernameController,
+                            decoration: const InputDecoration(
+                              hintText: "Nom d'utilisateur",
+                              border: OutlineInputBorder(),
+                              icon: Icon(Icons.account_box),
+                            ),
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Nom d'utilisateur requis.";
+                              } else if (value.length < 5) {
+                                return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                              } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
+                                return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: emailController,
+                            decoration: const InputDecoration(
+                              hintText: 'Addresse email',
+                              icon: Icon(Icons.email),
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (String? value) {
+                              if (value!.isEmpty || !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b').hasMatch(value)) {
+                                return 'Entrez une adresse email valide.';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: passwordController,
+                            decoration: const InputDecoration(
+                              hintText: "Mot de passe",
+                              icon: Icon(Icons.password),
+                              border: OutlineInputBorder(),
+                            ),
+                            obscureText: true,
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return "Mot de passe requis.";
+                              } else if (value.length < 6) {
+                                return "Un mot de passe doit contenir au minimum 6 caractéres.";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: passwordCheckController,
+                            decoration: const InputDecoration(
+                              hintText: "Retapez votre mot de passe",
+                              icon: Icon(Icons.password),
+                              border: OutlineInputBorder(),
+                            ),
+                            obscureText: true,
+                            validator: (String? value) {
+                              if (value == null ||
+                                  value.isEmpty ||
+                                  value != passwordController.text) {
+                                return "Le mot de passe écrit ne correspond pas";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top:20.0,bottom:20.0),
+                          child: Center(
+                            child: DropdownMenu(
+                              width: 450,
+                              leadingIcon:Icon(Icons.security_outlined) ,
+                             // initialSelection: questions[0],
+                              controller: securityQuestionController,
+                              label: const Text('Question de sécurité'),
+                              dropdownMenuEntries: qsts,
+                              onSelected: (String? question) {
+                                setState(() {
+                                  selectedQuestion = question!;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: securityResponseController,
+                            decoration: InputDecoration(
+                              icon: Icon(Icons.question_answer_outlined),
+                              label: Text(selectedQuestion==''?
+                              'Choisissez une question de sécurité'
+                                  :securityQuestionController.text) ,
+                              hintText: 'Réponse à la question',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return "Entrez une réponse à la question de sécurité";
+                            }
+                            return null;
+                          },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: ElevatedButton(
+                            onPressed: picturePath.isEmpty || selectedQuestion==''? null:  () {
+                              if (_formKey.currentState!.validate()) {
+                                createAccount();
+                              }
+                            },
+                            child: Text('Créer le compte'),
+                          ),
+                        ),
+                      ],
                     ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return "Nom d'utilisateur requis.";
-                      } else if (value.length < 5) {
-                        return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
-                      } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                        return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      hintText: 'Addresse email',
-                      icon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (String? value) {
-                      if (value!.isEmpty || !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b').hasMatch(value)) {
-                        return 'Entrez une adresse email valide.';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(
-                      hintText: "Mot de passe",
-                      icon: Icon(Icons.password),
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return "Mot de passe requis.";
-                      } else if (value.length < 6) {
-                        return "Un mot de passe doit contenir au minimum 6 caractéres.";
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: passwordCheckController,
-                    decoration: const InputDecoration(
-                      hintText: "Retapez votre mot de passe",
-                      icon: Icon(Icons.password),
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (String? value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value != passwordController.text) {
-                        return "Le mot de passe écrit ne correspond pas";
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
-                    onPressed: picturePath.isEmpty ? null:  () {
-                      if (_formKey.currentState!.validate()) {
-                        createAccount();
-                      }
-                    },
-                    child: Text('Créer le compte'),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -249,7 +321,7 @@ class _SignUpState extends State<SignUp> {
     );
     setState(() {
       pictureArea = Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(20.0),
           child: Container(
             width: picturePath.isEmpty ? 200 : 200,
             height: picturePath.isEmpty ? 200 : 230,

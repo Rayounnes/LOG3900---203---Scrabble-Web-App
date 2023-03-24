@@ -14,9 +14,20 @@ class _GalleryPageState extends State<GalleryPage> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
+      final file = File(pickedFile.path);
+      final size = await file.length();
+      if (size <= 50000) {
+        setState(() {
+          imageFile = File(pickedFile.path);
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
+              content: Text("Image trop volumineuse")),
+        );
+      }
     }
   }
 

@@ -41,7 +41,9 @@ export class loginController {
                 password : infos.password,
                 email : infos.email,
                 icon : infos.icon,
-                socket : infos.socket} as loginInfos;
+                socket : infos.socket,
+                qstIndex : infos.qstIndex,
+                qstAnswer : infos.qstAnswer} as loginInfos;
             this.loginService.createNewAccount(newAccountInfos).then((isValid): void => {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             });
@@ -52,6 +54,29 @@ export class loginController {
             this.loginService.getConnexionHistory(username).then((history): void => {
                 res.status(history.length > 0 ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(history);
             });
+        });
+
+        this.router.get('/securityAnswer', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getSecurityInfos(username,'securityAnswer').then((answer): void => {
+                res.status(answer != '' ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(answer);
+            });
+        });
+
+        this.router.get('/securityId', async (req: Request, res: Response, next): Promise<void> => {
+            console.log("hereConTROLLA");
+            const username: string = req.params.username;
+            this.loginService.getSecurityInfos(username,'securityQstId').then((index): void => {
+                res.status(index ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(index);
+            });
+        });
+
+        this.router.post('/user/changepassword', async (req: Request, res: Response, next): Promise<void> => {
+            const password: string = req.body.password;
+            const username = req.body.username;
+            this.loginService.changePassword(username, password).then((isValid) =>{
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            })
         });
 
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
 class CameraPage extends StatefulWidget {
@@ -61,8 +62,12 @@ class _CameraPageState extends State<CameraPage> {
       final fileName = DateTime.now().millisecondsSinceEpoch.toString();
 
       final filePath = '${directory.path}/$fileName.png';
-      print(filePath);
-      await File(filePath).writeAsBytes(await image.readAsBytes());
+      final originalImage = img.decodeImage(await image.readAsBytes());
+      final compressedImage = img.encodeJpg(originalImage!, quality: 50);
+      await File(filePath).writeAsBytes(compressedImage);
+
+      //await File(filePath).writeAsBytes(await image.readAsBytes());
+
 
       setState(() {
         imagePath = filePath;
