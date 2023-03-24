@@ -13,8 +13,14 @@ export class OrthographyPageComponent implements OnInit {
 
   allWords: any[] = [];
   wordOfTraining: any[] = [];
+  currentWord:any;
+  stateWord = 0;
+  numberWordsTotal=2;
   chances = 3;
   hideButton = false;
+  gameOver = false;
+  modeDone = false;
+  successMessage = false;
 
   ngOnInit(): void {
   }
@@ -31,7 +37,7 @@ export class OrthographyPageComponent implements OnInit {
       }
     }, 1000);
     this.getWordsForMode();
-    console.log(this.wordOfTraining);
+
     
   }
 
@@ -40,28 +46,54 @@ export class OrthographyPageComponent implements OnInit {
         
         this.allWords = allWordsOrthography;
         console.log(this.allWords);
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < 2; i++) {
           const randomIndex = Math.floor(Math.random() * this.allWords.length);
           this.wordOfTraining.push(this.allWords[randomIndex]);
           this.allWords.splice(randomIndex, 1);
         console.log(this.wordOfTraining);
+        this.currentWord = this.wordOfTraining[this.stateWord];
         }
     });
   
 }
 
-  onClick(wordItem : any) {
-    console.log(wordItem);
-
-    if (wordItem.answer) {
-      alert("Vous avez gagné !");
-    } else {
-      this.chances--;
+onClick(wordItem: any) {
+  if (wordItem.answer) {
+    this.successMessage = true;
+    this.verifyIfModeDone();
+  } else {
+    this.chances--;
+    if (this.chances == 0) {
+      this.gameOver = true;
     }
   }
+}
 
   leavePage() {
     this.router.navigate(['/home'])
+  }
+
+  shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  
+
+  verifyIfModeDone() {
+    if(this.stateWord + 1 !== this.numberWordsTotal) {
+      this.stateWord++;
+      this.currentWord = this.wordOfTraining[this.stateWord];
+      this.currentWord = this.shuffleArray(this.currentWord);
+      this.successMessage = false;
+      console.log(this.currentWord);
+    }
+    else {
+      this.modeDone = true;
+    }
+
   }
 
 }
