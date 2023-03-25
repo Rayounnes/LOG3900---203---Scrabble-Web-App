@@ -20,7 +20,7 @@ export class GameManager {
         usernames: Map<string, string>,
         usersRoom: Map<string, string>,
         gameRooms: Map<string, Game>,
-        scrabbleGames: Map<string, ScrabbleClassicMode>
+        scrabbleGames: Map<string, ScrabbleClassicMode>,
     ) {
         this.sio = sio;
         this.virtualPlayer = new VirtualPlayerService(this.sio);
@@ -119,7 +119,7 @@ export class GameManager {
         const gameFinished = this.gameRooms.get(room) as Game;
         gameFinished.isFinished = true;
         this.endGameMessage(room, scrabbleGame);
-        this.sio.to(room).emit('recreate')
+        this.sio.to(room).emit('recreate');
         this.sio.to(room).emit('end-game');
         const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
         this.sio.to(room).emit('send-info-to-panel', data);

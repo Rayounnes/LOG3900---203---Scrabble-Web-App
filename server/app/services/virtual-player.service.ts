@@ -25,6 +25,7 @@ export class VirtualPlayerService {
                 type: 'player',
                 channel: room,
             });
+            this.sio.to(room).emit('update-reserve', scrabbleClassicGame.getReserveLettersLength());
             return true;
         }
     }

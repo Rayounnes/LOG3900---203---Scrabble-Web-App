@@ -203,6 +203,8 @@ class _GamePageState extends State<GamePage> {
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
   bool isPlayerTurn = false;
+  bool commandSent = false;
+  bool isEndGame = false;
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
@@ -215,6 +217,45 @@ class _GamePageState extends State<GamePage> {
     getRack();
     setTileOnRack();
     selectedLetter = '';
+  }
+
+  void leaveGame() {
+    getIt<SocketService>().send('quit-game');
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return GameModes();
+    }));
+  }
+
+  void openAbandonDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Abandonner la partie"),
+            content: Text("Voulez-vous abandonner la partie?"),
+            actions: <TextButton>[
+              TextButton(
+                onPressed: () {
+                  print("abandonning game");
+                  getIt<SocketService>().send('abandon-game');
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return GameModes();
+                  }));
+                },
+                child: const Text('Oui'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Non'),
+              ),
+            ],
+          );
+        });
   }
 
   void _showLetterPicker(int line, int column, int tileId) {
@@ -358,7 +399,12 @@ class _GamePageState extends State<GamePage> {
 
   void handleSockets() {
     print("game page handle sockets");
-    getIt<SocketService>().on('end-game', (val) => {});
+    getIt<SocketService>().on('end-game', (_) {
+      setState(() {
+        commandSent = true;
+        isEndGame = true;
+      });
+    });
     int index;
     int column;
     int line;
@@ -399,8 +445,14 @@ class _GamePageState extends State<GamePage> {
               duration: Duration(seconds: 3),
               content: Text(placedWord["letters"])),
         );
-        setState(() => setTileOnRack());
+        setState(() {
+          commandSent = false;
+          setTileOnRack();
+        });
       } else {
+        setState(() {
+          commandSent = true;
+        });
         getIt<SocketService>().send('remove-letters-rack-light-client',
             jsonEncode(placedWord["letters"]));
         getIt<SocketService>().send('validate-created-words', placedWord);
@@ -427,6 +479,9 @@ class _GamePageState extends State<GamePage> {
         setTileOnRack();
         changeTurn();
       }
+      setState(() {
+        commandSent = false;
+      });
       lettersofBoard = [];
     });
     getIt<SocketService>().on('exchange-command', (command) {
@@ -443,6 +498,8 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('user-turn', (playerTurnId) {
       setState(() {
+        // On remet les lettres quil a placé dans le board qd le timer est écoulé
+        setTileOnRack();
         isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
       });
     });
@@ -481,7 +538,9 @@ class _GamePageState extends State<GamePage> {
                       : LETTERS_POINTS[tileLetter[id]].toString()),
               onDraggableCanceled: (velocity, offset) {
                 setState(() {
-                  if (isTileLocked[id] != true && isPlayerTurn) {
+                  if (isTileLocked[id] != true &&
+                      isPlayerTurn &&
+                      !commandSent) {
                     offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                     Offset boardPosition = setTileOnBoard(offset, id);
                     if (!tilePosition.containsValue(boardPosition)) {
@@ -513,10 +572,7 @@ class _GamePageState extends State<GamePage> {
               FloatingActionButton(
                 heroTag: "btn1",
                 onPressed: () {
-                  getIt<SocketService>().send('abandon-game');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return GameModes();
-                  }));
+                  isEndGame ? leaveGame() : openAbandonDialog(context);
                 },
                 backgroundColor: Color.fromARGB(255, 255, 110, 74),
                 child: Icon(
@@ -550,7 +606,7 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "passTurn",
-                onPressed: !isPlayerTurn
+                onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
                         setState(() {
@@ -558,12 +614,12 @@ class _GamePageState extends State<GamePage> {
                           switchRack(true);
                         });
                       },
-                backgroundColor: !isPlayerTurn
+                backgroundColor: !isPlayerTurn || commandSent
                     ? Colors.grey
                     : Color.fromARGB(255, 253, 174, 101),
                 child: Icon(
                   Icons.double_arrow_rounded,
-                  color: !isPlayerTurn
+                  color: !isPlayerTurn || commandSent
                       ? Colors.grey[200]
                       : Color.fromARGB(255, 0, 123, 172),
                   size: TILE_SIZE,
@@ -575,19 +631,19 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "confirmPlacement",
-                onPressed: !isPlayerTurn
+                onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
                         setState(() {
                           validatePlacement();
                         });
                       },
-                backgroundColor: !isPlayerTurn
+                backgroundColor: !isPlayerTurn || commandSent
                     ? Colors.grey[200]
                     : Color.fromARGB(255, 159, 201, 165),
                 child: Icon(
                   Icons.check_box,
-                  color: !isPlayerTurn
+                  color: !isPlayerTurn || commandSent
                       ? Colors.grey
                       : Color.fromARGB(255, 22, 82, 0),
                   size: TILE_SIZE,
@@ -599,7 +655,7 @@ class _GamePageState extends State<GamePage> {
               top: RACK_START_AXISY,
               child: FloatingActionButton(
                 heroTag: "exchangeLetters",
-                onPressed: !isPlayerTurn
+                onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
                         showDialog<List<String>>(
@@ -619,7 +675,7 @@ class _GamePageState extends State<GamePage> {
                           }
                         });
                       },
-                backgroundColor: !isPlayerTurn
+                backgroundColor: !isPlayerTurn || commandSent
                     ? Colors.grey
                     : Color.fromARGB(255, 55, 151, 189),
                 child: Icon(
