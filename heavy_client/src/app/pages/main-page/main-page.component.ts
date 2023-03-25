@@ -35,6 +35,8 @@ export class MainPageComponent {
 
     userDisconnect() {
         this.socketService.send('user-disconnect', this.socketService.socketId);
+        localStorage.removeItem('username');
+        localStorage.removeItem('password');
         this.router.navigate(['/connexion']);
     }
 

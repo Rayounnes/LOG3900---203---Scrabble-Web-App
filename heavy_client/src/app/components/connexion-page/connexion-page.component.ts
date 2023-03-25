@@ -39,6 +39,10 @@ export class ConnexionPageComponent implements OnInit {
     passwordForm = new FormGroup({
         password: new FormControl('', [Validators.required, Validators.pattern(this.passwordPattern)]),
     });
+
+    rememberMeForm = new FormGroup({
+        remeberMe: new FormControl(false),
+    });
     constructor(
         private communicationService: CommunicationService,
         private _snackBar: MatSnackBar,
@@ -51,16 +55,31 @@ export class ConnexionPageComponent implements OnInit {
     }
 
     async userConnection(): Promise<void> {
-        let loginInfos: loginInfos = {
-            username: this.usernameForm.value['username'],
-            password: this.passwordForm.value['password'],
-        };
+        let loginInfos: loginInfos;
+
+        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+            loginInfos = {
+                username: localStorage.getItem('username') || '',
+                password: localStorage.getItem('password') || '',
+            };
+        } else {
+            loginInfos = {
+                username: this.usernameForm.value.username,
+                password: this.passwordForm.value.password,
+            };
+        }
+
         this.communicationService.userlogin(loginInfos).subscribe((connectionValid): void => {
             if (connectionValid) {
                 this.connected = true;
                 this.router.navigate(['home']);
-                this.socketService.send('user-connection', { username: this.usernameForm.value['username'], socketId: this.socketService.socketId });
+                this.socketService.send('user-connection', { username: this.usernameForm.value.username, socketId: this.socketService.socketId });
                 this.appComponent.initiatePopout();
+                // on save les logins seulement si le remember me est checked
+                if (this.rememberMeForm.value) {
+                    localStorage.setItem('username', loginInfos.username);
+                    localStorage.setItem('password', loginInfos.password);
+                }
             } else {
                 this._snackBar.open(
                     "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer",
@@ -128,5 +147,9 @@ export class ConnexionPageComponent implements OnInit {
         }
         return tooltip;
     }
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+            this.userConnection();
+        }
+    }
 }
