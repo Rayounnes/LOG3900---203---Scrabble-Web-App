@@ -8,10 +8,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Board } from '@app/classes/board';
 import { Vec2 } from '@app/interfaces/vec2';
 import { Letter } from '@app/interfaces/letter';
-import { CdkDragDrop} from '@angular/cdk/drag-drop';
-const RESERVE_START_LENGTH = 102;/* 
-const CLASSNAME_INI = 'mat-typography vsc-initialized';
-const CLASSNAME = 'mat-typography'; */
+import { CdkDragDrop, DragDropModule} from '@angular/cdk/drag-drop';
+const RESERVE_START_LENGTH = 102;
+
 
 @Component({
     selector: 'app-chevalet',
@@ -39,7 +38,7 @@ export class ChevaletComponent implements AfterViewInit {
     position6: Vec2= {x: 0, y: 0};
 
     lettersExchange = '';
-    items : string[] = [];
+    items =["A", "B", "C", 'D', 'E', 'F', 'G'];
     
 
     dragTiles: Map<any,any> = new Map([
@@ -68,7 +67,8 @@ export class ChevaletComponent implements AfterViewInit {
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-        public dialog : MatDialog
+        public dialog : MatDialog,
+        public dragDrop: DragDropModule,
     ) {}/* 
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
