@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommunicationService } from '@app/services/communication.service';
 import { /* ActivatedRoute */ Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
     templateUrl: './connexion-page.component.html',
     styleUrls: ['./connexion-page.component.scss'],
 })
-export class ConnexionPageComponent implements OnInit {
+export class ConnexionPageComponent implements AfterViewInit {
     username: string = '';
     password: string = '';
     connected: boolean = false;
@@ -73,7 +73,7 @@ export class ConnexionPageComponent implements OnInit {
             if (connectionValid) {
                 this.connected = true;
                 this.router.navigate(['home']);
-                this.socketService.send('user-connection', { username: this.usernameForm.value.username, socketId: this.socketService.socketId });
+                this.socketService.send('user-connection', { username: loginInfos.username, socketId: this.socketService.socketId });
                 this.appComponent.initiatePopout();
                 // on save les logins seulement si le remember me est checked
                 if (this.rememberMeForm.value) {
@@ -147,8 +147,9 @@ export class ConnexionPageComponent implements OnInit {
         }
         return tooltip;
     }
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
         if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+            this.connect();
             this.userConnection();
         }
     }
