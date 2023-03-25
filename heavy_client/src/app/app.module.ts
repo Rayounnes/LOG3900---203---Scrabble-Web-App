@@ -47,6 +47,8 @@ import { UserProfilComponent } from './components/user-profil/user-profil.compon
 import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-dialog.component';
 import { UsernameEditComponent } from './components/username-edit/username-edit.component';
 import { HintDialogComponent } from './components/hint-dialog/hint-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 
 /**
  * Main module that is used in main.ts.
@@ -83,7 +85,8 @@ import { HintDialogComponent } from './components/hint-dialog/hint-dialog.compon
         UserProfilComponent,
         ExchangeDialogComponent,
         HintDialogComponent,
-        UsernameEditComponent,
+        UsernameEditComponent
+        
     ],
     imports: [
         MatProgressSpinnerModule,
@@ -106,6 +109,7 @@ import { HintDialogComponent } from './components/hint-dialog/hint-dialog.compon
         MatCheckboxModule,
         MatListModule,
         PopoutWindowModule,
+        DragDropModule
     ],
     providers: [],
     bootstrap: [AppComponent],

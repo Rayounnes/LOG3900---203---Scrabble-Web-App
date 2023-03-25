@@ -57,7 +57,6 @@ export class Board {
     }
     setStartTile(line: number, column: number) {
         this.boardMatrix[line - 1][column - 1].isStart = true;
-        console.log(this.getStartTile())
     }
     getStartTile(): Vec2 | undefined {
         for (let i = 0; i < this.endBoard; i++) {
@@ -126,7 +125,6 @@ export class Board {
       }
     
       createWord(letters: Letter[], orientation: string): WordArgs {
-        console.log("letters in the create wor dfunction", letters)
         let value = '';
         for (var letter of letters) {
           value += letter.value;

@@ -118,7 +118,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
       }
 
       setDragFree(event: string){
-        console.log(event);
         this.dragOrType = 'free';
     }
 
@@ -239,15 +238,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 this.hintWords = [];
                 this.createWord(hints);
             }
-            console.log(hints.split("\n"));
 
         });
     }
 
     createWord(hints: string){
-        console.log(hints);
         let splitedList = hints.split("\n");
-        console.log(splitedList);
         for(let command of splitedList){
             if(command === 'Ces seuls placements ont été trouvés:'){
                 continue;
@@ -261,8 +257,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             let lineWord = splitedCommand[1][0].charCodeAt(0) - 97;
             let valueWord = splitedCommand[splitedCommand.length - 1];
             let orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
-            console.log({line:Number(lineWord), column:columnWord, value: valueWord, orientation:orientationWord});
-            console.log
             this.hintWords.push({line:lineWord, column:Number(columnWord), value: valueWord, orientation:orientationWord} as WordArgs);
         }
     }
@@ -295,7 +289,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     mouseHitDetect(event: MouseEvent) {
         if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame) {
-            console.log("fdhyeghegwg")
             this.boardClicked = true;
             this.mouse.detectOnCanvas(event);
         }

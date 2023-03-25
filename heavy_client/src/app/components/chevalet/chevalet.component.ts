@@ -21,7 +21,7 @@ const CLASSNAME = 'mat-typography'; */
 export class ChevaletComponent implements AfterViewInit {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
     @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
-    @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>;
+    @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>; 
 
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
@@ -111,9 +111,10 @@ export class ChevaletComponent implements AfterViewInit {
         this.chevaletService.fillChevalet();
         this.chevaletService.drawChevalet();
         this.chevaletCanvas.nativeElement.focus();
-        this.connect();
+        
         this.setDragMap();
-        this.positionTiles();
+        this.connect();
+        
 
     }
     connect() {
@@ -180,7 +181,6 @@ export class ChevaletComponent implements AfterViewInit {
             });
 
             dialogRef.afterClosed().subscribe((result  )=> {
-                console.log(result)
                 this.lettersExchange = result;
                 this.exchangePopUp(result);})
     
@@ -221,15 +221,22 @@ export class ChevaletComponent implements AfterViewInit {
         return Math.floor(((posY+589)/39)+1);
     }
     setDragMap(){
+        console.log(`boxes ${this.boxes}`)
+        console.log(this.boxes)
         let tileBoxes: ElementRef<any>[] = [];
-        this.boxes.forEach((box) => {
-            tileBoxes.push(box);
+        this.boxes.forEach((box)=>{
+            console.log(`unique box ${box}`)
+            tileBoxes.push(box)
+            console.log(`tilebox ${tileBoxes}`)
         })
-
+        console.log(`tilebox fini  ${tileBoxes}`)
         let i = 0;
         for (let key of this.dragTiles.keys()){
             this.dragTiles.set(key,tileBoxes[i++])
         }
+        console.log(`dragtil fini  ${this.dragTiles}`)
+        this.positionTiles();
+
     }
     drop(event: CdkDragDrop<string[]>) {
         let tile = this.dragTiles.get(event.item.element.nativeElement.id);
@@ -305,9 +312,8 @@ export class ChevaletComponent implements AfterViewInit {
         this.position6.y = 1;
 
         const keysArray = Array.from(this.dragTiles.keys())
-
+        console.log(`dragtil position  ${this.dragTiles}`)
         for(let i = 0; i<7; i++){
-
             this.dragTiles.get(keysArray[i]).nativeElement.style.top = `${1}px`;
             this.dragTiles.get(keysArray[i]).nativeElement.style.left = `${42+(71*(i))}px`;
             this.dragTiles.get(keysArray[i]).nativeElement.style.width = `${68}px`;
