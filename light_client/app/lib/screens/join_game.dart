@@ -126,7 +126,8 @@ class _JoinGamesState extends State<JoinGames> {
                   padding: EdgeInsets.all(16),
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
-                    if (games[index].isPrivate && games[index].isFullPlayers)
+                    if (games[index].isFinished ||
+                        (games[index].isPrivate && games[index].isFullPlayers))
                       return SizedBox.shrink();
                     return buildGameCard(context, games[index]);
                   },
