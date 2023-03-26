@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { CommunicationService } from '@app/services/communication.service';
 
 @Component({
@@ -9,25 +10,44 @@ import { CommunicationService } from '@app/services/communication.service';
 })
 export class OrthographyPageComponent implements OnInit {
 
-  constructor(public router: Router, private communicationService: CommunicationService,) { }
+  constructor(public router: Router, public socketService: ChatSocketClientService, private communicationService: CommunicationService,) { 
+    this.connect();
+  }
 
   allWords: any[] = [];
   wordOfTraining: any[] = [];
   currentWord:any;
   stateWord = 0;
-  numberWordsTotal=2;
+  numberWordsTotal=10;
   chances = 3;
   hideButton = false;
   gameOver = false;
   modeDone = false;
   successMessage = false;
+  score = 0;
+  bestScore = 0;
+  username = "";
 
   ngOnInit(): void {
+  
   }
+
+
+  configureBaseSocketFeatures() {
+    this.socketService.on('sendUsername', (name: string) => {
+        this.username = name;
+    });
+}
+
+connect() {
+  this.configureBaseSocketFeatures();
+  this.socketService.send('sendUsername');
+}
 
   countdown = 0;
 
   startCountdown() {
+    
     this.hideButton = true;
     this.countdown = 3;
     const countdownInterval = setInterval(() => {
@@ -36,9 +56,22 @@ export class OrthographyPageComponent implements OnInit {
         clearInterval(countdownInterval);
       }
     }, 1000);
+    this.getBestScoreOfPlayer();
     this.getWordsForMode();
 
     
+  }
+
+  getBestScoreOfPlayer() {
+    let param = this.username ? this.username : this.socketService.socketId;
+    console.log(param);
+    this.communicationService.getBestScore(param).subscribe((bestScore: any) : void => {
+      console.log("yoyoyoyoy");
+      this.bestScore = bestScore.bestScore; 
+      console.log(bestScore);
+      console.log(this.bestScore);
+  });
+
   }
 
   getWordsForMode() {
@@ -46,7 +79,7 @@ export class OrthographyPageComponent implements OnInit {
         
         this.allWords = allWordsOrthography;
         console.log(this.allWords);
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 10; i++) {
           const randomIndex = Math.floor(Math.random() * this.allWords.length);
           this.wordOfTraining.push(this.allWords[randomIndex]);
           this.allWords.splice(randomIndex, 1);
@@ -59,12 +92,20 @@ export class OrthographyPageComponent implements OnInit {
 
 onClick(wordItem: any) {
   if (wordItem.answer) {
+    if (this.chances === 3) {
+      this.score += 20;
+    } else if (this.chances === 2) {
+      this.score += 10;
+    } else if (this.chances === 1) {
+      this.score += 5;
+    }
     this.successMessage = true;
     this.verifyIfModeDone();
   } else {
     this.chances--;
     if (this.chances == 0) {
       this.gameOver = true;
+      this.socketService.send('score-orthography', this.score);
     }
   }
 }

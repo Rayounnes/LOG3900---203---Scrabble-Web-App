@@ -62,6 +62,7 @@ export class ChannelService {
     }
 
     async createNewChannel(channelName: string, username: string, isGame: boolean) {
+        console.log(username);
         const user = await this.userCollection.findOne({ username: username });
         if (user) {
             console.log(user);

@@ -26,6 +26,22 @@ export class ModeOrthographyController{
                 res.send(word);
             })
         });
+
+        this.router.get('/scoreOrthography/:username', async (req: Request, res: Response, next): Promise<void> => {
+            try {
+                const username = req.params.username;
+                console.log(username);
+                const score = await this.modeOrthographyService.getBestScore(username);
+                console.log("SCORE DANS CONTROLLER");
+                console.log(score);
+                console.log(res);
+                res.send({bestScore: score });
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({ message: 'Internal Server Error' });
+            }
+        });
+
 }
 
 }

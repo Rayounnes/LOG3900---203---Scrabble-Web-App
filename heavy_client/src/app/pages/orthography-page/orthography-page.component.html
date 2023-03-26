@@ -18,5 +18,7 @@
   <div class="modeDone" *ngIf="modeDone">
     <p>Bien joué, vous avez fini le mode d'entraînement.</p>
   </div>
+  <div class="score">Score : {{ score }}</div>
+  <div class="score">Votre meilleur score : {{ bestScore }}</div>
   <button class="leaveButton" (click)="leavePage()">Quitter</button>
 </div>

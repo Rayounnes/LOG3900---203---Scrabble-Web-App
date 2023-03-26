@@ -19,6 +19,7 @@ import { DatabaseService } from './database.service';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { PlayerInfos } from '@app/interfaces/player-infos';
 import { ChannelService } from './channels.service';
+import { ModeOrthography } from './mode-orthography.service';
 
 export class SocketManager {
     private sio: io.Server;
@@ -32,6 +33,7 @@ export class SocketManager {
     private gameManager: GameManager;
     private loginService: LoginService;
     private channelService: ChannelService;
+    private modeOrthography: ModeOrthography;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
@@ -39,6 +41,7 @@ export class SocketManager {
         this.gameManager = new GameManager(this.sio, this.usernames, this.usersRoom, this.gameRooms, this.scrabbleGames);
         this.loginService = new LoginService(this.databaseService);
         this.channelService = new ChannelService(this.databaseService);
+        this.modeOrthography = new ModeOrthography(this.databaseService);
     }
     changeRoomName() {
         this.roomIncrement++;
@@ -340,6 +343,9 @@ export class SocketManager {
                 tiles: tilesLeft,
             });
         });
+     
+
+
     }
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
@@ -370,6 +376,7 @@ export class SocketManager {
             this.userJoinChannels(socket);
             this.loginService.changeConnectionState(loginInfos.username, true);
         });
+       
     }
 
     userDisconnectHandler(socket: io.Socket) {
@@ -434,6 +441,20 @@ export class SocketManager {
         });
     }
 
+    async verifyMaxScore(socket : io.Socket, score: any) {
+        const username = this.usernames.get(socket.id);
+        await this.modeOrthography.sendScore(score, username as string);
+    }
+
+    scoreOrthography(socket: io.Socket) {
+        socket.on('score-orthography', async (score) => {
+            await this.verifyMaxScore(socket, score);
+          
+
+           
+        });
+    }
+
     userLeaveChannel(socket: io.Socket) {
         socket.on('leave-channel', async (channelName: string) => {
             await this.leaveChannel(socket, channelName);
@@ -489,6 +510,7 @@ export class SocketManager {
             this.userLeaveChannel(socket);
             this.userDeleteChannel(socket);
             this.userTyping(socket);
+            this.scoreOrthography(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
