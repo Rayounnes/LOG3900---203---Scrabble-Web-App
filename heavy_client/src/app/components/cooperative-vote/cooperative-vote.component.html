@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Demande d'action</h2>
+<mat-dialog-content>
+    <p>Demande de vote</p>
+  <div class="loading-spinner">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button color="warn" (click)="acceptAction()">Accepter</button>
+  <button mat-raised-button color="warn" (click)="rejectAction()">Refuser</button>
+</mat-dialog-actions>
+

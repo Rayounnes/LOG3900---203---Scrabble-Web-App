@@ -8,6 +8,7 @@ import { ChevaletService } from '@app/services/chevalet.service';
 import { ReserveCommandService } from '@app/services/reserve-command.service';
 import { Command } from '@app/interfaces/command';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
+import { CooperativeAction } from '@app/interfaces/cooperative-action';
 
 // const PASS_MAX_STREAK = 6;
 // const MAX_PLAYERS = 4;
@@ -22,6 +23,7 @@ export class ScrabbleCooperativeMode {
     protected isGameEnded: boolean;
     protected passMaxStreak: number;
     protected reserveCommandService;
+    protected cooperativeAction: CooperativeAction;
     protected playersUsernames: Map<string, string>;
     protected playersSockets: string[]; // Liste des sockets des joeurs humains
 
@@ -84,6 +86,15 @@ export class ScrabbleCooperativeMode {
         const reserveResult: Command = this.reserveCommandService.reserveStateCommand();
         return reserveResult;
     }
+    getPlacementWord(letters: Letter[]): string {
+        return this.gamePlayer.hintWords.wordToCommand(letters) as string;
+    }
+    setCooperativeAction(cooperativeAction: CooperativeAction) {
+        this.cooperativeAction = cooperativeAction;
+    }
+    getCooperativeAction(): CooperativeAction {
+        return this.cooperativeAction;
+    }
     get humansPlayerInGame(): number {
         return this.playersSockets.length;
     }
@@ -95,10 +106,11 @@ export class ScrabbleCooperativeMode {
     }
     notPlayerSockets(playerSocketId: string): string[] {
         const notSockets: string[] = [];
+        console.log("getting not turn in cooperative mode");
         for (const socketId of this.playersSockets)
             if (socketId !== playerSocketId) {
                 notSockets.push(socketId);
-                break;
+                console.log("socketId: ", socketId);
             }
         return notSockets;
     }

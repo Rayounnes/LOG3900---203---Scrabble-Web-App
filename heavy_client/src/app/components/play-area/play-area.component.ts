@@ -12,6 +12,9 @@ import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
 import { Letter } from '@app/interfaces/letter';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CooperativeAction } from '@app/interfaces/cooperative-action';
+import { CooperativeVoteComponent } from '../cooperative-vote/cooperative-vote.component';
+import { MatDialog } from '@angular/material/dialog';
 
 const THREE_SECONDS = 3000;
 
@@ -51,6 +54,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         private route: ActivatedRoute,
+        private dialog: MatDialog,
         public mouse: MouseManagementService,
         public keyboard: KeyboardManagementService,
         private snackBar: MatSnackBar,
@@ -111,10 +115,22 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                     panelClass: ['snackbar'],
                 });
             } else {
-                this.commandSent = true;
-                this.socketService.send('remove-letters-rack', placedWord.letters);
-                this.gridService.placeLetter(placedWord.letters as Letter[]);
-                this.socketService.send('validate-created-words', placedWord);
+                if (this.isClassic) {
+                    this.commandSent = true;
+                    this.socketService.send('remove-letters-rack', placedWord.letters);
+                    this.gridService.placeLetter(placedWord.letters as Letter[]);
+                    this.socketService.send('validate-created-words', placedWord);
+                } else {
+                    const voteAction = {
+                        action: 'place',
+                        placement: placedWord,
+                        socketId: this.socketService.socketId,
+                        votesFor: 1,
+                        votesAgainst: 0,
+                    } as CooperativeAction;
+                    this.socketService.send('vote-action', voteAction);
+                    this.openVoteActionDialog(voteAction);
+                }
             }
             this.gridService.board.resetStartTile();
             this.gridService.board.wordStarted = false;
@@ -122,9 +138,19 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.keyboard.enterPressed = false;
         });
     }
+    validatePlacement(placement: Placement, isClassicMode: boolean) {
+        this.socketService.send('draw-letters-opponent', placement.letters);
+        if (isClassicMode) {
+            this.gridService.board.isFilledForEachLetter(placement.letters);
+            this.gridService.board.setLetterForEachLetters(placement.letters);
+        }
+        this.socketService.send('send-player-score');
+        this.socketService.send('update-reserve');
+        if (!isClassicMode) this.socketService.send('change-user-turn');
+    }
     validatePlaceSockets() {
         this.socketService.on('validate-created-words', async (placedWord: Placement) => {
-            this.socketService.send('freeze-timer');
+            if (this.isClassic) this.socketService.send('freeze-timer');
             if (placedWord.points === 0) {
                 await new Promise((r) => setTimeout(r, THREE_SECONDS));
                 this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
@@ -133,15 +159,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 });
                 this.gridService.removeLetter(placedWord.letters);
             } else {
-                this.socketService.send('draw-letters-opponent', placedWord.letters);
-                this.gridService.board.isFilledForEachLetter(placedWord.letters);
-                this.gridService.board.setLetterForEachLetters(placedWord.letters);
-                this.socketService.send('send-player-score');
-                this.socketService.send('update-reserve');
+                // On envoie les votes
+                this.validatePlacement(placedWord, this.isClassic);
             }
-            this.commandSent = false;
-            this.socketService.send('change-user-turn');
-            this.socketService.send('draw-letters-rack');
+            if (this.isClassic) {
+                this.commandSent = false;
+                this.socketService.send('change-user-turn');
+                this.socketService.send('draw-letters-rack');
+            }
         });
         this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
             this.gridService.placeLetter(lettersPosition as Letter[]);
@@ -152,24 +177,34 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
         });
+        this.socketService.on('vote-action', (voteAction: CooperativeAction) => {
+            console.log('Opening vote action dialog after vote-action socket');
+            this.openVoteActionDialog(voteAction);
+        });
     }
-    // placeSockets() {
-    //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
-    //         if (typeof placedWord.letters === 'string') {
-    //             this.commandSent = false;
-    //             this.removeLetterAndArrow();
-    //         } else {
-    //             this.commandSent = true;
-    //         }
-    //     });
-    //     this.socketService.on('validate-created-words', (placedWord: Placement) => {
-    //         if (placedWord.points === 0) setTimeout(() => (this.commandSent = false), THREE_SECONDS);
-    //         else this.commandSent = false;
-    //     });
-    //     this.socketService.on('remove-arrow-and-letter', () => {
-    //         this.removeLetterAndArrow();
-    //     });
-    // }
+    openVoteActionDialog(voteAction: CooperativeAction): void {
+        const dialogRef = this.dialog.open(CooperativeVoteComponent, {
+            width: 'auto',
+            data: { vote: voteAction },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            this.removeLetterAndArrowCoop(result.action.placement.letters);
+            // if (result.action.socketId === this.socketService.socketId) this.gridService.removeLetter(result.action.placement.letters);
+            if (result.action.socketId === this.socketService.socketId && result.isAccepted) {
+                console.log('sending placement');
+                /* this.validatePlacement(result.action.placement, this.isClassic); */
+                this.commandSent = true;
+                this.socketService.send('remove-letters-rack', result.action.placement.letters);
+                this.gridService.placeLetter(result.action.placement.letters as Letter[]);
+                this.socketService.send('validate-created-words', result.action.placement);
+            }
+            const message = result.isAccepted ? 'Action accepted' : 'Action refused';
+            this.snackBar.open(message, 'Fermer', {
+                duration: 3000,
+                panelClass: ['snackbar'],
+            });
+        });
+    }
     configureBaseSocketFeatures() {
         this.verifyPlaceSocket();
         this.validatePlaceSockets();
@@ -209,8 +244,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.send('change-user-turn');
     }
     mouseHitDetect(event: MouseEvent) {
-        if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame) {
-            console.log('fdhyeghegwg');
+        const isSocketTurn = this.socketService.socketId === this.socketTurn;
+        const validMouseHit = this.isClassic ? isSocketTurn && !this.isEndGame : !this.isEndGame;
+        if (!this.gridService.board.wordStarted && validMouseHit) {
             this.boardClicked = true;
             this.mouse.detectOnCanvas(event);
         }
@@ -218,6 +254,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     buttonPlayPressed() {
         this.keyboard.buttonPlayPressed();
+        this.chevaletService.makerackTilesIn();
+    }
+
+    removeLetterAndArrowCoop(letters: Letter[]) {
+        console.log(this.keyboard.word);
+        this.keyboard.removeArrowAfterPlacement({ x: this.keyboard.word.line, y: this.keyboard.word.column }, this.keyboard.word.orientation);
+        this.gridService.removeLetter(letters);
+        this.socketService.send('draw-letters-rack');
+        this.keyboard.createTemporaryRack();
+        this.keyboard.word = { line: 0, column: 0, orientation: '', value: '' };
+        this.keyboard.letters = [];
+        this.gridService.board.wordStarted = false;
         this.chevaletService.makerackTilesIn();
     }
 

@@ -10,6 +10,7 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import { PROFILE } from 'src/constants/profile-picture-constants';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -37,23 +38,26 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
     players: GamePlayerInfos[] = [];
-    icons : Map<string,string> = new Map<string, string>()
-    /* player = {
-        username: '',
-        score: 0,
-        tilesLeft: 7,
-    } as Player;
-    opponent = {
-        username: '',
-        score: 0,
-        tilesLeft: 7,
-    } as Player; */
+    icons: Map<string, string> = new Map<string, string>();
+    paramsObject: any;
+    isClassic: boolean;
     isPlayersTurn: boolean = false;
     gameTime: number = DEFAULT_CLOCK;
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
-    constructor(public socketService: ChatSocketClientService, private communicationService: CommunicationService, private snackBar: MatSnackBar) {}
+    constructor(
+        public socketService: ChatSocketClientService,
+        private communicationService: CommunicationService,
+        private snackBar: MatSnackBar,
+        private route: ActivatedRoute,
+    ) {
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        console.log('is classic pannel: ', this.isClassic);
+    }
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
     }
@@ -109,13 +113,13 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('user-turn', (playerTurnId: string) => {
             this.isPlayersTurn = playerTurnId === this.socketId;
-            if (!this.isRefresh) {
+            if (this.isClassic) {
                 clearInterval(this.timer);
                 this.clock = this.gameTime;
                 this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
-                this.socketService.send('send-player-score');
-            } else this.isRefresh = false;
+            }
+            this.socketService.send('send-player-score');
         });
     }
     panelDisplaySockets() {
@@ -127,34 +131,33 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 } else {
                     player.isTurn = false;
                 }
-                if(player.socket == this.socketId){
-                    player.username += " (You)"
+                if (player.socket == this.socketId) {
+                    player.username += ' (You)';
                 }
             }
             for (const player of this.players) {
                 if (player.isVirtualPlayer) {
-                    if(this.icons.get(player.username)){
-                        player.icon = this.icons.get(player.username)
-                    }else{
+                    if (this.icons.get(player.username)) {
+                        player.icon = this.icons.get(player.username);
+                    } else {
                         await this.communicationService.getAvatar('Bottt').subscribe((icon: string[]) => {
                             if (icon.length > 0) {
-                                this.icons.set(player.username,icon[0])
+                                this.icons.set(player.username, icon[0]);
                                 player.icon = icon[0];
                             }
                         });
                     }
                 } else {
-                    if(this.icons.get(player.username)){
-                        player.icon = this.icons.get(player.username)
-                    }else{
-                        await this.communicationService.getAvatar(player.username.split(" ")[0]).subscribe((icon: string[]) => {
+                    if (this.icons.get(player.username)) {
+                        player.icon = this.icons.get(player.username);
+                    } else {
+                        await this.communicationService.getAvatar(player.username.split(' ')[0]).subscribe((icon: string[]) => {
                             if (icon.length > 0) {
-                                this.icons.set(player.username,icon[0])
+                                this.icons.set(player.username, icon[0]);
                                 player.icon = icon[0];
                             }
                         });
                     }
-                    
                 }
             }
         });
@@ -164,15 +167,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.socketService.on('send-game-timer', (seconds: number) => {
             this.gameTime = seconds;
         });
-        /* this.socketService.on('update-player-score', (updatedGameInfos: PlayerState) => {
-            if (updatedGameInfos.playerScored) {
-                this.player.score = updatedGameInfos.points;
-                this.player.tilesLeft = updatedGameInfos.tiles;
-            } else {
-                this.opponent.score = updatedGameInfos.points;
-                this.opponent.tilesLeft = updatedGameInfos.tiles;
-            }
-        }); */
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
         });

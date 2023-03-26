@@ -231,11 +231,11 @@ export class ScrabbleClassicMode {
         return newVirtualPlayerName;
     }
     get notTurnSockets(): string[] {
+        console.log("getting not turn in classic mode");
         const notTurnSockets: string[] = [];
         for (const socketId of this.gamePlayers.keys())
             if (socketId !== this.socketTurn) {
                 notTurnSockets.push(socketId);
-                break;
             }
         return notTurnSockets;
     }

@@ -25,7 +25,7 @@ export class ChatSocketClientService {
     }
 
     send<T>(event: string, data?: T): void {
-        if (data) {
+        if (data !== undefined) {
             this.socket.emit(event, data);
         } else {
             this.socket.emit(event);

@@ -7,7 +7,7 @@
             </div>
             <span>Tuiles dans la réserve</span>
         </div>
-        <div class="timer-container">
+        <div *ngIf="isClassic" class="timer-container">
             <svg viewBox="0 0 100 100" width="60" height="60">
                 <circle class="circle circle__background" cx="50" cy="50" r="45"></circle>
                 <circle #circleProgress [attr.class]="'circle ' + getCircleClass()" cx="50" cy="50" r="45"></circle>

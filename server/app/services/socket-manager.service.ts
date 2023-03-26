@@ -21,6 +21,7 @@ import { PlayerInfos } from '@app/interfaces/player-infos';
 import { ChannelService } from './channels.service';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 import { ScrabbleCooperativeMode } from '@app/classes/scrabble-cooperative-mode';
+import { CooperativeAction } from '@app/interfaces/cooperative-action';
 
 export class SocketManager {
     private sio: io.Server;
@@ -251,6 +252,43 @@ export class SocketManager {
             else this.startCooperativeGame(room);
         });
     }
+    cooperativeModeHandler(socket: io.Socket) {
+        socket.on('vote-action', (action: CooperativeAction) => {
+            console.log('received vote-action');
+            const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
+            (scrabbleGame as ScrabbleCooperativeMode).setCooperativeAction(action);
+            // switch(action.action){
+            // case "place": {
+            //     break;
+            // }
+            // case "exchange": {
+            //     break;
+            // }
+            // case "pass": {
+            //     break;
+            // }}
+            if (action.action === 'place')
+                (action.placement as Placement).command = (scrabbleGame as ScrabbleCooperativeMode).getPlacementWord(
+                    (action.placement as Placement).letters,
+                );
+            // envoyer a toutes les autres personnes l'action que la personne veut proposer
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id)) this.sio.to(opponentSocket).emit('vote-action', action);
+        });
+        socket.on('player-vote', (playerAccept: boolean) => {
+            // recevoir le vote d'une personne et le propager pour le reste
+            const room = this.usersRoom.get(socket.id) as string;
+            const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
+            const coopAction: CooperativeAction = (scrabbleGame as ScrabbleCooperativeMode).getCooperativeAction();
+            if (playerAccept) coopAction.votesFor++;
+            else coopAction.votesAgainst++;
+            if (coopAction.votesFor + coopAction.votesAgainst === scrabbleGame.humansPlayerInGame) {
+                if (coopAction.votesFor > coopAction.votesAgainst) this.sio.to(room).emit('accept-action', coopAction);
+                else this.sio.to(room).emit('reject-action', coopAction);
+            } else {
+                this.sio.to(room).emit('update-vote-action', coopAction);
+            }
+        });
+    }
     helpCommandHandler(socket: io.Socket) {
         socket.on('reserve-command', () => {
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
@@ -309,8 +347,10 @@ export class SocketManager {
             this.sio.to(socket.id).emit('remove-arrow-and-letter');
         });
         socket.on('draw-letters-rack', () => {
+            const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
-            this.sio.to(socket.id).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
+            if (scrabbleGame.isClassicMode) this.sio.to(socket.id).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
+            else this.sio.to(room).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
         });
         socket.on('remove-letters-rack', (letters) => {
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
@@ -337,10 +377,16 @@ export class SocketManager {
         });
 
         socket.on('draw-letters-opponent', (lettersPosition) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
             // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
             const lettersPositionTransformed = Array.isArray(lettersPosition) ? lettersPosition : lettersPosition.letters;
-            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
-                this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
+            if (game.isClassicMode) {
+                for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                    this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
+            } else {
+                this.sio.to(room).emit('draw-letters-opponent', lettersPositionTransformed);
+            }
         });
     }
     placeCommandHandler(socket: io.Socket) {
@@ -549,6 +595,7 @@ export class SocketManager {
             this.joinGameHandler(socket);
             this.helpCommandHandler(socket);
             this.exchangeCommandHandler(socket);
+            this.cooperativeModeHandler(socket);
             this.passCommandHandler(socket);
             this.chatHandler(socket);
             this.placeCommandViewHandler(socket);
