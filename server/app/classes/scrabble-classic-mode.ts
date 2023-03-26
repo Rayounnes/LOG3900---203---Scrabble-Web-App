@@ -125,7 +125,9 @@ export class ScrabbleClassicMode {
     get boardLetters(): Letter[] {
         return this.board.allPlacedLetters;
     }
-
+    get isClassicMode(): boolean {
+        return true;
+    }
     getReserveLettersLength(): number {
         return this.reserveLetters.letterReserveSize;
     }

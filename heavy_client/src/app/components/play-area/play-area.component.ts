@@ -33,7 +33,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     privateGoal: Goal = new Goal(0, '', 0);
     privateGoalOpponent: Goal = new Goal(0, '', 0);
     size: number;
-    boardClicked : boolean = false;
+    boardClicked: boolean = false;
     // mouse: MouseManagementService;
     // keyboard: KeyboardManagementService;
     mode: string;
@@ -70,17 +70,16 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        if(this.boardClicked){
+        if (this.boardClicked) {
             this.buttonPressed = event.key;
             this.keyboard.importantKey(this.buttonPressed);
             const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
             if (this.keyboard.verificationKeyboard(letter)) {
-                console.log(letter)
+                console.log(letter);
                 this.keyboard.placerOneLetter(letter);
                 this.chevaletService.removeLetterOnRack(letter);
             }
         }
-        
     }
 
     @HostListener('document:click', ['$event'])
@@ -148,6 +147,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.gridService.placeLetter(lettersPosition as Letter[]);
             this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
             this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
+            if (!this.isClassic) this.socketService.send('draw-letters-rack');
         });
         this.socketService.on('remove-arrow-and-letter', () => {
             this.removeLetterAndArrow();
@@ -210,7 +210,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     mouseHitDetect(event: MouseEvent) {
         if (!this.gridService.board.wordStarted && this.socketService.socketId === this.socketTurn && !this.isEndGame) {
-            console.log("fdhyeghegwg")
+            console.log('fdhyeghegwg');
             this.boardClicked = true;
             this.mouse.detectOnCanvas(event);
         }
