@@ -5,8 +5,13 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import * as chevaletConstants from 'src/constants/chevalet-constants';
 import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { CooperativeAction } from '@app/interfaces/cooperative-action';
+import { CooperativeVoteComponent } from '../cooperative-vote/cooperative-vote.component';
+import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Command } from '@app/interfaces/command';
 
-const RESERVE_START_LENGTH = 102;/* 
+const RESERVE_START_LENGTH = 102; /* 
 const CLASSNAME_INI = 'mat-typography vsc-initialized';
 const CLASSNAME = 'mat-typography'; */
 
@@ -23,18 +28,26 @@ export class ChevaletComponent implements AfterViewInit {
     chevaletLetters: string[] = [];
     display: boolean = false;
     socketTurn: string;
+    paramsObject: any;
+    isClassic: boolean;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
     lettersExchange = '';
-    items : string[] = [];
-    
+    items: string[] = [];
 
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-        public dialog : MatDialog
-    ) {}/* 
+        public dialog: MatDialog,
+        private route: ActivatedRoute,
+        private snackBar: MatSnackBar,
+    ) {
+        this.route.queryParamMap.subscribe((params) => {
+            this.paramsObject = { ...params.keys, ...params };
+        });
+        this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+    } /* 
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,6 +115,22 @@ export class ChevaletComponent implements AfterViewInit {
         this.socketService.on('end-game', () => {
             this.isEndGame = true;
         });
+        this.socketService.on('vote-action', (voteAction: CooperativeAction) => {
+            if (voteAction.action === 'exchange') this.openExchangeVoteActionDialog(voteAction);
+        });
+        this.socketService.on('exchange-command', (command: Command) => {
+            if (command.type === 'system') {
+                this.snackBar.open(command.name, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+                if (!this.isClassic) this.socketService.send('cooperative-invalid-action', false);
+            } else {
+                this.socketService.send('draw-letters-rack');
+                if (this.isClassic) this.socketService.send('change-user-turn');
+                this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
+            }
+        });
     }
     get width(): number {
         return this.chevalet.width + 9;
@@ -117,7 +146,22 @@ export class ChevaletComponent implements AfterViewInit {
     leftMouseHitDetect(event: MouseEvent) {
         this.chevaletService.changeRackTile(event);
     } */
-
+    openExchangeVoteActionDialog(voteAction: CooperativeAction): void {
+        const dialogRef = this.dialog.open(CooperativeVoteComponent, {
+            width: 'auto',
+            data: { vote: voteAction },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result.action.socketId === this.socketService.socketId && result.isAccepted) {
+                this.exchange();
+            }
+            const message = result.isAccepted ? 'Action accepted' : 'Action refused';
+            this.snackBar.open(message, 'Fermer', {
+                duration: 3000,
+                panelClass: ['snackbar'],
+            });
+        });
+    }
     exchange() {
         this.socketService.send('exchange-command', this.lettersExchange);
         this.chevaletService.makerackTilesIn();
@@ -127,42 +171,53 @@ export class ChevaletComponent implements AfterViewInit {
         this.chevaletService.deselectAllLetters();
     }
 
-    openExchangeDialog(){
-        this.rotate()
+    openExchangeDialog() {
+        this.rotate();
         setTimeout(() => {
             const dialogRef = this.dialog.open(ExchangeDialogComponent, {
-                width: '200px', 
-                data: {rackList: this.items}
+                width: '200px',
+                data: { rackList: this.items },
             });
 
-            dialogRef.afterClosed().subscribe((result  )=> {
-                console.log(result)
+            dialogRef.afterClosed().subscribe((result) => {
+                console.log(result);
                 this.lettersExchange = result;
                 this.exchangePopUp(result);
-
             });
         }, 600);
         // this.position0.x = 42; //42 et 1
         // this.position0.y = 1;
-        
     }
 
-
-    exchangePopUp(result: any){
-        if(result !== undefined){
-            this.exchange();
+    exchangePopUp(result: any) {
+        if (result !== undefined) {
+            if (!this.isClassic) {
+                const choiceMap: any = {};
+                choiceMap[this.socketService.socketId] = 'yes';
+                const voteAction = {
+                    action: 'exchange',
+                    socketId: this.socketService.socketId,
+                    votesFor: 1,
+                    votesAgainst: 0,
+                    lettersToExchange: this.lettersExchange,
+                    socketAndChoice: choiceMap,
+                } as CooperativeAction;
+                console.log(voteAction);
+                this.socketService.send('vote-action', voteAction);
+            } else {
+                this.exchange();
+            }
         }
     }
 
     rotate(): void {
         const btn = this.rotateBtn.nativeElement;
         btn.classList.remove('rotate-animation');
-    
+
         // Use setTimeout() to ensure that the animation is reset before reapplying the class
         setTimeout(() => {
-          btn.offsetWidth; // Trigger a reflow to reset the animation
-          btn.classList.add('rotate-animation');
+            btn.offsetWidth; // Trigger a reflow to reset the animation
+            btn.classList.add('rotate-animation');
         }, 0);
-      }
-    
+    }
 }

@@ -141,28 +141,28 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 time: '',
             });
         });
-        this.socketService.on('exchange-command', (command: Command) => {
-            if (command.type === 'system') {
-                this.isCommandSent = false;
-                this.chatMessages.push({
-                    username: '',
-                    message: command.name,
-                    type: 'system',
-                    time: '',
-                });
-            } else {
-                this.socketService.send('draw-letters-rack');
-                this.socketService.send('change-user-turn');
-                this.chatMessages.push({
-                    username: '',
-                    type: 'player',
-                    message: `${this.username} : ${command.name}`,
-                    time: '',
-                });
-                this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
-                this.isCommandSent = false;
-            }
-        });
+        // this.socketService.on('exchange-command', (command: Command) => {
+        //     if (command.type === 'system') {
+        //         this.isCommandSent = false;
+        //         this.chatMessages.push({
+        //             username: '',
+        //             message: command.name,
+        //             type: 'system',
+        //             time: '',
+        //         });
+        //     } else {
+        //         this.socketService.send('draw-letters-rack');
+        //         this.socketService.send('change-user-turn');
+        //         this.chatMessages.push({
+        //             username: '',
+        //             type: 'player',
+        //             message: `${this.username} : ${command.name}`,
+        //             time: '',
+        //         });
+        //         this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
+        //         this.isCommandSent = false;
+        //     }
+        // });
     }
     configureBaseSocketFeatures() {
         // this.verifyPlaceSocket();

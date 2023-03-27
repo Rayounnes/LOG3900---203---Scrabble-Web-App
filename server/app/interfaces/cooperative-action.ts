@@ -7,6 +7,5 @@ export interface CooperativeAction {
     socketId: string;
     votesFor: number;
     votesAgainst: number;
-    socketAndChoice : Object
+    socketAndChoice: Object;
 }
-

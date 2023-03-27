@@ -6,6 +6,8 @@
 </div>
 <div class="command">
   <span *ngIf="action.placement">{{action.placement.command}}</span>
+  <span *ngIf="action.action === 'exchange'">Echanger les lettres {{action.lettersToExchange}}</span>
+  <span *ngIf="action.action === 'pass'">Passer le tour</span>
 </div>
 
 <div class="players" *ngIf="infoget">

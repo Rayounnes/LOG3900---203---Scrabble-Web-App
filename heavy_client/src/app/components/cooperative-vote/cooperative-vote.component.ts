@@ -10,20 +10,19 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
 })
 export class CooperativeVoteComponent implements OnInit {
     action!: CooperativeAction;
-    usernameAndAvatars : any = {} // { socketId : [username,avatar]}
-    infoget : boolean = false;
+    usernameAndAvatars: any = {}; // { socketId : [username,avatar]}
+    infoget: boolean = false;
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any,
         public socketService: ChatSocketClientService,
     ) {
         this.action = this.data.vote;
-        this.getUsernameAndAvatar()
+        this.getUsernameAndAvatar();
     }
 
     ngOnInit(): void {
         this.connect();
-        
     }
 
     connect() {
@@ -32,7 +31,6 @@ export class CooperativeVoteComponent implements OnInit {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
-        
     }
 
     configureBaseSocketFeatures() {
@@ -48,12 +46,12 @@ export class CooperativeVoteComponent implements OnInit {
             this.action = coopAction;
             this.dialogRef.close({ action: this.action, isAccepted: false });
         });
-        this.socketService.on('choice-pannel-info', (usernamesAndAvatar : any) =>{
+        this.socketService.on('choice-pannel-info', (usernamesAndAvatar: any) => {
             this.usernameAndAvatars = usernamesAndAvatar;
             this.infoget = true;
-            console.log("recu client")
-            console.log(usernamesAndAvatar)
-        })
+            console.log('recu client');
+            console.log(usernamesAndAvatar);
+        });
     }
     acceptAction() {
         this.socketService.send('player-vote', true);
@@ -62,21 +60,21 @@ export class CooperativeVoteComponent implements OnInit {
         this.socketService.send('player-vote', false);
     }
 
-    getKeys(object : any) : string[] {
-        return Object.keys(object)
+    getKeys(object: any): string[] {
+        return Object.keys(object);
     }
 
-    getUsernameAndAvatar(){
-        this.socketService.send('choice-pannel-info', this.getKeys(this.action.socketAndChoice))
+    getUsernameAndAvatar() {
+        this.socketService.send('choice-pannel-info', this.getKeys(this.action.socketAndChoice));
     }
 
-    getPlayerClass(socketId : string){
-        if(this.action.socketAndChoice[socketId] == "choice"){
-            return 'choice'
-        }else if(this.action.socketAndChoice[socketId] == "yes"){
-            return 'yes'
-        }else{
-            return 'no'
+    getPlayerClass(socketId: string) {
+        if (this.action.socketAndChoice[socketId] == 'choice') {
+            return 'choice';
+        } else if (this.action.socketAndChoice[socketId] == 'yes') {
+            return 'yes';
+        } else {
+            return 'no';
         }
     }
 }

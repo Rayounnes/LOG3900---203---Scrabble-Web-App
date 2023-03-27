@@ -121,17 +121,17 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                     this.gridService.placeLetter(placedWord.letters as Letter[]);
                     this.socketService.send('validate-created-words', placedWord);
                 } else {
-                    const choiceMap : any = {};
-                    choiceMap[this.socketService.socketId] = "yes"
+                    const choiceMap: any = {};
+                    choiceMap[this.socketService.socketId] = 'yes';
                     const voteAction = {
                         action: 'place',
                         placement: placedWord,
                         socketId: this.socketService.socketId,
                         votesFor: 1,
                         votesAgainst: 0,
-                        socketAndChoice : choiceMap
+                        socketAndChoice: choiceMap,
                     } as CooperativeAction;
-                    console.log(voteAction)
+                    console.log(voteAction);
                     this.socketService.send('vote-action', voteAction);
                 }
             }
@@ -149,7 +149,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         }
         this.socketService.send('send-player-score');
         this.socketService.send('update-reserve');
-        if (!isClassicMode) this.socketService.send('change-user-turn');
     }
     validatePlaceSockets() {
         this.socketService.on('validate-created-words', async (placedWord: Placement) => {
@@ -160,16 +159,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                     duration: 2000,
                     panelClass: ['snackbar'],
                 });
+                if (!this.isClassic) this.socketService.send('cooperative-invalid-action', true);
                 this.gridService.removeLetter(placedWord.letters);
             } else {
-                // On envoie les votes
                 this.validatePlacement(placedWord, this.isClassic);
             }
-            if (this.isClassic) {
-                this.commandSent = false;
-                this.socketService.send('change-user-turn');
-                this.socketService.send('draw-letters-rack');
-            }
+            this.commandSent = false;
+            this.socketService.send('change-user-turn');
+            this.socketService.send('draw-letters-rack');
         });
         this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
             this.gridService.placeLetter(lettersPosition as Letter[]);
@@ -181,26 +178,38 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.removeLetterAndArrow();
         });
         this.socketService.on('vote-action', (voteAction: CooperativeAction) => {
-            console.log('Opening vote action dialog after vote-action socket');
-            this.openVoteActionDialog(voteAction);
+            if (voteAction.action !== 'exchange') this.openVoteActionDialog(voteAction);
+        });
+        this.socketService.on('cooperative-invalid-action', (isPlacement: boolean) => {
+            const message = isPlacement
+                ? 'Erreur : les mots crées sont invalides'
+                : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+            this.snackBar.open(message, 'Fermer', {
+                duration: 2000,
+                panelClass: ['snackbar'],
+            });
         });
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
         const dialogRef = this.dialog.open(CooperativeVoteComponent, {
             width: '400px',
-            height : '600px',
+            height: '600px',
             data: { vote: voteAction },
         });
         dialogRef.afterClosed().subscribe((result) => {
-            this.removeLetterAndArrowCoop(result.action.placement.letters);
+            if (result.action.action === 'place') this.removeLetterAndArrowCoop(result.action.placement.letters);
             // if (result.action.socketId === this.socketService.socketId) this.gridService.removeLetter(result.action.placement.letters);
             if (result.action.socketId === this.socketService.socketId && result.isAccepted) {
-                console.log('sending placement');
-                /* this.validatePlacement(result.action.placement, this.isClassic); */
-                this.commandSent = true;
-                this.socketService.send('remove-letters-rack', result.action.placement.letters);
-                this.gridService.placeLetter(result.action.placement.letters as Letter[]);
-                this.socketService.send('validate-created-words', result.action.placement);
+                if (result.action.action === 'place') {
+                    console.log('sending placement');
+                    /* this.validatePlacement(result.action.placement, this.isClassic); */
+                    this.commandSent = true;
+                    this.socketService.send('remove-letters-rack', result.action.placement.letters);
+                    this.gridService.placeLetter(result.action.placement.letters as Letter[]);
+                    this.socketService.send('validate-created-words', result.action.placement);
+                } else if (result.action.action === 'pass') {
+                    this.socketService.send('pass-turn');
+                }
             }
             const message = result.isAccepted ? 'Action accepted' : 'Action refused';
             this.snackBar.open(message, 'Fermer', {
@@ -243,9 +252,23 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     passTurn(): void {
         this.removeLetterAndArrow();
-        this.socketService.send('chatMessage', '!passer');
-        this.socketService.send('pass-turn');
-        this.socketService.send('change-user-turn');
+        // this.socketService.send('chatMessage', '!passer');
+        if (this.isClassic) {
+            this.socketService.send('pass-turn');
+            this.socketService.send('change-user-turn');
+        } else {
+            const choiceMap: any = {};
+            choiceMap[this.socketService.socketId] = 'yes';
+            const voteAction = {
+                action: 'pass',
+                socketId: this.socketService.socketId,
+                votesFor: 1,
+                votesAgainst: 0,
+                socketAndChoice: choiceMap,
+            } as CooperativeAction;
+            console.log(voteAction);
+            this.socketService.send('vote-action', voteAction);
+        }
     }
     mouseHitDetect(event: MouseEvent) {
         const isSocketTurn = this.socketService.socketId === this.socketTurn;
