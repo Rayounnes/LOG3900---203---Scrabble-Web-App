@@ -121,15 +121,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                     this.gridService.placeLetter(placedWord.letters as Letter[]);
                     this.socketService.send('validate-created-words', placedWord);
                 } else {
+                    const choiceMap : any = {};
+                    choiceMap[this.socketService.socketId] = "yes"
                     const voteAction = {
                         action: 'place',
                         placement: placedWord,
                         socketId: this.socketService.socketId,
                         votesFor: 1,
                         votesAgainst: 0,
+                        socketAndChoice : choiceMap
                     } as CooperativeAction;
+                    console.log(voteAction)
                     this.socketService.send('vote-action', voteAction);
-                    this.openVoteActionDialog(voteAction);
                 }
             }
             this.gridService.board.resetStartTile();
@@ -184,7 +187,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
         const dialogRef = this.dialog.open(CooperativeVoteComponent, {
-            width: 'auto',
+            width: '400px',
+            height : '600px',
             data: { vote: voteAction },
         });
         dialogRef.afterClosed().subscribe((result) => {

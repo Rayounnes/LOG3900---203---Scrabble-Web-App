@@ -22,6 +22,7 @@ import { ChannelService } from './channels.service';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 import { ScrabbleCooperativeMode } from '@app/classes/scrabble-cooperative-mode';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
+import { iconService } from './icon.service';
 
 export class SocketManager {
     private sio: io.Server;
@@ -36,6 +37,7 @@ export class SocketManager {
     private gameManager: GameManager;
     private loginService: LoginService;
     private channelService: ChannelService;
+    private iconService : iconService;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
@@ -43,6 +45,7 @@ export class SocketManager {
 
         this.loginService = new LoginService(this.databaseService, this.channelService);
         this.channelService = new ChannelService(this.databaseService);
+        this.iconService = new iconService(this.databaseService)
         this.gameManager = new GameManager(
             this.sio,
             this.usernames,
@@ -254,8 +257,15 @@ export class SocketManager {
     }
     cooperativeModeHandler(socket: io.Socket) {
         socket.on('vote-action', (action: CooperativeAction) => {
+            const room = this.usersRoom.get(socket.id) as string;
             console.log('received vote-action');
+            console.log(action)
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
+            for(let socket of scrabbleGame.getPlayersSockets()){
+                if(!(action.socketAndChoice[socket])){
+                    action.socketAndChoice[socket] = "choice"
+                }
+            }
             (scrabbleGame as ScrabbleCooperativeMode).setCooperativeAction(action);
             // switch(action.action){
             // case "place": {
@@ -272,15 +282,21 @@ export class SocketManager {
                     (action.placement as Placement).letters,
                 );
             // envoyer a toutes les autres personnes l'action que la personne veut proposer
-            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id)) this.sio.to(opponentSocket).emit('vote-action', action);
+            //for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id)) this.sio.to(opponentSocket).emit('vote-action', action);
+            this.sio.to(room).emit('vote-action', action);
         });
         socket.on('player-vote', (playerAccept: boolean) => {
             // recevoir le vote d'une personne et le propager pour le reste
             const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             const coopAction: CooperativeAction = (scrabbleGame as ScrabbleCooperativeMode).getCooperativeAction();
-            if (playerAccept) coopAction.votesFor++;
-            else coopAction.votesAgainst++;
+            if (playerAccept) {
+                coopAction.votesFor++;
+                coopAction.socketAndChoice[socket.id] = "yes"}
+            else{
+                coopAction.votesAgainst++;
+                coopAction.socketAndChoice[socket.id] = "no"
+            }
             if (coopAction.votesFor + coopAction.votesAgainst === scrabbleGame.humansPlayerInGame) {
                 if (coopAction.votesFor > coopAction.votesAgainst) this.sio.to(room).emit('accept-action', coopAction);
                 else this.sio.to(room).emit('reject-action', coopAction);
@@ -579,6 +595,22 @@ export class SocketManager {
         });
     }
 
+    getChoicePannelInfo(socket: io.Socket){
+        socket.on('choice-pannel-info',async (socketIds : string[]) =>{
+            console.log("recu serveur")
+            console.log(socketIds)
+            let usernameAndAvatars = {}
+            for(let socket of socketIds){
+                let username = this.usernames.get(socket) as string
+                let icon  = await this.iconService.getUserIcon(username)
+                usernameAndAvatars[socket] = [username,icon[0]]
+                console.log("iteration")
+                console.log(usernameAndAvatars)
+            }
+            this.sio.to(socket.id).emit('choice-pannel-info',usernameAndAvatars)
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -611,6 +643,7 @@ export class SocketManager {
             this.userDeleteChannel(socket);
             this.userTyping(socket);
             this.changeUsername(socket);
+            this.getChoicePannelInfo(socket)
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

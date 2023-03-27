@@ -9,16 +9,21 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     styleUrls: ['./cooperative-vote.component.scss'],
 })
 export class CooperativeVoteComponent implements OnInit {
-    action: CooperativeAction;
+    action!: CooperativeAction;
+    usernameAndAvatars : any = {} // { socketId : [username,avatar]}
+    infoget : boolean = false;
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any,
         public socketService: ChatSocketClientService,
-    ) {}
+    ) {
+        this.action = this.data.vote;
+        this.getUsernameAndAvatar()
+    }
 
     ngOnInit(): void {
         this.connect();
-        this.action = this.data.vote;
+        
     }
 
     connect() {
@@ -27,6 +32,7 @@ export class CooperativeVoteComponent implements OnInit {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
+        
     }
 
     configureBaseSocketFeatures() {
@@ -42,11 +48,35 @@ export class CooperativeVoteComponent implements OnInit {
             this.action = coopAction;
             this.dialogRef.close({ action: this.action, isAccepted: false });
         });
+        this.socketService.on('choice-pannel-info', (usernamesAndAvatar : any) =>{
+            this.usernameAndAvatars = usernamesAndAvatar;
+            this.infoget = true;
+            console.log("recu client")
+            console.log(usernamesAndAvatar)
+        })
     }
     acceptAction() {
         this.socketService.send('player-vote', true);
     }
     rejectAction() {
         this.socketService.send('player-vote', false);
+    }
+
+    getKeys(object : any) : string[] {
+        return Object.keys(object)
+    }
+
+    getUsernameAndAvatar(){
+        this.socketService.send('choice-pannel-info', this.getKeys(this.action.socketAndChoice))
+    }
+
+    getPlayerClass(socketId : string){
+        if(this.action.socketAndChoice[socketId] == "choice"){
+            return 'choice'
+        }else if(this.action.socketAndChoice[socketId] == "yes"){
+            return 'yes'
+        }else{
+            return 'no'
+        }
     }
 }
