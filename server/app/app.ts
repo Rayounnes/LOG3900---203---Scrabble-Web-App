@@ -20,6 +20,7 @@ import { loginController } from './controllers/login.controller';
 import * as fileupload from 'express-fileupload';
 import { ChannelController } from './controllers/channels.controller';
 import { iconController } from './controllers/icons.controller';
+import { securityController } from './controllers/security.controller';
 
 @Service()
 export class Application {
@@ -36,7 +37,8 @@ export class Application {
         private readonly gameHistoryController: GameHistoryController,
         private readonly loginController : loginController,
         private readonly channelController : ChannelController,
-        private readonly iconController : iconController
+        private readonly iconController : iconController,
+        private readonly securityController : securityController,
     ) {
         this.app = express();
 
@@ -66,6 +68,7 @@ export class Application {
         this.app.use('/api/gameHistory', this.gameHistoryController.router);
         this.app.use('/api/virtualPlayer', this.virtualPlayerCollectorController.router);
         this.app.use('/api/login',this.loginController.router);
+        this.app.use('/api/security',this.securityController.router);
         this.app.use('/api/channels',this.channelController.router);
         this.app.use('/api/icons',this.iconController.router);
         this.app.use('/', (req, res) => {

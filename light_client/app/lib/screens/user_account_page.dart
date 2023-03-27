@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:app/screens/user_account_edit_page.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/music_appBar.dart';
 
 class UserAccountPage extends StatefulWidget {
   final String userName ;
@@ -45,11 +44,9 @@ class _UserAccountPageState extends State<UserAccountPage> {
   Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: false,
             title: Text(
               'Mon compte',
-            ),
-            actions: [MusicAppBar()]),
+            ),),
         body:Padding(
           padding: const EdgeInsets.all(80.0),
           child: Center(

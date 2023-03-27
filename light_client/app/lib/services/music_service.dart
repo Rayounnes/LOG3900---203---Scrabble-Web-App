@@ -1,8 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:app/constants/widgets.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart' as audio;
 
 import 'package:injectable/injectable.dart';
@@ -10,6 +6,8 @@ import 'package:just_audio/just_audio.dart';
 
 @injectable
 class MusicService {
+  double xPosition = 680;
+  double yPosition = 150;
   int musicID = 0;
   bool isPlaying = true;
 
@@ -59,7 +57,6 @@ class MusicService {
     audioPlayer.playerStateStream.listen((state) {
       Duration? musicDuration = audioPlayer.duration;
       Duration musicPosition = audioPlayer.position;
-      Duration timeOut = Duration(minutes: 1, seconds: 23);
 
       if (state.processingState == audio.ProcessingState.completed) {
         print("Music has ended $musicPosition - $musicDuration and time is");

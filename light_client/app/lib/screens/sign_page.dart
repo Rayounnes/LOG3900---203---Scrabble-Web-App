@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 
-
 import 'package:app/constants/widgets.dart';
 import 'package:app/screens/login_page.dart';
 import 'package:flutter/material.dart';
@@ -30,13 +29,7 @@ class _SignUpState extends State<SignUp> {
   String selectedQuestion = "";
   String picturePath = "";
 
-  final List<String> questions = [
-    "Quel est votre destination de rêve ?",
-    "Quel est votre nourriture préféré ?",
-    "Quel est votre animal préféré ?",
-    "Quel est votre sport préféré ?",
-    "Quel est votre langage de programmation préféré ?",
-  ];
+  final List<String> questions =List.from(SECURITY_QUESTIONS);
 
   @override
   void dispose() {
@@ -52,11 +45,6 @@ class _SignUpState extends State<SignUp> {
   @override
   void initState() {
     super.initState();
-    getSecurityQst();
-  }
-
-  void getSecurityQst() async{ //erreur HTTP 302
-    List questions = await ApiService().getSecurityQsts();
     print(questions);
   }
 
@@ -71,10 +59,10 @@ class _SignUpState extends State<SignUp> {
     String username = usernameController.text;
     File imageFile = File(picturePath);
     List<int> imageBytes = await imageFile.readAsBytes();
-    String imageBase64 = BASE64PREFIX+base64Encode(imageBytes);
+    String imageBase64 = BASE64PREFIX + base64Encode(imageBytes);
 
     bool iconResponse = await ApiService().pushIcon(imageBase64, username);
-    if(iconResponse) {
+    if (iconResponse) {
       int response = await ApiService().createUser(LoginInfos(
           username: username,
           password: passwordController.text,
@@ -82,8 +70,7 @@ class _SignUpState extends State<SignUp> {
           icon: imageBase64,
           socket: getIt<SocketService>().socketId,
           qstIndex: selectedQuestion,
-          qstAnswer: securityResponseController.text
-      ));
+          qstAnswer: securityResponseController.text));
       if (response == HTTP_STATUS_OK) {
         getIt<UserInfos>().setUser(username);
         getIt<SocketService>().send("user-connection", <String, String>{
@@ -107,8 +94,7 @@ class _SignUpState extends State<SignUp> {
                   "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
         );
       }
-    }
-    else{
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.blue,
@@ -120,11 +106,9 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<DropdownMenuEntry<String>> qsts =
-    <DropdownMenuEntry<String>>[];
-    for (int i = 0; i<questions.length; i++) {
-      qsts.add(DropdownMenuEntry<String>(
-          value: '$i', label: questions[i]));
+    final List<DropdownMenuEntry<String>> qsts = <DropdownMenuEntry<String>>[];
+    for (int i = 0; i < questions.length; i++) {
+      qsts.add(DropdownMenuEntry<String>(value: '$i', label: questions[i]));
     }
 
     return Scaffold(
@@ -166,7 +150,7 @@ class _SignUpState extends State<SignUp> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Padding(
-                            padding: const EdgeInsets.only(top:20.0),
+                            padding: const EdgeInsets.only(top: 20.0),
                             child: Text('Création de compte',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
@@ -189,7 +173,8 @@ class _SignUpState extends State<SignUp> {
                                 return "Nom d'utilisateur requis.";
                               } else if (value.length < 5) {
                                 return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
-                              } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
+                              } else if (!value
+                                  .contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
                                 return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
                               }
                               return null;
@@ -207,7 +192,9 @@ class _SignUpState extends State<SignUp> {
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (String? value) {
-                              if (value!.isEmpty || !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b').hasMatch(value)) {
+                              if (value!.isEmpty ||
+                                  !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
+                                      .hasMatch(value)) {
                                 return 'Entrez une adresse email valide.';
                               }
                               return null;
@@ -259,8 +246,8 @@ class _SignUpState extends State<SignUp> {
                           child: Center(
                             child: DropdownMenu(
                               width: 450,
-                              leadingIcon:Icon(Icons.security_outlined) ,
-                             // initialSelection: questions[0],
+                              leadingIcon: Icon(Icons.security_outlined),
+                              // initialSelection: questions[0],
                               controller: securityQuestionController,
                               label: const Text('Question de sécurité'),
                               dropdownMenuEntries: qsts,
@@ -278,28 +265,31 @@ class _SignUpState extends State<SignUp> {
                             controller: securityResponseController,
                             decoration: InputDecoration(
                               icon: Icon(Icons.question_answer_outlined),
-                              label: Text(selectedQuestion==''?
-                              'Choisissez une question de sécurité'
-                                  :securityQuestionController.text) ,
+                              label: Text(selectedQuestion == ''
+                                  ? 'Choisissez une question de sécurité'
+                                  : securityQuestionController.text),
                               hintText: 'Réponse à la question',
                               border: OutlineInputBorder(),
                             ),
                             validator: (String? value) {
-                            if (value == null || value.isEmpty) {
-                              return "Entrez une réponse à la question de sécurité";
-                            }
-                            return null;
-                          },
+                              if (value == null || value.isEmpty) {
+                                return "Entrez une réponse à la question de sécurité";
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: ElevatedButton(
-                            onPressed: picturePath.isEmpty || selectedQuestion==''? null:  () {
-                              if (_formKey.currentState!.validate()) {
-                                createAccount();
-                              }
-                            },
+                            onPressed:
+                                picturePath.isEmpty || selectedQuestion == ''
+                                    ? null
+                                    : () {
+                                        if (_formKey.currentState!.validate()) {
+                                          createAccount();
+                                        }
+                                      },
                             child: Text('Créer le compte'),
                           ),
                         ),
@@ -329,7 +319,9 @@ class _SignUpState extends State<SignUp> {
               color: Color.fromARGB(255, 253, 253, 253),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color:picturePath.isEmpty ?Colors.red : Color.fromARGB(255, 0, 0, 0),
+                color: picturePath.isEmpty
+                    ? Colors.red
+                    : Color.fromARGB(255, 0, 0, 0),
                 width: 2,
               ),
             ),

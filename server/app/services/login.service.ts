@@ -78,26 +78,41 @@ export class LoginService {
         }
     }
 
-    async getSecurityInfos(username : string, query : string){
+    async getSecurityAnswer(username : string){
         let document = await this.userCollection.findOne({username : username});
-        console.log(document,'SERVICEEE')
         if(document){
-            return document[query];
+            return document['securityAnswer'];
         }else{
             return '';
         }
     }
 
-    async changePassword(username : string, password : string){
-        try {
-            let document = await this.userCollection.findOne({username : username});
-            if(document!['connected'] == true) return false;
-            await this.userCollection.updateOne({username : username},{$set : {password : password}});
-            return true
-        } catch (error) {
-            return false;
+    async getSecurityId(username : string){
+        let document = await this.userCollection.findOne({username : username});
+        if(document){
+            return document['securityQstId'];
+        }else{
+            return '';
         }
     }
+
+    async changePassword(username: string, newPassword: string) {
+        //Le username du client léger est comme ça --> '"user"'
+        if(username.startsWith('"')) username = username.split('"')[1];
+        let user = await this.userCollection.findOne({ username: username });
+        console.log(user, "Exist");
+
+        if (user) {
+            if (user['connected']) {return false;}
+            await this.userCollection.updateOne(
+                { username: username },
+                { $set: { password: newPassword } }
+            );
+            return true;
+        }else {
+           return false;
+        }
+      }
 
     async changeUsername(oldUsername : string, newUsername : string) : Promise<boolean>{
         let usernameExists = await this.userCollection.findOne({ username: newUsername });

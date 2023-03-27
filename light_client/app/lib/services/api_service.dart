@@ -129,7 +129,7 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
   }
 
   Future<bool> changePassword(String username, String password) async {
-    final response = await http.post(
+    final response = await http.put(
       Uri.parse('${ApiConstants.baseUrl}/api/login/user/changepassword'),
       body: {
         'username': jsonEncode(username),
@@ -172,33 +172,23 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     }
   }
 
-  Future<List<dynamic>> getSecurityQsts() async {
+  Future<List<dynamic>> getSecurityQst() async {
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/api/security/questions'),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-
-    } else {
-      throw Exception("Échec de récupération des questions de sécurité");
-    }
-  }
-
-  Future<dynamic> getSecurityQst(int index) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/security/questions/$index'),
-    );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      List val;
+      val = jsonDecode(response.body);
+      return val;
 
     } else {
       throw Exception("Échec de récupération de la question de sécurité");
     }
   }
 
-  Future<dynamic> getSecurityQstID() async {
+  Future<dynamic> getSecurityQstID(String username) async {
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/login/securityId'),
+      Uri.parse('${ApiConstants.baseUrl}/api/login/securityId/$username'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -208,12 +198,14 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     }
   }
 
-  Future<dynamic> getSecurityAnswer() async {
+  Future<dynamic> getSecurityAnswer(String username) async {
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/login/securityAnswer'),
+      Uri.parse('${ApiConstants.baseUrl}/api/login/securityAnswer/$username'),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      String val;
+      val = jsonDecode(response.body);
+      return val;
 
     } else {
       throw Exception("Échec de récupération de la réponse de sécurité");
@@ -228,7 +220,7 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
       return jsonDecode(response.body);
 
     } else {
-      throw Exception("Échec de récupération d'image");
+      return [];
     }
   }
 

@@ -16,13 +16,13 @@ export class SecurityService {
 
     async getAllQuestions(){
         let document = await this.securityCollection.find({}).toArray();
-        return document['questions'];
+        return document[0].questions;
     }
 
     async getSecurityQst(index : number){
         let document = await this.securityCollection.find({}).toArray();
-        let securityQst = document['questions'];
-        return securityQst[index];
+        let securityQst = document[0].questions[index];
+        return securityQst;
     }
 
 }

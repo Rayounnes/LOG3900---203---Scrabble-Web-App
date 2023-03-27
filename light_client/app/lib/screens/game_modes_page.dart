@@ -13,8 +13,11 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
+import '../widgets/loading_tips.dart';
+
 class GameModes extends StatefulWidget {
   final String name;
+
   const GameModes({super.key, this.name = ''});
 
   @override
@@ -32,7 +35,6 @@ class _GameModesState extends State<GameModes> {
   void initState() {
     super.initState();
     getUserInfo();
-    print(widget.name + 'AUGHHH');
   }
 
   @override
@@ -41,11 +43,12 @@ class _GameModesState extends State<GameModes> {
   }
 
   void getUserInfo() async {
-    if(mounted){
+    if (mounted) {
       userName = widget.name != '' ? widget.name : getIt<UserInfos>().user;
       iconList = await ApiService().getUserIcon(userName);
       connexionHistory = await ApiService().getConnexionHistory(userName);
-      decodedBytes = base64Decode(iconList[0].toString().substring(BASE64PREFIX.length));
+      decodedBytes =
+          base64Decode(iconList[0].toString().substring(BASE64PREFIX.length));
     }
   }
 
@@ -117,10 +120,14 @@ class _GameModesState extends State<GameModes> {
                     padding: 32.0,
                     name: "Profil",
                     route: () {
-                      Navigator.push(
-                          context,MaterialPageRoute(builder: (context) {
-                            getUserInfo();
-                        return UserAccountPage(connexionHistory: connexionHistory, userName: userName, userPoints: userPoints, decodedBytes: decodedBytes,
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        getUserInfo();
+                        return UserAccountPage(
+                          connexionHistory: connexionHistory,
+                          userName: userName,
+                          userPoints: userPoints,
+                          decodedBytes: decodedBytes,
                         );
                       }));
                     }),
@@ -134,6 +141,7 @@ class _GameModesState extends State<GameModes> {
             ),
           ),
         ),
+        Align(alignment: Alignment.bottomCenter, child: LoadingTips()),
       ],
     ));
   }

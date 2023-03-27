@@ -56,24 +56,23 @@ export class loginController {
             });
         });
 
-        this.router.get('/securityAnswer', async (req: Request, res: Response, next): Promise<void> => {
+        this.router.get('/securityAnswer/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
-            this.loginService.getSecurityInfos(username,'securityAnswer').then((answer): void => {
-                res.status(answer != '' ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(answer);
+            this.loginService.getSecurityAnswer(username).then((answer): void => {
+                res.status(answer != '' ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).json(answer);
             });
         });
 
-        this.router.get('/securityId', async (req: Request, res: Response, next): Promise<void> => {
-            console.log("hereConTROLLA");
+        this.router.get('/securityId/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
-            this.loginService.getSecurityInfos(username,'securityQstId').then((index): void => {
+            this.loginService.getSecurityId(username).then((index): void => {
                 res.status(index ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(index);
             });
         });
 
-        this.router.post('/user/changepassword', async (req: Request, res: Response, next): Promise<void> => {
+        this.router.put('/user/changepassword', async (req: Request, res: Response, next): Promise<void> => {
             const password: string = req.body.password;
-            const username = req.body.username;
+            const username: string = req.body.username;
             this.loginService.changePassword(username, password).then((isValid) =>{
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             })

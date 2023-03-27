@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:app/main.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
+import 'package:app/services/music_service.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
@@ -29,8 +30,6 @@ class BoardPaint extends CustomPainter {
   Size rectSize = Size(50, 50);
   @override
   void paint(Canvas canvas, Size size) {
-    final vLines = (size.width ~/ TILE_SIZE) + 1;
-    final hLines = (size.height ~/ TILE_SIZE) + 1;
 
     final paintRack = Paint()
       ..strokeWidth = 1
@@ -287,7 +286,6 @@ class _GamePageState extends State<GamePage> {
 
     String? letterValue = tileLetter[tileID];
     selectedLetter = '';
-    bool isLetterInList = false;
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
@@ -415,7 +413,9 @@ class _GamePageState extends State<GamePage> {
     });
 
     getIt<SocketService>().on('validate-created-words', (placedWord) {
+      MusicService musicService = MusicService();
       if (placedWord["points"] != 0) {
+        musicService.playMusic(GOOD_PLACEMENT_SOUND,false);
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
@@ -423,6 +423,7 @@ class _GamePageState extends State<GamePage> {
         switchRack(false);
         board.isFilledForEachLetter(lettersofBoard);
       } else {
+        musicService.playMusic(BAD_PLACEMENT_SOUND,false);
         setTileOnRack();
         changeTurn();
       }
@@ -542,6 +543,8 @@ class _GamePageState extends State<GamePage> {
               FloatingActionButton(
                 heroTag: "btn1",
                 onPressed: () {
+                  MusicService musicService = MusicService();
+                  musicService.playMusic(LOSE_GAME_SOUND,false);
                   getIt<SocketService>().send('abandon-game');
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return GameModes();
@@ -585,6 +588,8 @@ class _GamePageState extends State<GamePage> {
                         setState(() {
                           getIt<SocketService>().send('pass-turn');
                           switchRack(true);
+                          MusicService musicService = MusicService();
+                          musicService.playMusic(SWITCH_TURN_SOUND,false);
                         });
                       },
                 backgroundColor: !isPlayerTurn
@@ -645,6 +650,8 @@ class _GamePageState extends State<GamePage> {
                             }).then((List<String>? result) {
                           if (result != null) {
                             switchRack(true);
+                            MusicService musicService = MusicService();
+                            musicService.playMusic(CHANGE_TILE_SOUND,false);
                           }
                         });
                       },
