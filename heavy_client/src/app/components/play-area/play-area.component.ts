@@ -43,7 +43,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     isClassic: boolean;
 
 
-    //Configuration du mat-dialog
+    
     dialogConfig = new MatDialogConfig();
 
 

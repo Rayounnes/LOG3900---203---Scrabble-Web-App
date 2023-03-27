@@ -4,7 +4,7 @@ import { KeyboardManagementService } from '@app/services/keyboard-management.ser
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
 import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog , MatDialogConfig} from '@angular/material/dialog';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { CooperativeVoteComponent } from '../cooperative-vote/cooperative-vote.component';
 import { ActivatedRoute } from '@angular/router';
@@ -34,6 +34,7 @@ export class ChevaletComponent implements AfterViewInit {
     reserveTilesLeft = RESERVE_START_LENGTH;
     lettersExchange = '';
     items: string[] = [];
+    dialogConfig = new MatDialogConfig();
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -147,10 +148,13 @@ export class ChevaletComponent implements AfterViewInit {
         this.chevaletService.changeRackTile(event);
     } */
     openExchangeVoteActionDialog(voteAction: CooperativeAction): void {
-        const dialogRef = this.dialog.open(CooperativeVoteComponent, {
-            width: 'auto',
-            data: { vote: voteAction },
-        });
+        this.dialogConfig.position = { left: '100px' };
+        this.dialogConfig.backdropClass = 'custom-backdrop';
+        this.dialogConfig.panelClass = 'custom-panel';
+        this.dialogConfig.width = '400px';
+        this.dialogConfig.height = '600px';
+        this.dialogConfig.data = {vote: voteAction };
+        const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action.socketId === this.socketService.socketId && result.isAccepted) {
                 this.exchange();

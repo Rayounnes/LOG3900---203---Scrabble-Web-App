@@ -163,3 +163,69 @@ mat-dialog-container{
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     border-radius: 25px;
 }
+
+
+.timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: max-content;
+  width: max-content;
+  animation: moveUpDown 1.8s infinite;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  border-radius: 1000px;
+}
+
+.timer-text {
+  font-size: 30px;
+  font-family: revert;
+  text-anchor: middle;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.circle__background {
+  stroke: #888989;
+}
+
+.circle__progress {
+  stroke: #3f9540;
+  animation: progress 0s infinite;
+  transform-origin: 50% 50%;
+}
+
+.circle__progress--orange {
+  stroke: orange;
+  animation: progress 0s infinite;
+  transform-origin: 50% 50%;
+}
+
+.circle__progress--red {
+  stroke: red;
+  animation: progress 0s infinite;
+  transform-origin: 50% 50%;
+}
+
+
+@keyframes progress {
+  0% {
+      stroke-dashoffset: 0;
+  }
+  100% {
+      stroke-dashoffset: 100;
+  }
+}
+
+@keyframes moveUpDown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

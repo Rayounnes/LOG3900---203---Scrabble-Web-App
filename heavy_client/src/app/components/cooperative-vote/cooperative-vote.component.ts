@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild,ElementRef ,OnDestroy} from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
@@ -8,10 +8,19 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     templateUrl: './cooperative-vote.component.html',
     styleUrls: ['./cooperative-vote.component.scss'],
 })
-export class CooperativeVoteComponent implements OnInit {
+export class CooperativeVoteComponent implements OnInit, OnDestroy {
+    @ViewChild('circleProgress') circleProgress!: ElementRef<SVGElement>;
+
     action!: CooperativeAction;
     usernameAndAvatars: any = {}; // { socketId : [username,avatar]}
     infoget: boolean = false;
+    choiceMade : boolean = false;
+    timer: ReturnType<typeof setInterval>;
+    clock : number = 60;
+
+
+
+
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any,
@@ -19,10 +28,13 @@ export class CooperativeVoteComponent implements OnInit {
     ) {
         this.action = this.data.vote;
         this.getUsernameAndAvatar();
+        this.setCreator();
+        this.timer = setInterval(() => this.intervalHandler(), 1000);
     }
 
     ngOnInit(): void {
         this.connect();
+        
     }
 
     connect() {
@@ -54,9 +66,11 @@ export class CooperativeVoteComponent implements OnInit {
         });
     }
     acceptAction() {
+        this.choiceMade = true;
         this.socketService.send('player-vote', true);
     }
     rejectAction() {
+        this.choiceMade = true;
         this.socketService.send('player-vote', false);
     }
 
@@ -76,5 +90,60 @@ export class CooperativeVoteComponent implements OnInit {
         } else {
             return 'no';
         }
+    }
+
+    intervalHandler() {
+        this.clock--;
+        this.updateProgress(this.clock / 60);
+        if (this.clock === 0) {
+            if(!this.choiceMade) this.rejectAction()
+            clearInterval(this.timer);
+        }
+    }
+
+    updateProgress(timeFraction: number): void {
+        const circle = this.circleProgress.nativeElement;
+        const radius = parseFloat(circle.getAttribute('r')!);
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference * (1 - timeFraction);
+
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = `${offset}`;
+    }
+
+    setCreator(){
+        if(this.action.socketAndChoice[this.socketService.socketId] == "yes"){
+            this.choiceMade = true;
+        }
+    }
+
+    getCircleClass() {
+        if (this.clock < 20) {
+            return 'circle__progress--red';
+        } else if (this.clock < 40) {
+            return 'circle__progress--orange';
+        } else {
+            return 'circle__progress';
+        }
+    }
+
+    getTextColor() {
+        if (this.clock < 20) {
+            return 'red';
+        } else if (this.clock < 40) {
+            return 'orange';
+        } else {
+            return '#3f9540';
+        }
+    }
+    resetProgressCircle(): void {
+        if (this.circleProgress) {
+            this.updateProgress(1);
+        }
+    }
+
+
+    ngOnDestroy(): void {
+        clearInterval(this.timer);
     }
 }
