@@ -65,6 +65,12 @@ export class SocketManager {
         game.hostID = socketId;
         this.usersRoom.set(socketId, game.room);
     }
+    sendPlayerAction(socketId: string, message: string) {
+        const room = this.usersRoom.get(socketId) as string;
+        const game = this.gameRooms.get(room) as Game;
+        if (!game.isClassicMode) return;
+        for (const opponentSocket of this.gameManager.findOpponentSockets(socketId)) this.sio.to(opponentSocket).emit('player-action', message);
+    }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
             const classic = game.isClassicMode === isClassic && !game.isFinished;
@@ -247,6 +253,8 @@ export class SocketManager {
                 this.sio.to(room).emit('join-game');
                 if (!isLightClient) this.startCooperativeGame(room);
             }
+            game.hasStarted = true;
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
         socket.on('start-game-light-client', () => {
             const room = this.usersRoom.get(socket.id) as string;
@@ -319,20 +327,17 @@ export class SocketManager {
         });
         socket.on('exchange-opponent-message', (numberLetters: number) => {
             const username = this.usernames.get(socket.id);
-            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
-                this.sio.to(opponentSocket).emit('chatMessage', {
-                    username: username,
-                    message: `!échanger ${numberLetters} lettre(s)`,
-                    time: new Date().toTimeString().split(' ')[0],
-                    type: 'player',
-                    channel: this.usersRoom.get(socket.id) as string,
-                });
+            const message = `${username} a échangé ${numberLetters} lettre(s)`;
+            this.sendPlayerAction(socket.id, message);
         });
     }
     passCommandHandler(socket: io.Socket) {
         socket.on('pass-turn', () => {
+            const username = this.usernames.get(socket.id);
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             scrabbleGame.incrementStreakPass();
+            const message = `${username} a passé son tour`;
+            this.sendPlayerAction(socket.id, message);
             this.gameManager.isEndGame(this.usersRoom.get(socket.id) as string, scrabbleGame);
         });
     }
@@ -412,13 +417,8 @@ export class SocketManager {
             const score = scrabbleGame.validateCalculateWordsPoints(lettersPlaced.letters);
             this.sio.to(socket.id).emit('validate-created-words', { letters: lettersPlaced.letters, points: score });
             if (score !== 0) {
-                this.sio.to(room).emit('chatMessage', {
-                    username: username,
-                    message: lettersPlaced.command,
-                    time: new Date().toTimeString().split(' ')[0],
-                    type: 'player',
-                    channel: this.usersRoom.get(socket.id) as string,
-                });
+                const message = `${username}: ${lettersPlaced.command}`;
+                this.sendPlayerAction(socket.id, message);
                 this.gameManager.isEndGame(room, scrabbleGame);
             }
         });
@@ -459,6 +459,7 @@ export class SocketManager {
             await this.leaveChannel(socket, room);
             if (game.isClassicMode) this.gameManager.abandonClassicGame(socket.id);
             else this.gameManager.abandonCooperativeGame(socket.id);
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
         socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;

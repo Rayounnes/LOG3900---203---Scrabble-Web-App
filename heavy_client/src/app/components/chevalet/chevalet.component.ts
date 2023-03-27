@@ -127,8 +127,8 @@ export class ChevaletComponent implements AfterViewInit {
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', false);
             } else {
                 this.socketService.send('draw-letters-rack');
-                if (this.isClassic) this.socketService.send('change-user-turn');
                 this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
+                if (this.isClassic) this.socketService.send('change-user-turn');
             }
         });
     }

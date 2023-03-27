@@ -18,13 +18,8 @@ export class VirtualPlayerService {
         } else {
             this.sio.to(room).emit('draw-letters-opponent', placeCommand.letters);
             this.sio.to(room).emit('virtual-player');
-            this.sio.to(room).emit('chatMessage', {
-                username: scrabbleClassicGame.socketTurn,
-                message: `${placeCommand.command}`,
-                time: new Date().toTimeString().split(' ')[0],
-                type: 'player',
-                channel: room,
-            });
+            const message = `${scrabbleClassicGame.socketTurn}: ${placeCommand.command}`;
+            for (const opponentSocket of scrabbleClassicGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
             this.sio.to(room).emit('update-reserve', scrabbleClassicGame.getReserveLettersLength());
             return true;
         }
@@ -35,23 +30,13 @@ export class VirtualPlayerService {
         const command: Command = scrabbleClassicGame.exchangeVirtualPlayer(lettersToExchange);
         if (command.type === 'system') return false;
         else {
-            this.sio.to(room).emit('chatMessage', {
-                username: scrabbleClassicGame.socketTurn,
-                message: `!échanger ${lettersToExchange.length} lettre(s)`,
-                time: new Date().toTimeString().split(' ')[0],
-                type: 'player',
-                channel: room,
-            });
+            const message = `${scrabbleClassicGame.socketTurn} a échangé ${lettersToExchange.length} lettre(s)`;
+            for (const opponentSocket of scrabbleClassicGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
             return true;
         }
     }
     virtualPlayerPass(room: string, scrabbleGame: ScrabbleClassicMode) {
-        this.sio.to(room).emit('chatMessage', {
-            username: scrabbleGame.socketTurn,
-            message: '!passer',
-            time: new Date().toTimeString().split(' ')[0],
-            type: 'player',
-            channel: room,
-        });
+        const message = `${scrabbleGame.socketTurn} a passé son tour`;
+        for (const opponentSocket of scrabbleGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
     }
 }

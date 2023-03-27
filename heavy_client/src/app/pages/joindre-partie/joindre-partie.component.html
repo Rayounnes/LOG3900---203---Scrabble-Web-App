@@ -13,13 +13,13 @@
                     <div>
                         <h3>Réglages de la partie:</h3>
                         <mat-label><mat-icon>people</mat-icon> {{ game.humanPlayers }}</mat-label>
-                        <mat-label><mat-icon>smart_toy</mat-icon> {{ 4 - game.humanPlayers }}</mat-label>
-                        <mat-label><mat-icon>timer</mat-icon> {{ game.time }} (s)</mat-label>
+                        <mat-label *ngIf="game.isClassicMode"><mat-icon>smart_toy</mat-icon> {{ 4 - game.humanPlayers }}</mat-label>
+                        <mat-label *ngIf="game.isClassicMode"><mat-icon>timer</mat-icon> {{ game.time }} (s)</mat-label>
                         <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
                     </div>
                     <div>
-                        <h3 *ngIf="!game.hasStarted"> Salle d'attente:</h3>
-                        <h3 *ngIf="game.hasStarted"> Partie en cours:</h3>
+                        <h3 *ngIf="!game.hasStarted">Salle d'attente:</h3>
+                        <h3 *ngIf="game.hasStarted">Partie en cours:</h3>
                         <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
                         <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
                     </div>

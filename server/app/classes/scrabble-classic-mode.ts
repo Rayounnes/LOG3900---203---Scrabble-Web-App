@@ -227,11 +227,12 @@ export class ScrabbleClassicMode {
             this.playersSockets.splice(indexPlayerSocket, 1);
         }
         this.passMaxStreak = this.playersSockets.length * 2;
+        // Si le joueur abandonne pendant la suite de passer son tour on lui enleve son passer
+        if (this.passStreak !== 0) this.passStreak--;
         if (this.turnSocket === abandonPlayerSocket) this.turnSocket = newVirtualPlayerName;
         return newVirtualPlayerName;
     }
     get notTurnSockets(): string[] {
-        console.log("getting not turn in classic mode");
         const notTurnSockets: string[] = [];
         for (const socketId of this.gamePlayers.keys())
             if (socketId !== this.socketTurn) {

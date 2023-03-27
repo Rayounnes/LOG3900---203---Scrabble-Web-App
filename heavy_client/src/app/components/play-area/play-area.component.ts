@@ -189,6 +189,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 panelClass: ['snackbar'],
             });
         });
+        this.socketService.on('player-action', (message: string) => {
+            this.snackBar.open(message, 'Fermer', {
+                duration: 2000,
+                panelClass: ['snackbar'],
+            });
+        });
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
         const dialogRef = this.dialog.open(CooperativeVoteComponent, {

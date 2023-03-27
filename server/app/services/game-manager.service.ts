@@ -92,6 +92,7 @@ export class GameManager {
     abandonClassicGame(socketId: string) {
         const room = this.usersRoom.get(socketId) as string;
         const game: Game = this.gameRooms.get(room) as Game;
+        game.humanPlayers--;
         game.virtualPlayers++;
         game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
         const gameScrabbleAbandoned = this.scrabbleGames.get(room) as ScrabbleClassicMode;
@@ -101,13 +102,13 @@ export class GameManager {
         )} a abandonné la partie. Le joueur a été remplacé par le joueur virtuel ${virtualPlayer}.`;
         this.leaveRoom(socketId);
         this.sio.to(room).emit('abandon-game', abandonMessage);
-        this.sio.to(room).emit('chatMessage', {
-            username: '',
-            message: abandonMessage,
-            time: new Date().toTimeString().split(' ')[0],
-            type: 'system',
-            channel: room,
-        });
+        // this.sio.to(room).emit('chatMessage', {
+        //     username: '',
+        //     message: abandonMessage,
+        //     time: new Date().toTimeString().split(' ')[0],
+        //     type: 'system',
+        //     channel: room,
+        // });
         // Tous les joueurs humains ont abandonné la partie, on arrete la partie
         if (gameScrabbleAbandoned.humansPlayerInGame === 0) {
             this.endGameBehavior(room, gameScrabbleAbandoned);
@@ -124,6 +125,8 @@ export class GameManager {
     }
     abandonCooperativeGame(socketId: string) {
         const room = this.usersRoom.get(socketId) as string;
+        const game: Game = this.gameRooms.get(room) as Game;
+        game.humanPlayers--;
         const gameScrabbleAbandoned = this.getScrabbleGame(socketId) as ScrabbleCooperativeMode;
         const playerRemaining: number = gameScrabbleAbandoned.abandonPlayer(socketId);
         const abandonMessage = `${this.usernames.get(socketId)} a abandonné la partie.`;
