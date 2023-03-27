@@ -148,6 +148,7 @@
     display: flex;
     width: 100%;
     justify-content: center;
+    margin-bottom: 4%;
 }
 
 span{
@@ -155,4 +156,10 @@ span{
     font-style: bold;
     font-size: x-large;
     font-weight: bold;
+}
+
+mat-dialog-container{
+  background-color: #d7d2d2;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    border-radius: 25px;
 }

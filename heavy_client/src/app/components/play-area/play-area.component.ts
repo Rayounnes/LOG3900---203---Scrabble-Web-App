@@ -14,7 +14,7 @@ import { Letter } from '@app/interfaces/letter';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { CooperativeVoteComponent } from '../cooperative-vote/cooperative-vote.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 const THREE_SECONDS = 3000;
 
@@ -41,6 +41,11 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     // keyboard: KeyboardManagementService;
     mode: string;
     isClassic: boolean;
+
+
+    //Configuration du mat-dialog
+    dialogConfig = new MatDialogConfig();
+
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,11 +202,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         });
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
-        const dialogRef = this.dialog.open(CooperativeVoteComponent, {
-            width: '400px',
-            height: '600px',
-            data: { vote: voteAction },
-        });
+        this.dialogConfig.position = { left: '100px' };
+        this.dialogConfig.backdropClass = 'custom-backdrop';
+        this.dialogConfig.panelClass = 'custom-panel';
+        this.dialogConfig.width = '400px';
+        this.dialogConfig.height = '600px';
+        this.dialogConfig.data = {vote: voteAction };
+        const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action.action === 'place') this.removeLetterAndArrowCoop(result.action.placement.letters);
             // if (result.action.socketId === this.socketService.socketId) this.gridService.removeLetter(result.action.placement.letters);
