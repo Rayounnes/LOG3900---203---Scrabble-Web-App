@@ -18,7 +18,7 @@ import html2canvas from 'html2canvas';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
 
-const DEFAULT_CLOCK = 30;
+const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
 const RESERVE_START_LENGTH = 102;
 @Component({
@@ -40,7 +40,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         hostUsername: 'rayan',
         humanPlayers: 3,
         isPrivate: true,
-        time: 30,
+        time: 60,
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
     players: GamePlayerInfos[] = [];

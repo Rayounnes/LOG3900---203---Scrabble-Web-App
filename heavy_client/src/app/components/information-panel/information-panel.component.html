@@ -66,8 +66,12 @@
             </span>
         </button>
     </div>
-    <app-surrender-game></app-surrender-game>
-    <button (click)="captureScreenshot()">Capture Screenshot</button>
+
+    <div class="options">
+        <app-surrender-game></app-surrender-game>
+        <button mat-raised-button class="screenshot" (click)="captureScreenshot()">Capture d'écran</button>
+    </div>
+    
     
 </div>
 
