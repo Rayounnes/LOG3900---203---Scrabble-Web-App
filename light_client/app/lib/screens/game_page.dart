@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+
 import 'package:app/main.dart';
 import 'package:app/models/tile.dart';
 import 'package:app/screens/game_modes_page.dart';
@@ -426,7 +428,7 @@ class _GamePageState extends State<GamePage> {
                     updateRackID(true, opponentTileID),
                   }),
               board.isFilledForEachLetter(board.createOpponentLetters(letters)),
-            });
+      });
 
     getIt<SocketService>().on(
         'draw-letters-rack',

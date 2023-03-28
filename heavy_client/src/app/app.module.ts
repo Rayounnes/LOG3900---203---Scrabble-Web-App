@@ -46,6 +46,11 @@ import { AvatarSelectionComponent } from './components/avatar-selection/avatar-s
 import { UserProfilComponent } from './components/user-profil/user-profil.component';
 import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-dialog.component';
 import { UsernameEditComponent } from './components/username-edit/username-edit.component';
+import { HintDialogComponent } from './components/hint-dialog/hint-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { GridConstants } from 'src/constants/grid-constants';
+import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
+
 
 /**
  * Main module that is used in main.ts.
@@ -81,7 +86,10 @@ import { UsernameEditComponent } from './components/username-edit/username-edit.
         AvatarSelectionComponent,
         UserProfilComponent,
         ExchangeDialogComponent,
+        HintDialogComponent,
         UsernameEditComponent,
+        WhiteLetterDialogComponent
+        
     ],
     imports: [
         MatProgressSpinnerModule,
@@ -104,8 +112,9 @@ import { UsernameEditComponent } from './components/username-edit/username-edit.
         MatCheckboxModule,
         MatListModule,
         PopoutWindowModule,
+        DragDropModule
     ],
-    providers: [],
+    providers: [GridConstants],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

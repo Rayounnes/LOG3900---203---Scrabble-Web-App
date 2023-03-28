@@ -1,73 +1,44 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-<div class="grid-container">
+
+<div class="main">
+    <div class="grid-container">
     
-    <!-- <div id="grid-buttons"> -->
-
-        <!-- <div class="buttons">
-            <svg class="svg-icon" viewBox="0 0 20 20" (click)="reduceSize()">
-                <path d="M14.776,10c0,0.239-0.195,0.434-0.435,0.434H5.658c-0.239,0-0.434-0.195-0.434-0.434s0.195-0.434,0.434-0.434h8.684C14.581,9.566,14.776,9.762,14.776,10 M18.25,10c0,4.558-3.693,8.25-8.25,8.25c-4.557,0-8.25-3.691-8.25-8.25c0-4.557,3.693-8.25,8.25-8.25C14.557,1.75,18.25,5.443,18.25,10 M17.382,10c0-4.071-3.312-7.381-7.382-7.381C5.929,2.619,2.619,5.93,2.619,10c0,4.07,3.311,7.382,7.381,7.382C14.07,17.383,17.382,14.07,17.382,10"></path>
-            </svg>
-            <svg class="svg-icon" viewBox="0 0 20 20" (click)="enlargeSize()">
-                <path d="M14.613,10c0,0.23-0.188,0.419-0.419,0.419H10.42v3.774c0,0.23-0.189,0.42-0.42,0.42s-0.419-0.189-0.419-0.42v-3.774H5.806c-0.23,0-0.419-0.189-0.419-0.419s0.189-0.419,0.419-0.419h3.775V5.806c0-0.23,0.189-0.419,0.419-0.419s0.42,0.189,0.42,0.419v3.775h3.774C14.425,9.581,14.613,9.77,14.613,10 M17.969,10c0,4.401-3.567,7.969-7.969,7.969c-4.402,0-7.969-3.567-7.969-7.969c0-4.402,3.567-7.969,7.969-7.969C14.401,2.031,17.969,5.598,17.969,10 M17.13,10c0-3.932-3.198-7.13-7.13-7.13S2.87,6.068,2.87,10c0,3.933,3.198,7.13,7.13,7.13S17.13,13.933,17.13,10"></path>
-            </svg>
-            
-
-        </div> -->
+    
         <div>
             <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
         </div>
 
         <div class="buttons">
-            <div  *ngIf="socketService.socketId == socketTurn && !commandSent">
+            <div  >
                 <svg class="svg-icon" viewBox="0 0 20 20" (click)="passTurn()">
                     <path d="M12.522,10.4l-3.559,3.562c-0.172,0.173-0.451,0.176-0.625,0c-0.173-0.173-0.173-0.451,0-0.624l3.248-3.25L8.161,6.662c-0.173-0.173-0.173-0.452,0-0.624c0.172-0.175,0.451-0.175,0.624,0l3.738,3.736C12.695,9.947,12.695,10.228,12.522,10.4 M18.406,10c0,4.644-3.764,8.406-8.406,8.406c-4.644,0-8.406-3.763-8.406-8.406S5.356,1.594,10,1.594C14.643,1.594,18.406,5.356,18.406,10M17.521,10c0-4.148-3.374-7.521-7.521-7.521c-4.148,0-7.521,3.374-7.521,7.521c0,4.147,3.374,7.521,7.521,7.521C14.147,17.521,17.521,14.147,17.521,10"></path>
                 </svg>
             </div>
             
-            <div *ngIf="socketService.socketId == socketTurn && !commandSent">
+            <div >
                 <svg class="svg-icon" viewBox="0 0 20 20"  (click)="buttonPlayPressed()">
                     <path d="M10.219,1.688c-4.471,0-8.094,3.623-8.094,8.094s3.623,8.094,8.094,8.094s8.094-3.623,8.094-8.094S14.689,1.688,10.219,1.688 M10.219,17.022c-3.994,0-7.242-3.247-7.242-7.241c0-3.994,3.248-7.242,7.242-7.242c3.994,0,7.241,3.248,7.241,7.242C17.46,13.775,14.213,17.022,10.219,17.022 M15.099,7.03c-0.167-0.167-0.438-0.167-0.604,0.002L9.062,12.48l-2.269-2.277c-0.166-0.167-0.437-0.167-0.603,0c-0.166,0.166-0.168,0.437-0.002,0.603l2.573,2.578c0.079,0.08,0.188,0.125,0.3,0.125s0.222-0.045,0.303-0.125l5.736-5.751C15.268,7.466,15.265,7.196,15.099,7.03"></path>
                 </svg>
             </div>
+
+            <div >
+                <svg class="svg-icon" viewBox="0 0 20 20" (click)="openHintDialog()">
+                    <path d="M17.684,7.925l-5.131-0.67L10.329,2.57c-0.131-0.275-0.527-0.275-0.658,0L7.447,7.255l-5.131,0.67C2.014,7.964,1.892,8.333,2.113,8.54l3.76,3.568L4.924,17.21c-0.056,0.297,0.261,0.525,0.533,0.379L10,15.109l4.543,2.479c0.273,0.153,0.587-0.089,0.533-0.379l-0.949-5.103l3.76-3.568C18.108,8.333,17.986,7.964,17.684,7.925 M13.481,11.723c-0.089,0.083-0.129,0.205-0.105,0.324l0.848,4.547l-4.047-2.208c-0.055-0.03-0.116-0.045-0.176-0.045s-0.122,0.015-0.176,0.045l-4.047,2.208l0.847-4.547c0.023-0.119-0.016-0.241-0.105-0.324L3.162,8.54L7.74,7.941c0.124-0.016,0.229-0.093,0.282-0.203L10,3.568l1.978,4.17c0.053,0.11,0.158,0.187,0.282,0.203l4.578,0.598L13.481,11.723z"></path>
+                </svg>
+                <!-- <button class="dark-button" (click)="openHintDialog()">indice</button> -->
+                
+            </div>
         </div>
 
-        
-        <!-- <div *ngIf="this.mode === 'LOG2990'" id="goals">
-            <div id="public-goals">
-                <p id="public-goals-title">Objectifs publics</p>
-                <div [ngClass]="this.publicGoals[0].isVerified ? 'goal1' : 'goal2'">
-                    <h4>Objectif 1:</h4>
-                    <p>{{ this.publicGoals[0].name }}</p>
-                    <h4>
-                        Points: {{ this.publicGoals[0].points }} <i *ngIf="this.publicGoals[0].isVerified" class="fa fa-regular fa-check fa-2x"></i>
-                    </h4>
-                </div>
-                <div [ngClass]="this.publicGoals[1].isVerified ? 'goal1' : 'goal2'">
-                    <h4>Objectif 2:</h4>
-                    <p>{{ this.publicGoals[1].name }}</p>
-                    <h4>
-                        Points: {{ this.publicGoals[1].points }} <i *ngIf="this.publicGoals[1].isVerified" class="fa fa-regular fa-check fa-2x"></i>
-                    </h4>
-                </div>
-            </div>
-            <div id="private-goal">
-                <p id="private-goal-title">Objectif privé</p>
-                <div [ngClass]="this.privateGoal.isVerified ? 'goal1' : 'goal2'">
-                    <h4>Objectif 1: </h4>
-                    <p>{{this.privateGoal.name}}</p>
-                    <h4>Points: {{this.privateGoal.points}} <i *ngIf="this.privateGoal.isVerified" class="fa fa-regular fa-check fa-2x"></i></h4>
-                </div>
-                <p *ngIf="this.privateGoalOpponent.isVerified" class="goal1">
-                    Objectif de l'adversaire a été réalisé: <br/> {{ this.privateGoalOpponent.name }}.<br />
-                    Points: {{ this.privateGoalOpponent.points }}
-                </p>
-            </div>
-        </div> -->
-        
-        
 
-    <!-- </div> -->
-    <!-- <div class="twobuttons">
-        
-    </div> -->
 </div>
+
+
+
+    <div>
+        <app-chevalet class="chevalet" (resetDragEvent)="setDragFree($event)" (removeTileEvent)="returnRackTile($event)" (sendTileEvent)="receiveDroppedTile($event)" [dragUsed]="dragOrType" [boardUser]="gridService.board" [canvasBoard]="canvasElement" [isBoardClicked]="boardClicked"></app-chevalet>
+    </div>
+</div>
+
+
+

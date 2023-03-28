@@ -3,4 +3,5 @@ export interface WordArgs {
     column: number;
     orientation: string;
     value: string;
+    points?:number
 }

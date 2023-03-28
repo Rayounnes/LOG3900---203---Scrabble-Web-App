@@ -1,0 +1,52 @@
+<html class="back" lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width initial-scale=1.0" />
+
+        <link
+            rel="stylesheet"
+            href="https://pro.fontawesome.com/releases/v6.1.0-alpha3/css/all.css"
+            integrity="sha384-YzjTmzOqf3d3p4M6aKHRyjeiM2/P7Rf6U5x5U5x6U5z6U5jwGz2IQl1ETyDgcRGn9"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <body>
+            <div class="center-div">
+                <h3>Liste d'indices</h3>
+            </div>
+            <div class="element-container">
+                <a class="element" (click)="onNoClick(items[0])">
+                    <h3>{{ items[0].value }}</h3>
+                    Position: {{ items[0].line }},{{ items[0].column }}<br />
+                    Orientation: {{ items[0].orientation }} <br />Points: {{ items[0].points }}
+                </a>
+                <a class="element" (click)="onNoClick(items[1])">
+                  <h3>{{ items[1].value }}</h3>
+                  Position: {{ items[1].line }},{{ items[1].column }}<br />
+                    Orientation: {{ items[1].orientation }}<br />Points: {{ items[1].points }}
+                </a>
+                <a class="element" (click)="onNoClick(items[2])">
+                  <h3>{{ items[2].value }}</h3>
+                  Position: {{ items[2].line }},{{ items[2].column }}<br />
+                    Orientation: {{ items[2].orientation }}<br />Points: {{ items[2].points }}
+                </a>
+                <a class="element" (click)="onNoClick(items[3])">
+                  <h3>{{ items[3].value }}</h3>
+                  Position: {{ items[3].line }},{{ items[3].column }}<br />
+                    Orientation: {{ items[3].orientation }}<br />Points: {{ items[3].points }}
+                </a>
+                <a class="element" (click)="onNoClick(items[4])">
+                  <h3>{{ items[4].value }}</h3>
+                  Position: {{ items[4].line }},{{ items[4].column }}<br />
+                    Orientation: {{ items[4].orientation }}<br />Points: {{ items[4].points }}
+                </a>
+            </div>
+
+            <div class="button-container" mat-dialog-actions>
+                <button mat-button (click)="onNoClick()">&#10006;</button>
+                <!-- <button mat-button cdkFocusInitial>ok</button> -->
+            </div>
+        </body>
+    </body>
+</html>

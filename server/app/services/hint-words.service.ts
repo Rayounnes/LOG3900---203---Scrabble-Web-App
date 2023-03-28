@@ -63,7 +63,7 @@ export class HintWordsService {
     }
 
     // inspiré de https://www.geeksforgeeks.org/print-all-possible-combinations-of-r-elements-in-a-given-array-of-size-n/
-    combinationUtil(arr: string[], data: string[], start: number, end: number, index: number, r: number, stock: string[][]) {
+    combinationUtil(arr: string[], data: string[], start: number, end: number, index: number, r: number, stock: Set<string>) {
         let whiteCombDone = false;
         if (index === r) {
             const comb = [];
@@ -72,10 +72,10 @@ export class HintWordsService {
             }
             if (this.canBeWord(comb)) {
                 const whiteLetters: number = comb.join('').split(WHITE_LETTER).length - 1;
-                if (!whiteLetters) stock.push(comb);
+                if (!whiteLetters) stock.add(comb.join(''));
                 else if (whiteLetters && !whiteCombDone) {
                     const newCombs = this.getAllWordswithWhiteLetter(comb, whiteLetters);
-                    newCombs.forEach((newComb) => stock.push(newComb));
+                    newCombs.forEach((newComb) => stock.add(newComb.join('')));
                     whiteCombDone = true;
                 }
             }
@@ -85,18 +85,18 @@ export class HintWordsService {
             this.combinationUtil(arr, data, i + 1, end, index + 1, r, stock);
         }
     }
-    printCombination(arr: string[], n: number, r: number, stock: string[][]) {
+    printCombination(arr: string[], n: number, r: number, stock: Set<string>) {
         const data = new Array(r);
         this.combinationUtil(arr, data, 0, n - 1, 0, r, stock);
     }
 
     // inspiré de https://stackoverflow.com/questions/9960908/permutations-in-javascript
     permutator(inputArr: string[]): string[] {
-        const result: string[] = [];
+        const result = new Set<string>();
 
         const permute = (arr: string[], m: string[] = []) => {
             if (arr.length === 0) {
-                result.push(m.join(''));
+                result.add(m.join(''));
             } else {
                 for (let i = 0; i < arr.length; i++) {
                     const curr: string[] = [...arr];
@@ -106,7 +106,7 @@ export class HintWordsService {
             }
         };
         permute(inputArr);
-        return result;
+        return Array.from(result.values());
     }
     isTheSameWord(letters: Letter[], words: Set<Letter[]>): boolean {
         for (const word of words) {
@@ -122,14 +122,14 @@ export class HintWordsService {
         }
         return false;
     }
-    getRackPlayerCombinations(): string[][] {
+    getRackPlayerCombinations(): Set<string> {
         const rack = this.rackPlayer.rackInString.split('');
         const n = rack.length;
         const whiteLetters: number = this.rackPlayer.rackInString.split(WHITE_LETTER).length - 1;
-        const wordsLength = rack.length > MAX_HINT_LENGTH ? MAX_HINT_LENGTH : rack.length;
+        const wordsLength = whiteLetters !== 0 && rack.length > 5 ? 5 : rack.length;
         this.numPlacementsVirtualPlayer = whiteLetters === 2 ? 1 : MAX_PLACEMENTS_VIRTUAL_PLAYER;
         this.numPlacementsVirtualPlayer = whiteLetters === 1 ? MAX_PLACEMENTS_VIRTUAL_PLAYER / 2 : MAX_PLACEMENTS_VIRTUAL_PLAYER;
-        const combinaison: string[][] = [];
+        const combinaison: Set<string> = new Set();
         for (let i = wordsLength; i > 0; i--) {
             this.printCombination(rack, n, i, combinaison);
         }
@@ -142,10 +142,10 @@ export class HintWordsService {
         let placementFound = false;
         let placement: Placement = INVALID_PLACEMENT;
         for (let i = n; i > 0; i--) {
-            const combinaison: string[][] = [];
+            const combinaison: Set<string> = new Set();
             this.printCombination(rack, n, i, combinaison);
             for (const lettersComb of combinaison) {
-                placement = this.getCombMostPoint(isFirstTurn, lettersComb);
+                placement = this.getCombMostPoint(isFirstTurn, lettersComb.split(''));
                 if (placement.points !== 0) {
                     placementFound = true;
                     break;
@@ -160,11 +160,73 @@ export class HintWordsService {
         const word: Placement = this.getMostWordPoints(isFirstTurn, allPermsComb);
         return word;
     }
+    // Valid placements and positions combinations
+    getCombinationValidPositions(isFirstTurn: boolean, lettersPlacement: string, placementCommands: Set<string>): Placement[] {
+        const placements: Placement[] = [];
+        if (isFirstTurn) {
+            const lettersPosition = this.board.findLettersPosition(HALF_INDEX_BOARD, HALF_INDEX_BOARD, lettersPlacement);
+            const placementPoints = this.validationService.verifyAndCalculate(lettersPosition);
+            if (placementPoints !== 0) {
+                const placementToCommand: string = this.wordToCommand(lettersPosition);
+                if (!placementCommands.has(placementToCommand)) {
+                    placementCommands.add(placementToCommand);
+                    placements.push({ letters: lettersPosition, points: placementPoints, command: placementToCommand });
+                }
+            }
+            return placements;
+        }
+        for (let line = START_INDEX_BOARD; line < END_COLUMN_BOARD; line++) {
+            for (let column = START_INDEX_BOARD; column < END_COLUMN_BOARD; column++) {
+                for (const direction of DIRECTIONS) {
+                    if (
+                        !this.board.getBoxIndex(line, column).letter.value &&
+                        this.board.areLettersAttachedAndNotOutside(line, column, lettersPlacement, direction)
+                    ) {
+                        const lettersPosition = this.board.findLettersPosition(line, column, lettersPlacement, direction);
+                        const placementPoints = this.validationService.verifyAndCalculate(lettersPosition);
+                        if (placementPoints !== 0) {
+                            const placementToCommand: string = this.wordToCommand(lettersPosition);
+                            if (!placementCommands.has(placementToCommand)) {
+                                placementCommands.add(placementToCommand);
+                                placements.push({ letters: lettersPosition, points: placementPoints, command: placementToCommand });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return placements;
+    }
+    getMostPointsHints(isFirstTurn: boolean, rackPermutations: string[], placementCommands: Set<string>): Placement[] {
+        let bestPlacements: Placement[] = [];
+        let rackCompPassed = 0;
+        for (const rackComb of rackPermutations) {
+            if (isFirstTurn && rackComb.length === 1) continue;
+            const placements: Placement[] = this.getCombinationValidPositions(isFirstTurn, rackComb, placementCommands);
+            bestPlacements = bestPlacements.concat(placements);
+            // Si on trouve rien 20 fois de suite on arrete
+            if (bestPlacements.length === 0) rackCompPassed++;
+            if (bestPlacements.length === 10 || rackCompPassed === 20) break;
+        }
+        return bestPlacements.sort((a, b) => b.points - a.points).slice(0, MAX_FOUND_WORDS);
+    }
+    getBestHints(isFirstTurn: boolean): Placement[] {
+        const combinaison: Set<string> = this.getRackPlayerCombinations();
+        const placementsCommands: Set<string> = new Set();
+        let bestPlacements: Placement[] = [];
+        for (const lettersComb of combinaison) {
+            const allPermsComb: string[] = this.permutator(lettersComb.split(''));
+            const placements: Placement[] = this.getMostPointsHints(isFirstTurn, allPermsComb, placementsCommands);
+            bestPlacements = bestPlacements.concat(placements);
+            if (bestPlacements.length > MAX_FOUND_WORDS) break;
+        }
+        return bestPlacements.sort((a, b) => b.points - a.points).slice(0, MAX_FOUND_WORDS);
+    }
     getAllWords(isFirstTurn: boolean): Set<Letter[]> {
-        const combinaison: string[][] = this.getRackPlayerCombinations();
+        const combinaison: Set<string> = this.getRackPlayerCombinations();
         const validCombinations: Set<Letter[]> = new Set<Letter[]>();
         for (const lettersComb of combinaison) {
-            const allPermsComb: string[] = this.permutator(lettersComb);
+            const allPermsComb: string[] = this.permutator(lettersComb.split(''));
             const word: Letter[] | undefined = this.getValidWord(isFirstTurn, allPermsComb);
             if (word && !this.isTheSameWord(word, validCombinations)) validCombinations.add(word);
             if (validCombinations.size === MAX_FOUND_WORDS) break;
@@ -188,10 +250,10 @@ export class HintWordsService {
     }
     getAllWordsInPointsScale(isFirstTurn: boolean, pointsScale: POINTS): Placement[] {
         const pointsVerif: PointVerification = this.pointsScoreBetween(pointsScale);
-        const combinaison: string[][] = this.getRackPlayerCombinations();
+        const combinaison: Set<string> = this.getRackPlayerCombinations();
         const validCombinations: Placement[] = [];
         for (const lettersComb of combinaison) {
-            const allPermsComb: string[] = this.permutator(lettersComb);
+            const allPermsComb: string[] = this.permutator(lettersComb.split(''));
             const word: Placement = this.getValidWordPoints(isFirstTurn, allPermsComb, pointsVerif);
             if (word.points && this.notSamePoints(word, validCombinations)) validCombinations.push(word);
             if (validCombinations.length === this.numPlacementsVirtualPlayer) break;

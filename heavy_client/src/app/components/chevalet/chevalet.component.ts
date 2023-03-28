@@ -1,14 +1,22 @@
-import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener,  Input,  Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
+import {GridConstants} from 'src/constants/grid-constants';
+
 import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Board } from '@app/classes/board';
+import { Vec2 } from '@app/interfaces/vec2';
+import { Letter } from '@app/interfaces/letter';
+import { CdkDragDrop, DragDropModule} from '@angular/cdk/drag-drop';
+import { LETTERS_POINTS } from 'src/constants/points-constants';
+import { TileDragRack } from '@app/interfaces/tile-drag-rack';
+import { WhiteLetterDialogComponent } from '../white-letter-dialog/white-letter-dialog.component';
 
-const RESERVE_START_LENGTH = 102;/* 
-const CLASSNAME_INI = 'mat-typography vsc-initialized';
-const CLASSNAME = 'mat-typography'; */
+const RESERVE_START_LENGTH = 102;
+
 
 @Component({
     selector: 'app-chevalet',
@@ -18,6 +26,8 @@ const CLASSNAME = 'mat-typography'; */
 export class ChevaletComponent implements AfterViewInit {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
     @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
+    @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>;
+
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
     chevaletLetters: string[] = [];
@@ -25,28 +35,94 @@ export class ChevaletComponent implements AfterViewInit {
     socketTurn: string;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
+    position0: Vec2= {x: 0, y: 0};
+    position1: Vec2= {x: 0, y: 0};
+    position2: Vec2= {x: 0, y: 0};
+    position3: Vec2= {x: 0, y: 0};
+    position4: Vec2= {x: 0, y: 0};
+    position5: Vec2= {x: 0, y: 0};
+    position6: Vec2= {x: 0, y: 0};
+    letterPoints = LETTERS_POINTS;
     lettersExchange = '';
-    items : string[] = [];
-    
+    items =[" ", "B", "C", 'D', 'E', 'F', 'G'];
+    rackX: number;
+    rackY: number;
+    lettersOut: TileDragRack[] = [];
+
+
+
+    dragTiles: Map<any,any> = new Map([
+        ["tile0", undefined],
+        ["tile1", undefined],
+        ["tile2", undefined],
+        ["tile3", undefined],
+        ["tile4", undefined],
+        ["tile5", undefined],
+        ["tile6", undefined],
+    ]);
+
+    @Output() sendTileEvent = new EventEmitter<Letter>();
+    @Output() removeTileEvent = new EventEmitter<Letter>();
+    @Output() resetDragEvent = new EventEmitter<string>();
+
+    @Input() boardUser: Board;
+
+    @Input() canvasBoard: ElementRef<HTMLCanvasElement>;
+
+    @Input() isBoardClicked: boolean;
+    @Input() dragUsed: string;
+    dragAccepted = ['free', 'drag', 'type'];
+
+
+
 
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
-        public dialog : MatDialog
-    ) {}/* 
+        public dialog : MatDialog,
+        public dragDrop: DragDropModule,
+        public gridConstant: GridConstants
+    ) {}
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buttonDetect(event: any) {
-        if ((event.target as HTMLInputElement).type === 'text') return;
-        if (event.target.className === CLASSNAME_INI || event.target.className === CLASSNAME) {
-            this.buttonPressed = event.key;
-            this.buttonPressed = event.key;
-            this.chevaletService.moveLetter(this.buttonPressed);
-            this.chevaletService.selectLetterKeyboard(this.buttonPressed);
+        console.log(event);
+        if(this.dragUsed === 'type'){
+            if(event.key !== "Backspace"){
+                let index = this.items.findIndex(item => item === event.key);
+                if (index !== -1) {
+                    this.items = this.items.slice(0, index).concat(" ", this.items.slice(index + 1));
+                    console.log(this.items, "new list "); 
+                }
+                console.log({position:index, value:event.key} as TileDragRack)
+                this.lettersOut.push({position:index, value:event.key} as TileDragRack);
+            }
+            else{
+                if(event.key === "Backspace" && this.lettersOut.length>=1){
+                    this.removeLastOutLetter();
+
+                }   
+                if(event.key === "Escape" && this.lettersOut.length>=1){
+                    this.removeAllOutLetter();
+                }
+            }
+
         }
-    } */
+    } 
+    removeAllOutLetter(){
+        while(this.lettersOut.length >=1){
+            this.removeLastOutLetter();
+        }
+    }
+    removeLastOutLetter(){
+        console.log("dans le backspace", this.lettersOut as TileDragRack[]);
+        let letterOut = this.lettersOut.pop();
+        console.log(letterOut);
+        this.items[letterOut?.position as number] = letterOut?.value as string;
+        console.log("apres supression de tuile", this.items);
+    }
 
     @HostListener('mousewheel', ['$event'])
     // le chargé m'a dit de mettre any car le type mouseEvent ne reconnait pas wheelDelta
@@ -67,6 +143,7 @@ export class ChevaletComponent implements AfterViewInit {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickDetect(event: any) {
         if (event.target.id === 'canvas') return;
+        this.removeAllOutLetter();
         this.chevaletService.deselectAllLetters();
     }
 
@@ -75,7 +152,13 @@ export class ChevaletComponent implements AfterViewInit {
         this.chevaletService.fillChevalet();
         this.chevaletService.drawChevalet();
         this.chevaletCanvas.nativeElement.focus();
+        console.log(this.canvasBoard)
+        this.setDragMap();
         this.connect();
+
+
+
+
     }
     connect() {
         this.configureBaseSocketFeatures();
@@ -90,14 +173,20 @@ export class ChevaletComponent implements AfterViewInit {
             this.chevaletLetters = letters;
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
                 this.chevaletService.rackArray[i].letter = this.chevaletLetters[i];
-            }
+                this.items[i] = letters[i].toLowerCase();
+            };
+            this.positionTiles();
         });
-        // pour voir si c'est son tour : this.socketTurn === this.socketService.socketId
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
+            this.resetDragEvent.emit('free');
+            this.positionTiles();
+
+
         });
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
+            this.positionTiles();
         });
         this.socketService.on('end-game', () => {
             this.isEndGame = true;
@@ -131,21 +220,19 @@ export class ChevaletComponent implements AfterViewInit {
         this.rotate()
         setTimeout(() => {
             const dialogRef = this.dialog.open(ExchangeDialogComponent, {
-                width: '200px', 
+                width: '200px',
                 data: {rackList: this.items}
             });
 
             dialogRef.afterClosed().subscribe((result  )=> {
-                console.log(result)
                 this.lettersExchange = result;
-                this.exchangePopUp(result);
+                this.exchangePopUp(result);})
 
-            });
-        }, 600);
         // this.position0.x = 42; //42 et 1
         // this.position0.y = 1;
-        
-    }
+
+    })
+}
 
 
     exchangePopUp(result: any){
@@ -157,12 +244,214 @@ export class ChevaletComponent implements AfterViewInit {
     rotate(): void {
         const btn = this.rotateBtn.nativeElement;
         btn.classList.remove('rotate-animation');
-    
+
         // Use setTimeout() to ensure that the animation is reset before reapplying the class
         setTimeout(() => {
           btn.offsetWidth; // Trigger a reflow to reset the animation
           btn.classList.add('rotate-animation');
         }, 0);
       }
-    
+
+    onDropped(event: any){
+        event.dropPoint.x = 0;
+        event.dropPoint.y = 0;
+    }
+
+    getPositionDroppedX(posX: number, firstTilePos?: any){
+        console.log(Math.floor(((posX-firstTilePos)/50) + 1));
+        return Math.floor(((posX-firstTilePos)/this.gridConstant.tileSize) + 1);
+    }
+
+    getPositionDroppedY(posY: number, firstTilePos?: any){
+        console.log(Math.floor(((posY)/this.gridConstant.tileSize)));
+        return Math.floor(((posY+firstTilePos)/this.gridConstant.tileSize)-1);
+    }
+    setDragMap(){
+        console.log(`boxes ${this.boxes}`)
+        console.log(this.boxes)
+        let tileBoxes: ElementRef<any>[] = [];
+        this.boxes.forEach((box)=>{
+            console.log(`unique box ${box}`)
+            tileBoxes.push(box)
+            console.log(`tilebox ${tileBoxes}`)
+        })
+        console.log(`tilebox fini  ${tileBoxes}`)
+        let i = 0;
+        for (let key of this.dragTiles.keys()){
+            this.dragTiles.set(key,tileBoxes[i++])
+        }
+        console.log(`dragtil fini  ${this.dragTiles}`)
+        this.positionTiles();
+
+    }
+    isInRange(drop: number, startBoardPos: number, posBoard: number ){
+        if(drop >startBoardPos && drop< (posBoard+this.gridConstant.defaultHeight)){
+           return true
+            // event.dropPoint.x >startBoard.x && event.dropPoint.x < (posBoard.x+this.gridConstant.defaultHeight)
+        }
+        return false
+    }
+    drop(event: CdkDragDrop<string[]>) {
+        
+
+        let posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        console.log("position board", posBoard);
+        let startBoard = {x: posBoard.x + this.gridConstant.tileSize, y:posBoard.y + this.gridConstant.tileSize};
+
+
+        let tile = this.dragTiles.get(event.item.element.nativeElement.id);
+        console.log(tile.nativeElement.innerText.charAt(0));
+        const keysArray = Array.from(this.dragTiles.keys())
+        // let letterValue = event.item.element.nativeElement.innerText.charAt(0);
+        let letterValue = this.items[keysArray.indexOf(event.item.element.nativeElement.id)];
+        console.log("le txt", letterValue);
+        // console.log("le txt 2", newVal);
+        if(this.isInRange(event.dropPoint.x,startBoard.x,posBoard.x) && this.isInRange(event.dropPoint.y,startBoard.y,posBoard.y) && !this.boardUser.getIsFilled(this.getPositionDroppedY(event.dropPoint.y, startBoard.y), this.getPositionDroppedX(event.dropPoint.x, startBoard.x))){
+            console.log("dans board");
+            this.placeTileElement(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
+        }
+        else{
+            this.backTileOnRack(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id) );
+
+        }
+
+      }
+      placeTileElement(tile:any, event:any, letterValue: any, startBoard: any, posTileRack: number){
+        
+        let posTileX =  event.dropPoint.x;
+        let posTileY = event.dropPoint.y;
+        if(posTileX<startBoard.x + this.gridConstant.tileSize ){
+            console.log(startBoard.x);
+            tile.nativeElement.style.left = `${startBoard.x+13}px`; // REVOIR LA POSITION 741 
+
+        }
+        else{
+            // tile.nativeElement.style.left = `${startBoard.x + this.gridConstant.tileSize * this.getPositionDroppedX(posTileX)}px`;
+            tile.nativeElement.style.left = `${startBoard.x+13 + this.gridConstant.tileSize * (this.getPositionDroppedX(posTileX, startBoard.x)-1)}px`;
+
+        }
+        if(posTileY<startBoard.y + this.gridConstant.tileSize){
+            tile.nativeElement.style.top = `${startBoard.y}px`;
+        }
+        else{
+            tile.nativeElement.style.top = `${startBoard.y + this.gridConstant.tileSize * (this.getPositionDroppedY(posTileY, startBoard.y)-1)}px`;
+
+        }
+        this.chevaletService.removeLetterOnRack(letterValue.toUpperCase(), posTileRack);
+        tile.nativeElement.style.width = `${this.gridConstant.tileSize}px`;
+        tile.nativeElement.style.height = `${this.gridConstant.tileSize}px`;
+        if(letterValue === "*"){
+            this.openWhiteDialog(posTileRack, {value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+        }else{
+
+            this.sendTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+        }
+
+
+
+      }
+      placeTileType(tile: any, posTile: Vec2){
+        let posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        let startBoard = {x: posBoard.x + this.gridConstant.tileSize, y:posBoard.y + this.gridConstant.tileSize};
+        if(this.items.includes(tile.nativeElement.innerText.charAt(0))){
+            tile.nativeElement.style.left =`${741 + this.gridConstant.tileSize * posTile.x}px`;
+            tile.nativeElement.style.top=  `${startBoard.y + this.gridConstant.tileSize * posTile.y-1}px`;
+        }
+
+      }
+      backTileOnRack(tile:any, event:any, letterValue: any, startBoard: any, rackTilePos: number ){
+
+        let rackWidth = this.chevaletCanvas.nativeElement.clientWidth ;
+        let rackTileSize = (rackWidth/7) ;
+        let posTileX = event.dropPoint.x;
+        let posTileY = event.dropPoint.y;
+
+        tile.nativeElement.style.top = `${this.rackY}px`;
+        tile.nativeElement.style.left = `${this.rackX+(rackTilePos*rackTileSize)+(rackTileSize-this.gridConstant.tileSize)/2}px`;
+        tile.nativeElement.style.width = `${this.gridConstant.tileSize}px`;
+        tile.nativeElement.style.height = `${this.gridConstant.tileSize}px`;
+        if(letterValue===letterValue.toUpperCase() || letterValue === '*'){
+            this.items[rackTilePos] = '*';
+        }
+        this.removeTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+
+      }
+
+      positionTiles(){
+        
+
+        let lineWidth = this.chevalet.rackLineWidth;
+        this.rackX =this.chevaletCanvas.nativeElement.offsetLeft;
+        this.rackY = this.chevaletCanvas.nativeElement.offsetTop + (lineWidth/2);
+        let rackWidth = this.chevaletCanvas.nativeElement.clientWidth ;
+        let rackTileSize = (rackWidth/7) ;
+        const keysArray = Array.from(this.dragTiles.keys())
+
+        this.position0.x = this.rackX+(0*rackTileSize) ; //42 et 1
+        this.position0.y = this.rackY;
+
+        this.position1.x = this.rackX+(1*rackTileSize) ;
+        this.position1.y = this.rackY;
+
+        this.position2.x = this.rackX+(2*rackTileSize) ;
+        this.position2.y = this.rackY;
+
+        this.position3.x = this.rackX+(3*rackTileSize) ;
+        this.position3.y = this.rackY;
+
+        this.position4.x = this.rackX+(4*rackTileSize) ;
+        this.position4.y = this.rackY;
+
+        this.position5.x = this.rackX+(5*rackTileSize) ;
+        this.position5.y = this.rackY;
+
+        this.position6.x = this.rackX+(6*rackTileSize) ;
+        this.position6.y = this.rackY;
+
+        for(let i = 0; i<7; i++){
+            this.dragTiles.get(keysArray[i]).nativeElement.style.top = `${this.rackY}px`;
+
+            this.dragTiles.get(keysArray[i]).nativeElement.style.left = `${this.rackX+(i*rackTileSize) + (rackTileSize-this.gridConstant.tileSize)/2}px`;  //0.5 + (rackTileSize*(i))
+
+        // //     this.dragTiles.get(keysArray[i]).nativeElement.style.width = `${rackTileSize -(lineWidth)}px`;
+        // //     this.dragTiles.get(keysArray[i]).nativeElement.style.height = `${rackHeight}px`;
+            this.dragTiles.get(keysArray[i]).nativeElement.style.width = `${this.gridConstant.tileSize}px`;
+            this.dragTiles.get(keysArray[i]).nativeElement.style.height = `${this.gridConstant.tileSize}px`;
+        }
+
+        // }
+
+
+
+    }
+
+    isDraggable(){
+        if(this.dragAccepted.includes(this.dragUsed)){
+            return true;
+        }
+        return false;
+    }
+
+    openWhiteDialog(posTileRack: number, letter: Letter){
+
+        setTimeout(() => {
+            const dialogRef = this.dialog.open(WhiteLetterDialogComponent, {
+                width: '200px', 
+                
+            });
+        
+            dialogRef.afterClosed().subscribe(result => {
+                if(result){
+                    letter.value = result;
+                    this.items[posTileRack] = result.toUpperCase();
+
+                    this.sendTileEvent.emit(letter);
+
+                    console.log(result);
+                }
+                
+                
+            });
+        })
+    }
 }

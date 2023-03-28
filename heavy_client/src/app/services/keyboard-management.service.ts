@@ -57,6 +57,20 @@ export class KeyboardManagementService {
         }
     }
 
+    placerOneHintLetter(letter: string, orientation: string) {
+        this.gridService.board.wordStarted = true;
+        let positionStart = this.gridService.board.getStartTile() as Vec2;
+        this.initializeHintWordArg(positionStart, orientation);
+        if (positionStart !== undefined) {
+            while (this.conditionsDirections(positionStart)) {
+                positionStart = this.incrementePosition(positionStart);
+            }
+            if (this.conditionToPlay(letter)) {
+                this.placeLetterOnGrid(positionStart, letter);
+            }
+        }
+    }
+
     incrementePosition(position: Vec2) {
         if (this.directionHorizontal(position)) {
             position.y = position.y + 1;
@@ -92,6 +106,12 @@ export class KeyboardManagementService {
         this.word.column = positionStart.x;
         this.word.orientation = this.correctOrientation(positionStart);
     }
+    initializeHintWordArg(positionStart: Vec2, orientation: string) {
+        this.word.line = positionStart.y;
+        this.word.column = positionStart.x;
+        this.word.orientation = orientation;
+    }
+
 
     correctOrientation(positionStart: Vec2) {
         if (this.directionHorizontal(positionStart)) {
@@ -142,7 +162,36 @@ export class KeyboardManagementService {
         }
     }
 
-    putLetterOnCanvas(letter: string, positionStart: Vec2, size: number) {
+    addDropLettersArray(letter: Letter) {
+        this.letters.push({ line: letter.line, column: letter.column, value: letter.value, tileID:letter.tileID });
+    }
+
+    verifyLetterOnBoard(letterToAdd: Letter) {
+        for (var letter of this.letters) {
+          if (letter.tileID === letterToAdd.tileID) {
+            return true;
+          }
+        }
+        return false;
+      }
+    
+      removeLetterOnBoard(letterToRemove: Letter) {
+        for (var letter of this.letters) {
+          if (letter.tileID == letterToRemove.tileID) {
+            console.log("la tuile en question", letterToRemove.tileID);
+            this.letters = this.letters.filter(element => element.tileID !== letterToRemove.tileID);
+            console.log("lettre dans la fonction", this.letters);
+
+            return;
+          }
+        }
+      }
+
+
+
+
+    
+      putLetterOnCanvas(letter: string, positionStart: Vec2, size: number) {
         this.gridService.fillColor(positionStart.x + 1, positionStart.y + 1, '#F9E076');
         this.gridService.writeLetter(letter, positionStart.x + 1, positionStart.y + 1, size);
         this.gridService.board.isTileFilled(positionStart.y + 1, positionStart.x + 1);
@@ -166,6 +215,53 @@ export class KeyboardManagementService {
             const positionGrid = { x: positionStart.x + 1, y: positionStart.y + 2 };
             this.drawArrowVertical(positionGrid);
         }
+    }
+
+    placeHintLetterOnGrid(positionStart: Vec2, letter: string, orientation: string) {
+        const size = 25;
+        this.putLetterOnCanvas(letter, positionStart, size);
+        this.addInLettersArray(letter, positionStart);
+        this.word.value = this.word.value + letter;
+        if (orientation === 'h' && positionStart.x < this.lastPositionFill) {
+            while (this.gridService.board.getIsFilled(positionStart.y + 1, positionStart.x + 2)) {
+                positionStart.x += 1;
+            }
+        } else if (orientation === 'v' && positionStart.y < this.lastPositionFill) {
+            while (this.gridService.board.getIsFilled(positionStart.y + 2, positionStart.x + 1)) {
+                positionStart.y += 1;
+            }
+        }
+    }
+
+    placeWordHint(word: WordArgs){
+        let firstX = word.column  ;
+        let firstY = word.line ;
+        for(let letter of word.value){
+            if(word.orientation === 'h'){
+                
+                while(this.gridService.board.getIsFilled(firstY+1, firstX+1)){
+                    firstX++;
+                }
+                this.letters.push({line:firstY, column:firstX, value:letter})
+                this.gridService.board.isTileFilled(firstY+1, firstX+1)
+
+                this.putLetterOnCanvas(letter, {x:firstX,y:firstY}, 25);
+                firstX++;
+            }
+            if(word.orientation === 'v'){
+                while(this.gridService.board.getIsFilled(firstY+1, firstX+1)){
+                    firstY++
+                }
+                this.letters.push({line:firstY, column:firstX, value:letter})
+
+                this.gridService.board.isTileFilled(firstY+1, firstX+1)
+
+                
+                this.putLetterOnCanvas(letter, {x:firstX,y:firstY}, 25);
+                firstY++;
+            }
+        }
+
     }
 
     drawArrowVertical(position: Vec2) {
@@ -228,18 +324,35 @@ export class KeyboardManagementService {
         }
     }
 
-    importantKey(key: string) {
-        if (key === 'Backspace') {
+    importantKey(key: string, dragOrType: string) {
+        let start = this.gridService.board.getStartTile()
+        if (key === 'Backspace' && (dragOrType === 'type')) {
+
             this.removeLastLetter();
+            if(this.letters.length === 0){
+                this.putOldTile(start?.x as number, start?.y as number)
+                this.gridService.board.resetStartTile();
+                this.gridService.board.wordStarted = false;
+                return "free";
+
+            }
+            return 'type'
         }
-        if (key === 'Escape') {
+        if (key === 'Escape' && dragOrType === 'type') {
             this.removeAllLetters();
+            this.putOldTile(start?.x as number, start?.y as number)
+            this.gridService.board.resetStartTile();
+            this.gridService.board.wordStarted = false;
+
+            return "free"
         }
         if (key === 'Enter') {
             this.enterPressed = true;
             this.playOrEnter();
             this.enterPressed = false;
+            return "free";
         }
+        return dragOrType;
     }
 
     async playOrEnter() {
@@ -266,7 +379,9 @@ export class KeyboardManagementService {
     removeAllLetters() {
         while (this.letters.length !== 0) {
             this.removeLastLetter();
+            
         }
+        
     }
 
     letterRemovedInRack(letter: Letter) {

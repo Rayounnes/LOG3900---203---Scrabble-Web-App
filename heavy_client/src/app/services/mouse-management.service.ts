@@ -34,6 +34,7 @@ export class MouseManagementService {
             this.drawArrow(this.findTileWithMouse(this.mousePosition));
             //this.gridService.drawGrid();
         }
+        
     }
 
     letterOnGrid(position: Vec2) {
