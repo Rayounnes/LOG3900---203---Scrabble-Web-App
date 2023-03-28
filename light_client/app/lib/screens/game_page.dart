@@ -503,6 +503,14 @@ class _GamePageState extends State<GamePage> {
         isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
       });
     });
+
+    getIt<SocketService>().on('user-turn', (playerTurnId) {
+      setState(() {
+        // On remet les lettres quil a placé dans le board qd le timer est écoulé
+        setTileOnRack();
+        isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+      });
+    });
   }
 
   void switchRack(bool isForExchange) {
@@ -680,6 +688,41 @@ class _GamePageState extends State<GamePage> {
                     : Color.fromARGB(255, 55, 151, 189),
                 child: Icon(
                   Icons.compare_arrows,
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  size: TILE_SIZE,
+                ),
+              ),
+            ),
+            Positioned(
+              left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT / 2,
+              top: RACK_START_AXISY + 70,
+              child: FloatingActionButton(
+                heroTag: "hintLetters",
+                onPressed: !isPlayerTurn || commandSent
+                    ? null
+                    : () {
+                        showDialog<List<String>>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              List<String> exchangeableTile = [];
+                              for (var index in rackIDList) {
+                                exchangeableTile
+                                    .add(tileLetter[index].toString());
+                              }
+                              return TileExchangeMenu(
+                                tileLetters: exchangeableTile,
+                              );
+                            }).then((List<String>? result) {
+                          if (result != null) {
+                            // switchRack(true);
+                          }
+                        });
+                      },
+                backgroundColor: !isPlayerTurn || commandSent
+                    ? Color.fromARGB(255, 109, 49, 49)
+                    : Color.fromARGB(255, 55, 151, 189),
+                child: Icon(
+                  Icons.star_rounded,
                   color: Color.fromARGB(255, 255, 255, 255),
                   size: TILE_SIZE,
                 ),
