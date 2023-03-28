@@ -66,6 +66,13 @@ export class loginController {
             });
         });
 
+        this.router.get('/getimages/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getUserScreenShots(username).then((screenshots : any): void => {
+                res.status(HTTP_STATUS_OK).send(screenshots);
+            });
+        });
+
         
 
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {

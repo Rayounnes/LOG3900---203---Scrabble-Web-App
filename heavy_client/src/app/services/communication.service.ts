@@ -155,6 +155,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('imagePutError')))
     }
 
+    getUserScreenShot(username : string) :Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/login/getimages/${username}`)
+        .pipe(catchError(this.handleError<any>('imagesGetError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 

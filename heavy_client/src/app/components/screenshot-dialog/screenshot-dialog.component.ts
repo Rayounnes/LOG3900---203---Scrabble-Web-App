@@ -9,9 +9,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class ScreenshotDialogComponent implements OnInit {
   image : string;
   comment : string = "";
+  hideComment : boolean = false;
   constructor(public dialogRef: MatDialogRef<ScreenshotDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) { 
       this.image = this.data.image
+      if(this.data.hideComment){
+        this.hideComment = true;
+      }
     }
 
   save(){

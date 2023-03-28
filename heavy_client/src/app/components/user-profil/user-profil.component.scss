@@ -47,14 +47,14 @@
 .choice{
     display: flex;
     height: 100%;
-    width: 49%;
+    width: 32%;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
     box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.2);
     background-color: #3c742f;
     margin-right: 0.2%;
-    font-size: larger;
+    font-size: small;
     color: white;
     transition: background-color 0.5s ease;
 }
@@ -67,13 +67,13 @@
 .no-choice{
     display: flex;
     height: 100%;
-    width: 49%;
+    width: 32%;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
     background-color: #c3c3c34a;
     margin-right: 0.2%;
-    font-size : larger
+    font-size : small
 }
 
 .choice:hover{
@@ -160,5 +160,16 @@
 
 .time{
     margin-right: 2%;
+}
+
+.screen{
+    width: 14%;
+    height: 80%;
+    border-radius: 10px;
+    margin-left: 2%;
+}
+
+.screen:hover{
+    cursor: pointer;
 }
 

@@ -90,6 +90,18 @@ export class LoginService {
         return false
     }
 
+    async getUserScreenShots(username : string){
+        let user = await this.userCollection.findOne({username : username})
+        if(user){
+            if(user['screenshots']){
+                return user['screenshots']
+            }else{
+                await this.userCollection.updateOne({username : username},{$set :{screenshots : []}})
+            }
+        }
+        return []
+    }
+
     private async updateAddedIcons(socketId : string, username : string){
         let icons = await this.iconsCollection.find({creator : socketId}).toArray()
         if(icons.length > 0){

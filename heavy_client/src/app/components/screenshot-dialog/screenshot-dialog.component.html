@@ -1,6 +1,6 @@
 <div class="main">
     <img  [src]="image" width="100%" height="90%"/>
-    <div class="comment">
+    <div class="comment" *ngIf="!hideComment">
         <mat-form-field class="example-full-width" >
             <mat-label>Entrez un commentaire</mat-label>
             <textarea matInput [(ngModel)]="comment"></textarea>

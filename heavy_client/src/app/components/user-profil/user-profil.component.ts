@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { CommunicationService } from '@app/services/communication.service';
 import { UsernameEditComponent } from '@app/components/username-edit/username-edit.component';
 import { AvatarSelectionComponent } from '../avatar-selection/avatar-selection.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
 
 @Component({
   selector: 'app-user-profil',
@@ -19,6 +20,8 @@ export class UserProfilComponent implements OnInit {
   connexionHistory : any[] = [];
   dialogRef : any;
   avatarChoosed : string = "";
+  screenshots : string[][] = [] //[[image,commentaire],[image,commentaire]]
+  dialogConfig = new MatDialogConfig();
 
   constructor(private communicationService : CommunicationService,
     public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
@@ -31,6 +34,7 @@ export class UserProfilComponent implements OnInit {
         this.username = uname;
         this.getAvatar();
         this.getConnexionHistory();
+        this.getScreenshots()
     });;
 
   }
@@ -57,6 +61,23 @@ export class UserProfilComponent implements OnInit {
     this.communicationService.getUserConnexions(this.username).subscribe((history : any[])=>{
       this.connexionHistory = history.reverse()
     })
+  }
+
+  getScreenshots(){
+    this.communicationService.getUserScreenShot(this.username).subscribe((screenshots : any) =>{
+      this.screenshots = screenshots
+      console.log(this.screenshots)
+    })
+  }
+
+  openScreenShot(image:string){
+    this.dialogConfig.width = '100%';
+    this.dialogConfig.height = '100%';
+    this.dialogConfig.data = {image: image, hideComment : true};
+    const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
+    dialogRef.afterClosed().subscribe(() => {
+      
+    });
   }
 
   chooseAvatar(){

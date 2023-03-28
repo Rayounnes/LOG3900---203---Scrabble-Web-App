@@ -29,6 +29,9 @@
         <div [ngClass]="currentCategory == 'Connexions' ? 'choice' : 'no-choice'" (click)="changeCategory('Connexions')">
             <span>Historique des connexions et déconnexions</span>
         </div>
+        <div [ngClass]="currentCategory == 'Screenshot' ? 'choice' : 'no-choice'" (click)="changeCategory('Screenshot')">
+            <span>Capture d'écrans</span>
+        </div>
     </div>
     <div class="infos" *ngIf="currentCategory == 'Connexions'">
         <div class="data"  *ngFor="let data of connexionHistory">
@@ -36,6 +39,13 @@
             <span *ngIf="data[1]" class="connect">Connexion</span>
             <span *ngIf="!data[1]" class="disconnect">Déconnexion</span>
             <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Screenshot'">
+        <div class="data"  *ngFor="let screenshot of screenshots">
+            <img  class="screen" [src]="screenshot[0]" (click)="openScreenShot(screenshot[0])" />
+            <span class="time">{{screenshot[1]}}</span>
         </div>
         
     </div>
