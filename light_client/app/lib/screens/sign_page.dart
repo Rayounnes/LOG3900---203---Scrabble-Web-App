@@ -94,13 +94,6 @@ class _SignUpState extends State<SignUp> {
                   "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-            content: Text("L'image est trop grande")),
-      );
     }
   }
 

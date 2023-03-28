@@ -203,6 +203,8 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
+  MusicService musicService = MusicService();
+
   @override
   void initState() {
     print("-------------------------Initiation game-page-------------------");
@@ -413,7 +415,6 @@ class _GamePageState extends State<GamePage> {
     });
 
     getIt<SocketService>().on('validate-created-words', (placedWord) {
-      MusicService musicService = MusicService();
       if (placedWord["points"] != 0) {
         musicService.playMusic(GOOD_PLACEMENT_SOUND,false);
         final lettersjson = jsonEncode(placedWord["letters"]);
@@ -543,7 +544,6 @@ class _GamePageState extends State<GamePage> {
               FloatingActionButton(
                 heroTag: "btn1",
                 onPressed: () {
-                  MusicService musicService = MusicService();
                   musicService.playMusic(LOSE_GAME_SOUND,false);
                   getIt<SocketService>().send('abandon-game');
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -588,7 +588,6 @@ class _GamePageState extends State<GamePage> {
                         setState(() {
                           getIt<SocketService>().send('pass-turn');
                           switchRack(true);
-                          MusicService musicService = MusicService();
                           musicService.playMusic(SWITCH_TURN_SOUND,false);
                         });
                       },
@@ -650,7 +649,6 @@ class _GamePageState extends State<GamePage> {
                             }).then((List<String>? result) {
                           if (result != null) {
                             switchRack(true);
-                            MusicService musicService = MusicService();
                             musicService.playMusic(CHANGE_TILE_SOUND,false);
                           }
                         });

@@ -118,6 +118,7 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
       body: {
         'newU': jsonEncode(newUsername),
         'old': jsonEncode(oldUsername),
+        'isLightClient': jsonEncode(true),
       },
     );
     if (response.statusCode == 200) {
@@ -134,6 +135,7 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
       body: {
         'username': jsonEncode(username),
         'password': jsonEncode(password),
+        'isLightClient': jsonEncode(true),
       },
     );
     if (response.statusCode == 200) {
@@ -156,7 +158,6 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
       return true;
     } else {
       throw Exception('Failed to change icon');
-
     }
   }
 

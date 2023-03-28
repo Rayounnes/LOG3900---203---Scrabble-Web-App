@@ -136,7 +136,7 @@ export class CommunicationService {
     }
 
     changeUsername(old : string, newU : string) : Observable<boolean>{
-        return this.http.post<boolean>(`${this.baseUrl}/api/login/user/changeusername`, {old : old, newU : newU})
+        return this.http.post<boolean>(`${this.baseUrl}/api/login/user/changeusername`, {old : old, newU : newU, isLightClient : false})
         .pipe(catchError(this.handleError<boolean>('logoutError')))
     }
 

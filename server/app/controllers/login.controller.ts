@@ -73,7 +73,8 @@ export class loginController {
         this.router.put('/user/changepassword', async (req: Request, res: Response, next): Promise<void> => {
             const password: string = req.body.password;
             const username: string = req.body.username;
-            this.loginService.changePassword(username, password).then((isValid) =>{
+            const isLightClient: boolean = req.body.isLightClient;
+            this.loginService.changePassword(username, password,isLightClient).then((isValid) =>{
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             })
         });
@@ -81,7 +82,8 @@ export class loginController {
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {
             const oldUsername: string = req.body.old;
             const newUsername = req.body.newU;
-            this.loginService.changeUsername(oldUsername,newUsername).then((isValid) =>{
+            const isLightClient: boolean = req.body.isLightClient;
+            this.loginService.changeUsername(oldUsername,newUsername, isLightClient).then((isValid) =>{
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             })
         });

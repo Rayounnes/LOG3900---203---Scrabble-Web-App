@@ -5,7 +5,9 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
+import '../main.dart';
 import '../services/api_service.dart';
+import '../services/socket_client.dart';
 import 'game_modes_page.dart';
 
 class UserAccountEditPage extends StatefulWidget {
@@ -52,11 +54,20 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         if(response) await ApiService().changeIcon(usernameValidationController.text, imageBase64);
       }
       if (newUsernameController.text != '') {
-        await ApiService().changeUsername(
-          newUsernameController.text,
-          usernameValidationController.text,
-        );
-        name = newUsernameController.text;
+        bool res = await ApiService().changeUsername(newUsernameController.text, usernameValidationController.text,);
+        if(res){
+          name = newUsernameController.text;
+          getIt<SocketService>().send('change-username',name);
+        }
+        else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Color.fromARGB(255, 83, 162, 84),
+                duration: Duration(seconds: 3),
+                content: Text("Ce username est deja utilisé !")),
+          );
+          return;
+        }
       }
 
       Navigator.push(context, MaterialPageRoute(
@@ -226,7 +237,6 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        print('ouii');
                         modifyAccountInfo();
                       }
                     },

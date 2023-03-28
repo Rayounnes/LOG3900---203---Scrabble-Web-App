@@ -1,4 +1,3 @@
-import 'package:app/constants/widgets.dart';
 import 'package:flutter/material.dart';
 import '../services/music_service.dart';
 
@@ -14,16 +13,14 @@ class _MusicAppBarState extends State<MusicAppBar> {
   @override
   void initState() {
     super.initState();
-    musicService.musicID = 0;
-    musicService.playMusic(MUSIC_PATH[musicService.musicID]);
+    if(musicService.isPlaying){musicService.resumeMusic();}
   }
 
   @override
   void dispose() {
     super.dispose();
-    //if (ModalRoute.of(context)?.settings?.name == '/loginScreen') {
-      musicService.disposeMusic();
-    //}
+    musicService.stopMusic();
+    //if (ModalRoute.of(context)?.settings?.name == '/loginScreen') {}
   }
 
   @override

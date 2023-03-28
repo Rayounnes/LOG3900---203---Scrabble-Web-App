@@ -96,11 +96,20 @@ export class LoginService {
         }
     }
 
-    async changePassword(username: string, newPassword: string) {
-        //Le username du client léger est comme ça --> '"user"'
-        if(username.startsWith('"')) username = username.split('"')[1];
+    adjustStringFormat(username: string){
+        let end = username.lastIndexOf('"');
+        let start = username.indexOf('"') + 1;
+        let result = username.substring(start, end);
+        return result;
+    }
+
+    async changePassword(username: string, newPassword: string, isLightClient : boolean) {
+        //Le String du client léger vient en double comme ça --> '"user"'
+        if(isLightClient) {
+            username = this.adjustStringFormat(username);
+            newPassword = this.adjustStringFormat(newPassword);
+        }
         let user = await this.userCollection.findOne({ username: username });
-        console.log(user, "Exist");
 
         if (user) {
             if (user['connected']) {return false;}
@@ -114,7 +123,12 @@ export class LoginService {
         }
       }
 
-    async changeUsername(oldUsername : string, newUsername : string) : Promise<boolean>{
+    async changeUsername(oldUsername : string, newUsername : string, isLightClient : boolean) : Promise<boolean>{
+        if(isLightClient){
+            oldUsername = this.adjustStringFormat(oldUsername);
+            newUsername = this.adjustStringFormat(newUsername);
+        }
+
         let usernameExists = await this.userCollection.findOne({ username: newUsername });
         if(usernameExists){
             console.log("fauxxxx")
