@@ -12,7 +12,7 @@ import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 
-const DEFAULT_CLOCK = 60;
+const DEFAULT_CLOCK = 30;
 const ONE_SECOND = 1000;
 const RESERVE_START_LENGTH = 102;
 @Component({
@@ -34,7 +34,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         hostUsername: 'rayan',
         humanPlayers: 3,
         isPrivate: true,
-        time: 60,
+        time: 30,
         dictionary: { title: 'Mon dictionnaire', fileName: 'dictionnary.json' } as Dictionary,
     } as Game;
     players: GamePlayerInfos[] = [];
@@ -203,6 +203,10 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 if(isValid) this.coins += coins
             })
         })
+
+        this.socketService.on('time-add',(toAdd : number)=>{
+            this.clock = Math.min(this.game.time,this.clock+toAdd)
+        })
     }
 
     addScore(): void {
@@ -241,11 +245,18 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     }
 
     getUserCoins(){
-        console.log(`Mon username :${this.getUsername()}`)
         this.communicationService.getUserCoins(this.getUsername() as string).subscribe((coins : number[])=>{
             console.log(`coins posseder : ${coins}`)
             this.coinsGotFromDB = true;
             this.coins = coins[0]
+        })
+    }
+
+    buyTime(bought : number){
+        this.socketService.send('time-add',bought)
+        let coinsToRemove = (bought*-2)
+        this.communicationService.addCoinsToUser(this.getUsername(),coinsToRemove).subscribe((isValid : boolean)=>{
+            if(isValid) this.coins += coinsToRemove
         })
     }
 

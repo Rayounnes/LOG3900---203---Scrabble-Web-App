@@ -133,6 +133,18 @@ app-surrender-game{
 
 }
 
+.time-buy{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 5%;
+    background-color: #ababab;
+    border-radius: 12px;
+    justify-content: space-evenly;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    margin-top: 2%;
+}
+
 .player{
     display: flex;
     flex-direction: row;
@@ -210,6 +222,19 @@ app-surrender-game{
     color: white;
 }
 
+.buy{
+    height: 60%;
+    width: 30%;
+    background-color: #eeb501;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 5%;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    color: white;
+}
+
 
 .score{
     width: 10%;
@@ -220,6 +245,23 @@ app-surrender-game{
     font-family: fantasy;
     font-size: xx-large;
     color: #423434;
+}
+
+.custom-button{
+    background-color: #ababab;
+    width: 25%;
+    height: 90%;
+    color: white;
+}
+
+.mat-button.mat-button-disabled, .mat-icon-button.mat-button-disabled, .mat-stroked-button.mat-button-disabled, .mat-flat-button.mat-button-disabled {
+    cursor: default;
+    background-color: #ababab;
+}
+
+.custom-content{
+    display: flex;
+    flex-direction: row;
 }
 
 

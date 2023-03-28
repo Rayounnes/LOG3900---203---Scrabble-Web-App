@@ -605,6 +605,13 @@ export class SocketManager {
         });
     }
 
+    handleTimeBuy(socket : io.Socket){
+        socket.on('time-add',(toAdd : number)=>{
+            const room = this.usersRoom.get(socket.id) as string;
+            this.sio.to(room).emit('time-add',toAdd);
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -638,6 +645,7 @@ export class SocketManager {
             this.userTyping(socket);
             this.changeUsername(socket);
             this.getChoicePannelInfo(socket);
+            this.handleTimeBuy(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
