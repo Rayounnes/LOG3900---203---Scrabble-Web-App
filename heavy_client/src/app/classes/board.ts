@@ -141,7 +141,7 @@ export class Board {
             return;
           }
           currentPos++;
-          while (this.getIsFilled(startLetter.line, currentPos)) {
+          while (this.getIsFilled(startLetter.line +1, currentPos +1)) {
             currentPos++;
           }
         }
@@ -157,7 +157,7 @@ export class Board {
             return;
           }
           currentPos++;
-          while (this.getIsFilled(startLetter.column, currentPos)) {
+          while (this.getIsFilled(currentPos+1, startLetter.column+1)) {
             currentPos++;
           }
         }

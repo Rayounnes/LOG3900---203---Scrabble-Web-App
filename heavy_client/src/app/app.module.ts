@@ -48,6 +48,8 @@ import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-d
 import { UsernameEditComponent } from './components/username-edit/username-edit.component';
 import { HintDialogComponent } from './components/hint-dialog/hint-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { GridConstants } from 'src/constants/grid-constants';
+import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
 
 
 /**
@@ -85,7 +87,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
         UserProfilComponent,
         ExchangeDialogComponent,
         HintDialogComponent,
-        UsernameEditComponent
+        UsernameEditComponent,
+        WhiteLetterDialogComponent
         
     ],
     imports: [
@@ -111,7 +114,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
         PopoutWindowModule,
         DragDropModule
     ],
-    providers: [],
+    providers: [GridConstants],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

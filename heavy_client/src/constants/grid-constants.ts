@@ -33,4 +33,6 @@ export class GridConstants {
     defaultWidth = 800;
     defaultHeight = 800;
     oAscii = 111;
+    tileSize = DEFAULT_HEIGHT/this.numberOfTiles;
+
 }

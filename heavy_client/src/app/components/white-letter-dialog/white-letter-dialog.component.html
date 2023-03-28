@@ -1,0 +1,8 @@
+<div class="alphabet-popup">
+    <div class="alphabet-container">
+      <h3>Sélectionner une lettre</h3>
+      <div class="alphabet-buttons">
+        <button *ngFor="let letter of alphabet" (click)="onNoClick(letter)">{{ letter }}</button>
+      </div>
+    </div>
+  </div>

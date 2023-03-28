@@ -1,8 +1,8 @@
 // c'est le fichier de constantes qui nous permet d'eviter d'avoir des nombres magiques
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export class ChevaletConstants {
-    width = 500;
-    height = 60;
+    width = 380;
+    height = 58;
     pos1 = 1;
     pos2 = 2;
     pos3 = 3;

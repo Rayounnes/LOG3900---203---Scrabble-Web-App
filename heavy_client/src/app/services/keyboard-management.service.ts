@@ -325,9 +325,14 @@ export class KeyboardManagementService {
     }
 
     importantKey(key: string, dragOrType: string) {
-        if (key === 'Backspace' && dragOrType === 'type') {
+        let start = this.gridService.board.getStartTile()
+        if (key === 'Backspace' && (dragOrType === 'type')) {
+
             this.removeLastLetter();
             if(this.letters.length === 0){
+                this.putOldTile(start?.x as number, start?.y as number)
+                this.gridService.board.resetStartTile();
+                this.gridService.board.wordStarted = false;
                 return "free";
 
             }
@@ -335,6 +340,10 @@ export class KeyboardManagementService {
         }
         if (key === 'Escape' && dragOrType === 'type') {
             this.removeAllLetters();
+            this.putOldTile(start?.x as number, start?.y as number)
+            this.gridService.board.resetStartTile();
+            this.gridService.board.wordStarted = false;
+
             return "free"
         }
         if (key === 'Enter') {
@@ -370,7 +379,9 @@ export class KeyboardManagementService {
     removeAllLetters() {
         while (this.letters.length !== 0) {
             this.removeLastLetter();
+            
         }
+        
     }
 
     letterRemovedInRack(letter: Letter) {

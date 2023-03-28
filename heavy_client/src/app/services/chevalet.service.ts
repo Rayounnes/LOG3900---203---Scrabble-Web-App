@@ -52,11 +52,11 @@ export class ChevaletService {
         //this.chevaletContext.stroke();
     }
     fillChevalet() {
-        this.chevaletContext.fillStyle = this.chevalet.colorRack;
+        this.chevaletContext.fillStyle = "rgba(249, 224, 118, 255)";
         for (let i = this.chevalet.startLine; i < this.chevalet.squareNumber; i++) {
             /* this.chevaletContext.fillRect(((i * this.width) / this.chevalet.squareNumber)+(1.5*i), 0, this.width / this.chevalet.squareNumber, this.height) */;
-            const cornerRadius = 0; // Adjust this value to change the corner radius
-            this.drawRoundedRect(((i * this.width) / this.chevalet.squareNumber)+(1.5*i), 0, this.width / this.chevalet.squareNumber, this.height, cornerRadius);
+            // const cornerRadius = 0; // Adjust this value to change the corner radius
+            // this.drawRoundedRect(((i * this.width) / this.chevalet.squareNumber)+(1.5*i), 0, this.width / this.chevalet.squareNumber, this.height, cornerRadius);
         }
     }
 
@@ -116,16 +116,28 @@ export class ChevaletService {
     }
 
     updateRack(chevaletArray: string[]) {
-        this.fillChevalet();
-        this.writeLettersOnRack(chevaletArray);
-        this.drawChevalet();
+        // this.fillChevalet();
+        // this.writeLettersOnRack(chevaletArray);
+        // this.drawChevalet();
     }
 
-    removeLetterOnRack(letter: string) {
-        const position = this.getPosition(letter) as number;
-        this.fillTheTile(position, this.chevalet.colorRack);
+    removeLetterOnRack(letter: string, posDroppedTile?:number) {
+        // if(posDroppedTile){
+        //     this.fillTheTile(posDroppedTile, this.chevalet.colorRack);
+        // }else{
+        //     const position = this.getPosition(letter) as number;
+        //     this.fillTheTile(position, this.chevalet.colorRack);
+        // }
+
         this.makeLetterOut(letter);
     }
+    //     removeLetterOnRack(letter: string) {
+
+    //         const position = this.getPosition(letter) as number;
+    //         this.fillTheTile(position, this.chevalet.colorRack);
+    
+    //     this.makeLetterOut(letter);
+    // }
     makeLetterOut(letter: string) {
         for (const tile of this.rackArray) {
             if (tile.letter === letter && !tile.isOut) {
