@@ -150,6 +150,11 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('coinsGetError')))
     }
 
+    addScreenshotToUser(username : string, image : string, comment : string) : Observable<boolean>{
+        return this.http.put<boolean>(`${this.baseUrl}/api/login/addimage`,{username : username, image : JSON.stringify(image), comment : comment})
+        .pipe(catchError(this.handleError<boolean>('imagePutError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 

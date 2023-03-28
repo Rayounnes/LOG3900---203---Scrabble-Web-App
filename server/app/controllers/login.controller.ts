@@ -57,6 +57,15 @@ export class loginController {
             });
         });
 
+        this.router.put('/addimage', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.body.username;
+            const image : string = JSON.parse(req.body.image);
+            const comment : string = req.body.comment;
+            this.loginService.addScreenshotToUser(username,image,comment).then((isValid): void => {
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
+
         
 
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {

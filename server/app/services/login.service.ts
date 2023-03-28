@@ -74,6 +74,22 @@ export class LoginService {
         
     }
 
+    async addScreenshotToUser(username : string, image : string, comment : string) : Promise<boolean>{
+        let user = await this.userCollection.findOne({username : username})
+        if(user){
+            if(user['screenshots']){
+                let current = user['screenshots']
+                current.push([image,comment])
+                await this.userCollection.updateOne({username : username},{$set :{screenshots : current}})
+                return true;
+            }else{
+                await this.userCollection.updateOne({username : username},{$set :{screenshots : [[image,comment]]}})
+                return true
+            }
+        }
+        return false
+    }
+
     private async updateAddedIcons(socketId : string, username : string){
         let icons = await this.iconsCollection.find({creator : socketId}).toArray()
         if(icons.length > 0){

@@ -1,0 +1,28 @@
+.main{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+}
+
+.comment{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 10%;
+    margin-top: 1%;
+}
+
+.example-full-width {
+    width: 80%;
+    height: 80%;
+}
+
+.custom-button{
+    color: white;
+    height: 80%;
+    width: 10%;
+    background-color: #3f9540;
+    margin-left: 5%;
+}

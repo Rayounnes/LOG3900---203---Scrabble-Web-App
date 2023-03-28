@@ -47,6 +47,7 @@ import { UserProfilComponent } from './components/user-profil/user-profil.compon
 import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-dialog.component';
 import { UsernameEditComponent } from './components/username-edit/username-edit.component';
 import { CooperativeVoteComponent } from './components/cooperative-vote/cooperative-vote.component';
+import { ScreenshotDialogComponent } from './components/screenshot-dialog/screenshot-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -84,6 +85,7 @@ import { CooperativeVoteComponent } from './components/cooperative-vote/cooperat
         ExchangeDialogComponent,
         UsernameEditComponent,
         CooperativeVoteComponent,
+        ScreenshotDialogComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
