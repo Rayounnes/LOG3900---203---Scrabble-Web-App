@@ -26,6 +26,12 @@
                     </div>
                     <span>Tuiles restantes</span>
                 </div>
+                <div class="tiles" *ngIf="player.socket == socketId">
+                    <div class="coin">
+                        {{coins}}
+                    </div>
+                    <span>Pièces</span>
+                </div>
             </div>
             <div class="score">
                 {{player['points']}}

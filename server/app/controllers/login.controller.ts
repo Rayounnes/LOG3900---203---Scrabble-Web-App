@@ -42,6 +42,23 @@ export class loginController {
             });
         });
 
+        this.router.get('/getcoins/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getUserCoins(username).then((coins : number[]): void => {
+                res.status(HTTP_STATUS_OK).send(coins);
+            });
+        });
+
+        this.router.put('/addcoins', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.body.username;
+            const coinsToAdd : number = req.body.coins;
+            this.loginService.addCoinsToUser(username,coinsToAdd).then((isValid : boolean): void => {
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
+
+        
+
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {
             const oldUsername: string = req.body.old;
             const newUsername = req.body.newU;

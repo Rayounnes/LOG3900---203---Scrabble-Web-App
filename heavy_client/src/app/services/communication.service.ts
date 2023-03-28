@@ -140,6 +140,16 @@ export class CommunicationService {
         .pipe(catchError(this.handleError<boolean>('logoutError')))
     }
 
+    getUserCoins(username : string) : Observable<number[]>{
+        return this.http.get<number[]>(`${this.baseUrl}/api/login/getcoins/${username}`)
+        .pipe(catchError(this.handleError<number[]>('coinsGetError')))
+    }
+
+    addCoinsToUser(username : string, coinsToAdd : number) : Observable<boolean>{
+        return this.http.put<boolean>(`${this.baseUrl}/api/login/addcoins`,{username : username, coins : coinsToAdd})
+        .pipe(catchError(this.handleError<boolean>('coinsGetError')))
+    }
+
     /** ************** chat channels methods *******************************/
 
 

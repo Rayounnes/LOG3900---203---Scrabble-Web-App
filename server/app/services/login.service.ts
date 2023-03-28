@@ -49,6 +49,31 @@ export class LoginService {
         await this.userCollection.insertOne(newAccount);
     }
 
+    async getUserCoins(username : string) : Promise<number[]>{
+        let user = await this.userCollection.findOne({username : username})
+        if(user && user['coins']){
+            console.log("on peut get")
+            return [user['coins']]
+        }else{
+            console.log("on peut pas get")
+            await this.userCollection.updateOne({username : username},{$set : {coins : 0}})
+            return [0]
+        }
+    }
+
+    async addCoinsToUser(username : string, coinsToAdd : number) : Promise<boolean>{
+        let user = await this.userCollection.findOne({username : username})
+        if(user){
+            console.log("on peut set")
+            let currentCoins = user['coins']
+            this.userCollection.updateOne({username : username},{$set : {coins : currentCoins + coinsToAdd}});
+            return true;
+        }
+        console.log("on peut pas set")
+        return false;
+        
+    }
+
     private async updateAddedIcons(socketId : string, username : string){
         let icons = await this.iconsCollection.find({creator : socketId}).toArray()
         if(icons.length > 0){

@@ -5,6 +5,7 @@ import { VirtualPlayerService } from '@app/services/virtual-player.service';
 import { COMMANDS } from '@app/constants/constants';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 import { ScrabbleCooperativeMode } from '@app/classes/scrabble-cooperative-mode';
+import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 
 const THREE_SECOND = 3000;
 const TWENTY_SECONDS = 20000;
@@ -153,7 +154,13 @@ export class GameManager {
         this.endGameMessage(room, scrabbleGame);
         this.sio.to(room).emit('recreate');
         this.sio.to(room).emit('end-game');
-        const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
+        let playersInfo : GamePlayerInfos[] = scrabbleGame.getPlayersInfo()
+        const data = { players: playersInfo, turnSocket: scrabbleGame.socketTurn };
+        for(let player of playersInfo){
+            if(!player.isVirtualPlayer){
+                this.calculateCoinsWin(player)
+            }
+        }
         this.sio.to(room).emit('send-info-to-panel', data);
     }
     // TODO a corriger pour les joeurs virtuels
@@ -194,5 +201,11 @@ export class GameManager {
                 break;
         }
         return [commandSuccess, isEndGame];
+    }
+
+    calculateCoinsWin(player : GamePlayerInfos){
+        let coinsWon : number = Math.max(5,player.points/10)
+        if(player.socket)
+        this.sio.to(player.socket).emit('coins-win',coinsWon)
     }
 }

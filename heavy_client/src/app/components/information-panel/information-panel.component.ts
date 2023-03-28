@@ -46,6 +46,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
+    coins : number = 0;
+    coinsGotFromDB : boolean = false;
+
     constructor(
         public socketService: ChatSocketClientService,
         private communicationService: CommunicationService,
@@ -160,6 +163,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            if(!this.coinsGotFromDB) this.getUserCoins() // On doit s'assurer que la variable player est remplie avant d'ller get les coins
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
@@ -192,6 +196,13 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.addScore();
             this.addGameToHistory();
         });
+
+        this.socketService.on('coins-win',(coins : number)=>{
+            console.log(`coins gagnés : ${coins}`)
+            this.communicationService.addCoinsToUser(this.getUsername(),coins).subscribe((isValid : boolean) =>{
+                if(isValid) this.coins += coins
+            })
+        })
     }
 
     addScore(): void {
@@ -218,6 +229,24 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             abandoned: this.msgAbandoned,
         };
         if (this.isHost) this.communicationService.gameHistoryPost(gameInfo).subscribe(); */
+    }
+
+    getUsername(){
+        for(let player of this.players){
+            if(player.socket == this.socketId){
+                return player.username.split(" ")[0];
+            }
+        }
+        return ""
+    }
+
+    getUserCoins(){
+        console.log(`Mon username :${this.getUsername()}`)
+        this.communicationService.getUserCoins(this.getUsername() as string).subscribe((coins : number[])=>{
+            console.log(`coins posseder : ${coins}`)
+            this.coinsGotFromDB = true;
+            this.coins = coins[0]
+        })
     }
 
     getDate() {
