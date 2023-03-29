@@ -48,6 +48,7 @@ import { ExchangeDialogComponent } from './components/exchange-dialog/exchange-d
 import { UsernameEditComponent } from './components/username-edit/username-edit.component';
 import { CooperativeVoteComponent } from './components/cooperative-vote/cooperative-vote.component';
 import { ScreenshotDialogComponent } from './components/screenshot-dialog/screenshot-dialog.component';
+import { OrthographyPageComponent } from './pages/orthography-page/orthography-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -86,6 +87,7 @@ import { ScreenshotDialogComponent } from './components/screenshot-dialog/screen
         UsernameEditComponent,
         CooperativeVoteComponent,
         ScreenshotDialogComponent,
+        OrthographyPageComponent,
     ],
     imports: [
         MatProgressSpinnerModule,

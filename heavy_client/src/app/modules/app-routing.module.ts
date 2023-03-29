@@ -10,6 +10,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { JoindrePartieComponent } from '@app/pages/joindre-partie/joindre-partie.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { OrthographyPageComponent } from '@app/pages/orthography-page/orthography-page.component';
 import { WaitingRoomPageComponent } from '@app/pages/waiting-room-page/waiting-room-page.component';
 
 const routes: Routes = [
@@ -25,7 +26,9 @@ const routes: Routes = [
     { path: 'information-panel', component: InformationPanelComponent },
     { path: 'top-scores', component: BestScoresComponent },
     { path: 'admin', component: AdminPanelComponent },
+    {path: 'mode-training', component: OrthographyPageComponent},
     { path: '**', redirectTo: '/home' },
+   
 ];
 
 @NgModule({

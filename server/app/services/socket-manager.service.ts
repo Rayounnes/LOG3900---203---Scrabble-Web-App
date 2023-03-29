@@ -23,6 +23,7 @@ import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
 import { ScrabbleCooperativeMode } from '@app/classes/scrabble-cooperative-mode';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { iconService } from './icon.service';
+import { ModeOrthography } from './mode-orthography.service';
 
 export class SocketManager {
     private sio: io.Server;
@@ -38,6 +39,7 @@ export class SocketManager {
     private loginService: LoginService;
     private channelService: ChannelService;
     private iconService: iconService;
+    private modeOrthography: ModeOrthography;
 
     constructor(server: http.Server, private databaseService: DatabaseService) {
         this.sio = new io.Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
@@ -54,6 +56,7 @@ export class SocketManager {
             this.scrabbleGames,
             this.scrabbleCooperativeGames,
         );
+        this.modeOrthography = new ModeOrthography(this.databaseService);
     }
     // changeRoomName() {
     //     this.roomIncrement++;
@@ -436,6 +439,9 @@ export class SocketManager {
             const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
             this.sio.to(room).emit('send-info-to-panel', data);
         });
+     
+
+
     }
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
@@ -484,6 +490,7 @@ export class SocketManager {
             this.userJoinChannels(socket);
             // this.loginService.changeConnectionState(loginInfos.username, true);
         });
+       
     }
 
     userDisconnectHandler(socket: io.Socket) {
@@ -556,6 +563,20 @@ export class SocketManager {
     userCreateChannel(socket: io.Socket) {
         socket.on('channel-creation', async (channelName: string) => {
             await this.createChannel(socket, channelName, false);
+        });
+    }
+
+    async verifyMaxScore(socket : io.Socket, score: any) {
+        const username = this.usernames.get(socket.id);
+        await this.modeOrthography.sendScore(score, username as string);
+    }
+
+    scoreOrthography(socket: io.Socket) {
+        socket.on('score-orthography', async (score) => {
+            await this.verifyMaxScore(socket, score);
+          
+
+           
         });
     }
 
@@ -645,6 +666,7 @@ export class SocketManager {
             this.changeUsername(socket);
             this.getChoicePannelInfo(socket);
             this.handleTimeBuy(socket);
+            this.scoreOrthography(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

@@ -25,6 +25,10 @@ export class MainPageComponent {
         this.router.navigate(['/mode'], { queryParams: { isClassicMode: isClassic } });
     }
 
+    navModeTraining() {
+        this.router.navigate(['/mode-training'])
+    }
+
     popUp() {
         const messageRef = this.dialog.open(BestScoresComponent, {
             width: 'auto',
