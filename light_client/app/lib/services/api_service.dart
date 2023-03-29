@@ -61,6 +61,7 @@ Future<List<dynamic>> getAllChannels() async {
 }
 
 
+
 Future<List<dynamic>> getAllUsers() async {
     final response = await http.get(
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allusers'),
@@ -96,6 +97,50 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
       throw Exception('Failed to get all channels');
     }
 }
+
+
+ /** ************** mode orthography method *******************************/
+  Future<dynamic> getBestScore(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/modeOrthography/scoreOrthography/'+username),
+    );
+    print(jsonDecode(response.body));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get best score');
+    }
+}
+
+Future<List<dynamic>> getAllWords() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/modeOrthography/allWordsOrthography'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get all words');
+    }
+
+
+  
+}
+
+
+Future<List<dynamic>> getAllBestScores() async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/modeOrthography/allBestScores'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get all words');
+    }
+
+}
+
+
+
 
 
 

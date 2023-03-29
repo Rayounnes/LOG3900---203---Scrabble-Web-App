@@ -133,6 +133,7 @@ onClick(wordItem: any) {
     }
     else {
       this.modeDone = true;
+      this.socketService.send('score-orthography', this.score);
     }
 
   }

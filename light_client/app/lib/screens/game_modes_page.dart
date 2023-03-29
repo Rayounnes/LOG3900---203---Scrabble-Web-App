@@ -1,4 +1,5 @@
 import 'package:app/screens/game_mode_choices.dart';
+import 'package:app/screens/mode_orthography.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _GameModesState extends State<GameModes> {
       children: [
         Center(
           child: Container(
-            height: 500,
+            height: 650,
             width: 500,
             decoration: BoxDecoration(
               color: Color.fromRGBO(203, 201, 201, 1),
@@ -78,6 +79,15 @@ class _GameModesState extends State<GameModes> {
                         return GameChoices(
                           modeName: GameNames.cooperative,
                         );
+                      }));
+                    }),
+                    GameButton(
+                    padding: 32.0,
+                    name: "Mode d'entrainement orthographe",
+                    route: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return ModeOrthography();
                       }));
                     }),
                 GameButton(

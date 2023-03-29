@@ -23,6 +23,11 @@ export class ModeOrthography {
         return wordsList;
     }
 
+    async getAllBestScore() {
+        const bestScores = await this.scoresOrthographyCollection.find().toArray();
+        return bestScores;
+    }
+
     async getBestScore(username: string) {
         const document = await this.scoresOrthographyCollection.findOne({ name: username });
         if (document) {
