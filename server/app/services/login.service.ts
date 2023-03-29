@@ -31,7 +31,6 @@ export class LoginService {
     }
 
     async createNewAccount(loginInfos: loginInfos): Promise<boolean> {
-        console.log(loginInfos)
         let usernameExists = await this.userCollection.findOne({ username: loginInfos.username });
         let emailExists  = await this.userCollection.findOne({ email: loginInfos.email });
         if (usernameExists || emailExists) {
@@ -45,7 +44,7 @@ export class LoginService {
     }
 
     private async addAccount(accountInfos: loginInfos) {
-        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email};
+        let newAccount = { username: accountInfos.username, password: accountInfos.password, connected: true, channels :  ["General"] , email : accountInfos.email, connexions : [], securityQstId: accountInfos.qstIndex, securityAnswer : accountInfos.qstAnswer};
         await this.userCollection.insertOne(newAccount);
     }
 
@@ -132,7 +131,57 @@ export class LoginService {
         }
     }
 
-    async changeUsername(oldUsername : string, newUsername : string) : Promise<boolean>{
+    async getSecurityAnswer(username : string){
+        let document = await this.userCollection.findOne({username : username});
+        if(document){
+            return document['securityAnswer'];
+        }else{
+            return '';
+        }
+    }
+
+    async getSecurityId(username : string){
+        let document = await this.userCollection.findOne({username : username});
+        if(document){
+            return document['securityQstId'];
+        }else{
+            return '';
+        }
+    }
+
+    adjustStringFormat(username: string){
+        let end = username.lastIndexOf('"');
+        let start = username.indexOf('"') + 1;
+        let result = username.substring(start, end);
+        return result;
+    }
+
+    async changePassword(username: string, newPassword: string, isLightClient? : boolean) {
+        //Le String du client léger vient en double comme ça --> '"user"'
+        if(isLightClient) {
+            username = this.adjustStringFormat(username);
+            newPassword = this.adjustStringFormat(newPassword);
+        }
+        let user = await this.userCollection.findOne({ username: username });
+
+        if (user) {
+            if (user['connected']) {return false;}
+            await this.userCollection.updateOne(
+                { username: username },
+                { $set: { password: newPassword } }
+            );
+            return true;
+        }else {
+           return false;
+        }
+      }
+
+    async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
+        if(isLightClient){
+            oldUsername = this.adjustStringFormat(oldUsername);
+            newUsername = this.adjustStringFormat(newUsername);
+        }
+
         let usernameExists = await this.userCollection.findOne({ username: newUsername });
         if(usernameExists){
             console.log("fauxxxx")
@@ -169,9 +218,9 @@ export class LoginService {
                 }
                 await this.channelService.channelCollection.updateOne({_id : channel["_id"]},{$set : {messages : channel['messages']}})
             }
-            
 
-            
+
+
             return true
         }
     }

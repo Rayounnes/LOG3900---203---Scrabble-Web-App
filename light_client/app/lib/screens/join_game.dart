@@ -4,10 +4,11 @@ import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/user_infos.dart';
-import 'package:app/widgets/game_info.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
+
+import '../widgets/loading_tips.dart';
 
 class JoinGames extends StatefulWidget {
   final String modeName;
@@ -101,6 +102,7 @@ class _JoinGamesState extends State<JoinGames> {
     return ParentWidget(
       child: Scaffold(
         backgroundColor: Colors.green[800],
+        bottomNavigationBar: LoadingTips(),
         appBar: AppBar(
           backgroundColor: Colors.white,
           leading: IconButton(
@@ -339,7 +341,6 @@ class _JoinGamesState extends State<JoinGames> {
       else if (acceptPlayer)
         goToWaitingRoom(gameToJoin);
       else if (!acceptPlayer) {
-        const message = 'Vous avez été rejeté de la partie.';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: Colors.blue,

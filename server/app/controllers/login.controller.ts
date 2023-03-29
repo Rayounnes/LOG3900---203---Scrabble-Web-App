@@ -35,6 +35,22 @@ export class loginController {
             });
         });
 
+        this.router.put('/userLightClient', async (req: Request, res: Response, next): Promise<void> => {
+            const infos = req.body;
+            let newAccountInfos = {
+                username: infos.username,
+                password: infos.password,
+                email: infos.email,
+                icon: infos.icon,
+                socket: infos.socket,
+                qstIndex: infos.qstIndex,
+                qstAnswer: infos.qstAnswer,
+            } as loginInfos;
+            this.loginService.createNewAccount(newAccountInfos).then((isValid): void => {
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
+
         this.router.get('/connexionhistory/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
             this.loginService.getConnexionHistory(username).then((history): void => {
@@ -44,43 +60,65 @@ export class loginController {
 
         this.router.get('/getcoins/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
-            this.loginService.getUserCoins(username).then((coins : number[]): void => {
+            this.loginService.getUserCoins(username).then((coins: number[]): void => {
                 res.status(HTTP_STATUS_OK).send(coins);
             });
         });
 
         this.router.put('/addcoins', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.body.username;
-            const coinsToAdd : number = req.body.coins;
-            this.loginService.addCoinsToUser(username,coinsToAdd).then((isValid : boolean): void => {
+            const coinsToAdd: number = req.body.coins;
+            this.loginService.addCoinsToUser(username, coinsToAdd).then((isValid: boolean): void => {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             });
         });
 
         this.router.put('/addimage', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.body.username;
-            const image : string = JSON.parse(req.body.image);
-            const comment : string = req.body.comment;
-            this.loginService.addScreenshotToUser(username,image,comment).then((isValid): void => {
+            const image: string = JSON.parse(req.body.image);
+            const comment: string = req.body.comment;
+            this.loginService.addScreenshotToUser(username, image, comment).then((isValid): void => {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
             });
         });
 
         this.router.get('/getimages/:username', async (req: Request, res: Response, next): Promise<void> => {
             const username: string = req.params.username;
-            this.loginService.getUserScreenShots(username).then((screenshots : any): void => {
+            this.loginService.getUserScreenShots(username).then((screenshots: any): void => {
                 res.status(HTTP_STATUS_OK).send(screenshots);
             });
         });
 
-        
+        this.router.get('/securityAnswer/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getSecurityAnswer(username).then((answer): void => {
+                res.status(answer !== '' ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).json(answer);
+            });
+        });
+
+        this.router.get('/securityId/:username', async (req: Request, res: Response, next): Promise<void> => {
+            const username: string = req.params.username;
+            this.loginService.getSecurityId(username).then((index): void => {
+                res.status(index ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(index);
+            });
+        });
+
+        this.router.put('/user/changepassword', async (req: Request, res: Response, next): Promise<void> => {
+            const password: string = req.body.password;
+            const username: string = req.body.username;
+            const isLightClient: boolean = req.body.isLightClient;
+            this.loginService.changePassword(username, password, isLightClient).then((isValid) => {
+                res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
+            });
+        });
 
         this.router.post('/user/changeusername', async (req: Request, res: Response, next): Promise<void> => {
             const oldUsername: string = req.body.old;
             const newUsername = req.body.newU;
-            this.loginService.changeUsername(oldUsername,newUsername).then((isValid) =>{
+            const isLightClient: boolean = req.body.isLightClient;
+            this.loginService.changeUsername(oldUsername, newUsername, isLightClient).then((isValid) => {
                 res.status(isValid ? HTTP_STATUS_OK : HTTP_STATUS_UNAUTHORIZED).send(isValid);
-            })
+            });
         });
     }
 }

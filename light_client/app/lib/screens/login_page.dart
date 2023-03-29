@@ -145,6 +145,12 @@ class _LoginDemoState extends State<LoginDemo> {
                     Navigator.pushNamed(context, '/signScreen');
                   },
                 ),
+                TextButton(
+                  child: Text('Mot de passe oublié?'),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/recoverPassScreen');
+                  },
+                ),
               ],
             ),
           ),

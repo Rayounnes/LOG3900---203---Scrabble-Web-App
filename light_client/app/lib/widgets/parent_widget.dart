@@ -1,7 +1,6 @@
 import 'package:app/screens/channels_page.dart';
+import 'package:app/widgets/music_appBar.dart';
 import 'package:flutter/material.dart';
-import 'package:app/main.dart';
-import 'package:app/services/socket_client.dart';
 
 class ParentWidget extends StatefulWidget {
   final Widget child;
@@ -21,7 +20,7 @@ class _ParentWidgetState extends State<ParentWidget> {
     return Scaffold(
         //bottomNavigationBar: HomePage(),
         backgroundColor: Colors.green[800],
-        body: Stack(children: [widget.child, chatPopup(context)]),
+        body: Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
         floatingActionButton: keyboardIsOpened
             ? null
             : ElevatedButton(
@@ -41,7 +40,7 @@ class _ParentWidgetState extends State<ParentWidget> {
   }
 
   Widget chatPopup(BuildContext context) {
-    // getIt<SocketService>().send("sendUsername"); 
+    // getIt<SocketService>().send("sendUsername");
     return Center(
       child: AnimatedContainer(
         decoration: BoxDecoration(

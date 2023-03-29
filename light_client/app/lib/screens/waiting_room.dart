@@ -3,7 +3,6 @@ import 'package:app/main.dart';
 import 'package:app/models/game.dart';
 import 'package:app/models/player_infos.dart';
 import 'package:app/screens/game_mode_choices.dart';
-import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/game_page.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/services/socket_client.dart';
@@ -11,7 +10,8 @@ import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/text.dart';
 import 'package:flutter/material.dart';
-import 'package:app/services/user_infos.dart';
+
+import '../widgets/loading_tips.dart';
 
 class WaitingRoom extends StatefulWidget {
   final String modeName;
@@ -145,6 +145,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
     return ParentWidget(
         child: Scaffold(
             backgroundColor: Colors.green[800],
+            bottomNavigationBar: LoadingTips(),
             body: Center(
               child: Container(
                 height: 1000,

@@ -77,6 +77,8 @@ export const DB_COLLECTION_GAME_HISTORY = 'GAMEHISTORY';
 export const DB_COLLECTION_ICONS = 'avatars'
 export const DB_COLLECTION_WORDS = 'WordsOrthography';
 export const DB_COLLECTION_SCORESORTHOGRAPHY = 'ScoresOrthography'
+export const DB_COLLECTION_ICONS = 'avatars';
+export const DB_COLLECTION_SECURITY_QST = 'SecurityQuestions';
 export const TOP_FIVE_SCORES = 5;
 export const DESCENDING_ORDER = -1;
 
@@ -205,5 +207,7 @@ export interface loginInfos {
     password : string,
     email? : string,
     icon? : string,
-    socket? : string
+    socket? : string,
+    qstIndex? : string,
+    qstAnswer? : string,
 }

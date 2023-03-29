@@ -28,12 +28,9 @@ class TilePlacement {
   }
 
   Offset setTileOnBoard(Offset position, int tileID) {
-    Offset tilePosition = findTileCenter(position);
-    double dx = findTileInterval(axisX, tilePosition.dx);
-    double dy = findTileInterval(axisY, tilePosition.dy);
-    tilePosition = Offset(dx, dy);
+    Offset tilePosition = getTilePosition(position, tileID);
 
-    if (dx == 0 || dy == 0) {
+    if (tilePosition.dx == 0 || tilePosition.dy == 0) {
       tilePosition = setTileOnRack(tileID);
     }
 
