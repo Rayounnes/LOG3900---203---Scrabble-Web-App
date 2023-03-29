@@ -138,8 +138,9 @@ export class ScrabbleClassicMode {
     getPlayerRack(socketId: string): string[] {
         return this.gamePlayers?.get(socketId)?.lettersRack.lettersRack as string[];
     }
-    getPlayerHintWords(socketId: string): string {
-        return this.gamePlayers?.get(socketId)?.hintWords.hintPlacement(this.firstTurn) as string;
+    getPlayerHintWords(socketId: string): Placement[] {
+        const placements = this.gamePlayers?.get(socketId)?.hintWords.getBestHints(this.firstTurn) as Placement[];
+        return placements;
     }
     getPlayerTilesLeft(socketId: string): number {
         return this.gamePlayers?.get(socketId)?.lettersRack.rackInString.length as number;

@@ -49,6 +49,10 @@ import { UsernameEditComponent } from './components/username-edit/username-edit.
 import { CooperativeVoteComponent } from './components/cooperative-vote/cooperative-vote.component';
 import { ScreenshotDialogComponent } from './components/screenshot-dialog/screenshot-dialog.component';
 import { OrthographyPageComponent } from './pages/orthography-page/orthography-page.component';
+import { HintDialogComponent } from './components/hint-dialog/hint-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { GridConstants } from 'src/constants/grid-constants';
+import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -84,10 +88,12 @@ import { OrthographyPageComponent } from './pages/orthography-page/orthography-p
         AvatarSelectionComponent,
         UserProfilComponent,
         ExchangeDialogComponent,
+        HintDialogComponent,
         UsernameEditComponent,
         CooperativeVoteComponent,
         ScreenshotDialogComponent,
         OrthographyPageComponent,
+        WhiteLetterDialogComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
@@ -110,8 +116,9 @@ import { OrthographyPageComponent } from './pages/orthography-page/orthography-p
         MatCheckboxModule,
         MatListModule,
         PopoutWindowModule,
+        DragDropModule,
     ],
-    providers: [],
+    providers: [GridConstants],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

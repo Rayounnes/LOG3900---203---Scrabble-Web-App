@@ -4,7 +4,7 @@
 import { Placement } from '@app/interfaces/placement';
 export const MIN_LETTERS_WITHOUT_VERIFICATION = 3;
 export const WHITE_LETTER = '*';
-export const MAX_FOUND_WORDS = 3;
+export const MAX_FOUND_WORDS = 5;
 export const INVALID_PLACEMENT: Placement = { letters: [{ line: 0, column: 0, value: '' }], points: 0, command: '' };
 export const WORDS_ONE_WHITE_LETTER = [
     ['a', 'v', 'm', 'A', 'l'],

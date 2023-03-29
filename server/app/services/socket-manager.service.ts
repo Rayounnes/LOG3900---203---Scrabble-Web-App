@@ -310,14 +310,8 @@ export class SocketManager {
         });
         socket.on('hint-command', () => {
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
-            const hintWords: string = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('chatMessage', {
-                username: '',
-                message: hintWords,
-                time: new Date().toTimeString().split(' ')[0],
-                type: 'system',
-                channel: this.usersRoom.get(socket.id) as string,
-            });
+            const hintWords: Placement[] = scrabbleGame.getPlayerHintWords(socket.id);
+            this.sio.to(socket.id).emit('hint-command', hintWords);
         });
     }
     exchangeCommandHandler(socket: io.Socket) {
@@ -348,7 +342,7 @@ export class SocketManager {
             //const username = this.usernames.get(socket.id);
             //this.sio.to(room).emit('chatMessage', { type: 'player', message: `${username} : ${message}` });
             // eslint-disable-next-line no-console
-            console.log("un message envoye!");
+            console.log('un message envoye!');
             this.sio.to(message.channel as string).emit('chatMessage', message);
             this.sio.to(message.channel as string).emit('notify-message', message);
             this.channelService.addMessageToChannel(message);
@@ -439,9 +433,6 @@ export class SocketManager {
             const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
             this.sio.to(room).emit('send-info-to-panel', data);
         });
-     
-
-
     }
     gameTurnHandler(socket: io.Socket) {
         socket.on('change-user-turn', () => {
@@ -490,7 +481,6 @@ export class SocketManager {
             this.userJoinChannels(socket);
             // this.loginService.changeConnectionState(loginInfos.username, true);
         });
-       
     }
 
     userDisconnectHandler(socket: io.Socket) {
@@ -566,7 +556,7 @@ export class SocketManager {
         });
     }
 
-    async verifyMaxScore(socket : io.Socket, score: any) {
+    async verifyMaxScore(socket: io.Socket, score: any) {
         const username = this.usernames.get(socket.id);
         await this.modeOrthography.sendScore(score, username as string);
     }
@@ -574,9 +564,6 @@ export class SocketManager {
     scoreOrthography(socket: io.Socket) {
         socket.on('score-orthography', async (score) => {
             await this.verifyMaxScore(socket, score);
-          
-
-           
         });
     }
 
