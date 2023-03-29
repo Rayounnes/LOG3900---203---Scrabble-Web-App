@@ -45,6 +45,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     allChannelsNames: string[] = [];
     channelsControl = new FormControl();
     userTyping: boolean = false;
+    usersIcons : Map<string,string> = new Map<string,string>()
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -172,6 +173,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             let channel: any;
             for (channel of this.allUserChannels) {
                 if (channel['name'] === chatMessage.channel) {
+                    this.checkUniqueUserIcon(chatMessage.username)
                     channel.messages.push(chatMessage);
                     if (channel.messages[0].length === 0) channel.messages.shift();
                     if (channel['name'] === this.currentChannel) {
@@ -511,6 +513,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.currentChannel = 'General';
             let channel: any;
             for (channel of this.allUserChannels) {
+                this.checkAllUsersIcon(channel['messages'])
                 if (channel['name'] === 'General') {
                     this.chatMessages = channel['messages'];
                     if (channel.messages[0].length === 0) this.chatMessages.shift();
@@ -520,5 +523,30 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 channel['typing'] = [false, 0, []];
             }
         });
+    }
+
+    async checkAllUsersIcon(messages: any) {
+        const keysArray: string[] = Array.from(this.usersIcons.keys());
+        if(messages[0].length == 0) messages.shift()
+        for (let message of messages) {
+          if (!keysArray.includes(message['username'])) {
+            const icon: string[] = await this.communicationService.getAvatar(message['username']).toPromise();
+            this.usersIcons.set(message['username'], icon[0]);
+            keysArray.push(message['username'])
+          }
+        }
+    }
+      
+    async checkUniqueUserIcon(username: string) {
+    const keysArray: string[] = Array.from(this.usersIcons.keys());
+    if (!keysArray.includes(username)) {
+        const icon: string[] = await this.communicationService.getAvatar(username).toPromise();
+        this.usersIcons.set(username, icon[0]);
+    }
+    }
+
+    getIcon(username : string){
+        if(this.usersIcons.get(username)) return this.usersIcons.get(username)
+        return ""
     }
 }

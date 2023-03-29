@@ -75,6 +75,7 @@
                 opponent: username !== message.username
             }"
         >
+        <img [src]="getIcon(message.username)" width="15%" height="10%" alt="">
         <p>{{message.time}}</p>
         <p>{{message.username}} : {{ message.message }}</p>
         </li>
