@@ -310,7 +310,7 @@ export class SocketManager {
         });
         socket.on('hint-command', () => {
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
-            const hintWords: Placement[] = scrabbleGame.getPlayerHintWords(socket.id);
+            const hintWords = scrabbleGame.getPlayerHintWords(socket.id);
             this.sio.to(socket.id).emit('hint-command', hintWords);
         });
     }

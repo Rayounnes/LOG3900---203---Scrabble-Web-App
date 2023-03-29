@@ -15,7 +15,7 @@ import { Command } from '@app/interfaces/command';
 import { Board } from '@app/classes/board';
 import { Vec2 } from '@app/interfaces/vec2';
 import { Letter } from '@app/interfaces/letter';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { LETTERS_POINTS } from 'src/constants/points-constants';
 import { TileDragRack } from '@app/interfaces/tile-drag-rack';
 import { WhiteLetterDialogComponent } from '../white-letter-dialog/white-letter-dialog.component';
@@ -85,6 +85,7 @@ export class ChevaletComponent implements AfterViewInit {
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
         public keyboardService: KeyboardManagementService,
+        public gridConstant: GridConstants,
         public dialog: MatDialog,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,

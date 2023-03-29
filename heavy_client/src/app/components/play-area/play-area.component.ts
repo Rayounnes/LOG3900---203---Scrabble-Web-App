@@ -12,7 +12,6 @@ import * as gridConstants from 'src/constants/grid-constants';
 import { CanvasSize } from '@app/interfaces/canvas-size';
 import { Letter } from '@app/interfaces/letter';
 import { WordArgs } from '@app/interfaces/word-args';
-import { MatDialog } from '@angular/material/dialog';
 import { HintDialogComponent } from '../hint-dialog/hint-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
@@ -72,7 +71,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         public mouse: MouseManagementService,
         public keyboard: KeyboardManagementService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog,
     ) {
         // this.mouse = new MouseManagementService(gridService);
         // this.keyboard = new KeyboardManagementService(gridService, chevaletService, this.mouse, socketService);
