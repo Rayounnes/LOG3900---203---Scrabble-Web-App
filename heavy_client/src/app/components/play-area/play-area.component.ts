@@ -144,6 +144,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.dragOrType = 'free';
     }
 
+    changeSizeWindow(){
+        this.keyboard.removeLettersOnBoard();
+    }
 
     returnRackTile(letter: Letter){
         this.keyboard.removeLetterOnBoard(letter);

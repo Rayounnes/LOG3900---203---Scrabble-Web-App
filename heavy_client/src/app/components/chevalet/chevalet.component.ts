@@ -48,6 +48,7 @@ export class ChevaletComponent implements AfterViewInit {
     rackX: number;
     rackY: number;
     lettersOut: TileDragRack[] = [];
+    currentPixelRatio: number = window.devicePixelRatio;
 
 
 
@@ -65,6 +66,7 @@ export class ChevaletComponent implements AfterViewInit {
     @Output() removeTileEvent = new EventEmitter<Letter>();
     @Output() resetDragEvent = new EventEmitter<string>();
 
+    @Output() removeAll = new EventEmitter();
     @Input() boardUser: Board;
 
     @Input() canvasBoard: ElementRef<HTMLCanvasElement>;
@@ -72,6 +74,7 @@ export class ChevaletComponent implements AfterViewInit {
     @Input() isBoardClicked: boolean;
     @Input() dragUsed: string;
     dragAccepted = ['free', 'drag', 'type'];
+    posBoard: DOMRect;
 
 
 
@@ -111,6 +114,23 @@ export class ChevaletComponent implements AfterViewInit {
 
         }
     } 
+
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+      if (window.devicePixelRatio !== this.currentPixelRatio) {
+        this.currentPixelRatio = window.devicePixelRatio;
+        this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        this.positionTiles();
+        this.removeAll.emit()
+
+        console.log('Zoom level changed');
+      }
+      this.positionTiles();
+      this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        this.removeAll.emit()
+
+      console.log(event);
+    }
     removeAllOutLetter(){
         while(this.lettersOut.length >=1){
             this.removeLastOutLetter();
@@ -258,13 +278,13 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     getPositionDroppedX(posX: number, firstTilePos?: any){
-        console.log(Math.floor(((posX-firstTilePos)/50) + 1));
-        return Math.floor(((posX-firstTilePos)/this.gridConstant.tileSize) + 1);
+        console.log(Math.floor(((posX-firstTilePos)/50)));
+        return Math.floor(((posX-firstTilePos)/this.gridConstant.tileSize));
     }
 
     getPositionDroppedY(posY: number, firstTilePos?: any){
         console.log(Math.floor(((posY)/this.gridConstant.tileSize)));
-        return Math.floor(((posY+firstTilePos)/this.gridConstant.tileSize)-1);
+        return Math.floor(((posY-firstTilePos)/this.gridConstant.tileSize));
     }
     setDragMap(){
         console.log(`boxes ${this.boxes}`)
@@ -294,9 +314,9 @@ export class ChevaletComponent implements AfterViewInit {
     drop(event: CdkDragDrop<string[]>) {
         
 
-        let posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
-        console.log("position board", posBoard);
-        let startBoard = {x: posBoard.x + this.gridConstant.tileSize, y:posBoard.y + this.gridConstant.tileSize};
+        this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        console.log("position board", this.posBoard);
+        let startBoard = {x: this.posBoard.x + this.gridConstant.tileSize, y:this.posBoard.y + this.gridConstant.tileSize};
 
 
         let tile = this.dragTiles.get(event.item.element.nativeElement.id);
@@ -306,7 +326,7 @@ export class ChevaletComponent implements AfterViewInit {
         let letterValue = this.items[keysArray.indexOf(event.item.element.nativeElement.id)];
         console.log("le txt", letterValue);
         // console.log("le txt 2", newVal);
-        if(this.isInRange(event.dropPoint.x,startBoard.x,posBoard.x) && this.isInRange(event.dropPoint.y,startBoard.y,posBoard.y) && !this.boardUser.getIsFilled(this.getPositionDroppedY(event.dropPoint.y, startBoard.y), this.getPositionDroppedX(event.dropPoint.x, startBoard.x))){
+        if(this.isInRange(event.dropPoint.x,startBoard.x,this.posBoard.x) && this.isInRange(event.dropPoint.y,startBoard.y,this.posBoard.y) && !this.boardUser.getIsFilled(this.getPositionDroppedY(event.dropPoint.y, startBoard.y) + 1, this.getPositionDroppedX(event.dropPoint.x, startBoard.x) + 1)){
             console.log("dans board");
             this.placeTileElement(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
         }
@@ -320,45 +340,39 @@ export class ChevaletComponent implements AfterViewInit {
         
         let posTileX =  event.dropPoint.x;
         let posTileY = event.dropPoint.y;
+        console.log("x", this.getPositionDroppedX(posTileX, startBoard.x));
+        console.log("y", this.getPositionDroppedY(posTileY, startBoard.y));
         if(posTileX<startBoard.x + this.gridConstant.tileSize ){
             console.log(startBoard.x);
-            tile.nativeElement.style.left = `${startBoard.x+13}px`; // REVOIR LA POSITION 741 
+            tile.nativeElement.style.left = `${startBoard.x}px`; // REVOIR LA POSITION 741 
 
         }
         else{
             // tile.nativeElement.style.left = `${startBoard.x + this.gridConstant.tileSize * this.getPositionDroppedX(posTileX)}px`;
-            tile.nativeElement.style.left = `${startBoard.x+13 + this.gridConstant.tileSize * (this.getPositionDroppedX(posTileX, startBoard.x)-1)}px`;
+            tile.nativeElement.style.left = `${startBoard.x + this.gridConstant.tileSize * (this.getPositionDroppedX(posTileX, startBoard.x))}px`;
 
         }
         if(posTileY<startBoard.y + this.gridConstant.tileSize){
             tile.nativeElement.style.top = `${startBoard.y}px`;
         }
         else{
-            tile.nativeElement.style.top = `${startBoard.y + this.gridConstant.tileSize * (this.getPositionDroppedY(posTileY, startBoard.y)-1)}px`;
+            tile.nativeElement.style.top = `${startBoard.y + this.gridConstant.tileSize * (this.getPositionDroppedY(posTileY, startBoard.y))}px`;
 
         }
         this.chevaletService.removeLetterOnRack(letterValue.toUpperCase(), posTileRack);
         tile.nativeElement.style.width = `${this.gridConstant.tileSize}px`;
         tile.nativeElement.style.height = `${this.gridConstant.tileSize}px`;
         if(letterValue === "*"){
-            this.openWhiteDialog(posTileRack, {value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+            this.openWhiteDialog(posTileRack, {value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y), column:this.getPositionDroppedX(posTileX, startBoard.x), tileID:event.item.element.nativeElement.id});
         }else{
 
-            this.sendTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+            this.sendTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y), column:this.getPositionDroppedX(posTileX, startBoard.x), tileID:event.item.element.nativeElement.id});
         }
 
 
 
       }
-      placeTileType(tile: any, posTile: Vec2){
-        let posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
-        let startBoard = {x: posBoard.x + this.gridConstant.tileSize, y:posBoard.y + this.gridConstant.tileSize};
-        if(this.items.includes(tile.nativeElement.innerText.charAt(0))){
-            tile.nativeElement.style.left =`${741 + this.gridConstant.tileSize * posTile.x}px`;
-            tile.nativeElement.style.top=  `${startBoard.y + this.gridConstant.tileSize * posTile.y-1}px`;
-        }
 
-      }
       backTileOnRack(tile:any, event:any, letterValue: any, startBoard: any, rackTilePos: number ){
 
         let rackWidth = this.chevaletCanvas.nativeElement.clientWidth ;
@@ -373,7 +387,7 @@ export class ChevaletComponent implements AfterViewInit {
         if(letterValue===letterValue.toUpperCase() || letterValue === '*'){
             this.items[rackTilePos] = '*';
         }
-        this.removeTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y) - 1, column:this.getPositionDroppedX(posTileX, startBoard.x) -1, tileID:event.item.element.nativeElement.id});
+        this.removeTileEvent.emit({value:letterValue, line:this.getPositionDroppedY(posTileY, startBoard.y), column:this.getPositionDroppedX(posTileX, startBoard.x), tileID:event.item.element.nativeElement.id});
 
       }
 

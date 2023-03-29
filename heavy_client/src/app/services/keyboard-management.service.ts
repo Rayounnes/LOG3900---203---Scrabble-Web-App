@@ -174,6 +174,9 @@ export class KeyboardManagementService {
         }
         return false;
       }
+      removeLettersOnBoard(){
+        this.letters = [];
+      }
     
       removeLetterOnBoard(letterToRemove: Letter) {
         for (var letter of this.letters) {
