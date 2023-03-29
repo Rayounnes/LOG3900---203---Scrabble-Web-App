@@ -1,4 +1,3 @@
-import 'package:app/screens/gallery_page.dart';
 import 'package:app/screens/camera_page.dart';
 import 'package:app/screens/password_recovering_page.dart';
 import 'package:app/services/music_service.dart';
@@ -42,7 +41,6 @@ class MyApp extends StatelessWidget {
         '/gameChoicesScreen': (context) => GameModes(),
         '/signScreen': (context) => SignUp(),
         '/cameraScreen': (context) => CameraPage(),
-        '/galleryScreen': (context) => GalleryPage(),
         '/recoverPassScreen': (context) => RecoverAccountPage(),
       },
       theme: ThemeData(

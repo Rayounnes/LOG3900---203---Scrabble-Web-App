@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:app/constants/widgets.dart';
+import 'package:app/screens/gallery_page.dart';
 import 'package:app/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
@@ -28,8 +29,13 @@ class _SignUpState extends State<SignUp> {
 
   String selectedQuestion = "";
   String picturePath = "";
+  List iconList = [];
+  List decodedBytesList = [];
+  bool isIcon = false;
+  int number =-1;
 
-  final List<String> questions =List.from(SECURITY_QUESTIONS);
+
+  final List<String> questions = List.from(SECURITY_QUESTIONS);
 
   @override
   void dispose() {
@@ -45,7 +51,7 @@ class _SignUpState extends State<SignUp> {
   @override
   void initState() {
     super.initState();
-    print(questions);
+    getIconList();
   }
 
   void setProfilePic(String imagePath) {
@@ -54,12 +60,22 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
+  Future<void> getIconList() async {
+    iconList = await ApiService().getAllIcons('Bottt');
+    for (int i = 0; i < iconList.length; i++) {
+      decodedBytesList.add(
+          base64Decode(iconList[i].toString().substring(BASE64PREFIX.length)));
+    }
+    print("$decodedBytesList BYTESSS \n");
+  }
+
   void createAccount() async {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
     File imageFile = File(picturePath);
-    List<int> imageBytes = await imageFile.readAsBytes();
-    String imageBase64 = BASE64PREFIX + base64Encode(imageBytes);
+    List<int> imageBytes =[];
+    if(!isIcon) imageBytes = await imageFile.readAsBytes();
+    String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) : BASE64PREFIX + base64Encode(imageBytes);
 
     bool iconResponse = await ApiService().pushIcon(imageBase64, username);
     if (iconResponse) {
@@ -235,7 +251,8 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top:20.0,bottom:20.0),
+                          padding:
+                              const EdgeInsets.only(top: 20.0, bottom: 20.0),
                           child: Center(
                             child: DropdownMenu(
                               width: 450,
@@ -276,7 +293,7 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(20.0),
                           child: ElevatedButton(
                             onPressed:
-                                picturePath.isEmpty || selectedQuestion == ''
+                                (picturePath.isEmpty && !isIcon) || selectedQuestion == ''
                                     ? null
                                     : () {
                                         if (_formKey.currentState!.validate()) {
@@ -318,7 +335,7 @@ class _SignUpState extends State<SignUp> {
                 width: 2,
               ),
             ),
-            child: picturePath.isEmpty
+            child: picturePath.isEmpty && !isIcon
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -328,14 +345,27 @@ class _SignUpState extends State<SignUp> {
                           icon: Icon(Icons.collections,
                               size: TILE_SIZE,
                               color: Color.fromARGB(255, 0, 0, 0)),
-                          onPressed: () {
-                            setState(() async {
-                              File? imageFile = await Navigator.pushNamed(
-                                  context, '/galleryScreen') as File?;
-                              if (imageFile != null) {
+                          onPressed: () async {
+                            File? imageFile = await Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return GalleryPage(
+                                iconList: decodedBytesList,
+                              );
+                            })) as File?;
+                            if (imageFile != null) {
+                              try {
+                               number = int.parse(imageFile.path);
+                               if(number>=0){
+                                 setState(() {
+                                   isIcon = true;
+                                 });
+                               }
+                               print(BASE64PREFIX + base64Encode(decodedBytesList[number])+'DECODEEE \n');
+                              }catch(e){
+                                print("Erreur de parsage en int pour le FileImage");
                                 setProfilePic(imageFile.path);
                               }
-                            });
+                            }
                           },
                         ),
                       ),
@@ -363,6 +393,9 @@ class _SignUpState extends State<SignUp> {
                   )
                 : Stack(
                     children: <Widget>[
+                     isIcon? Center(
+                      child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
+                     ):
                       Center(
                         child: Image.file(
                           File(picturePath),
@@ -374,6 +407,8 @@ class _SignUpState extends State<SignUp> {
                             onPressed: () {
                               setState(() {
                                 picturePath = "";
+                                isIcon = false;
+                                number = -1;
                               });
                             },
                             child: Icon(

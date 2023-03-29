@@ -103,7 +103,7 @@ export class LoginService {
         return result;
     }
 
-    async changePassword(username: string, newPassword: string, isLightClient : boolean) {
+    async changePassword(username: string, newPassword: string, isLightClient? : boolean) {
         //Le String du client léger vient en double comme ça --> '"user"'
         if(isLightClient) {
             username = this.adjustStringFormat(username);
@@ -123,7 +123,7 @@ export class LoginService {
         }
       }
 
-    async changeUsername(oldUsername : string, newUsername : string, isLightClient : boolean) : Promise<boolean>{
+    async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);
             newUsername = this.adjustStringFormat(newUsername);

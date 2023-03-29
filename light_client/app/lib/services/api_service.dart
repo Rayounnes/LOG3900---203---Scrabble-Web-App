@@ -107,7 +107,8 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
     if (response.statusCode == 200) {
       return true;
     } else {
-      throw Exception('Failed to push icon');
+      print('Failed to push icon');
+      return false;
 
     }
   }
@@ -164,6 +165,18 @@ Future<List<dynamic>> getMessagesOfChannel(String channel) async {
   Future<List<dynamic>> getUserIcon(String username) async {
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/api/icons/getusericon/$username'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+
+    } else {
+      throw Exception("Échec de récupération d'image");
+    }
+  }
+
+  Future<List<dynamic>> getAllIcons(String username) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/icons/get/$username'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);

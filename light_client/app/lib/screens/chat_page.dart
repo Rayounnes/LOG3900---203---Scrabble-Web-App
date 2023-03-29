@@ -107,6 +107,7 @@ class _ChatPageState extends State<ChatPage> {
     getIt<SocketService>().on('change-username', (infos) {
       if (infos['id'] == getIt<SocketService>().socketId) {
         username = infos['username'];
+        getIt<UserInfos>().setUser(infos['username']);
       }
     });
 

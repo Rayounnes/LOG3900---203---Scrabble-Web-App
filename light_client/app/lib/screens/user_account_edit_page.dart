@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:core';
 
+import 'package:app/screens/gallery_page.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
@@ -24,10 +25,15 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   final newUsernameController = TextEditingController();
   final usernameValidationController = TextEditingController();
   String picturePath = "";
+  List iconList = [];
+  List decodedBytesList = [];
+  bool isIcon = false;
+  int number =-1;
 
   @override
   void initState() {
     super.initState();
+    getIconList();
   }
 
   @override
@@ -43,15 +49,25 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     });
   }
 
+  Future<void> getIconList() async {
+    iconList = await ApiService().getAllIcons('Bottt');
+    for (int i = 0; i < iconList.length; i++) {
+      decodedBytesList.add(
+          base64Decode(iconList[i].toString().substring(BASE64PREFIX.length)));
+    }
+    print("$decodedBytesList BYTESSS \n");
+  }
+
   void modifyAccountInfo() async {
-    if (newUsernameController.text != '' || picturePath != '') {
+    if (newUsernameController.text != '' || picturePath != '' || isIcon) {
       String name = usernameValidationController.text;
-      if (picturePath != '') {
+      if (picturePath != '' || isIcon) {
         File imageFile = File(picturePath);
-        List<int> imageBytes = await imageFile.readAsBytes();
-        String imageBase64 = BASE64PREFIX + base64Encode(imageBytes);
-        bool response = await ApiService().pushIcon(imageBase64, newUsernameController.text);
-        if(response) await ApiService().changeIcon(usernameValidationController.text, imageBase64);
+        List<int> imageBytes = [];
+        if(!isIcon) imageBytes = await imageFile.readAsBytes();
+        String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) :BASE64PREFIX + base64Encode(imageBytes);
+        await ApiService().pushIcon(imageBase64, newUsernameController.text);
+        await ApiService().changeIcon(usernameValidationController.text, imageBase64);
       }
       if (newUsernameController.text != '') {
         bool res = await ApiService().changeUsername(newUsernameController.text, usernameValidationController.text,);
@@ -121,7 +137,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                           width: 2,
                         ),
                       ),
-                      child: picturePath.isEmpty
+                      child: picturePath.isEmpty && !isIcon
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -131,16 +147,26 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                                     icon: Icon(Icons.collections,
                                         size: TILE_SIZE,
                                         color: Color.fromARGB(255, 0, 0, 0)),
-                                    onPressed: () {
-                                      setState(() async {
-                                        File? imageFile =
-                                            await Navigator.pushNamed(
-                                                    context, '/galleryScreen')
-                                                as File?;
+                                    onPressed: () async {
+                                        File? imageFile = await Navigator.push(context,
+                                            MaterialPageRoute(builder: (context) {
+                                              return GalleryPage(
+                                                iconList: decodedBytesList,
+                                              );
+                                            })) as File?;
                                         if (imageFile != null) {
-                                          setProfilePic(imageFile.path);
+                                          try {
+                                            number = int.parse(imageFile.path);
+                                            if(number>=0){
+                                              setState(() {
+                                                isIcon = true;
+                                              });
+                                            }
+                                          }catch(e){
+                                            print("Erreur de parsage en int pour le FileImage");
+                                            setProfilePic(imageFile.path);
+                                          }
                                         }
-                                      });
                                     },
                                   ),
                                 ),
@@ -170,7 +196,9 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                             )
                           : Stack(
                               children: <Widget>[
-                                Center(
+                                isIcon? Center(
+                                  child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
+                                ):Center(
                                   child: Image.file(
                                     File(picturePath),
                                   ),
@@ -181,6 +209,8 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                                       onPressed: () {
                                         setState(() {
                                           picturePath = "";
+                                          isIcon = false;
+                                          number = -1;
                                         });
                                       },
                                       child: Icon(
