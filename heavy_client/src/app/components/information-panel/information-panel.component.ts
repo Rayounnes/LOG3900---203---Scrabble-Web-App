@@ -323,19 +323,27 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.dialogConfig.data = {image: base64Image };
             const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
             dialogRef.afterClosed().subscribe((comment : string) => {
-                this.communicationService.addScreenshotToUser(this.getUsername(),base64Image,comment).subscribe((isValid : boolean)=>{
-                    if(isValid){
-                        this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
-                            duration: 1000,
-                            panelClass: ['snackbar'],
-                        });
-                    }else{
-                        this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
-                            duration: 1000,
-                            panelClass: ['snackbar'],
-                        });
-                    }
-                })
+                if(comment){
+                    this.communicationService.addScreenshotToUser(this.getUsername(),base64Image,comment).subscribe((isValid : boolean)=>{
+                        if(isValid){
+                            this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
+                                duration: 1000,
+                                panelClass: ['snackbar'],
+                            });
+                        }else{
+                            this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
+                                duration: 1000,
+                                panelClass: ['snackbar'],
+                            });
+                        }
+                    })
+                }else{
+                    this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
+                        duration: 1000,
+                        panelClass: ['snackbar'],
+                    });
+                }
+                
             });
         });
       }
