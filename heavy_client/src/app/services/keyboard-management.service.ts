@@ -47,7 +47,7 @@ export class KeyboardManagementService {
         let positionStart = this.gridService.board.getStartTile() as Vec2;
         this.initializeWordArg(positionStart);
         if (positionStart !== undefined) {
-            console.log("rnetrejrijeirhh")
+            console.log('rnetrejrijeirhh');
             while (this.conditionsDirections(positionStart)) {
                 positionStart = this.incrementePosition(positionStart);
             }
@@ -112,7 +112,6 @@ export class KeyboardManagementService {
         this.word.orientation = orientation;
     }
 
-
     correctOrientation(positionStart: Vec2) {
         if (this.directionHorizontal(positionStart)) {
             return 'v';
@@ -163,38 +162,34 @@ export class KeyboardManagementService {
     }
 
     addDropLettersArray(letter: Letter) {
-        this.letters.push({ line: letter.line, column: letter.column, value: letter.value, tileID:letter.tileID });
+        this.letters.push({ line: letter.line, column: letter.column, value: letter.value, tileID: letter.tileID });
     }
 
     verifyLetterOnBoard(letterToAdd: Letter) {
         for (var letter of this.letters) {
-          if (letter.tileID === letterToAdd.tileID) {
-            return true;
-          }
+            if (letter.tileID === letterToAdd.tileID) {
+                return true;
+            }
         }
         return false;
-      }
-      removeLettersOnBoard(){
+    }
+    removeLettersOnBoard() {
         this.letters = [];
-      }
-    
-      removeLetterOnBoard(letterToRemove: Letter) {
+    }
+
+    removeLetterOnBoard(letterToRemove: Letter) {
         for (var letter of this.letters) {
-          if (letter.tileID == letterToRemove.tileID) {
-            console.log("la tuile en question", letterToRemove.tileID);
-            this.letters = this.letters.filter(element => element.tileID !== letterToRemove.tileID);
-            console.log("lettre dans la fonction", this.letters);
+            if (letter.tileID == letterToRemove.tileID) {
+                console.log('la tuile en question', letterToRemove.tileID);
+                this.letters = this.letters.filter((element) => element.tileID !== letterToRemove.tileID);
+                console.log('lettre dans la fonction', this.letters);
 
-            return;
-          }
+                return;
+            }
         }
-      }
+    }
 
-
-
-
-    
-      putLetterOnCanvas(letter: string, positionStart: Vec2, size: number) {
+    putLetterOnCanvas(letter: string, positionStart: Vec2, size: number) {
         this.gridService.fillColor(positionStart.x + 1, positionStart.y + 1, '#F9E076');
         this.gridService.writeLetter(letter, positionStart.x + 1, positionStart.y + 1, size);
         this.gridService.board.isTileFilled(positionStart.y + 1, positionStart.x + 1);
@@ -236,35 +231,32 @@ export class KeyboardManagementService {
         }
     }
 
-    placeWordHint(word: WordArgs){
-        let firstX = word.column  ;
-        let firstY = word.line ;
-        for(let letter of word.value){
-            if(word.orientation === 'h'){
-                
-                while(this.gridService.board.getIsFilled(firstY+1, firstX+1)){
+    placeWordHint(word: WordArgs) {
+        let firstX = word.column;
+        let firstY = word.line;
+        for (let letter of word.value) {
+            if (word.orientation === 'h') {
+                while (this.gridService.board.getIsFilled(firstY + 1, firstX + 1)) {
                     firstX++;
                 }
-                this.letters.push({line:firstY, column:firstX, value:letter})
-                this.gridService.board.isTileFilled(firstY+1, firstX+1)
+                this.letters.push({ line: firstY, column: firstX, value: letter });
+                this.gridService.board.isTileFilled(firstY + 1, firstX + 1);
 
-                this.putLetterOnCanvas(letter, {x:firstX,y:firstY}, 25);
+                this.putLetterOnCanvas(letter, { x: firstX, y: firstY }, 25);
                 firstX++;
             }
-            if(word.orientation === 'v'){
-                while(this.gridService.board.getIsFilled(firstY+1, firstX+1)){
-                    firstY++
+            if (word.orientation === 'v') {
+                while (this.gridService.board.getIsFilled(firstY + 1, firstX + 1)) {
+                    firstY++;
                 }
-                this.letters.push({line:firstY, column:firstX, value:letter})
+                this.letters.push({ line: firstY, column: firstX, value: letter });
 
-                this.gridService.board.isTileFilled(firstY+1, firstX+1)
+                this.gridService.board.isTileFilled(firstY + 1, firstX + 1);
 
-                
-                this.putLetterOnCanvas(letter, {x:firstX,y:firstY}, 25);
+                this.putLetterOnCanvas(letter, { x: firstX, y: firstY }, 25);
                 firstY++;
             }
         }
-
     }
 
     drawArrowVertical(position: Vec2) {
@@ -328,32 +320,31 @@ export class KeyboardManagementService {
     }
 
     importantKey(key: string, dragOrType: string) {
-        let start = this.gridService.board.getStartTile()
-        if (key === 'Backspace' && (dragOrType === 'type')) {
-
+        let start = this.gridService.board.getStartTile();
+        if (key === 'Backspace' && dragOrType === 'type') {
+            console.log("remove last from backspace");
             this.removeLastLetter();
-            if(this.letters.length === 0){
-                this.putOldTile(start?.x as number, start?.y as number)
+            if (this.letters.length === 0) {
+                this.putOldTile(start?.x as number, start?.y as number);
                 this.gridService.board.resetStartTile();
                 this.gridService.board.wordStarted = false;
-                return "free";
-
+                return 'free';
             }
-            return 'type'
+            return 'type';
         }
         if (key === 'Escape' && dragOrType === 'type') {
             this.removeAllLetters();
-            this.putOldTile(start?.x as number, start?.y as number)
+            this.putOldTile(start?.x as number, start?.y as number);
             this.gridService.board.resetStartTile();
             this.gridService.board.wordStarted = false;
 
-            return "free"
+            return 'free';
         }
         if (key === 'Enter') {
             this.enterPressed = true;
             this.playOrEnter();
             this.enterPressed = false;
-            return "free";
+            return 'free';
         }
         return dragOrType;
     }
@@ -381,10 +372,9 @@ export class KeyboardManagementService {
 
     removeAllLetters() {
         while (this.letters.length !== 0) {
+            console.log("remove all letters");
             this.removeLastLetter();
-            
         }
-        
     }
 
     letterRemovedInRack(letter: Letter) {
@@ -423,6 +413,7 @@ export class KeyboardManagementService {
         this.manageArrow(letterToRemove.column, letterToRemove.line);
         this.updateWord();
         //this.gridService.drawGrid();
+        console.log('position: ', positionStart);
         this.setWordStartedFalse(letterToRemove, positionStart);
         this.chevaletService.putBackLetter(letterToRemove.value);
     }
