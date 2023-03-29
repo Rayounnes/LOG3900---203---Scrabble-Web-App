@@ -20,8 +20,6 @@ class _ChannelsState extends State<Channels> {
   void initState() {
     super.initState();
     handleSockets();
-   
-    
   }
 
   List<String> discussions = ["General"];
@@ -29,9 +27,11 @@ class _ChannelsState extends State<Channels> {
   List<dynamic> allUsersChannels = [];
   List<String> selectedList = [];
   int count = -1;
+  int countJoin = 0;
 
   List<dynamic> channelsUsers = [];
   final nameController = TextEditingController(text: "Nouvelle discussion");
+  List<bool> newMessage = [false];
   
   String chatDeleted = '';
   String chatJoined = '';
@@ -57,7 +57,8 @@ class _ChannelsState extends State<Channels> {
           discussions = ["General"];
           for(String channel in channelsUsers) {
             if(channel != "General") {
-                discussions.add(channel); 
+                discussions.add(channel);
+                newMessage.add(false);
             }
             } 
           });
@@ -85,13 +86,40 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
+      getIt<SocketService>().on("notify-message", (message) {
+      try {
+        if (mounted) {
+          setState(() {
+            for(int i=0; i< discussions.length; i++) {
+              if(message['channel'] == discussions[i]) {
+                newMessage[i] = true;
+              }
+            }
+
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
     getIt<SocketService>().on("leave-channel", (dynamic) {});
 
     getIt<SocketService>().on("channels-joined", (dynamic) {
       try {
         if (mounted) {
+          countJoin = countJoin + 1;
+          print(countJoin);
           setState(() {
-            discussions.add(selectedList[count]);
+          
+           
+            if(countJoin == selectedList.length) {
+              for(String channel in selectedList) {
+                  discussions.add(channel);
+                  print(discussions);
+                  print(selectedList);
+              }
+            }
           });
         }
       } catch (e) {
@@ -125,73 +153,102 @@ class _ChannelsState extends State<Channels> {
     }
   }
 
+  void updateMessageState(int index) {
+  setState(() {
+    newMessage[index] = false;
+  });
+}
+
   @override
   
   Widget build(BuildContext context) {
-  
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    "Conversations",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  )
-                ],
-              ),
+  return SingleChildScrollView(
+    physics: BouncingScrollPhysics(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  "Conversations",
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                )
+              ],
             ),
           ),
-          ListView.separated(
-              itemCount: discussions.length,
-              shrinkWrap: true,
-              padding: EdgeInsets.all(16),
-              physics: BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-      
-
-                return Channel(name: discussions[index]);
-              },
-              separatorBuilder: (context, index) => SizedBox(
-                    height: 10,
-                  )),
-                ListTile(
-                  title: Row(
-                  children: <Widget>[
-                  Expanded(child: GameButton(
-                    padding: 32.0,
-                    route: () {
+        ),
+        ListView.separated(
+          itemCount: discussions.length,
+          shrinkWrap: true,
+          padding: EdgeInsets.all(16),
+          physics: BouncingScrollPhysics(),
+          itemBuilder: (context, index) {
+            return Stack(
+              children: [
+                Channel(name: discussions[index],
+                updateMessageState: () => updateMessageState(index),),
+                if (newMessage[index])
+                  Positioned(
+                    right: 8,
+                    top: 17,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+          separatorBuilder: (context, index) => SizedBox(
+            height: 10,
+          ),
+        ),
+        ListTile(
+          title: Row(
+            children: <Widget>[
+              Expanded(
+                child: GameButton(
+                  padding: 32.0,
+                  route: () {
                     showModalAdd(context);
-                      }, 
-                    name: "Créer un chat",
-                    )),
-                    Expanded(child: GameButton(
-                    padding: 32.0,
-                    route: () {
+                  }, 
+                  name: "Créer un chat",
+                ),
+              ),
+              Expanded(
+                child: GameButton(
+                  padding: 32.0,
+                  route: () {
                     showModalDelete(context);
-                      }, 
-                    name: "Supprimer un chat ",
-                    )),
-                    Expanded(child: GameButton(
-                    padding: 32.0,
-                    route: () {
-                      showModalSearch(context);
-                      }, 
-                    name: "Rechercher un chat",
-                    ))
+                  }, 
+                  name: "Supprimer un chat",
+                ),
+              ),
+              Expanded(
+                child: GameButton(
+                  padding: 32.0,
+                  route: () {
+                    showModalSearch(context);
+                  }, 
+                  name: "Rechercher un chat",
+                ),
+              ),
             ],
           ),
-        )                  
-        ],
-      ),
-    );
-  }
+        ),                  
+      ],
+    ),
+  );
+}
+
 
 
   void showModalAdd(BuildContext context) {
@@ -413,11 +470,12 @@ class _ChannelsState extends State<Channels> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print(selectedList);
                       for(String channel in selectedList ) {
-                        count = count + 1;
+                       
                         getIt<SocketService>().send("join-channel", channel);
+                        
                       }
+                      countJoin = 0;
                      
                       Navigator.of(context).pop();
                     },
