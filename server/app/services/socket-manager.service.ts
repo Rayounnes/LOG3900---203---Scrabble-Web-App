@@ -266,8 +266,6 @@ export class SocketManager {
     cooperativeModeHandler(socket: io.Socket) {
         socket.on('vote-action', (action: CooperativeAction) => {
             const room = this.usersRoom.get(socket.id) as string;
-            console.log('received vote-action');
-            console.log(action);
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             for (let socket of scrabbleGame.getPlayersSockets()) {
                 if (!action.socketAndChoice[socket]) {
@@ -388,9 +386,10 @@ export class SocketManager {
         socket.on('draw-letters-opponent', (lettersPosition) => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
+            const isHeavyClient = Array.isArray(lettersPosition);
             // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
-            const lettersPositionTransformed = Array.isArray(lettersPosition) ? lettersPosition : lettersPosition.letters;
-            if (game.isClassicMode) {
+            const lettersPositionTransformed = isHeavyClient ? lettersPosition : lettersPosition.letters;
+            if (game.isClassicMode || !isHeavyClient) {
                 for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
                     this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
             } else {
@@ -591,25 +590,23 @@ export class SocketManager {
 
     getChoicePannelInfo(socket: io.Socket) {
         socket.on('choice-pannel-info', async (socketIds: string[]) => {
-            console.log('recu serveur');
-            console.log(socketIds);
-            let usernameAndAvatars = {};
-            for (let socket of socketIds) {
-                let username = this.usernames.get(socket) as string;
-                let icon = await this.iconService.getUserIcon(username);
-                usernameAndAvatars[socket] = [username, icon[0]];
-                console.log('iteration');
-                console.log(usernameAndAvatars);
+            // client léger envoie un json string
+            const playerSocketIds = typeof socketIds === 'string' ? JSON.parse(socketIds) : socketIds;
+            const usernameAndAvatars = {};
+            for (const socketPlayer of playerSocketIds) {
+                const username = this.usernames.get(socketPlayer) as string;
+                const icon = await this.iconService.getUserIcon(username);
+                usernameAndAvatars[socketPlayer] = [username, icon[0]];
             }
             this.sio.to(socket.id).emit('choice-pannel-info', usernameAndAvatars);
         });
     }
 
-    handleTimeBuy(socket : io.Socket){
-        socket.on('time-add',(toAdd : number)=>{
+    handleTimeBuy(socket: io.Socket) {
+        socket.on('time-add', (toAdd: number) => {
             const room = this.usersRoom.get(socket.id) as string;
-            this.sio.to(room).emit('time-add',toAdd);
-        })
+            this.sio.to(room).emit('time-add', toAdd);
+        });
     }
 
     handleSockets(): void {

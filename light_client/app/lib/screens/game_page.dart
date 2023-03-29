@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:app/main.dart';
+import 'package:app/models/cooperative_action.dart';
 import 'package:app/models/tile.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/widgets/cooperative_action.dart';
 import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/tile.dart';
@@ -13,184 +15,19 @@ import '../constants/widgets.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
 import '../models/letter.dart';
-
+import '../models/board_paint.dart';
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 class GamePage extends StatefulWidget {
+  final bool isClassicMode;
   final Function joinGameSocket;
-  const GamePage({super.key, required this.joinGameSocket});
+  const GamePage(
+      {super.key, required this.isClassicMode, required this.joinGameSocket});
 
   @override
   State<GamePage> createState() => _GamePageState();
-}
-
-class BoardPaint extends CustomPainter {
-  Color rectColor = Color(0xff000000);
-  Size rectSize = Size(50, 50);
-  @override
-  void paint(Canvas canvas, Size size) {
-    final vLines = (size.width ~/ TILE_SIZE) + 1;
-    final hLines = (size.height ~/ TILE_SIZE) + 1;
-
-    final paintRack = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 239, 181, 64)
-      ..style = PaintingStyle.fill;
-
-    final paint = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 247, 246, 246)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final paintRed = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 192, 112, 112)
-      ..style = PaintingStyle.fill;
-
-    final paintBlue = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 111, 186, 244)
-      ..style = PaintingStyle.fill;
-
-    final paintPink = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 249, 168, 190)
-      ..style = PaintingStyle.fill;
-
-    final paintDarkBlue = Paint()
-      ..strokeWidth = 1
-      ..color = Color.fromARGB(255, 75, 50, 238)
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-
-    // rack
-    for (var i = 4; i < 12; ++i) {
-      final x = TILE_SIZE * i;
-      path.moveTo(x, TILE_SIZE * 16);
-      path.relativeLineTo(0, TILE_SIZE);
-    }
-
-    // Draw horizontal lines
-    for (var i = 16; i < 18; ++i) {
-      final y = TILE_SIZE * i;
-      path.moveTo(TILE_SIZE * 4, y);
-      path.relativeLineTo(TILE_SIZE * 7, 0);
-    }
-
-    // fill rack
-    for (var i = 4; i < 11; i += 1) {
-      final x = TILE_SIZE * i;
-      final y = 16 * TILE_SIZE;
-      canvas.drawRect(Offset(x, y) & rectSize, paintRack);
-    }
-
-    for (var j = 1; j < 15; j += 4) {
-      // Dark blue
-      for (var i = 1; i < 15; i += 4) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintDarkBlue);
-      }
-    }
-
-    // Pink
-    for (var i = 0; i < 4; i += 1) {
-      final left = TILE_SIZE * 1;
-      final right = TILE_SIZE * 13;
-      final x = TILE_SIZE * i;
-
-      canvas.drawRect(Offset(left + x, left + x) & rectSize, paintPink);
-      canvas.drawRect(Offset(left + x, right - x) & rectSize, paintPink);
-      canvas.drawRect(Offset(right - x, left + x) & rectSize, paintPink);
-      canvas.drawRect(Offset(right - x, right - x) & rectSize, paintPink);
-    }
-
-    for (var j = 0; j < 15; j += 14) {
-      // Light blue 1
-      for (var i = 3; i < 15; i += 8) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintBlue);
-      }
-    }
-
-    for (var j = 2; j < 15; j += 10) {
-      // Light blue 2
-      for (var i = 6; i <= 8; i += 2) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintBlue);
-      }
-    }
-
-    for (var j = 3; j < 15; j += 8) {
-      // Light blue 3
-      for (var i = 0; i < 15; i += 7) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintBlue);
-      }
-    }
-
-    for (var j = 6; j <= 8; j += 2) {
-      // Light blue 4
-      for (var i = 2; i <= 12; i += 10) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintBlue);
-      }
-    }
-
-    for (var j = 6; j <= 8; j += 2) {
-      // Light blue 5
-      for (var i = 6; i <= 8; i += 2) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintBlue);
-      }
-    }
-
-    // Light blue 6
-    for (var i = 3; i <= 11; i += 8) {
-      final x = TILE_SIZE * i;
-      final yCenter = TILE_SIZE * 7;
-
-      canvas.drawRect(Offset(x, yCenter) & rectSize, paintBlue);
-    }
-
-    for (var j = 0; j < 15; j += 7) {
-      // RED
-      for (var i = 0; i < 15; i += 7) {
-        final x = TILE_SIZE * i;
-        final y = TILE_SIZE * j;
-        canvas.drawRect(Offset(x, y) & rectSize, paintRed);
-      }
-    }
-
-    // Draw vertical lines
-    for (var i = 0; i <= 15; ++i) {
-      final x = TILE_SIZE * i;
-      path.moveTo(x, 0);
-      path.relativeLineTo(0, TILE_SIZE * 15);
-    }
-
-    // Draw horizontal lines
-    for (var i = 0; i < 16; ++i) {
-      final y = TILE_SIZE * i;
-      path.moveTo(0, y);
-      path.relativeLineTo(TILE_SIZE * 15, 0);
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
-  }
 }
 
 class _GamePageState extends State<GamePage> {
@@ -217,6 +54,7 @@ class _GamePageState extends State<GamePage> {
     getRack();
     setTileOnRack();
     selectedLetter = '';
+    if (!widget.isClassicMode) isPlayerTurn = true;
   }
 
   void leaveGame() {
@@ -408,25 +246,24 @@ class _GamePageState extends State<GamePage> {
     int index;
     int column;
     int line;
-    getIt<SocketService>().on(
-        'draw-letters-opponent',
-        (letters) => {
-              setState(() => {
-                    index = opponentTileID[0],
-                    for (var letter in letters)
-                      {
-                        isTileLocked[index] = true,
-                        tileLetter[index] = letter["value"].toString(),
-                        line = int.parse(letter["line"].toString()),
-                        column = int.parse(letter["column"].toString()),
-                        tilePosition[index] = getIt<TilePlacement>()
-                            .getOpponentPosition(line, column),
-                        index += 1,
-                      },
-                    updateRackID(true, opponentTileID),
-                  }),
-              board.isFilledForEachLetter(board.createOpponentLetters(letters)),
-            });
+    getIt<SocketService>().on('draw-letters-opponent', (letters) {
+      setState(() {
+        index = opponentTileID[0];
+        for (var letter in letters) {
+          isTileLocked[index] = true;
+          tileLetter[index] = letter["value"].toString();
+          line = int.parse(letter["line"].toString());
+          column = int.parse(letter["column"].toString());
+          tilePosition[index] =
+              getIt<TilePlacement>().getOpponentPosition(line, column);
+          index += 1;
+        }
+        updateRackID(true, opponentTileID);
+      });
+      board.isFilledForEachLetter(board.createOpponentLetters(letters));
+      if (!widget.isClassicMode)
+        getIt<SocketService>().send('draw-letters-rack');
+    });
 
     getIt<SocketService>().on(
         'draw-letters-rack',
@@ -450,19 +287,23 @@ class _GamePageState extends State<GamePage> {
           setTileOnRack();
         });
       } else {
-        setState(() {
-          commandSent = true;
-        });
-        getIt<SocketService>().send('remove-letters-rack-light-client',
-            jsonEncode(placedWord["letters"]));
-        getIt<SocketService>().send('validate-created-words', placedWord);
+        if (widget.isClassicMode) {
+          setState(() {
+            commandSent = true;
+          });
+          getIt<SocketService>().send('remove-letters-rack-light-client',
+              jsonEncode(placedWord["letters"]));
+          getIt<SocketService>().send('validate-created-words', placedWord);
+        } else {
+          sendVoteAction("place", placedWord, null);
+        }
       }
     });
 
     getIt<SocketService>().on('validate-created-words', (placedWord) async {
-      getIt<SocketService>().send('freeze-timer');
+      if (widget.isClassicMode) getIt<SocketService>().send('freeze-timer');
       if (placedWord["points"] != 0) {
-        final lettersjson = jsonEncode(placedWord["letters"]);
+        // client léger envoie tout l'objet
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
         getIt<SocketService>().send('send-player-score');
@@ -476,6 +317,8 @@ class _GamePageState extends State<GamePage> {
               duration: Duration(seconds: 3),
               content: Text('Erreur : les mots crées sont invalides')),
         );
+        if (!widget.isClassicMode)
+          getIt<SocketService>().send('cooperative-invalid-action', true);
         setTileOnRack();
         changeTurn();
       }
@@ -492,7 +335,12 @@ class _GamePageState extends State<GamePage> {
               duration: Duration(seconds: 2),
               content: Text(command["name"])),
         );
+        if (!widget.isClassicMode)
+          getIt<SocketService>().send('cooperative-invalid-action', false);
       } else {
+        if (widget.isClassicMode)
+          getIt<SocketService>().send('exchange-opponent-message',
+              command["name"].split(' ')[1].length);
         switchRack(true);
       }
     });
@@ -500,8 +348,33 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         // On remet les lettres quil a placé dans le board qd le timer est écoulé
         setTileOnRack();
-        isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+        if (widget.isClassicMode)
+          isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+        else
+          isPlayerTurn = true;
       });
+    });
+    getIt<SocketService>().on('vote-action', (voteAction) {
+      openVoteActionDialog(context, CooperativeAction.fromJson(voteAction));
+    });
+    getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
+      final message = isPlacement
+          ? 'Erreur : les mots crées sont invalides'
+          : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 2),
+            content: Text(message)),
+      );
+    });
+    getIt<SocketService>().on('player-action', (message) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 2),
+            content: Text(message)),
+      );
     });
   }
 
@@ -557,6 +430,39 @@ class _GamePageState extends State<GamePage> {
     return rackTiles;
   }
 
+  void sendVoteAction(
+      String action, dynamic placedWord, dynamic lettersToExchange) {
+    final choiceMap = {getIt<SocketService>().socketId: 'yes'};
+    final voteAction = CooperativeAction(
+        action: action,
+        socketId: getIt<SocketService>().socketId,
+        votesFor: 1,
+        votesAgainst: 0,
+        socketAndChoice: choiceMap,
+        placement: placedWord,
+        lettersToExchange: action == "exchange" ? lettersToExchange : '');
+    getIt<SocketService>().send('vote-action', voteAction);
+  }
+
+  void passTurn() {
+    if (widget.isClassicMode) {
+      getIt<SocketService>().send('pass-turn');
+      setState(() {
+        switchRack(true);
+      });
+    } else {
+      sendVoteAction("pass", null, null);
+    }
+  }
+
+  void exchangeCommand(String lettersToExchange) {
+    if (widget.isClassicMode) {
+      getIt<SocketService>().send('exchange-command', lettersToExchange);
+    } else {
+      sendVoteAction("exchange", null, lettersToExchange);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
@@ -584,7 +490,12 @@ class _GamePageState extends State<GamePage> {
             ],
           ),
           body: Stack(children: <Widget>[
-            Positioned(left: 0, top: 10, child: TimerPage()),
+            Positioned(
+                left: 0,
+                top: 10,
+                child: TimerPage(
+                  isClassicMode: widget.isClassicMode,
+                )),
             Positioned(
               left: LEFT_BOARD_POSITION,
               top: TOP_BOARD_POSITION,
@@ -609,10 +520,7 @@ class _GamePageState extends State<GamePage> {
                 onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
-                        setState(() {
-                          getIt<SocketService>().send('pass-turn');
-                          switchRack(true);
-                        });
+                        passTurn();
                       },
                 backgroundColor: !isPlayerTurn || commandSent
                     ? Colors.grey
@@ -634,9 +542,12 @@ class _GamePageState extends State<GamePage> {
                 onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
-                        setState(() {
-                          validatePlacement();
-                        });
+                        if (lettersofBoard.isNotEmpty) {
+                          print("placingggggg");
+                          setState(() {
+                            validatePlacement();
+                          });
+                        }
                       },
                 backgroundColor: !isPlayerTurn || commandSent
                     ? Colors.grey[200]
@@ -658,7 +569,7 @@ class _GamePageState extends State<GamePage> {
                 onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
-                        showDialog<List<String>>(
+                        showDialog<String>(
                             context: context,
                             builder: (BuildContext context) {
                               List<String> exchangeableTile = [];
@@ -669,9 +580,9 @@ class _GamePageState extends State<GamePage> {
                               return TileExchangeMenu(
                                 tileLetters: exchangeableTile,
                               );
-                            }).then((List<String>? result) {
-                          if (result != null) {
-                            // switchRack(true);
+                            }).then((String? lettersToExchange) {
+                          if (lettersToExchange != "") {
+                            exchangeCommand(lettersToExchange!);
                           }
                         });
                       },
@@ -687,5 +598,57 @@ class _GamePageState extends State<GamePage> {
             )
           ])),
     );
+  }
+
+  void openVoteActionDialog(BuildContext context, CooperativeAction action) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return Stack(
+            children: [
+              Positioned(
+                  top: 2.0,
+                  child: AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.yellow, width: 5)),
+                      content: CooperativeActionWidget(actionParam: action))),
+            ],
+          );
+        }).then((result) {
+      if (result["action"].socketId == getIt<SocketService>().socketId &&
+          result["isAccepted"]) {
+        if (result["action"].action == 'place') {
+          commandSent = true;
+          getIt<SocketService>().send('remove-letters-rack-light-client',
+              jsonEncode(result["action"].placement["letters"]));
+          getIt<SocketService>()
+              .send('validate-created-words', result["action"].placement);
+        } else if (result["action"].action == 'pass') {
+          getIt<SocketService>().send('pass-turn');
+        } else if (result["action"].action == 'exchange') {
+          getIt<SocketService>()
+              .send('exchange-command', result["action"].lettersToExchange);
+        }
+      } else if (result["action"].socketId == getIt<SocketService>().socketId &&
+              !result["isAccepted"] ||
+          result["action"].socketId != getIt<SocketService>().socketId) {
+        setState(() {
+          commandSent = false;
+          setTileOnRack();
+          // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+          lettersofBoard = [];
+        });
+      }
+      final message =
+          result["isAccepted"] ? 'Action accepted' : 'Action refused';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+            content: Text(message)),
+      );
+    });
   }
 }

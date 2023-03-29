@@ -47,7 +47,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
       if (isCheckedList[i] == true) {
         indexToExchange.add(i);
       } else if (indexToExchange.contains(i)) {
-        indexToExchange.removeAt(i);
+        indexToExchange.removeWhere((index) => index == i);
       }
     });
     return indexToExchange;
@@ -70,7 +70,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 50.0),
-                for (int i = 0; i < RACK_SIZE; i++)
+                for (int i = 0; i < widget.tileLetters.length; i++)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -120,9 +120,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                                   }
                                   print(
                                       "letters to exchange: $lettersToExchange");
-                                  getIt<SocketService>().send(
-                                      'exchange-command', lettersToExchange);
-                                  Navigator.of(context).pop(widget.tileLetters);
+                                  Navigator.of(context).pop(lettersToExchange);
                                 }
                               : null,
                           child: Text('Ok'),

@@ -42,10 +42,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     mode: string;
     isClassic: boolean;
 
-
-    
     dialogConfig = new MatDialogConfig();
-
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -207,14 +204,15 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.dialogConfig.panelClass = 'custom-panel';
         this.dialogConfig.width = '400px';
         this.dialogConfig.height = '600px';
-        this.dialogConfig.data = {vote: voteAction };
+        this.dialogConfig.data = { vote: voteAction };
         const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
-            if (result.action.action === 'place') this.removeLetterAndArrowCoop(result.action.placement.letters);
+            if (result.action.action === 'place' && result.action.socketId === this.socketService.socketId)
+                this.removeLetterAndArrowCoop(result.action.placement.letters);
+            else this.removeLetterAndArrow();
             // if (result.action.socketId === this.socketService.socketId) this.gridService.removeLetter(result.action.placement.letters);
             if (result.action.socketId === this.socketService.socketId && result.isAccepted) {
                 if (result.action.action === 'place') {
-                    console.log('sending placement');
                     /* this.validatePlacement(result.action.placement, this.isClassic); */
                     this.commandSent = true;
                     this.socketService.send('remove-letters-rack', result.action.placement.letters);
@@ -298,10 +296,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
 
     removeLetterAndArrowCoop(letters: Letter[]) {
-        console.log(this.keyboard.word);
         this.keyboard.removeArrowAfterPlacement({ x: this.keyboard.word.line, y: this.keyboard.word.column }, this.keyboard.word.orientation);
         this.gridService.removeLetter(letters);
-        this.socketService.send('draw-letters-rack');
         this.keyboard.createTemporaryRack();
         this.keyboard.word = { line: 0, column: 0, orientation: '', value: '' };
         this.keyboard.letters = [];

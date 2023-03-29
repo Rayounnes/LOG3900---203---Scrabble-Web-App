@@ -4,7 +4,7 @@ import { KeyboardManagementService } from '@app/services/keyboard-management.ser
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
 import { ExchangeDialogComponent } from '../exchange-dialog/exchange-dialog.component';
-import { MatDialog , MatDialogConfig} from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { CooperativeVoteComponent } from '../cooperative-vote/cooperative-vote.component';
 import { ActivatedRoute } from '@angular/router';
@@ -128,8 +128,10 @@ export class ChevaletComponent implements AfterViewInit {
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', false);
             } else {
                 this.socketService.send('draw-letters-rack');
-                this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
-                if (this.isClassic) this.socketService.send('change-user-turn');
+                if (this.isClassic) {
+                    this.socketService.send('exchange-opponent-message', command.name.split(' ')[1].length);
+                    this.socketService.send('change-user-turn');
+                }
             }
         });
     }
@@ -153,7 +155,7 @@ export class ChevaletComponent implements AfterViewInit {
         this.dialogConfig.panelClass = 'custom-panel';
         this.dialogConfig.width = '400px';
         this.dialogConfig.height = '600px';
-        this.dialogConfig.data = {vote: voteAction };
+        this.dialogConfig.data = { vote: voteAction };
         const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action.socketId === this.socketService.socketId && result.isAccepted) {

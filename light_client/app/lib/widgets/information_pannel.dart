@@ -13,6 +13,9 @@ const ONE_SECOND = 1000;
 const RESERVE_START_LENGTH = 102;
 
 class TimerPage extends StatefulWidget {
+  final bool isClassicMode;
+  const TimerPage({super.key, required this.isClassicMode});
+
   @override
   _TimerPageState createState() => _TimerPageState();
 }
@@ -56,18 +59,18 @@ class _TimerPageState extends State<TimerPage> {
     print("handle sockets information pannel");
     getIt<SocketService>().on('user-turn', (playerTurnId) {
       print("-------------------------------------------In user-turn pannel");
-      setState(() {
-        isPlayersTurn = playerTurnId == getIt<SocketService>().socketId;
-      });
-      clearInterval();
-      print("-------------------------------------------Starting timer");
-      startTimer();
+      if (widget.isClassicMode) {
+        setState(() {
+          isPlayersTurn = playerTurnId == getIt<SocketService>().socketId;
+        });
+        clearInterval();
+        startTimer();
+      }
       getIt<SocketService>().send('send-player-score');
     });
     getIt<SocketService>().on('send-info-to-panel', (infos) async {
       // d'abord get les photos ensuite executer setState
       // ne pas mettre setState a async
-      print("-------------------------------------getting send info to pannel");
       var playersList = List<GamePlayerInfos>.from(infos['players']
           .map((player) => GamePlayerInfos.fromJson(player))
           .toList());
@@ -83,8 +86,10 @@ class _TimerPageState extends State<TimerPage> {
           if (icons[player.username] == null) {
             try {
               ApiService().getAvatar("Bottt").then((response) {
-                icons[player.username] =
-                    MemoryImage(base64Decode(response[0].split(',')[1]));
+                setState(() {
+                  icons[player.username] =
+                      MemoryImage(base64Decode(response[0].split(',')[1]));
+                });
               }).catchError((error) {
                 print('Error fetching avatar: $error');
               });
@@ -96,8 +101,10 @@ class _TimerPageState extends State<TimerPage> {
           if (icons[player.username] == null) {
             try {
               ApiService().getAvatar(player.username).then((response) {
-                icons[player.username] =
-                    MemoryImage(base64Decode(response[0].split(',')[1]));
+                setState(() {
+                  icons[player.username] =
+                      MemoryImage(base64Decode(response[0].split(',')[1]));
+                });
               }).catchError((error) {
                 print('Error fetching avatar: $error');
               });
@@ -152,6 +159,7 @@ class _TimerPageState extends State<TimerPage> {
     handleSockets();
     _timer = Timer(Duration(milliseconds: 1), () {});
     getIt<SocketService>().send('update-reserve');
+    // getIt<SocketService>().send('send-player-score');
     // startTimer();
   }
 
@@ -193,18 +201,20 @@ class _TimerPageState extends State<TimerPage> {
             children: [
               Text(
                 'Tuiles dans la réserve: ${reserveTilesLeft}',
-                style: TextStyle(
-                  fontSize: 16.0,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              timerWidget(context),
+              widget.isClassicMode ? timerWidget(context) : Container(),
             ],
           ),
           for (int i = 0; i < players.length; i += 2)
             Row(
               children: [
                 playerInfos(players[i]),
-                playerInfos(players[i + 1]),
+                i + 1 < players.length
+                    ? playerInfos(players[i + 1])
+                    : Container(
+                        width: 400,
+                      ),
               ],
             ),
         ],

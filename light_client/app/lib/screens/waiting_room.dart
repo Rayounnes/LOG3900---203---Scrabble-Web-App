@@ -102,6 +102,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
       print("---------received join-game-----------");
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return GamePage(
+          isClassicMode: isClassic,
           joinGameSocket: () {
             getIt<SocketService>().send('start-game-light-client');
           },
