@@ -15,7 +15,7 @@
                     [style.top.px]="position0.y"
                     *ngIf="items[0] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile1
                 >
                     {{ items[0].toUpperCase() }}
@@ -28,7 +28,7 @@
                     [style.top.px]="position1.y"
                     *ngIf="items[1] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile2
                 >
                     {{ items[1].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[1]) }}</span>
@@ -40,7 +40,7 @@
                     [style.top.px]="position2.y"
                     *ngIf="items[2] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile3
                 >
                     {{ items[2].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[2]) }}</span>
@@ -52,7 +52,7 @@
                     [style.top.px]="position3.y"
                     *ngIf="items[3] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile4
                 >
                     {{ items[3].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[3]) }}</span>
@@ -64,7 +64,7 @@
                     [style.top.px]="position4.y"
                     *ngIf="items[4] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile5
                 >
                     {{ items[4].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[4]) }}</span>
@@ -76,7 +76,7 @@
                     [style.top.px]="position5.y"
                     *ngIf="items[5] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile6
                 >
                     {{ items[5].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[5]) }}</span>
@@ -88,7 +88,7 @@
                     [style.top.px]="position6.y"
                     *ngIf="items[6] && dragAccepted.includes(dragUsed)"
                     cdkDrag
-                    [cdkDragDisabled]="!isDraggable()"
+                    [cdkDragDisabled]="isNotDraggable()"
                     #tile7
                 >
                     {{ items[6].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[6]) }}</span>

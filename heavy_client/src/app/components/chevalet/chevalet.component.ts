@@ -401,34 +401,30 @@ export class ChevaletComponent implements AfterViewInit {
         let rackTileSize = (rackWidth/7) ;
         const keysArray = Array.from(this.dragTiles.keys())
 
-        this.position0.x = this.rackX+(0*rackTileSize) ; //42 et 1
+        this.position0.x = this.rackX+(0*rackTileSize)  ; //42 et 1
         this.position0.y = this.rackY;
 
-        this.position1.x = this.rackX+(1*rackTileSize) ;
+        this.position1.x = this.rackX+(1*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position1.y = this.rackY;
 
-        this.position2.x = this.rackX+(2*rackTileSize) ;
+        this.position2.x = this.rackX+(2*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position2.y = this.rackY;
 
-        this.position3.x = this.rackX+(3*rackTileSize) ;
+        this.position3.x = this.rackX+(3*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position3.y = this.rackY;
 
-        this.position4.x = this.rackX+(4*rackTileSize) ;
+        this.position4.x = this.rackX+(4*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position4.y = this.rackY;
 
-        this.position5.x = this.rackX+(5*rackTileSize) ;
+        this.position5.x = this.rackX+(5*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position5.y = this.rackY;
 
-        this.position6.x = this.rackX+(6*rackTileSize) ;
+        this.position6.x = this.rackX+(6*rackTileSize)+ (rackTileSize-this.gridConstant.tileSize)/2 ;
         this.position6.y = this.rackY;
 
         for(let i = 0; i<7; i++){
             this.dragTiles.get(keysArray[i]).nativeElement.style.top = `${this.rackY}px`;
-
             this.dragTiles.get(keysArray[i]).nativeElement.style.left = `${this.rackX+(i*rackTileSize) + (rackTileSize-this.gridConstant.tileSize)/2}px`;  //0.5 + (rackTileSize*(i))
-
-        // //     this.dragTiles.get(keysArray[i]).nativeElement.style.width = `${rackTileSize -(lineWidth)}px`;
-        // //     this.dragTiles.get(keysArray[i]).nativeElement.style.height = `${rackHeight}px`;
             this.dragTiles.get(keysArray[i]).nativeElement.style.width = `${this.gridConstant.tileSize}px`;
             this.dragTiles.get(keysArray[i]).nativeElement.style.height = `${this.gridConstant.tileSize}px`;
         }
@@ -439,11 +435,11 @@ export class ChevaletComponent implements AfterViewInit {
 
     }
 
-    isDraggable(){
-        if(this.dragAccepted.includes(this.dragUsed)){
-            return true;
+    isNotDraggable(){
+        if(this.dragAccepted.includes(this.dragUsed) &&  this.socketService.socketId === this.socketTurn){
+            return false;
         }
-        return false;
+        return true;
     }
 
     openWhiteDialog(posTileRack: number, letter: Letter){
