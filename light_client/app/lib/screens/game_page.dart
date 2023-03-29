@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/models/Words_Args.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
@@ -12,9 +13,11 @@ import 'package:app/widgets/tile.dart';
 import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
+import '../models/placement.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
 import '../models/letter.dart';
+import '../services/hints_dialog.dart';
 
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -198,6 +201,8 @@ class BoardPaint extends CustomPainter {
 class _GamePageState extends State<GamePage> {
   final Map<int, Offset> tilePosition = {};
   final Map<int, String> tileLetter = {};
+  final Map<int, String> hintLetters = {};
+
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
@@ -210,6 +215,8 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
+  List<Placement> hints = [];
+  List<WordArgs> formatedHints = [];
   @override
   void initState() {
     print("-------------------------Initiation game-page-------------------");
@@ -294,6 +301,36 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  void createWord(List<dynamic> hints) {
+    formatedHints = [];
+    for (var hint in hints) {
+      if (hint["command"] == 'Ces seuls placements ont été trouvés:') {
+        continue;
+      }
+
+      if (hint["command"] ==
+          "Aucun placement n'a été trouvé,Essayez d'échanger vos lettres !") {
+        return;
+      }
+
+      var splitedCommand = hint["command"].split(' ');
+
+      var columnWord = int.parse(
+              splitedCommand[1].substring(1, splitedCommand[1].length - 1)) -
+          1;
+      var lineWord = splitedCommand[1][0].codeUnitAt(0) - 97;
+      var valueWord = splitedCommand[splitedCommand.length - 1];
+      var orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
+      formatedHints.add(WordArgs(
+        line: lineWord,
+        column: columnWord,
+        value: valueWord,
+        orientation: orientationWord,
+        points: hint["points"],
+      ));
+    }
+  }
+
   verifyLetterOnBoard(int tileID) {
     for (var letter in lettersofBoard) {
       if (letter.tileID == tileID) {
@@ -317,11 +354,73 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  Offset setTileOnBoard(Offset offset, int tileID) {
+  validationHintWord(WordArgs word) {
+    if(lettersofBoard!= null){
+      setTileOnRack();
+    }
+    placeWordHint(word);
+    validatePlacement();
+  }
+
+  placeWordHint(WordArgs word) {
+    int firstX = word.column!;
+    int firstY = word.line!;
+    for (String letter in word.value!.split('')) {
+      int tileID = getTileID(letter);
+      if (word.orientation == 'h') {
+        while (board.getIsFilled(firstY, firstX)) {
+          firstX++;
+        }
+        setTileOnBoard(
+            Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
+        // tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+        //     TOP_BOARD_POSITION + firstY * 50);
+
+        firstX++;
+      }
+      if (word.orientation == 'v') {
+        while (board.getIsFilled(firstY, firstX)) {
+          firstY++;
+        }
+        setTileOnBoard(
+            Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
+        // tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+        //     TOP_BOARD_POSITION + firstY * 50);
+
+        firstY++;
+      }
+    }
+  }
+
+  int getTileID(String letter) {
+    int? targetKey;
+
+    for (int key in hintLetters.keys) {
+      if (letter == letter.toUpperCase()) {
+        letter = '*';
+      }
+      if (hintLetters[key] == letter) {
+        targetKey = key;
+        hintLetters[key] = " ";
+        return targetKey;
+      }
+    }
+    return targetKey!;
+  }
+
+  Offset setTileOnBoard(Offset offset, int tileID, bool isHint,
+      [String? letter]) {
     Offset positionOnBoard =
         getIt<TilePlacement>().getTilePosition(offset, tileID);
-    int line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
-    int column = positionOnBoard.dx ~/ TILE_SIZE;
+    int line = 0;
+    int column = 0;
+    if (isHint) {
+      line = offset.dy.toInt();
+      column = offset.dx.toInt();
+    } else {
+      line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
+      column = positionOnBoard.dx ~/ TILE_SIZE;
+    }
 
     String? letterValue = tileLetter[tileID];
     selectedLetter = '';
@@ -333,14 +432,28 @@ class _GamePageState extends State<GamePage> {
       if (letterValue == '*') {
         _showLetterPicker(line, column, tileID);
       } else {
-        lettersofBoard
-            .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+        if (isHint) {
+          if (letter == letter!.toUpperCase()) {
+            lettersofBoard
+                .add(Letter(line, column, letter!.toUpperCase(), tileID));
+            tileLetter[tileID] = letter;
+          } else {
+            lettersofBoard
+                .add(Letter(line, column, letter!.toLowerCase(), tileID));
+          }
+        } else {
+          lettersofBoard
+              .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+        }
       }
     } else {
       removeLetterOnBoard(tileID);
     }
 
-    return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
+
+    return getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint);
+    
+
   }
 
   void validatePlacement() {
@@ -428,7 +541,7 @@ class _GamePageState extends State<GamePage> {
                     updateRackID(true, opponentTileID),
                   }),
               board.isFilledForEachLetter(board.createOpponentLetters(letters)),
-      });
+            });
 
     getIt<SocketService>().on(
         'draw-letters-rack',
@@ -436,6 +549,7 @@ class _GamePageState extends State<GamePage> {
               setState(() {
                 for (var index in rackIDList) {
                   tileLetter[index] = letters[index % RACK_SIZE].toString();
+                  hintLetters[index] = letters[index % RACK_SIZE].toString();
                 }
               })
             });
@@ -504,13 +618,25 @@ class _GamePageState extends State<GamePage> {
         setTileOnRack();
         isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
       });
+      getIt<SocketService>().send('hint-command');
     });
 
-    getIt<SocketService>().on('user-turn', (playerTurnId) {
+    // getIt<SocketService>().on('user-turn', (playerTurnId) {
+    //   setState(() {
+    //     // On remet les lettres quil a placé dans le board qd le timer est écoulé
+    //     setTileOnRack();
+    //     isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+    //   });
+    // });
+
+    getIt<SocketService>().on('hint-command', (placements) {
       setState(() {
-        // On remet les lettres quil a placé dans le board qd le timer est écoulé
-        setTileOnRack();
-        isPlayerTurn = playerTurnId == getIt<SocketService>().socketId;
+        // List hintWords = (placements as List)
+        //     .map((placement) => Placement.fromJson(placement))
+        //     .toList();
+        print(placements);
+        // hints = placements;
+        createWord(placements);
       });
     });
   }
@@ -552,7 +678,7 @@ class _GamePageState extends State<GamePage> {
                       isPlayerTurn &&
                       !commandSent) {
                     offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
-                    Offset boardPosition = setTileOnBoard(offset, id);
+                    Offset boardPosition = setTileOnBoard(offset, id, false);
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
@@ -703,22 +829,22 @@ class _GamePageState extends State<GamePage> {
                 onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
-                        showDialog<List<String>>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              List<String> exchangeableTile = [];
-                              for (var index in rackIDList) {
-                                exchangeableTile
-                                    .add(tileLetter[index].toString());
-                              }
-                              return TileExchangeMenu(
-                                tileLetters: exchangeableTile,
-                              );
-                            }).then((List<String>? result) {
-                          if (result != null) {
-                            // switchRack(true);
-                          }
-                        });
+                        // print(formatedHints[0]);
+
+                        HintDialog hintDialog = HintDialog(
+                          items: formatedHints,
+                          onNoClick: (word) {
+                            validationHintWord(word);
+                            print(word);
+                          },
+                        );
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return hintDialog;
+                          },
+                        );
                       },
                 backgroundColor: !isPlayerTurn || commandSent
                     ? Color.fromARGB(255, 109, 49, 49)
