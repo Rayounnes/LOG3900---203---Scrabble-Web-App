@@ -105,4 +105,33 @@ class ApiService {
       throw Exception('Failed to get user icon');
     }
   }
+
+  /** ************** coins method *******************************/
+  Future<List<dynamic>> getUserCoins(String username) async {
+    final response = await http.get(
+      Uri.parse(ApiConstants.baseUrl + '/api/login/getcoins/' + username),
+    );
+    if (response.statusCode == 200) {
+      print("api response");
+      print(jsonDecode(response.body).toList());
+      // List<int> coinsList =
+      //     (jsonDecode(response.body)).map((s) => int.parse(s)).toList();
+      print(jsonDecode(response.body).toList());
+      return jsonDecode(response.body).toList();
+    } else {
+      throw Exception('Failed to get user icon');
+    }
+  }
+
+  Future<bool> addCoinsToUser(String username, int coinsToAdd) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.baseUrl + '/api/login/addcoins' + username),
+      body: jsonEncode({"username": username, "coins": coinsToAdd}),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('coinsGetError');
+    }
+  }
 }

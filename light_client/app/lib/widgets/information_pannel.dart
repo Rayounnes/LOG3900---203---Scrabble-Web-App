@@ -7,6 +7,7 @@ import 'package:app/services/socket_client.dart';
 import 'package:get_it/get_it.dart';
 import 'package:app/main.dart';
 import '../services/api_service.dart';
+import '../services/user_infos.dart';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -31,6 +32,8 @@ class _TimerPageState extends State<TimerPage> {
   int reserveTilesLeft = RESERVE_START_LENGTH;
   int _start = 60;
   int timerDuration = DEFAULT_CLOCK;
+  int coins = 0;
+  bool coinsGotFromDB = false;
   late Timer _timer;
 
   void startTimer() {
@@ -151,6 +154,30 @@ class _TimerPageState extends State<TimerPage> {
       );
       clearInterval();
     });
+    getIt<SocketService>().on('coins-win', (coins) {
+      print("coins gagnés : ${coins}");
+      ApiService()
+          .addCoinsToUser(getIt<UserInfos>().user, coins)
+          .then((response) {
+        if (response)
+          setState(() {
+            coins += coins;
+          });
+      }).catchError((error) {
+        print('Error in coins win: $error');
+      });
+    });
+  }
+
+  getUserCoins() {
+    ApiService().getUserCoins(getIt<UserInfos>().user).then((response) {
+      setState(() {
+        coinsGotFromDB = true;
+        coins = response[0];
+      });
+    }).catchError((error) {
+      print('Error in coins win: $error');
+    });
   }
 
   @override
@@ -159,8 +186,8 @@ class _TimerPageState extends State<TimerPage> {
     handleSockets();
     _timer = Timer(Duration(milliseconds: 1), () {});
     getIt<SocketService>().send('update-reserve');
-    // getIt<SocketService>().send('send-player-score');
-    // startTimer();
+    if (!coinsGotFromDB)
+      getUserCoins(); // On doit s'assurer que la variable player est remplie avant d'ller get les coins
   }
 
   @override
@@ -234,8 +261,25 @@ class _TimerPageState extends State<TimerPage> {
             radius: 30,
             backgroundImage: icons[player.username],
           ),
-          title: Text(usernamePlayer),
-          subtitle: Text('Tiles left: ${player.tiles}'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(usernamePlayer),
+              getIt<SocketService>().socketId == player.socket
+                  ? Container(
+                      padding: EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      child: Text("$coins coins"),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.yellow[700],
+                      ))
+                  : Container(),
+            ],
+          ),
+          subtitle: Row(children: [
+            Text('Tiles left: ${player.tiles}'),
+          ]),
           trailing: Text(player.points.toString()),
         ),
       ),
