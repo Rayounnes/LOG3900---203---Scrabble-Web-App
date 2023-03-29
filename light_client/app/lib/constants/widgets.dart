@@ -65,7 +65,7 @@ const TIPS_FR = [
   "Le saviez-vous : Les lettres du jeu sont réparties en fonction de leur fréquence d'utilisation en fonction de la langue.",
   "Astuces : Planifiez votre prochain coup en avance en évaluant les combinaisons possibles.",
   "Aide : N'hésitez pas à changer votre avatar, cela est possible sur la page de profil.",
-  "Le saviez-vous : Le plus grand nombre de points qu'un joueur peut marquer avec un seul mot est avec le mot 'oxyphenbutazone'.",
+  "Le saviez-vous : Le mot qui peut donner le plus grand nombre de point est 'oxyphenbutazone'.",
   "Aide : Si vous oubliez votre mot de passe, cliquez sur mot de passe oublié.",
   "Astuces : Bloquez les espaces pour empêcher votre adversaire de marquer des points.",
   "Le saviez-vous : Le Scrabble est disponible dans plus de 120 pays et est disponible en 29 langues différentes.",
