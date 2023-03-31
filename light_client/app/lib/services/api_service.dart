@@ -4,7 +4,6 @@ import 'package:app/constants/server_api.dart';
 import 'package:app/models/login_infos.dart';
 
 class ApiService {
-
   /** ************** user Login methods *******************************/
 
   Future<int> loginUser(LoginInfos user) async {
@@ -39,16 +38,16 @@ class ApiService {
   /** ************** chat channel method *******************************/
   Future<List<dynamic>> getUserChannels(String username) async {
     final response = await http.get(
-      Uri.parse(ApiConstants.baseUrl + '/api/channels/channel/'+username),
+      Uri.parse(ApiConstants.baseUrl + '/api/channels/channel/' + username),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to get user channels');
     }
-}
+  }
 
-Future<List<dynamic>> getAllChannels() async {
+  Future<List<dynamic>> getAllChannels() async {
     final response = await http.get(
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allchannels'),
     );
@@ -57,16 +56,14 @@ Future<List<dynamic>> getAllChannels() async {
     } else {
       throw Exception('Failed to get all channels');
     }
-}
+  }
 
-
-Future<List<dynamic>> getAllUsers() async {
+  Future<List<dynamic>> getAllUsers() async {
     final response = await http.get(
       Uri.parse(ApiConstants.baseUrl + '/api/channels/allusers'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception('Failed to get all channels');
     }
@@ -127,11 +124,15 @@ Future<List<dynamic>> getAllUsers() async {
 
   Future<bool> addCoinsToUser(String username, int coinsToAdd) async {
     final response = await http.put(
-      Uri.parse(ApiConstants.baseUrl + '/api/login/addcoins' + username),
+      Uri.parse(ApiConstants.baseUrl + '/api/login/addcoins'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
       body: jsonEncode({"username": username, "coins": coinsToAdd}),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      bool validResponse = response.body == "true";
+      return validResponse;
     } else {
       throw Exception('coinsGetError');
     }
@@ -188,7 +189,6 @@ Future<List<dynamic>> getAllUsers() async {
     } else {
       print('Failed to push icon');
       return false;
-
     }
   }
 
@@ -205,7 +205,6 @@ Future<List<dynamic>> getAllUsers() async {
       return true;
     } else {
       throw Exception('Failed to change username');
-
     }
   }
 
@@ -222,7 +221,6 @@ Future<List<dynamic>> getAllUsers() async {
       return true;
     } else {
       throw Exception('Failed to change password');
-
     }
   }
 
@@ -247,7 +245,6 @@ Future<List<dynamic>> getAllUsers() async {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception("Échec de récupération d'image");
     }
@@ -259,7 +256,6 @@ Future<List<dynamic>> getAllUsers() async {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception("Échec de récupération d'image");
     }
@@ -273,7 +269,6 @@ Future<List<dynamic>> getAllUsers() async {
       List val;
       val = jsonDecode(response.body);
       return val;
-
     } else {
       throw Exception("Échec de récupération de la question de sécurité");
     }
@@ -285,7 +280,6 @@ Future<List<dynamic>> getAllUsers() async {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       throw Exception("Échec de récupération de l'ID de sécurité");
     }
@@ -299,7 +293,6 @@ Future<List<dynamic>> getAllUsers() async {
       String val;
       val = jsonDecode(response.body);
       return val;
-
     } else {
       throw Exception("Échec de récupération de la réponse de sécurité");
     }
@@ -311,7 +304,6 @@ Future<List<dynamic>> getAllUsers() async {
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-
     } else {
       return [];
     }

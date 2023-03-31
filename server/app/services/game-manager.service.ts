@@ -154,11 +154,11 @@ export class GameManager {
         this.endGameMessage(room, scrabbleGame);
         this.sio.to(room).emit('recreate');
         this.sio.to(room).emit('end-game');
-        let playersInfo : GamePlayerInfos[] = scrabbleGame.getPlayersInfo()
+        const playersInfo: GamePlayerInfos[] = scrabbleGame.getPlayersInfo();
         const data = { players: playersInfo, turnSocket: scrabbleGame.socketTurn };
-        for(let player of playersInfo){
-            if(!player.isVirtualPlayer){
-                this.calculateCoinsWin(player)
+        for (const player of playersInfo) {
+            if (!player.isVirtualPlayer) {
+                this.calculateCoinsWin(player);
             }
         }
         this.sio.to(room).emit('send-info-to-panel', data);
@@ -203,9 +203,8 @@ export class GameManager {
         return [commandSuccess, isEndGame];
     }
 
-    calculateCoinsWin(player : GamePlayerInfos){
-        let coinsWon : number = Math.max(5,player.points/10)
-        if(player.socket)
-        this.sio.to(player.socket).emit('coins-win',coinsWon)
+    calculateCoinsWin(player: GamePlayerInfos) {
+        const coinsWon: number = Math.round(Math.max(5, player.points / 10));
+        if (player.socket) this.sio.to(player.socket).emit('coins-win', coinsWon);
     }
 }

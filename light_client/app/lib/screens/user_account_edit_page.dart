@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 
 import 'package:app/screens/gallery_page.dart';
+import 'package:app/services/user_infos.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
@@ -74,6 +75,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         if(res){
           name = newUsernameController.text;
           getIt<SocketService>().send('change-username',name);
+          getIt<UserInfos>().setUser(name);
         }
         else{
           ScaffoldMessenger.of(context).showSnackBar(

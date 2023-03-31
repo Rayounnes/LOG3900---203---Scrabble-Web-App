@@ -44,7 +44,7 @@ class TileWidget extends StatelessWidget {
                 child: Text(
                   points,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),

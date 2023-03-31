@@ -152,18 +152,30 @@ class _TimerPageState extends State<TimerPage> {
       );
       clearInterval();
     });
-    getIt<SocketService>().on('coins-win', (coins) {
-      print("coins gagnés : ${coins}");
+    getIt<SocketService>().on('coins-win', (coinsGained) {
+      print("coins gagnés : ${coinsGained}");
       ApiService()
-          .addCoinsToUser(getIt<UserInfos>().user, coins)
+          .addCoinsToUser(getIt<UserInfos>().user, coinsGained)
           .then((response) {
         if (response)
           setState(() {
-            coins += coins;
+            coins += (coinsGained as int);
           });
       }).catchError((error) {
         print('Error in coins win: $error');
       });
+      coinsCongratulation(context, coinsGained as int);
+    });
+    getIt<SocketService>().on('time-add', (timeToAdd) {
+      setState(() {
+        _start += (timeToAdd as int);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.deepOrange,
+            duration: Duration(seconds: 1),
+            content: Text('Un achat de ${timeToAdd}s a été réalisé')),
+      );
     });
   }
 
@@ -176,6 +188,77 @@ class _TimerPageState extends State<TimerPage> {
     }).catchError((error) {
       print('Error in coins win: $error');
     });
+  }
+
+  buyTime(int boughtTime) {
+    getIt<SocketService>().send('time-add', boughtTime);
+    int coinsToRemove = boughtTime * -2;
+    ApiService()
+        .addCoinsToUser(getIt<UserInfos>().user, coinsToRemove)
+        .then((isValid) {
+      setState(() {
+        if (isValid) coins += coinsToRemove;
+      });
+    }).catchError((error) {
+      print('Error in time-add: $error');
+    });
+  }
+
+  void buyTimeDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Achat de temps"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                timeBuyOption(5, 10, Icons.timer),
+                timeBuyOption(10, 20, Icons.timer),
+                timeBuyOption(20, 40, Icons.timer),
+              ],
+            ),
+          );
+        });
+  }
+
+  void coinsCongratulation(BuildContext context, int gainedCoins) {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Congratulations!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.monetization_on,
+                      size: 48.0, color: Colors.yellow[700]),
+                  SizedBox(height: 16.0),
+                  Text('You won $gainedCoins coins!',
+                      style: TextStyle(fontSize: 24.0)),
+                  SizedBox(height: 16.0),
+                ],
+              ));
+        });
+  }
+
+  Widget timeBuyOption(int time, int cost, IconData icon) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text('+${time}s'),
+      subtitle: Text('$cost coins'),
+      trailing: coins >= cost
+          ? ElevatedButton(
+              onPressed: () {
+                buyTime(time);
+                Navigator.of(context).pop();
+              },
+              child: Text('Buy'),
+            )
+          : Text('Not enough coins'),
+    );
   }
 
   @override
@@ -229,6 +312,25 @@ class _TimerPageState extends State<TimerPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               widget.isClassicMode ? timerWidget(context) : Container(),
+              widget.isClassicMode
+                  ? ElevatedButton.icon(
+                      onPressed: !isPlayersTurn
+                          ? null
+                          : () {
+                              buyTimeDialog(context);
+                            },
+                      icon: Icon(Icons.watch_later_rounded),
+                      label: Text('Buy Time'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.yellow[700],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                      ),
+                    )
+                  : Container(),
             ],
           ),
           for (int i = 0; i < players.length; i += 2)
