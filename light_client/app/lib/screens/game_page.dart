@@ -206,6 +206,7 @@ class _GamePageState extends State<GamePage> {
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
+  List<dynamic> tempHintRack = [];
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
@@ -347,15 +348,17 @@ class _GamePageState extends State<GamePage> {
             .removeWhere((element) => element.tileID == letter.tileID);
         String? letterValue = tileLetter[tileID];
         // on remet la tuile a * lorsqu on remet la tuile * dans le chevalet
-        tileLetter[tileID] =
-            letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
+        if (letterValue != null) {
+          tileLetter[tileID] =
+              letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
+        }
         return;
       }
     }
   }
 
   validationHintWord(WordArgs word) {
-    if(lettersofBoard!= null){
+    if (lettersofBoard != null) {
       setTileOnRack();
     }
     placeWordHint(word);
@@ -373,8 +376,8 @@ class _GamePageState extends State<GamePage> {
         }
         setTileOnBoard(
             Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
-        // tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
-        //     TOP_BOARD_POSITION + firstY * 50);
+        tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+            TOP_BOARD_POSITION + firstY * 50);
 
         firstX++;
       }
@@ -384,8 +387,8 @@ class _GamePageState extends State<GamePage> {
         }
         setTileOnBoard(
             Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
-        // tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
-        //     TOP_BOARD_POSITION + firstY * 50);
+        tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+            TOP_BOARD_POSITION + firstY * 50);
 
         firstY++;
       }
@@ -393,19 +396,28 @@ class _GamePageState extends State<GamePage> {
   }
 
   int getTileID(String letter) {
-    int? targetKey;
-
-    for (int key in hintLetters.keys) {
-      if (letter == letter.toUpperCase()) {
-        letter = '*';
-      }
-      if (hintLetters[key] == letter) {
-        targetKey = key;
-        hintLetters[key] = " ";
-        return targetKey;
-      }
+    int? targetID;
+    // on a un rack avec les lettres et une liste avec les ids
+    if (letter == letter.toUpperCase()) {
+      letter = '*';
     }
-    return targetKey!;
+    int indexInRack = tempHintRack.indexOf(letter);
+
+    targetID = rackIDList[indexInRack];
+    tempHintRack[indexInRack] = " ";
+    return targetID;
+
+    //   for (int key in hintLetters.keys) {
+    //     if (letter == letter.toUpperCase()) {
+    //       letter = '*';
+    //     }
+    //     if (hintLetters[key] == letter) {
+    //       targetKey = key;
+    //       hintLetters[key] = " ";
+    //       return targetKey;
+    //     }
+    //   }
+    //   return targetKey!;
   }
 
   Offset setTileOnBoard(Offset offset, int tileID, bool isHint,
@@ -450,10 +462,7 @@ class _GamePageState extends State<GamePage> {
       removeLetterOnBoard(tileID);
     }
 
-
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint);
-    
-
   }
 
   void validatePlacement() {
@@ -550,6 +559,7 @@ class _GamePageState extends State<GamePage> {
                 for (var index in rackIDList) {
                   tileLetter[index] = letters[index % RACK_SIZE].toString();
                   hintLetters[index] = letters[index % RACK_SIZE].toString();
+                  tempHintRack = letters;
                 }
               })
             });
@@ -631,11 +641,7 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('hint-command', (placements) {
       setState(() {
-        // List hintWords = (placements as List)
-        //     .map((placement) => Placement.fromJson(placement))
-        //     .toList();
-        print(placements);
-        // hints = placements;
+
         createWord(placements);
       });
     });
@@ -679,6 +685,7 @@ class _GamePageState extends State<GamePage> {
                       !commandSent) {
                     offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
                     Offset boardPosition = setTileOnBoard(offset, id, false);
+
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
@@ -829,13 +836,11 @@ class _GamePageState extends State<GamePage> {
                 onPressed: !isPlayerTurn || commandSent
                     ? null
                     : () {
-                        // print(formatedHints[0]);
 
                         HintDialog hintDialog = HintDialog(
                           items: formatedHints,
                           onNoClick: (word) {
                             validationHintWord(word);
-                            print(word);
                           },
                         );
 
