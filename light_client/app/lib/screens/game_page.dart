@@ -104,6 +104,7 @@ class _GamePageState extends State<GamePage> {
   void _showLetterPicker(int line, int column, int tileId) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return Dialog(
           child: Container(
@@ -199,8 +200,11 @@ class _GamePageState extends State<GamePage> {
       for (var index in rackIDList) {
         isTileLocked[index] = false;
         tilePosition[index] = getIt<TilePlacement>().setTileOnRack(index);
-        if (tileLetter[index]?.toUpperCase() == tileLetter[index])
+        if (tileLetter[index] != null &&
+            tileLetter[index] != '' &&
+            tileLetter[index]?.toUpperCase() == tileLetter[index]) {
           tileLetter[index] = '*';
+        }
       }
     });
   }
@@ -307,7 +311,7 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('validate-created-words', (placedWord) async {
       if (widget.isClassicMode) getIt<SocketService>().send('freeze-timer');
       if (placedWord["points"] != 0) {
-        musicService.playMusic(GOOD_PLACEMENT_SOUND,false);
+        musicService.playMusic(GOOD_PLACEMENT_SOUND, false);
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
@@ -324,7 +328,7 @@ class _GamePageState extends State<GamePage> {
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
-        musicService.playMusic(BAD_PLACEMENT_SOUND,false);
+        musicService.playMusic(BAD_PLACEMENT_SOUND, false);
         setTileOnRack();
         changeTurn();
       }
@@ -398,7 +402,7 @@ class _GamePageState extends State<GamePage> {
     List<Widget> rackTiles = [];
     setState(() {
       for (var id in tilePosition.keys) {
-        if (tileLetter[id] != '') {
+        if (tileLetter[id] != null && tileLetter[id] != '') {
           rackTiles.add(Positioned(
             left: tilePosition[id]?.dx,
             top: tilePosition[id]?.dy,
@@ -456,7 +460,7 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         switchRack(true);
       });
-      musicService.playMusic(SWITCH_TURN_SOUND,false);
+      musicService.playMusic(SWITCH_TURN_SOUND, false);
     } else {
       sendVoteAction("pass", null, null);
     }
@@ -465,7 +469,7 @@ class _GamePageState extends State<GamePage> {
   void exchangeCommand(String lettersToExchange) {
     if (widget.isClassicMode) {
       getIt<SocketService>().send('exchange-command', lettersToExchange);
-      musicService.playMusic(CHANGE_TILE_SOUND,false);
+      musicService.playMusic(CHANGE_TILE_SOUND, false);
     } else {
       sendVoteAction("exchange", null, lettersToExchange);
     }
@@ -487,10 +491,7 @@ class _GamePageState extends State<GamePage> {
                 heroTag: "btn1",
                 onPressed: () {
                   isEndGame ? leaveGame() : openAbandonDialog(context);
-                  musicService.playMusic(LOSE_GAME_SOUND,false);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return GameModes();
-                  }));
+                  musicService.playMusic(LOSE_GAME_SOUND, false);
                 },
                 backgroundColor: Color.fromARGB(255, 255, 110, 74),
                 child: Icon(
