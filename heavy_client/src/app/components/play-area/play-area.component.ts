@@ -45,6 +45,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     // keyboard: KeyboardManagementService;
     mode: string;
     isClassic: boolean;
+    isObserver: boolean;
 
     dialogConfig = new MatDialogConfig();
 
@@ -83,6 +84,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.paramsObject = { ...params.keys, ...params };
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.isObserver = this.paramsObject.params.isObserver === 'true';
         this.mode = this.isClassic ? 'Classique' : 'Coopératif';
     }
 

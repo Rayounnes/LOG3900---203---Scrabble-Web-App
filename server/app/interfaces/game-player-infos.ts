@@ -2,6 +2,9 @@ export interface GamePlayerInfos {
     username: string;
     points: number;
     isVirtualPlayer: boolean;
-    tiles: number;
-    socket? : string
+    tilesLeft: number;
+    tiles: string[];
+    socket: string;
+    isTurn?: boolean;
+    icon?: string;
 }

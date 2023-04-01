@@ -39,6 +39,7 @@ export class ChevaletComponent implements AfterViewInit {
     socketTurn: string;
     paramsObject: any;
     isClassic: boolean;
+    isObserver: boolean;
     isEndGame = false;
     reserveTilesLeft = RESERVE_START_LENGTH;
     position0: Vec2 = { x: 0, y: 0 };
@@ -94,6 +95,7 @@ export class ChevaletComponent implements AfterViewInit {
             this.paramsObject = { ...params.keys, ...params };
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
+        this.isObserver = this.paramsObject.params.isObserver === 'true';
     }
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target

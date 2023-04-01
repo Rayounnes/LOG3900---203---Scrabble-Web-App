@@ -1,6 +1,5 @@
 import { Game } from '@app/interfaces/game';
 import * as io from 'socket.io';
-import { SoloGame } from '@app/interfaces/solo-game';
 import { VirtualPlayerService } from '@app/services/virtual-player.service';
 import { COMMANDS } from '@app/constants/constants';
 import { ScrabbleClassicMode } from '@app/classes/scrabble-classic-mode';
@@ -80,16 +79,6 @@ export class GameManager {
         // TODO Transformer en popup
         this.sio.to(room).emit('end-popup', endMessage);
     }
-    transformToSoloGame(game: SoloGame, opponentSocket: string): SoloGame {
-        game.hostID = opponentSocket;
-        // game.type = 'solo';
-        // game.isFinished = false;
-        // game.usernameOne = this.usernames.get(opponentSocket) as string;
-        // game.usernameTwo = game.usernameOne.toLowerCase() !== 'marc' ? 'Marc' : 'Ben';
-        // game.virtualPlayerName = game.usernameTwo;
-        // game.difficulty = LEVEL.Beginner;
-        return game;
-    }
     abandonClassicGame(socketId: string) {
         const room = this.usersRoom.get(socketId) as string;
         const game: Game = this.gameRooms.get(room) as Game;
@@ -141,6 +130,19 @@ export class GameManager {
         const data = { players: gameScrabbleAbandoned.getPlayersInfo(), turnSocket: gameScrabbleAbandoned.socketTurn };
         this.sio.to(room).emit('send-info-to-panel', data);
     }
+    // observateur qui rejoint lorsque la partie a deja commencé (il faut redessiner les lettres du board)
+    joinAsLateObserver(socketId: string, room: string) {
+        const scrabbleGame = this.getScrabbleGame(socketId) as ScrabbleCooperativeMode;
+        scrabbleGame.setObserver(true, socketId);
+        const game: Game = this.gameRooms.get(room) as Game;
+        const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
+        this.sio.to(socketId).emit('send-game-timer', game.time);
+        // this.sio.to(socketId).emit('user-turn', scrabbleGame.socketTurn);
+        this.sio.to(socketId).emit('send-info-to-panel', data);
+        const lettersPosition = scrabbleGame.boardLetters;
+        this.sio.to(socketId).emit('draw-letters-opponent', lettersPosition);
+    }
+
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode | ScrabbleCooperativeMode): boolean {
         if (scrabbleGame.gameEnded()) {
             this.endGameBehavior(room, scrabbleGame);

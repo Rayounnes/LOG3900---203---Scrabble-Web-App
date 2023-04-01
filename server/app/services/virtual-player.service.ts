@@ -20,6 +20,7 @@ export class VirtualPlayerService {
             this.sio.to(room).emit('virtual-player');
             const message = `${scrabbleClassicGame.socketTurn}: ${placeCommand.command}`;
             for (const opponentSocket of scrabbleClassicGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
+            for (const observerSocket of scrabbleClassicGame.observers) this.sio.to(observerSocket).emit('player-action', message);
             this.sio.to(room).emit('update-reserve', scrabbleClassicGame.getReserveLettersLength());
             return true;
         }
@@ -32,11 +33,13 @@ export class VirtualPlayerService {
         else {
             const message = `${scrabbleClassicGame.socketTurn} a échangé ${lettersToExchange.length} lettre(s)`;
             for (const opponentSocket of scrabbleClassicGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
+            for (const observerSocket of scrabbleClassicGame.observers) this.sio.to(observerSocket).emit('player-action', message);
             return true;
         }
     }
     virtualPlayerPass(room: string, scrabbleGame: ScrabbleClassicMode) {
         const message = `${scrabbleGame.socketTurn} a passé son tour`;
         for (const opponentSocket of scrabbleGame.notTurnSockets) this.sio.to(opponentSocket).emit('player-action', message);
+        for (const observerSocket of scrabbleGame.observers) this.sio.to(observerSocket).emit('player-action', message);
     }
 }

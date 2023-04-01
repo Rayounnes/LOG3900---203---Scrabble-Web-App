@@ -50,6 +50,9 @@ export class JoindrePartieComponent implements OnInit {
             this.gameList = param;
             this.gameList.push();
         });
+        this.socketService.on('join-late-observer', () => {
+            this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic, isObserver: true } });
+        });
     }
 
     goToWaitingRoom(gameToJoin: Game) {
@@ -58,9 +61,10 @@ export class JoindrePartieComponent implements OnInit {
     }
 
     observeGame(gameToJoin: Game) {
-        // changer par le socket pour aller a une partie
-        if (gameToJoin.hasStarted) this.socketService.send('waiting-room-player', gameToJoin);
-        else {
+        // observer une partie qui a deja commencé
+        if (gameToJoin.hasStarted) {
+            this.socketService.send('join-late-observer', gameToJoin);
+        } else {
             this.socketService.send('waiting-room-observer', gameToJoin);
             this.router.navigate(['/waiting-room'], { queryParams: { isClassicMode: this.isClassic } });
         }

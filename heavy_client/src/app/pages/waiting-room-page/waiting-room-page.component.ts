@@ -93,8 +93,8 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
                 panelClass: ['snackbar'],
             });
         });
-        this.socketService.on('join-game', () => {
-            this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic } });
+        this.socketService.on('join-game', (observer: boolean) => {
+            this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic, isObserver: observer } });
         });
         this.socketService.on('cancel-match', () => {
             const message = 'La partie a été annulée.';

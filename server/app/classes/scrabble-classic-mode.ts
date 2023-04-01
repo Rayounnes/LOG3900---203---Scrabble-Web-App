@@ -31,13 +31,21 @@ export class ScrabbleClassicMode {
     protected reserveCommandService;
     protected playersUsernames: Map<string, string>;
     protected playersSockets: string[]; // Liste des sockets des joeurs humains
+    protected observersSockets: string[]; // Liste des sockets des observateurs
     protected virtualPlayers: string[]; // Liste des noms des joeurs virtuels
     // joueurs virtuels
     private randomVirtualChoices;
     private playerDifficulty: string;
-    constructor(playersSockets: string[], virtualPlayers: string[], playerUsernames: Map<string, string>, fileName: string) {
+    constructor(
+        playersSockets: string[],
+        observersSockets: string[],
+        virtualPlayers: string[],
+        playerUsernames: Map<string, string>,
+        fileName: string,
+    ) {
         this.turnSocket = playersSockets[0];
         this.playersSockets = playersSockets;
+        this.observersSockets = observersSockets;
         this.playersUsernames = playerUsernames;
         this.socketIndexTurn = 0;
         this.board = new Board();
@@ -155,12 +163,27 @@ export class ScrabbleClassicMode {
                 username: this.playersUsernames.get(playerSocket),
                 points: this.getPlayerScore(playerSocket),
                 isVirtualPlayer: this.virtualPlayers.includes(playerSocket),
-                tiles: this.getPlayerTilesLeft(playerSocket),
+                tiles: this.getPlayerRack(playerSocket),
+                tilesLeft: this.getPlayerTilesLeft(playerSocket),
                 socket: playerSocket,
             } as GamePlayerInfos;
             playersInfos.push(playerDetails);
         }
         return playersInfos;
+    }
+    get observers(): string[] {
+        return this.observersSockets;
+    }
+    setObserver(isAdd: boolean, observerSocketId: string) {
+        if (isAdd) {
+            this.observersSockets.push(observerSocketId);
+        } else {
+            // On enleve le joueur humain des players sockets et recalcule le passMaxStreak
+            const indexObserverSocket = this.observersSockets.indexOf(observerSocketId);
+            if (indexObserverSocket > -1) {
+                this.observersSockets.splice(indexObserverSocket, 1);
+            }
+        }
     }
     removeLettersRackForValidation(socketId: string, letters: Letter[]): string[] {
         const playerRack = this.getPlayerRack(socketId) as string[];

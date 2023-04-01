@@ -71,8 +71,10 @@ export class SocketManager {
     sendPlayerAction(socketId: string, message: string) {
         const room = this.usersRoom.get(socketId) as string;
         const game = this.gameRooms.get(room) as Game;
+        const scrabbleGame = this.gameManager.getScrabbleGame(socketId);
         if (!game.isClassicMode) return;
         for (const opponentSocket of this.gameManager.findOpponentSockets(socketId)) this.sio.to(opponentSocket).emit('player-action', message);
+        for (const observerSocket of scrabbleGame.observers) this.sio.to(observerSocket).emit('player-action', message);
     }
     gameList(isClassic: boolean): Game[] {
         return Array.from(this.gameRooms.values()).filter((game: Game) => {
@@ -155,7 +157,7 @@ export class SocketManager {
             const playerUsername = this.usernames.get(socket.id) as string;
             const game = this.gameRooms.get(roomToJoin) as Game;
             game.joinedObservers.push({ username: playerUsername, socketId: socket.id });
-            this.sio.to(socket.id).emit('waiting-player-status', true);
+            this.sio.to(socket.id).emit('waiting-player-status', true); // isObserver
             this.sio.to(roomToJoin).emit('waiting-room-player', game);
             this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
         });
@@ -235,6 +237,7 @@ export class SocketManager {
             const game = this.gameRooms.get(room) as Game;
             const playerSockets: string[] = [];
             const virtualPlayers: string[] = [];
+            const observersSockets: string[] = [];
             const playersUsernames = new Map<string, string>(); // socket id - username des joueurs
             for (const player of game.joinedPlayers) {
                 playerSockets.push(player.socketId);
@@ -245,15 +248,24 @@ export class SocketManager {
                 virtualPlayers.push(`Bot ${i + 1}`);
                 playersUsernames.set(botName, botName);
             }
-            // TODO ajouter les observateurs
-            // for(const player of game.joinedPlayers) playerSockets.push(player.socketId);
+            for (const observer of game.joinedObservers) {
+                observersSockets.push(observer.socketId);
+            }
             if (game.isClassicMode) {
-                this.scrabbleGames.set(room, new ScrabbleClassicMode(playerSockets, virtualPlayers, playersUsernames, game.dictionary.fileName));
-                this.sio.to(room).emit('join-game');
+                this.scrabbleGames.set(
+                    room,
+                    new ScrabbleClassicMode(playerSockets, observersSockets, virtualPlayers, playersUsernames, game.dictionary.fileName),
+                );
+                for (const playerSocket of playerSockets) this.sio.to(playerSocket).emit('join-game', false); // isObserver
+                for (const observerSocket of observersSockets) this.sio.to(observerSocket).emit('join-game', true); // isObserver
                 if (!isLightClient) this.startClassicGame(room, game);
             } else {
-                this.scrabbleCooperativeGames.set(room, new ScrabbleCooperativeMode(playerSockets, playersUsernames, game.dictionary.fileName));
-                this.sio.to(room).emit('join-game');
+                this.scrabbleCooperativeGames.set(
+                    room,
+                    new ScrabbleCooperativeMode(playerSockets, observersSockets, playersUsernames, game.dictionary.fileName),
+                );
+                for (const playerSocket of playerSockets) this.sio.to(playerSocket).emit('join-game', false); // isObserver
+                for (const observerSocket of observersSockets) this.sio.to(observerSocket).emit('join-game', true); // isObserver
                 if (!isLightClient) this.startCooperativeGame(room);
             }
             game.hasStarted = true;
@@ -264,6 +276,17 @@ export class SocketManager {
             const game = this.gameRooms.get(room) as Game;
             if (game.isClassicMode) this.startClassicGame(room, game);
             else this.startCooperativeGame(room);
+        });
+        socket.on('join-late-observer', async (gameParams: Game) => {
+            const roomToJoin = gameParams.room;
+            await this.joinChannels(socket, [roomToJoin]);
+            this.usersRoom.set(socket.id, roomToJoin);
+            const playerUsername = this.usernames.get(socket.id) as string;
+            const game = this.gameRooms.get(roomToJoin) as Game;
+            game.joinedObservers.push({ username: playerUsername, socketId: socket.id });
+            this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
+            this.sio.to(socket.id).emit('join-late-observer');
+            this.gameManager.joinAsLateObserver(socket.id, roomToJoin);
         });
     }
     cooperativeModeHandler(socket: io.Socket) {
@@ -385,12 +408,15 @@ export class SocketManager {
         socket.on('draw-letters-opponent', (lettersPosition) => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
+            const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             const isHeavyClient = Array.isArray(lettersPosition);
             // Client lourd envoie la liste de lettres mais client léger envoie tout l'objet {letters, point}
             const lettersPositionTransformed = isHeavyClient ? lettersPosition : lettersPosition.letters;
             if (game.isClassicMode || !isHeavyClient) {
                 for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
                     this.sio.to(opponentSocket).emit('draw-letters-opponent', lettersPositionTransformed);
+                for (const observerSocket of scrabbleGame.observers)
+                    this.sio.to(observerSocket).emit('draw-letters-opponent', lettersPositionTransformed);
             } else {
                 this.sio.to(room).emit('draw-letters-opponent', lettersPositionTransformed);
             }

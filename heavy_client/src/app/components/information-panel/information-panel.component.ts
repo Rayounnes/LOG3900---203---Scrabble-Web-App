@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild ,Inject} from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild, Inject } from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
 /* import { GameHistory } from '@app/interfaces/game-historic-info'; */ /* 
@@ -11,7 +11,6 @@ import { PROFILE } from 'src/constants/profile-picture-constants';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-
 
 import { DOCUMENT } from '@angular/common';
 import html2canvas from 'html2canvas';
@@ -32,6 +31,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     isGameFinished = false;
     isAbandon = false;
     isRefresh = false;
+    isObserver: boolean;
     timer: ReturnType<typeof setInterval>;
     gameDuration: number = 0;
     dateAtStart: string = '';
@@ -52,8 +52,8 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     clock: number = DEFAULT_CLOCK;
     reserveTilesLeft = RESERVE_START_LENGTH;
     userphotos = PROFILE;
-    coins : number = 0;
-    coinsGotFromDB : boolean = false;
+    coins: number = 0;
+    coinsGotFromDB: boolean = false;
     dialogConfig = new MatDialogConfig();
 
     constructor(
@@ -68,7 +68,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.paramsObject = { ...params.keys, ...params };
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
-        console.log('is classic pannel: ', this.isClassic);
+        this.isObserver = this.paramsObject.params.isObserver === 'true';
     }
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
@@ -172,7 +172,8 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            if(!this.coinsGotFromDB) this.getUserCoins() // On doit s'assurer que la variable player est remplie avant d'ller get les coins
+            // On doit s'assurer que la variable player est remplie avant d'ller get les coins
+            if (!this.coinsGotFromDB && !this.isObserver) this.getUserCoins();
         });
         this.socketService.on('freeze-timer', () => {
             clearInterval(this.timer);
@@ -190,7 +191,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.socketService.on('abandon-game', (abandonMessage: string) => {
             this.isAbandon = true;
             this.snackBar.open(abandonMessage, 'Fermer', {
-                duration: 1000,
+                duration: 2000,
                 panelClass: ['snackbar'],
             });
         });
@@ -198,7 +199,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             if (isAbandoned) this.isAbandon = true;
             this.isGameFinished = true;
             this.snackBar.open('La partie est terminée', 'Fermer', {
-                duration: 1000,
+                duration: 2000,
                 panelClass: ['snackbar'],
             });
             clearInterval(this.timer);
@@ -206,16 +207,16 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.addGameToHistory();
         });
 
-        this.socketService.on('coins-win',(coins : number)=>{
-            console.log(`coins gagnés : ${coins}`)
-            this.communicationService.addCoinsToUser(this.getUsername(),coins).subscribe((isValid : boolean) =>{
-                if(isValid) this.coins += coins
-            })
-        })
+        this.socketService.on('coins-win', (coins: number) => {
+            console.log(`coins gagnés : ${coins}`);
+            this.communicationService.addCoinsToUser(this.getUsername(), coins).subscribe((isValid: boolean) => {
+                if (isValid) this.coins += coins;
+            });
+        });
 
-        this.socketService.on('time-add',(toAdd : number)=>{
-            this.clock = Math.min(this.game.time,this.clock+toAdd)
-        })
+        this.socketService.on('time-add', (toAdd: number) => {
+            this.clock = Math.min(this.game.time, this.clock + toAdd);
+        });
     }
 
     addScore(): void {
@@ -244,29 +245,29 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         if (this.isHost) this.communicationService.gameHistoryPost(gameInfo).subscribe(); */
     }
 
-    getUsername(){
-        for(let player of this.players){
-            if(player.socket == this.socketId){
-                return player.username.split(" ")[0];
+    getUsername() {
+        for (let player of this.players) {
+            if (player.socket == this.socketId) {
+                return player.username.split(' ')[0];
             }
         }
-        return ""
+        return '';
     }
 
-    getUserCoins(){
-        this.communicationService.getUserCoins(this.getUsername() as string).subscribe((coins : number[])=>{
-            console.log(`coins posseder : ${coins}`)
+    getUserCoins() {
+        this.communicationService.getUserCoins(this.getUsername() as string).subscribe((coins: number[]) => {
+            console.log(`coins posseder : ${coins}`);
             this.coinsGotFromDB = true;
-            this.coins = coins[0]
-        })
+            this.coins = coins[0];
+        });
     }
 
-    buyTime(bought : number){
-        this.socketService.send('time-add',bought)
-        let coinsToRemove = (bought*-2)
-        this.communicationService.addCoinsToUser(this.getUsername(),coinsToRemove).subscribe((isValid : boolean)=>{
-            if(isValid) this.coins += coinsToRemove
-        })
+    buyTime(bought: number) {
+        this.socketService.send('time-add', bought);
+        let coinsToRemove = bought * -2;
+        this.communicationService.addCoinsToUser(this.getUsername(), coinsToRemove).subscribe((isValid: boolean) => {
+            if (isValid) this.coins += coinsToRemove;
+        });
     }
 
     getDate() {
@@ -320,31 +321,30 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             const base64Image = canvas.toDataURL('image/png');
             this.dialogConfig.width = '100%';
             this.dialogConfig.height = '100%';
-            this.dialogConfig.data = {image: base64Image };
+            this.dialogConfig.data = { image: base64Image };
             const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
-            dialogRef.afterClosed().subscribe((comment : string) => {
-                if(comment){
-                    this.communicationService.addScreenshotToUser(this.getUsername(),base64Image,comment).subscribe((isValid : boolean)=>{
-                        if(isValid){
+            dialogRef.afterClosed().subscribe((comment: string) => {
+                if (comment) {
+                    this.communicationService.addScreenshotToUser(this.getUsername(), base64Image, comment).subscribe((isValid: boolean) => {
+                        if (isValid) {
                             this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
                                 duration: 1000,
                                 panelClass: ['snackbar'],
                             });
-                        }else{
+                        } else {
                             this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
                                 duration: 1000,
                                 panelClass: ['snackbar'],
                             });
                         }
-                    })
-                }else{
+                    });
+                } else {
                     this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
                         duration: 1000,
                         panelClass: ['snackbar'],
                     });
                 }
-                
             });
         });
-      }
+    }
 }

@@ -26,9 +26,11 @@ export class ScrabbleCooperativeMode {
     protected cooperativeAction: CooperativeAction;
     protected playersUsernames: Map<string, string>;
     protected playersSockets: string[]; // Liste des sockets des joeurs humains
+    protected observersSockets: string[]; // Liste des sockets des observateurs
 
-    constructor(playersSockets: string[], playerUsernames: Map<string, string>, fileName: string) {
+    constructor(playersSockets: string[], observersSockets: string[], playerUsernames: Map<string, string>, fileName: string) {
         this.playersSockets = playersSockets;
+        this.observersSockets = observersSockets;
         this.playersUsernames = playerUsernames;
         this.board = new Board();
         this.passStreak = 0;
@@ -101,16 +103,28 @@ export class ScrabbleCooperativeMode {
     get boardLetters(): Letter[] {
         return this.board.allPlacedLetters;
     }
+    get observers(): string[] {
+        return this.observersSockets;
+    }
     get socketTurn(): string {
         return '';
     }
+    setObserver(isAdd: boolean, observerSocketId: string) {
+        if (isAdd) {
+            this.observersSockets.push(observerSocketId);
+        } else {
+            // On enleve l'observateur qui a quitté la partie
+            const indexObserverSocket = this.observersSockets.indexOf(observerSocketId);
+            if (indexObserverSocket > -1) {
+                this.observersSockets.splice(indexObserverSocket, 1);
+            }
+        }
+    }
     notPlayerSockets(playerSocketId: string): string[] {
         const notSockets: string[] = [];
-        console.log("getting not turn in cooperative mode");
         for (const socketId of this.playersSockets)
             if (socketId !== playerSocketId) {
                 notSockets.push(socketId);
-                console.log("socketId: ", socketId);
             }
         return notSockets;
     }
@@ -143,7 +157,8 @@ export class ScrabbleCooperativeMode {
                 username: this.playersUsernames.get(playerSocket),
                 points: this.getPlayerScore(),
                 isVirtualPlayer: false,
-                tiles: this.getPlayerTilesLeft(),
+                tiles: this.getPlayerRack(),
+                tilesLeft: this.getPlayerTilesLeft(),
                 socket: playerSocket,
             } as GamePlayerInfos;
             playersInfos.push(playerDetails);
