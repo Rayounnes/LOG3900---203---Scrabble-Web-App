@@ -206,10 +206,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.isGameFinished = true;
         });
         this.socketService.on('channel-created', (newChannel: any) => {
-            newChannel['unread'] = false;
+            /* newChannel['unread'] = false;
             newChannel['typing'] = [false, 0];
             this.allUserChannels.push(newChannel);
-            this.changeChannel(newChannel);
+            this.changeChannel(newChannel); */
+            this.getUserChannels();
         });
         this.socketService.on('duplicate-name',()=>{
             this._snackBar.open(
