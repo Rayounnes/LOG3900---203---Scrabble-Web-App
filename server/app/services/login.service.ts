@@ -176,6 +176,29 @@ export class LoginService {
         }
       }
 
+    async addGameCount(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['numberOfGames']){
+            let newNumberOfGames : number = player['numberOfGames'] + 1
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : newNumberOfGames}})
+            return newNumberOfGames;
+        }else{
+            let newNumberOfGames : number =  1
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : newNumberOfGames}});
+            return newNumberOfGames;
+        }
+    }
+
+    async getGameCount(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player){
+            let numberOfGames : number = player['numberOfGames']
+            return numberOfGames
+        }else{
+            return 0
+        }
+    }
+
     async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);

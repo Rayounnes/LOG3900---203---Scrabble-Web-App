@@ -239,6 +239,7 @@ export class SocketManager {
             for (const player of game.joinedPlayers) {
                 playerSockets.push(player.socketId);
                 playersUsernames.set(player.socketId, player.username);
+                this.addGameToPlayer(player.username)
             }
             for (let i = 0; i < game.virtualPlayers; i++) {
                 const botName = `Bot ${i + 1}`;
@@ -625,6 +626,19 @@ export class SocketManager {
         })
     }
 
+    async addGameToPlayer(username : string){
+        let numberOfGames = await this.loginService.addGameCount(username);
+        return numberOfGames
+    }
+
+    getNumberOfGamesHandler(socket : io.Socket){
+        socket.on('get-number-games',async ()=>{
+            let username = this.usernames.get(socket.id) as string;
+            let numberOfGames = await this.loginService.getGameCount(username);
+            this.sio.to(socket.id).emit('get-number-games',numberOfGames)
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -661,6 +675,7 @@ export class SocketManager {
             this.handleTimeBuy(socket);
             this.scoreOrthography(socket);
             this.handleIconChange(socket);
+            this.getNumberOfGamesHandler(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

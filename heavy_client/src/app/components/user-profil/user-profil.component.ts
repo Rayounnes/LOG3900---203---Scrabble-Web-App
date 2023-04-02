@@ -22,6 +22,7 @@ export class UserProfilComponent implements OnInit {
   avatarChoosed : string = "";
   screenshots : string[][] = [] //[[image,commentaire],[image,commentaire]]
   dialogConfig = new MatDialogConfig();
+  numberOfGames : number = 0;
 
   constructor(private communicationService : CommunicationService,
     public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
@@ -36,6 +37,9 @@ export class UserProfilComponent implements OnInit {
         this.getConnexionHistory();
         this.getScreenshots()
     });;
+    this.socketService.on('get-number-games',(games : number)=>{
+      this.numberOfGames = games
+    })
 
   }
 
@@ -129,6 +133,7 @@ export class UserProfilComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.socketService.send('get-number-games')
   }
 
 }
