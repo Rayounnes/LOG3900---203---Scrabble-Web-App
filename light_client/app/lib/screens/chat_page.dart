@@ -8,6 +8,8 @@ import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Message;
 
+import '../constants/widgets.dart';
+
 
 
 class ChatPage extends StatefulWidget {
@@ -45,6 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   String userTyping = "";
   int countUsersTyping = 0;
   List<String> usersTyping = [];
+  String avatar = "";
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -223,6 +226,14 @@ class _ChatPageState extends State<ChatPage> {
     scrollController.jumpTo(scrollController.position.maxScrollExtent + 25);
   }
 
+  Future<String> avatarUser(String username) async {
+  List iconList = []; // declare iconList before using it
+  iconList = await ApiService().getUserIcon(username);
+  return iconList[0].toString().substring(BASE64PREFIX.length);
+
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -249,6 +260,7 @@ class _ChatPageState extends State<ChatPage> {
                     messageContent: messages[index].message,
                     isSender: messages[index].username == username,
                     time: messages[index].time,
+                    avatar: avatarUser(messages[index].username)
                     );
 
                   }
