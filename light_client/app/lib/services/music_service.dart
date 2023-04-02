@@ -8,7 +8,8 @@ import 'package:just_audio/just_audio.dart';
 class MusicService {
   double xPosition = 680;
   double yPosition = 150;
-  int musicID = 0;
+  double volume = 0.7;
+  int musicID = -1;
   bool isPlaying = true;
 
   final audio.AudioPlayer audioPlayer = audio.AudioPlayer();
@@ -23,7 +24,7 @@ class MusicService {
 
   void playMusic(String musicPath, [bool isBackgroundMusic = true]) async {
     await audioPlayer.setAsset(musicPath);
-    await audioPlayer.setVolume(isBackgroundMusic ? 0.7 : 1.0);
+    await audioPlayer.setVolume(isBackgroundMusic ? volume : 1.0);
     isPlaying = true;
     await audioPlayer.play();
   }
@@ -51,6 +52,27 @@ class MusicService {
   void nextMusic() {
     musicID = musicID == MUSIC_PATH.length - 1 ? 0 : musicID + 1;
     playMusic(MUSIC_PATH[musicID], true);
+  }
+
+  void previousMusic() {
+    musicID = musicID == 0 ? MUSIC_PATH.length - 1 : musicID - 1;
+    playMusic(MUSIC_PATH[musicID], true);
+  }
+
+  Future<void> volumeUp() async {
+    if(volume < 1.0){
+      volume += 0.15;
+      await audioPlayer.setVolume(volume);
+      resumeMusic();
+    }
+  }
+
+  void volumeDown() async {
+    if(volume > 0.0){
+      volume -= 0.15;
+      await audioPlayer.setVolume(volume);
+      resumeMusic();
+    }
   }
 
   void automaticPlaylist() {

@@ -1,4 +1,5 @@
 import 'package:app/screens/camera_page.dart';
+import 'package:app/screens/help_page.dart';
 import 'package:app/screens/password_recovering_page.dart';
 import 'package:app/services/music_service.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/signScreen': (context) => SignUp(),
         '/cameraScreen': (context) => CameraPage(),
         '/recoverPassScreen': (context) => RecoverAccountPage(),
+        '/helpScreen': (context) => HelpSection(),
       },
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

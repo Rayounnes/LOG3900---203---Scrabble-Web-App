@@ -42,7 +42,6 @@ const SECURITY_QUESTIONS = [
 ];
 
 // LOADING_SCREEN_TIPS
-
 const TIPS_FR = [
   "Astuces : Passez votre tour en dernier recours,il est toujours mieux de placer une lettre.",
   "Aide : Vous pouvez modifier votre nom d'utilisateur sur la page de profil.",
@@ -75,3 +74,73 @@ const TIPS_FR = [
   "Le saviez-vous : Le Scrabble est considéré comme un sport mental et est joué en compétition à travers le monde.",
   "Astuces : Tentez des agencements de lettres si vous n'avez plus d'idée.",
 ];
+
+// Section Aide
+
+const TOPICS_NAME = [
+  'Mode Classique',
+  'Mode Coopératif',
+  'Mode Orthographe',
+  'Profil Utilisateur',
+  'Outils Bonus',
+];
+
+const CLASSIC_MODE_HELP_IMAGE = [
+  'assets/images/Classic/ClassicMode.png',
+  'assets/images/Classic/Create.png',
+  'assets/images/Classic/PrivateOrPublic.png',
+  'assets/images/Classic/Join.png',
+  'assets/images/Classic/WaitingRoom.png',
+  'assets/images/Classic/Accept.png',
+  'assets/images/Classic/Pass.png',
+  'assets/images/Classic/Exchange.png',
+  'assets/images/Classic/Placement.png',
+  'assets/images/Classic/Validate.png',
+];
+
+const CLASSIC_MODE_HELP_TEXT = ["Le mode classique est un mode de jeu dans lequel 4 adversaires s'affrontent."
+    "\n Il faut au minimum de 2 joueurs humains."
+    "\n Une limite de temps est accordé à chaque tour pour faire un placement.",
+  "Pour créer une partie selon vos préférences, cliquer sur le bouton 'Créer une Partie'",
+  "Vous avez la possibilité de rendre vos parties publiques \nou privées et de choisir le temps de chaque tour.",
+  "Pour rejoindre une partie, cliquer sur le bouton 'Rejoindre une partie'",
+  "Ceci est la salle d'attente avant une partie avec ces informations",
+  "Le créateur d'une partie peut décider de lancer la partie ou de l'annuler",
+  "Ce bouton permet de passer son tour.",
+  "Ce bouton permet de d'échanger les lettres du chevalet.",
+  "Pour faire un placement, il faut placer les lettres dans un sens de lecture\n du haut vers le bas ou de la gauche vers la droite.",
+  "Ce bouton permet de valider le placement des lettres sur le plateau.",
+];
+
+
+const COOP_MODE_HELP_IMAGE = [
+  'assets/images/Coop/CoopMode.png',
+  'assets/images/Coop/Placement.png',
+  'assets/images/Coop/Accept.png',
+];
+
+const TRAINING_MODE_HELP_IMAGE = [
+  'assets/images/Training/Orthographe.png',
+  'assets/images/Training/Choice.png',
+];
+
+const PROFILE_HELP_IMAGE = [
+  'assets/images/Profile/Profil.png',
+  'assets/images/Profile/History.png',
+  'assets/images/Profile/Stats.png',
+  'assets/images/Profile/Edit1.png',
+  'assets/images/Profile/Edit2.png',
+  'assets/images/Profile/Username.png',
+  'assets/images/Profile/Avatar.png'
+];
+
+const BONUS_HELP_IMAGE = [
+  'assets/images/Classic/ClassicMode.png',
+];
+
+const COOP_MODE_HELP_TEXT = [''];
+const TRAINING_MODE_HELP_TEXT = [''];
+const PROFILE_HELP_TEXT = [''];
+const BONUS_HELP_TEXT = [''];
+
+

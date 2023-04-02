@@ -96,7 +96,7 @@ class _GameModesState extends State<GameModes> {
                 ),
                 SizedBox(height: 16.0),
                 GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Mode de jeu classique",
                     route: () {
                       Navigator.push(context,
@@ -107,7 +107,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Mode de jeu coopératif",
                     route: () {
                       Navigator.push(context,
@@ -118,7 +118,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                     GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Mode d'entrainement orthographe",
                     route: () {
                       Navigator.push(context,
@@ -127,7 +127,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Profil",
                     route: () {
                       Navigator.push(context,
@@ -140,9 +140,14 @@ class _GameModesState extends State<GameModes> {
                           decodedBytes: decodedBytes,
                         );
                       }));
+                    }),GameButton(
+                    padding: 25.0,
+                    name: "Aide",
+                    route: () {
+                      Navigator.pushNamed(context,'/helpScreen');
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 25.0,
                     name: "Déconnexion",
                     route: () {
                       showModal(context);
