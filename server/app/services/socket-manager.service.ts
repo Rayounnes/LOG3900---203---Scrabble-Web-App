@@ -631,11 +631,28 @@ export class SocketManager {
         return numberOfGames
     }
 
+    async addGameWinToPlayer(socket : io.Socket){
+        socket.on('game-won',async ()=>{
+            console.log('update des wins')
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.addGameWon(username)
+        })
+    }
+
     getNumberOfGamesHandler(socket : io.Socket){
         socket.on('get-number-games',async ()=>{
             let username = this.usernames.get(socket.id) as string;
             let numberOfGames = await this.loginService.getGameCount(username);
             this.sio.to(socket.id).emit('get-number-games',numberOfGames)
+        })
+    }
+
+    getNumberOfGamesWonHandler(socket : io.Socket){
+        socket.on('get-number-games-won',async ()=>{
+            console.log('get les wins')
+            let username = this.usernames.get(socket.id) as string;
+            let numberOfGames = await this.loginService.getGameWonCount(username);
+            this.sio.to(socket.id).emit('get-number-games-won',numberOfGames)
         })
     }
 
@@ -676,6 +693,8 @@ export class SocketManager {
             this.scoreOrthography(socket);
             this.handleIconChange(socket);
             this.getNumberOfGamesHandler(socket);
+            this.addGameWinToPlayer(socket)
+            this.getNumberOfGamesWonHandler(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

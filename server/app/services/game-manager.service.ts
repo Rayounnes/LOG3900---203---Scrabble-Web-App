@@ -156,12 +156,26 @@ export class GameManager {
         this.sio.to(room).emit('end-game');
         let playersInfo : GamePlayerInfos[] = scrabbleGame.getPlayersInfo()
         const data = { players: playersInfo, turnSocket: scrabbleGame.socketTurn };
+        let maxPoints = -999999999;
+        let winner : string = "";
+        let isWinnerHuman : boolean = false;
         for(let player of playersInfo){
             if(!player.isVirtualPlayer){
                 this.calculateCoinsWin(player)
             }
+            console.log(player.username)
+            console.log(player.points)
+            if(player.points > maxPoints){
+                maxPoints = player.points
+                winner = player.socket as string
+                isWinnerHuman = !player.isVirtualPlayer
+            }
         }
         this.sio.to(room).emit('send-info-to-panel', data);
+        if(isWinnerHuman){
+            console.log('GAGNANT TROUVé')
+            this.sio.to(winner).emit('game-won')
+        }
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {
