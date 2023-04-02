@@ -88,14 +88,7 @@ class _ChatPageState extends State<ChatPage> {
       
       
       setState(() {
-      if(widget.discussion == 'General') {
-
-        response.removeAt(120);
-        response.removeAt(49);
-        response.removeAt(13);
-        response.removeRange(112, 115);
-        response.removeRange(92, 93);
-      
+      if(widget.discussion == 'General') {      
         response.removeAt(0);
 
 
