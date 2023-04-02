@@ -671,6 +671,21 @@ export class SocketManager {
         })
     }
 
+    updateGameTimeAverage(socket : io.Socket){
+        socket.on("game-duration",async (duration : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserTimeAverage(username,duration)
+        })
+    }
+
+    getGameTimeAverage(socket : io.Socket){
+        socket.on("get-game-average",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            let timeAverage = await this.loginService.getUserTimeAverage(username);
+            this.sio.to(socket.id).emit("get-game-average",timeAverage)
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -712,6 +727,8 @@ export class SocketManager {
             this.getNumberOfGamesWonHandler(socket);
             this.updateUserPointsMean(socket);
             this.getUserPointsMean(socket);
+            this.updateGameTimeAverage(socket);
+            this.getGameTimeAverage(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

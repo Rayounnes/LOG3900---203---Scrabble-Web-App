@@ -25,6 +25,7 @@ export class UserProfilComponent implements OnInit {
   numberOfGames : number = 0;
   numberOfGamesWon : number = 0;
   pointsMean : number = 0;
+  timeAverage : string = "";
 
   constructor(private communicationService : CommunicationService,
     public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
@@ -47,6 +48,9 @@ export class UserProfilComponent implements OnInit {
     })
     this.socketService.on("get-points-mean",(points : number) =>{
       this.pointsMean = points
+    })
+    this.socketService.on("get-game-average",(average : string)=>{
+      this.timeAverage = average
     })
 
   }
@@ -144,6 +148,7 @@ export class UserProfilComponent implements OnInit {
     this.socketService.send('get-number-games')
     this.socketService.send('get-number-games-won')
     this.socketService.send("get-points-mean")
+    this.socketService.send("get-game-average")
   }
 
 }

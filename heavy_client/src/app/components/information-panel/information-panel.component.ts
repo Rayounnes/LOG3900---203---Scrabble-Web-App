@@ -204,6 +204,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             clearInterval(this.timer);
             this.addScore();
             this.addGameToHistory();
+            this.socketService.send("game-duration",this.gameDuration)
         });
 
         this.socketService.on('coins-win',(coins : number)=>{
@@ -263,6 +264,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
 
     buyTime(bought : number){
         this.socketService.send('time-add',bought)
+        this.gameDuration += bought
         let coinsToRemove = (bought*-2)
         this.communicationService.addCoinsToUser(this.getUsername(),coinsToRemove).subscribe((isValid : boolean)=>{
             if(isValid) this.coins += coinsToRemove

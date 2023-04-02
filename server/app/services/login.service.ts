@@ -191,10 +191,11 @@ export class LoginService {
 
     async getGameCount(username : string){
         let player = await this.userCollection.findOne({ username: username });
-        if(player){
+        if(player && player['numberOfGames']){
             let numberOfGames : number = player['numberOfGames']
             return numberOfGames
         }else{
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : 0}});
             return 0
         }
     }
@@ -242,6 +243,39 @@ export class LoginService {
         }else{
             await this.userCollection.updateOne({username : username},{$set : {points : 0}});
             return 0
+        }
+    }
+
+    async updateUserTimeAverage(username : string, duration : number){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['timeAverage']){
+            const oldAverage = player['timeAverage'].split(' ')
+            const oldMinutes = parseInt(oldAverage[0], 10);
+            const oldSeconds = parseInt(oldAverage[2], 10);
+            const oldTime = oldMinutes * 60 + oldSeconds;
+
+            let newAverage = (oldTime+duration)/player['numberOfGames']
+            const newMinutes = Math.floor(newAverage / 60);
+            const newSeconds = Math.floor(newAverage % 60);
+            const newTime = `${newMinutes} m ${newSeconds} s`;
+
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : newTime}});
+        }else{
+            const newMinutes = Math.floor(duration / 60);
+            const newSeconds = Math.floor(duration % 60);
+            const newTime = `${newMinutes} m ${newSeconds} s`;
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : newTime}});
+        }
+    }
+
+    async getUserTimeAverage(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['timeAverage']){
+            let timeAverage = player['timeAverage'].split(" ").join("")// De "1 m 30 s" a "1m30s"
+            return timeAverage
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : "0 m 0 s"}});
+            return "0m0s"
         }
     }
 
