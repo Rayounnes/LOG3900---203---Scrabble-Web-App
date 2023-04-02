@@ -64,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void showNotification(String message, String channel) async {
     var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
-    importance: Importance.max, priority: Priority.high, showWhen: false);
+    importance: Importance.max, priority: Priority.high, showWhen: false, color:Color(0xFF2196F3));
 
     var notificationDetails = NotificationDetails(android: androidDetails);
 

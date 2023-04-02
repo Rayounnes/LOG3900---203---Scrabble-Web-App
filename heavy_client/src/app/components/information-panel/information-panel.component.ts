@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild ,Inject} from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild} from '@angular/core';
 import { Dictionary } from '@app/interfaces/dictionary';
 import { Game } from '@app/interfaces/game';
 /* import { GameHistory } from '@app/interfaces/game-historic-info'; */ /* 
@@ -13,10 +13,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 
 
-import { DOCUMENT } from '@angular/common';
-import html2canvas from 'html2canvas';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
+// import { DOCUMENT } from '@angular/common';
+// import html2canvas from 'html2canvas';
+// import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+// import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -54,15 +54,15 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     userphotos = PROFILE;
     coins : number = 0;
     coinsGotFromDB : boolean = false;
-    dialogConfig = new MatDialogConfig();
+    // dialogConfig = new MatDialogConfig();
 
     constructor(
         public socketService: ChatSocketClientService,
         private communicationService: CommunicationService,
         private snackBar: MatSnackBar,
         private route: ActivatedRoute,
-        @Inject(DOCUMENT) private document: Document,
-        private dialog: MatDialog,
+        // @Inject(DOCUMENT) private document: Document,
+        // private dialog: MatDialog,
     ) {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
@@ -316,35 +316,35 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     }
 
     captureScreenshot() {
-        html2canvas(this.document.body).then((canvas) => {
-            const base64Image = canvas.toDataURL('image/png');
-            this.dialogConfig.width = '100%';
-            this.dialogConfig.height = '100%';
-            this.dialogConfig.data = {image: base64Image };
-            const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
-            dialogRef.afterClosed().subscribe((comment : string) => {
-                if(comment){
-                    this.communicationService.addScreenshotToUser(this.getUsername(),base64Image,comment).subscribe((isValid : boolean)=>{
-                        if(isValid){
-                            this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
-                                duration: 1000,
-                                panelClass: ['snackbar'],
-                            });
-                        }else{
-                            this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
-                                duration: 1000,
-                                panelClass: ['snackbar'],
-                            });
-                        }
-                    })
-                }else{
-                    this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
-                        duration: 1000,
-                        panelClass: ['snackbar'],
-                    });
-                }
+        // html2canvas(this.document.body).then((canvas) => {
+        //     const base64Image = canvas.toDataURL('image/png');
+        //     this.dialogConfig.width = '100%';
+        //     this.dialogConfig.height = '100%';
+        //     this.dialogConfig.data = {image: base64Image };
+        //     const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
+        //     dialogRef.afterClosed().subscribe((comment : string) => {
+        //         if(comment){
+        //             this.communicationService.addScreenshotToUser(this.getUsername(),base64Image,comment).subscribe((isValid : boolean)=>{
+        //                 if(isValid){
+        //                     this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
+        //                         duration: 1000,
+        //                         panelClass: ['snackbar'],
+        //                     });
+        //                 }else{
+        //                     this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
+        //                         duration: 1000,
+        //                         panelClass: ['snackbar'],
+        //                     });
+        //                 }
+        //             })
+        //         }else{
+        //             this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
+        //                 duration: 1000,
+        //                 panelClass: ['snackbar'],
+        //             });
+        //         }
                 
-            });
-        });
+        //     });
+        // });
       }
 }
