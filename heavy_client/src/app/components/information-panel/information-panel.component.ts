@@ -215,7 +215,12 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         })
 
         this.socketService.on('time-add',(toAdd : number)=>{
-            this.clock = Math.min(this.game.time,this.clock+toAdd)
+            this.clock = this.clock+toAdd
+            this.gameDuration += toAdd
+            this.snackBar.open(`${toAdd} secondes ont été payées !`, 'Fermer', {
+                duration: 1000,
+                panelClass: ['snackbar'],
+            });
         })
     }
 
@@ -264,7 +269,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
 
     buyTime(bought : number){
         this.socketService.send('time-add',bought)
-        this.gameDuration += bought
         let coinsToRemove = (bought*-2)
         this.communicationService.addCoinsToUser(this.getUsername(),coinsToRemove).subscribe((isValid : boolean)=>{
             if(isValid) this.coins += coinsToRemove
