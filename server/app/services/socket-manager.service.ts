@@ -656,6 +656,21 @@ export class SocketManager {
         })
     }
 
+    updateUserPointsMean(socket : io.Socket){
+        socket.on("update-points-mean",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserPointsMean(username,points);
+        })
+    }
+
+    getUserPointsMean(socket : io.Socket){
+        socket.on("get-points-mean",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            let userPoints = await this.loginService.getUserPointsMean(username);
+            this.sio.to(socket.id).emit("get-points-mean",userPoints)
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -695,6 +710,8 @@ export class SocketManager {
             this.getNumberOfGamesHandler(socket);
             this.addGameWinToPlayer(socket)
             this.getNumberOfGamesWonHandler(socket);
+            this.updateUserPointsMean(socket);
+            this.getUserPointsMean(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

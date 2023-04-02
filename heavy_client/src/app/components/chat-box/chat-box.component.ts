@@ -259,6 +259,9 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             console.log('partie gagnée')
             this.socketService.send('game-won')
         })
+        this.socketService.on("update-points-mean",(points : number)=>{
+            this.socketService.send("update-points-mean",points)
+        })
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);

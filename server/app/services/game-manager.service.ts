@@ -162,9 +162,8 @@ export class GameManager {
         for(let player of playersInfo){
             if(!player.isVirtualPlayer){
                 this.calculateCoinsWin(player)
+                this.addScoreToUser(player.socket as string,player.points)
             }
-            console.log(player.username)
-            console.log(player.points)
             if(player.points > maxPoints){
                 maxPoints = player.points
                 winner = player.socket as string
@@ -172,7 +171,7 @@ export class GameManager {
             }
         }
         this.sio.to(room).emit('send-info-to-panel', data);
-        if(isWinnerHuman){
+        if(isWinnerHuman && scrabbleGame.isClassicMode){
             console.log('GAGNANT TROUVé')
             this.sio.to(winner).emit('game-won')
         }
@@ -221,5 +220,9 @@ export class GameManager {
         let coinsWon : number = Math.max(5,player.points/10)
         if(player.socket)
         this.sio.to(player.socket).emit('coins-win',coinsWon)
+    }
+    
+    addScoreToUser(socketId : string, points : number){
+        this.sio.to(socketId).emit("update-points-mean",points)
     }
 }

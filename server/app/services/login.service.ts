@@ -224,6 +224,27 @@ export class LoginService {
         }
     }
 
+    async updateUserPointsMean(username : string, points : number){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['points']){
+            let old = player['points'];
+            let newMean = (old+points)/player['numberOfGames']
+            await this.userCollection.updateOne({username : username},{$set : {points : newMean}});
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {points : points}});
+        }
+    }
+
+    async getUserPointsMean(username : string) : Promise<number>{
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['points']){
+            return player['points'];
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {points : 0}});
+            return 0
+        }
+    }
+
     async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);

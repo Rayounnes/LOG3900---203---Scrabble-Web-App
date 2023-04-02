@@ -24,6 +24,7 @@ export class UserProfilComponent implements OnInit {
   dialogConfig = new MatDialogConfig();
   numberOfGames : number = 0;
   numberOfGamesWon : number = 0;
+  pointsMean : number = 0;
 
   constructor(private communicationService : CommunicationService,
     public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
@@ -42,8 +43,10 @@ export class UserProfilComponent implements OnInit {
       this.numberOfGames = games
     })
     this.socketService.on('get-number-games-won',(games : number) =>{
-      console.log('on a les wins')
       this.numberOfGamesWon = games
+    })
+    this.socketService.on("get-points-mean",(points : number) =>{
+      this.pointsMean = points
     })
 
   }
@@ -140,6 +143,7 @@ export class UserProfilComponent implements OnInit {
   ngOnInit(): void {
     this.socketService.send('get-number-games')
     this.socketService.send('get-number-games-won')
+    this.socketService.send("get-points-mean")
   }
 
 }
