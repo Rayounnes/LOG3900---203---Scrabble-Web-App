@@ -215,22 +215,18 @@ export class SocketManager {
         });
     }
 
-    observerQuitHandler(socket : io.Socket){
-        socket.on('observer-left',() =>{
-            let usersRoom = this.usersRoom.get(socket.id) as string;
-            let gameRoom = this.gameRooms.get(usersRoom) as Game;
-            if(gameRoom.isClassicMode){
-                let scrabbleGame = this.scrabbleGames.get(gameRoom.room) as ScrabbleClassicMode;
-                scrabbleGame.setObserver(false,socket.id);
-                this.leaveChannel(socket,usersRoom)
-            }else{
-                let scrabbleGame = this.scrabbleCooperativeGames.get(gameRoom.room) as ScrabbleCooperativeMode;
-                scrabbleGame.setObserver(false,socket.id);
-                this.leaveChannel(socket,usersRoom)
-            }
-        })
+    observerQuitHandler(socket: io.Socket) {
+        socket.on('observer-left', () => {
+            const gameRoom = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(gameRoom) as Game;
+            game.joinedObservers = game.joinedObservers.filter((user) => user.socketId !== socket.id);
+            const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
+            scrabbleGame.setObserver(false, socket.id);
+            this.leaveChannel(socket, gameRoom);
+            this.gameManager.leaveRoom(socket.id);
+            this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
+        });
     }
-
 
     startClassicGame(room: string, game: Game) {
         const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
@@ -698,7 +694,7 @@ export class SocketManager {
             this.getChoicePannelInfo(socket);
             this.handleTimeBuy(socket);
             this.scoreOrthography(socket);
-            this.observerQuitHandler(socket)
+            this.observerQuitHandler(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
