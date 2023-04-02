@@ -10,7 +10,7 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
 import { PROFILE } from 'src/constants/profile-picture-constants';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { DOCUMENT } from '@angular/common';
 import html2canvas from 'html2canvas';
@@ -63,6 +63,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         @Inject(DOCUMENT) private document: Document,
         private dialog: MatDialog,
+        public router: Router
     ) {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
@@ -346,5 +347,10 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 }
             });
         });
+    }
+
+    observerLeave(){
+        this.socketService.send('observer-left')
+        this.router.navigate(['/']);
     }
 }

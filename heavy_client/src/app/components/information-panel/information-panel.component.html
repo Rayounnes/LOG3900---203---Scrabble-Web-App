@@ -20,7 +20,7 @@
             <img  [src]="player['icon']" width="80px" height="80px"/>
             <div class="infos">
                 <span>{{player['username']}}</span>
-                <div class="tiles">
+                <div class="tiles" *ngIf="!isObserver">
                     <div class="number">
                         {{player['tilesLeft']}}
                     </div>
@@ -31,6 +31,11 @@
                         {{coins}}
                     </div>
                     <span>Pièces</span>
+                </div>
+                <div class="tiles" *ngIf="isObserver">
+                    <div class="number" *ngFor="let tile of player.tiles">
+                        {{tile}}
+                    </div>
                 </div>
             </div>
             <div class="score">
@@ -68,7 +73,8 @@
     </div>
 
     <div class="options">
-        <app-surrender-game></app-surrender-game>
+        <app-surrender-game *ngIf="!isObserver"></app-surrender-game>
+        <button mat-raised-button *ngIf="isObserver" class="quit-observer" color="warn" (click)="observerLeave()">Quitter</button> 
         <button mat-raised-button class="screenshot" (click)="captureScreenshot()">Capture d'écran</button>
     </div>
     

@@ -89,7 +89,7 @@ export class SocketManager {
             game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
             this.createGame(game, socket.id);
             // TODO remettre createChannel
-            // await this.createChannel(socket, game.room, true);
+            await this.createChannel(socket, game.room, true);
             socket.join(game.room);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
             this.sio.to(game.room).emit('create-game', game);
@@ -214,6 +214,24 @@ export class SocketManager {
             this.sio.to(socket.id).emit('sendUsername', myUsername);
         });
     }
+
+    observerQuitHandler(socket : io.Socket){
+        socket.on('observer-left',() =>{
+            let usersRoom = this.usersRoom.get(socket.id) as string;
+            let gameRoom = this.gameRooms.get(usersRoom) as Game;
+            if(gameRoom.isClassicMode){
+                let scrabbleGame = this.scrabbleGames.get(gameRoom.room) as ScrabbleClassicMode;
+                scrabbleGame.setObserver(false,socket.id);
+                this.leaveChannel(socket,usersRoom)
+            }else{
+                let scrabbleGame = this.scrabbleCooperativeGames.get(gameRoom.room) as ScrabbleCooperativeMode;
+                scrabbleGame.setObserver(false,socket.id);
+                this.leaveChannel(socket,usersRoom)
+            }
+        })
+    }
+
+
     startClassicGame(room: string, game: Game) {
         const scrabbleGame = this.scrabbleGames.get(room) as ScrabbleClassicMode;
         const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
@@ -680,6 +698,7 @@ export class SocketManager {
             this.getChoicePannelInfo(socket);
             this.handleTimeBuy(socket);
             this.scoreOrthography(socket);
+            this.observerQuitHandler(socket)
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

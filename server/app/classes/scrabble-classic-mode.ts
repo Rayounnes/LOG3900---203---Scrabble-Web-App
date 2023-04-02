@@ -182,6 +182,7 @@ export class ScrabbleClassicMode {
             const indexObserverSocket = this.observersSockets.indexOf(observerSocketId);
             if (indexObserverSocket > -1) {
                 this.observersSockets.splice(indexObserverSocket, 1);
+                console.log("OBSERVEUR SUPPRIMé")
             }
         }
     }
