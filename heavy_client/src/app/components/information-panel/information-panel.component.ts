@@ -351,6 +351,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
 
     observerLeave(){
         this.socketService.send('observer-left')
-        this.router.navigate(['/']);
+        this.router.navigate(['/home']);
     }
 }
