@@ -250,6 +250,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 setTimeout(() => this.automaticScroll(), 1);
             }
         });
+        this.socketService.on('icon-change',(infos : any)=>{
+            this.usersIcons.set(infos.username, infos.icon)
+            console.log(infos)
+        })
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);

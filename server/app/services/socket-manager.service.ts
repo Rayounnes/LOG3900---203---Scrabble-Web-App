@@ -619,6 +619,12 @@ export class SocketManager {
         });
     }
 
+    handleIconChange(socket : io.Socket){
+        socket.on('icon-change',(infos : any)=>{
+            this.sio.emit('icon-change',infos)
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -654,6 +660,7 @@ export class SocketManager {
             this.getChoicePannelInfo(socket);
             this.handleTimeBuy(socket);
             this.scoreOrthography(socket);
+            this.handleIconChange(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

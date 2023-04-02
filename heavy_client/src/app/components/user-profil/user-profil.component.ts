@@ -90,6 +90,7 @@ export class UserProfilComponent implements OnInit {
         if(this.currentIcon !== avatar){
           this.currentIcon = avatar;
           this.communicationService.changeIcon(this.username,this.currentIcon).subscribe((isValid : boolean)=>{
+            this.socketService.send('icon-change',{username : this.username, icon : this.currentIcon})
             return isValid;
           })  
         }
