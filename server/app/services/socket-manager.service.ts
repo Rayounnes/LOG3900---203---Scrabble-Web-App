@@ -87,7 +87,7 @@ export class SocketManager {
             game.joinedObservers = typeof game.joinedObservers === 'string' ? JSON.parse(game.joinedObservers) : game.joinedObservers;
             this.createGame(game, socket.id);
             // TODO remettre createChannel
-            // await this.createChannel(socket, game.room, true);
+            await this.createChannel(socket, game.room, true);
             socket.join(game.room);
             game.joinedPlayers.push({ username: game.hostUsername, socketId: socket.id });
             this.sio.to(game.room).emit('create-game', game);
@@ -114,7 +114,7 @@ export class SocketManager {
             }
             this.gameRooms.delete(gameCanceled.room);
             this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
-            await this.deleteChannel(gameCanceled.room);
+            //await this.deleteChannel(gameCanceled.room);
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {

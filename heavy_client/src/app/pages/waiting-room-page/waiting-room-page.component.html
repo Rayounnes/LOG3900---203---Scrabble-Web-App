@@ -1,4 +1,4 @@
-<div class="homeDiv">
+<!-- <div class="homeDiv">
     <div class="modesContainer">
         <h1 mat-dialog-title>Salle d'attente de {{game.hostUsername}} </h1>
         <div class="game-lobby-container">
@@ -36,4 +36,41 @@
             <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button>
         </div>
     </div>
+</div> -->
+<div class="homeDiv">
+    <div class="main">
+        <h1 mat-dialog-title>Salle d'attente de {{game.hostUsername}} </h1>
+        <h2 class="joined-users">Joueurs ({{game.joinedPlayers.length+4-game.humanPlayers}}/4)</h2>
+        <div class="players">
+            <div class="gameplayer" *ngFor="let user of game.joinedPlayers">
+                <img [src]="usersIcons.get(user.username)" width="25%" height="70%">
+                <span mat-line>{{user.username}}</span>
+            </div>
+
+            <div class="waiting-player" *ngFor="let item of arrayForngForPlayers">
+                <div class="loading-spinner">
+                    <mat-spinner diameter="64"></mat-spinner>
+                </div>
+            </div>
+
+            <div class="gameplayer" *ngFor="let item of arrayForngForBot">
+                <img [src]="botIcon" width="25%" height="70%">
+                <span mat-line>Bot</span>
+            </div>
+            <div class="options">
+                <button mat-button (click)="cancelMatch()" *ngIf="isHost" class="cancel-button">Annuler Partie</button>
+                <button mat-raised-button (click)="cancelWaiting()" *ngIf="!isHost" class="cancel-button">Quitter</button>
+                <button mat-raised-button  *ngIf="isHost" (click)="startGame()" [disabled]="game.humanPlayers !== game.joinedPlayers.length" class="validate-button">Lancer Partie</button>
+            </div>
+        </div>
+        <h2 class="joined-observers">Observateurs</h2>
+        <div class="observers">
+            <div class="observer" *ngFor="let observer of game.joinedObservers">
+                <img [src]="usersIcons.get(observer.username)" width="45%" height="70%">
+                <span mat-line>{{observer.username}}</span>
+            </div>
+        </div>
+    </div>
+    
 </div>
+
