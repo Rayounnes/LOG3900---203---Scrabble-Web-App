@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/constants/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +13,7 @@ class _LoadingTipsState extends State<LoadingTips> {
   Color color = Color.fromARGB(145, 124, 234, 255);
   int index = 0;
   List<String> tips = List.from(TIPS_FR);
+  late Timer _timer;
 
   @override
   void initState() {
@@ -18,12 +21,19 @@ class _LoadingTipsState extends State<LoadingTips> {
     changeTip();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    // pour detruire l objet qd on passe a la prochaine page
+    _timer.cancel();
+  }
+
   void changeTip() {
     setState(() {
       tip = tips[index];
       index = (index + 1) % tips.length;
     });
-    Future.delayed(Duration(seconds: 5), () => changeTip());
+    _timer = Timer(Duration(seconds: 5), () => changeTip());
   }
 
   void updateTipColor() {

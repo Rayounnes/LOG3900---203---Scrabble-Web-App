@@ -2,32 +2,20 @@ import '../models/tile.dart';
 import '../models/letter.dart';
 import '../models/Words_Args.dart';
 
-import 'dart:collection';
-import 'package:injectable/injectable.dart';
-
 const BOARD_SIZE = 15;
 
-@injectable
 class Board {
-  static final wordStarted = false;
-  static final endBoard = BOARD_SIZE;
-  static final boardMatrix = [];
-  static final Board _instance = Board._internal();
+  bool wordStarted = false;
+  final endBoard = BOARD_SIZE;
+  var boardMatrix = [];
 
-  factory Board() {
+  Board() {
     for (var i = 0; i < endBoard; i++) {
       boardMatrix.add([]);
       for (var j = 0; j < endBoard; j++) {
         boardMatrix[i].add(Tile(letter: '', isFilled: false));
       }
     }
-    return _instance;
-  }
-
-  Board._internal();
-
-  constructor() {
-    intializeBoard();
   }
 
   intializeBoard() {

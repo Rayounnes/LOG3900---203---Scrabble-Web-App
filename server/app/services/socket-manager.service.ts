@@ -518,7 +518,7 @@ export class SocketManager {
                 channel: this.usersRoom.get(socket.id) as string,
             });
             this.gameManager.leaveRoom(socket.id);
-            socket.disconnect();
+            // socket.disconnect();
         });
     }
 

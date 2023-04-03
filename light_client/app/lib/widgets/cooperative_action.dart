@@ -116,7 +116,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
 
   @override
   void dispose() {
-    print("dispose called");
+    print("dispose cooperative called");
     getIt<SocketService>().userSocket.off('update-vote-action');
     getIt<SocketService>().userSocket.off('accept-action');
     getIt<SocketService>().userSocket.off('reject-action');

@@ -41,7 +41,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
   @override
   void dispose() {
-    print("dispose called");
+    print("dispose waiting room called");
     getIt<SocketService>().userSocket.off('create-game');
     getIt<SocketService>().userSocket.off('waiting-room-player');
     getIt<SocketService>().userSocket.off('waiting-player-status');
@@ -49,7 +49,6 @@ class _WaitingRoomState extends State<WaitingRoom> {
     getIt<SocketService>().userSocket.off('joined-user-left');
     getIt<SocketService>().userSocket.off('joined-observer-left');
     getIt<SocketService>().userSocket.off('join-game');
-    print("disposing cancel-match");
     getIt<SocketService>().userSocket.off('cancel-match');
     super.dispose();
   }
@@ -99,7 +98,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
       );
     });
     getIt<SocketService>().on('join-game', (observer) {
-      print("---------received join-game-----------");
+      Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return GamePage(
           isClassicMode: isClassic,

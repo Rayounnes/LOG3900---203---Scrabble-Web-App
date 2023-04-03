@@ -276,6 +276,16 @@ class _TimerPageState extends State<TimerPage> {
 
   @override
   void dispose() {
+    print("dispose info pannel called");
+    getIt<SocketService>().userSocket.off('user-turn');
+    getIt<SocketService>().userSocket.off('send-info-to-panel');
+    getIt<SocketService>().userSocket.off('freeze-timer');
+    getIt<SocketService>().userSocket.off('send-game-timer');
+    getIt<SocketService>().userSocket.off('update-reserve');
+    getIt<SocketService>().userSocket.off('abandon-game');
+    getIt<SocketService>().userSocket.off('end-game');
+    getIt<SocketService>().userSocket.off('coins-win');
+    getIt<SocketService>().userSocket.off('time-add');
     _timer.cancel();
     super.dispose();
   }

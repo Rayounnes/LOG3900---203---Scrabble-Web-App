@@ -67,6 +67,22 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
+  @override
+  void dispose() {
+    print("dispose game page called");
+    getIt<SocketService>().userSocket.off('end-game');
+    getIt<SocketService>().userSocket.off('draw-letters-opponent');
+    getIt<SocketService>().userSocket.off('draw-letters-rack');
+    getIt<SocketService>().userSocket.off('verify-place-message');
+    getIt<SocketService>().userSocket.off('validate-created-words');
+    getIt<SocketService>().userSocket.off('exchange-command');
+    getIt<SocketService>().userSocket.off('user-turn');
+    getIt<SocketService>().userSocket.off('vote-action');
+    getIt<SocketService>().userSocket.off('cooperative-invalid-action');
+    getIt<SocketService>().userSocket.off('player-action');
+    super.dispose();
+  }
+
   void leaveGame() {
     getIt<SocketService>().send('quit-game');
     Navigator.pop(context);
@@ -96,7 +112,8 @@ class _GamePageState extends State<GamePage> {
                 onPressed: () {
                   print("abandonning game");
                   getIt<SocketService>().send('abandon-game');
-                  Navigator.pop(context);
+                  Navigator.pop(context); // pop le dialog
+                  Navigator.pop(context); // pop le game page
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return GameModes();
                   }));
