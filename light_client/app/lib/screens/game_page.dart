@@ -24,10 +24,13 @@ import '../models/board_paint.dart';
 // found in the LICENSE file.
 
 class GamePage extends StatefulWidget {
-  final bool isClassicMode;
+  final bool isClassicMode, isObserver;
   final Function joinGameSocket;
   const GamePage(
-      {super.key, required this.isClassicMode, required this.joinGameSocket});
+      {super.key,
+      required this.isClassicMode,
+      required this.isObserver,
+      required this.joinGameSocket});
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -56,14 +59,24 @@ class _GamePageState extends State<GamePage> {
     super.initState();
     handleSockets();
     widget.joinGameSocket();
-    getRack();
-    setTileOnRack();
-    selectedLetter = '';
-    if (!widget.isClassicMode) isPlayerTurn = true;
+    if (!widget.isObserver) {
+      getRack();
+      setTileOnRack();
+      selectedLetter = '';
+      if (!widget.isClassicMode) isPlayerTurn = true;
+    }
   }
 
   void leaveGame() {
     getIt<SocketService>().send('quit-game');
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return GameModes();
+    }));
+  }
+
+  void leaveObservation() {
+    getIt<SocketService>().send('observer-left');
     Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return GameModes();
@@ -225,10 +238,14 @@ class _GamePageState extends State<GamePage> {
     tileLetter.remove(index);
   }
 
-  void updateRackID(bool isForExchange, List<int> tileIDList) {
+  // numLetters car qd ya un observateur, on redessine tout le board les lettres sont > que RACK_SIZE
+  void updateRackID(bool isForExchange, List<int> tileIDList, int numLetters) {
     setState(() {
+      int addToTileId = numLetters > RACK_SIZE
+          ? RACK_SIZE * (numLetters / RACK_SIZE).ceil()
+          : RACK_SIZE;
       for (int i = 0; i < tileIDList.length; i++) {
-        tileIDList[i] += RACK_SIZE;
+        tileIDList[i] += addToTileId;
       }
       if (!isForExchange) getIt<SocketService>().send('update-reserve');
     });
@@ -266,10 +283,10 @@ class _GamePageState extends State<GamePage> {
               getIt<TilePlacement>().getOpponentPosition(line, column);
           index += 1;
         }
-        updateRackID(true, opponentTileID);
+        updateRackID(true, opponentTileID, letters.length);
       });
       board.isFilledForEachLetter(board.createOpponentLetters(letters));
-      if (!widget.isClassicMode)
+      if (!widget.isClassicMode && !widget.isObserver)
         getIt<SocketService>().send('draw-letters-rack');
     });
 
@@ -390,7 +407,7 @@ class _GamePageState extends State<GamePage> {
 
   void switchRack(bool isForExchange) {
     lockTileOnBoard(isForExchange);
-    updateRackID(isForExchange, rackIDList);
+    updateRackID(isForExchange, rackIDList, RACK_SIZE);
     getRack();
     setTileOnRack();
     fillRack();
@@ -490,7 +507,11 @@ class _GamePageState extends State<GamePage> {
               FloatingActionButton(
                 heroTag: "btn1",
                 onPressed: () {
-                  isEndGame ? leaveGame() : openAbandonDialog(context);
+                  if (widget.isObserver) {
+                    leaveObservation();
+                  } else {
+                    isEndGame ? leaveGame() : openAbandonDialog(context);
+                  }
                   musicService.playMusic(LOSE_GAME_SOUND, false);
                 },
                 backgroundColor: Color.fromARGB(255, 255, 110, 74),
@@ -508,6 +529,7 @@ class _GamePageState extends State<GamePage> {
                 top: 10,
                 child: TimerPage(
                   isClassicMode: widget.isClassicMode,
+                  isObserver: widget.isObserver,
                 )),
             Positioned(
               left: LEFT_BOARD_POSITION,
@@ -518,97 +540,99 @@ class _GamePageState extends State<GamePage> {
                 color: Color.fromRGBO(243, 174, 72, 1),
                 child: Center(
                   child: CustomPaint(
-                    painter: BoardPaint(),
+                    painter: BoardPaint(widget.isObserver),
                     size: Size(750, 750),
                   ),
                 ),
               ),
             ),
             ...fillRack(),
-            Positioned(
-              left: LEFT_BOARD_POSITION,
-              top: RACK_START_AXISY,
-              child: FloatingActionButton(
-                heroTag: "passTurn",
-                onPressed: !isPlayerTurn || commandSent
-                    ? null
-                    : () {
-                        passTurn();
-                      },
-                backgroundColor: !isPlayerTurn || commandSent
-                    ? Colors.grey
-                    : Color.fromARGB(255, 253, 174, 101),
-                child: Icon(
-                  Icons.double_arrow_rounded,
-                  color: !isPlayerTurn || commandSent
-                      ? Colors.grey[200]
-                      : Color.fromARGB(255, 0, 123, 172),
-                  size: TILE_SIZE,
-                ),
-              ),
-            ),
-            Positioned(
-              right: 45.0 + TILE_ADJUSTMENT,
-              top: RACK_START_AXISY,
-              child: FloatingActionButton(
-                heroTag: "confirmPlacement",
-                onPressed: !isPlayerTurn || commandSent
-                    ? null
-                    : () {
-                        if (lettersofBoard.isNotEmpty) {
-                          print("placingggggg");
-                          setState(() {
-                            validatePlacement();
-                          });
-                        }
-                      },
-                backgroundColor: !isPlayerTurn || commandSent
-                    ? Colors.grey[200]
-                    : Color.fromARGB(255, 159, 201, 165),
-                child: Icon(
-                  Icons.check_box,
-                  color: !isPlayerTurn || commandSent
+            if (!widget.isObserver) ...[
+              Positioned(
+                left: LEFT_BOARD_POSITION,
+                top: RACK_START_AXISY,
+                child: FloatingActionButton(
+                  heroTag: "passTurn",
+                  onPressed: !isPlayerTurn || commandSent
+                      ? null
+                      : () {
+                          passTurn();
+                        },
+                  backgroundColor: !isPlayerTurn || commandSent
                       ? Colors.grey
-                      : Color.fromARGB(255, 22, 82, 0),
-                  size: TILE_SIZE,
+                      : Color.fromARGB(255, 253, 174, 101),
+                  child: Icon(
+                    Icons.double_arrow_rounded,
+                    color: !isPlayerTurn || commandSent
+                        ? Colors.grey[200]
+                        : Color.fromARGB(255, 0, 123, 172),
+                    size: TILE_SIZE,
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
-              top: RACK_START_AXISY,
-              child: FloatingActionButton(
-                heroTag: "exchangeLetters",
-                onPressed: !isPlayerTurn || commandSent
-                    ? null
-                    : () {
-                        showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              List<String> exchangeableTile = [];
-                              for (var index in rackIDList) {
-                                exchangeableTile
-                                    .add(tileLetter[index].toString());
-                              }
-                              return TileExchangeMenu(
-                                tileLetters: exchangeableTile,
-                              );
-                            }).then((String? lettersToExchange) {
-                          if (lettersToExchange != "") {
-                            exchangeCommand(lettersToExchange!);
+              Positioned(
+                right: 45.0 + TILE_ADJUSTMENT,
+                top: RACK_START_AXISY,
+                child: FloatingActionButton(
+                  heroTag: "confirmPlacement",
+                  onPressed: !isPlayerTurn || commandSent
+                      ? null
+                      : () {
+                          if (lettersofBoard.isNotEmpty) {
+                            print("placingggggg");
+                            setState(() {
+                              validatePlacement();
+                            });
                           }
-                        });
-                      },
-                backgroundColor: !isPlayerTurn || commandSent
-                    ? Colors.grey
-                    : Color.fromARGB(255, 55, 151, 189),
-                child: Icon(
-                  Icons.compare_arrows,
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  size: TILE_SIZE,
+                        },
+                  backgroundColor: !isPlayerTurn || commandSent
+                      ? Colors.grey[200]
+                      : Color.fromARGB(255, 159, 201, 165),
+                  child: Icon(
+                    Icons.check_box,
+                    color: !isPlayerTurn || commandSent
+                        ? Colors.grey
+                        : Color.fromARGB(255, 22, 82, 0),
+                    size: TILE_SIZE,
+                  ),
                 ),
               ),
-            )
+              Positioned(
+                left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
+                top: RACK_START_AXISY,
+                child: FloatingActionButton(
+                  heroTag: "exchangeLetters",
+                  onPressed: !isPlayerTurn || commandSent
+                      ? null
+                      : () {
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                List<String> exchangeableTile = [];
+                                for (var index in rackIDList) {
+                                  exchangeableTile
+                                      .add(tileLetter[index].toString());
+                                }
+                                return TileExchangeMenu(
+                                  tileLetters: exchangeableTile,
+                                );
+                              }).then((String? lettersToExchange) {
+                            if (lettersToExchange != "") {
+                              exchangeCommand(lettersToExchange!);
+                            }
+                          });
+                        },
+                  backgroundColor: !isPlayerTurn || commandSent
+                      ? Colors.grey
+                      : Color.fromARGB(255, 55, 151, 189),
+                  child: Icon(
+                    Icons.compare_arrows,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    size: TILE_SIZE,
+                  ),
+                ),
+              )
+            ]
           ])),
     );
   }

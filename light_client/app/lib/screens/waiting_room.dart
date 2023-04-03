@@ -98,11 +98,12 @@ class _WaitingRoomState extends State<WaitingRoom> {
             content: Text("${username} a quitté l'observation de la partie.")),
       );
     });
-    getIt<SocketService>().on('join-game', (_) {
+    getIt<SocketService>().on('join-game', (observer) {
       print("---------received join-game-----------");
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return GamePage(
           isClassicMode: isClassic,
+          isObserver: observer,
           joinGameSocket: () {
             getIt<SocketService>().send('start-game-light-client');
           },

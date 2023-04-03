@@ -4,6 +4,10 @@ import '../constants/widgets.dart';
 class BoardPaint extends CustomPainter {
   Color rectColor = Color(0xff000000);
   Size rectSize = Size(50, 50);
+  bool isObserver = false;
+  BoardPaint(bool observer) {
+    isObserver = observer;
+  }
   @override
   void paint(Canvas canvas, Size size) {
     final vLines = (size.width ~/ TILE_SIZE) + 1;
@@ -43,10 +47,12 @@ class BoardPaint extends CustomPainter {
     final path = Path();
 
     // rack
-    for (var i = 4; i < 12; ++i) {
-      final x = TILE_SIZE * i;
-      path.moveTo(x, TILE_SIZE * 16);
-      path.relativeLineTo(0, TILE_SIZE);
+    if (!isObserver) {
+      for (var i = 4; i < 12; ++i) {
+        final x = TILE_SIZE * i;
+        path.moveTo(x, TILE_SIZE * 16);
+        path.relativeLineTo(0, TILE_SIZE);
+      }
     }
 
     // Draw horizontal lines
@@ -56,11 +62,13 @@ class BoardPaint extends CustomPainter {
       path.relativeLineTo(TILE_SIZE * 7, 0);
     }
 
-    // fill rack
-    for (var i = 4; i < 11; i += 1) {
-      final x = TILE_SIZE * i;
-      final y = 16 * TILE_SIZE;
-      canvas.drawRect(Offset(x, y) & rectSize, paintRack);
+    if (!isObserver) {
+      // fill rack
+      for (var i = 4; i < 11; i += 1) {
+        final x = TILE_SIZE * i;
+        final y = 16 * TILE_SIZE;
+        canvas.drawRect(Offset(x, y) & rectSize, paintRack);
+      }
     }
 
     for (var j = 1; j < 15; j += 4) {

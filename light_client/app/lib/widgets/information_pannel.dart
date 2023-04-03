@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:app/models/game_player_infos.dart';
+import 'package:app/widgets/tile.dart';
 import 'package:flutter/material.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/main.dart';
+import '../constants/letters_points.dart';
 import '../services/api_service.dart';
 import '../services/user_infos.dart';
 
@@ -12,8 +14,9 @@ const ONE_SECOND = 1000;
 const RESERVE_START_LENGTH = 102;
 
 class TimerPage extends StatefulWidget {
-  final bool isClassicMode;
-  const TimerPage({super.key, required this.isClassicMode});
+  final bool isClassicMode, isObserver;
+  const TimerPage(
+      {super.key, required this.isClassicMode, required this.isObserver});
 
   @override
   _TimerPageState createState() => _TimerPageState();
@@ -137,7 +140,7 @@ class _TimerPageState extends State<TimerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 1),
+            duration: Duration(seconds: 2),
             content: Text(abandonMessage)),
       );
     });
@@ -147,7 +150,7 @@ class _TimerPageState extends State<TimerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
+            duration: Duration(seconds: 2),
             content: Text('La partie est terminée')),
       );
       clearInterval();
@@ -267,7 +270,7 @@ class _TimerPageState extends State<TimerPage> {
     handleSockets();
     _timer = Timer(Duration(milliseconds: 1), () {});
     getIt<SocketService>().send('update-reserve');
-    if (!coinsGotFromDB)
+    if (!coinsGotFromDB && !widget.isObserver)
       getUserCoins(); // On doit s'assurer que la variable player est remplie avant d'ller get les coins
   }
 
@@ -312,7 +315,7 @@ class _TimerPageState extends State<TimerPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               widget.isClassicMode ? timerWidget(context) : Container(),
-              widget.isClassicMode
+              widget.isClassicMode && !widget.isObserver
                   ? ElevatedButton.icon(
                       onPressed: !isPlayersTurn
                           ? null
@@ -377,9 +380,22 @@ class _TimerPageState extends State<TimerPage> {
                   : Container(),
             ],
           ),
-          subtitle: Row(children: [
-            Text('Tiles left: ${player.tiles}'),
-          ]),
+          subtitle: Row(
+              children: !widget.isObserver
+                  ? [Text('Tiles left: ${player.tilesLeft}')]
+                  : [
+                      for (int i = 0; i < player.tiles.length; i++)
+                        player.tiles[i] != ''
+                            ? TileWidget(
+                                tileSize: 32.0,
+                                letter: player.tiles[i],
+                                points: player.tiles[i].toUpperCase() ==
+                                        player.tiles[i]
+                                    ? "0"
+                                    : LETTERS_POINTS[player.tiles[i]]
+                                        .toString())
+                            : Container(),
+                    ]),
           trailing: Text(player.points.toString()),
         ),
       ),

@@ -6,7 +6,9 @@ import '../constants/widgets.dart';
 class TileWidget extends StatelessWidget {
   final String letter;
   final String points;
-  const TileWidget({required this.letter, required this.points});
+  final double tileSize;
+  const TileWidget(
+      {required this.letter, required this.points, this.tileSize = TILE_SIZE});
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -19,8 +21,8 @@ class TileWidget extends StatelessWidget {
           ),
         ),
         duration: Duration(seconds: 1),
-        height: TILE_SIZE,
-        width: TILE_SIZE,
+        height: tileSize,
+        width: tileSize,
         child: Stack(
           children: [
             Align(
@@ -30,7 +32,7 @@ class TileWidget extends StatelessWidget {
                 child: Text(
                   letter.toUpperCase(),
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: tileSize == TILE_SIZE ? 24 : 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -44,7 +46,7 @@ class TileWidget extends StatelessWidget {
                 child: Text(
                   points,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: tileSize == TILE_SIZE ? 11 : 8,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),

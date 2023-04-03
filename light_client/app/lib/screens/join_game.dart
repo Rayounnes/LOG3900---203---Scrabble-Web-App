@@ -1,6 +1,7 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
 import 'package:app/screens/game_mode_choices.dart';
+import 'package:app/screens/game_page.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/user_infos.dart';
@@ -62,10 +63,18 @@ class _JoinGamesState extends State<JoinGames> {
   }
 
   observeGame(Game gameToJoin) {
-    // changer par le socket pour aller a une partie
-    if (gameToJoin.hasStarted)
-      getIt<SocketService>().send('waiting-room-player', gameToJoin);
-    else {
+    // observer une partie qui a deja commencé
+    if (gameToJoin.hasStarted) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return GamePage(
+          isClassicMode: isClassic,
+          isObserver: true,
+          joinGameSocket: () {
+            getIt<SocketService>().send('join-late-observer', gameToJoin);
+          },
+        );
+      }));
+    } else {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return WaitingRoom(
           modeName: widget.modeName,
