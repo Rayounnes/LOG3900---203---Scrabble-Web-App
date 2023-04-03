@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BestScoresComponent } from '@app/pages/best-scores/best-scores.component';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { UserProfilComponent } from '@app/components/user-profil/user-profil.component';
+//import { TipsComponent } from '@app/components/tips/tips.component';
 
 @Component({
     selector: 'app-main-page',

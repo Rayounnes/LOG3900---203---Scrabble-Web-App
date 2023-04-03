@@ -1,1 +1,5 @@
-<p>tips works!</p>
+<div *ngIf="tips && tips.length > 0" class="carousel-container">
+    <div *ngFor="let tip of tips">
+        {{tip}}
+    </div>
+</div>
