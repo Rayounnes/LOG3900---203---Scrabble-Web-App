@@ -19,6 +19,16 @@ class _LoginDemoState extends State<LoginDemo> {
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
 
+  String selectedLanguage = 'fr';
+
+  int _selectedButton = 1;
+
+  void _onButtonSelected(int? value) {
+    setState(() {
+      _selectedButton = value!;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +41,11 @@ class _LoginDemoState extends State<LoginDemo> {
     usernameController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void setLanguage() {
+    selectedLanguage = _selectedButton == 1 ? "fr" : "en";
+    getIt<SocketService>().send("setLanguage", selectedLanguage);
   }
 
   void connect() async {
@@ -77,6 +92,55 @@ class _LoginDemoState extends State<LoginDemo> {
             key: _formKey,
             child: Column(
               children: <Widget>[
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: () {
+                          _onButtonSelected(1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary:
+                              _selectedButton == 1 ? Colors.green : Colors.grey,
+                        ),
+                        child: Text('Français'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _onButtonSelected(2);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary:
+                              _selectedButton == 2 ? Colors.green : Colors.grey,
+                        ),
+                        child: Text('English'),
+                      ),
+                    ],
+                  ),
+                ),
+                // Align(
+                //   alignment: Alignment.topLeft,
+                //   child: Container(
+                //     child: Column(
+                //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //       children: <Widget>[
+                //         ElevatedButton(
+                //           onPressed: () {
+                //             print("fr");
+                //           },
+                //           child: Text('Français'),
+                //         ),
+                //         ElevatedButton(
+                //           onPressed: () {
+                //             print("en");
+                //           },
+                //           child: Text('Anglais'),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 Padding(
                     padding: const EdgeInsets.only(top: 60.0),
                     child: Container(
@@ -135,6 +199,7 @@ class _LoginDemoState extends State<LoginDemo> {
                   child: ElevatedButton(
                     onPressed: () {
                       connect();
+                      setLanguage();
                     },
                     child: Text('Connexion'),
                   ),

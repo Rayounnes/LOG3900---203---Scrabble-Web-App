@@ -555,7 +555,6 @@ class _GamePageState extends State<GamePage> {
                     ? null
                     : () {
                         if (lettersofBoard.isNotEmpty) {
-                          print("placingggggg");
                           setState(() {
                             validatePlacement();
                           });
