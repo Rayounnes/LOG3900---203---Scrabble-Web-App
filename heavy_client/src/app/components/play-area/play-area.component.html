@@ -36,7 +36,7 @@
 
 
     <div>
-        <app-chevalet *ngIf="!isObserver" class="chevalet" (resetDragEvent)="setDragFree($event)" (removeTileEvent)="returnRackTile($event)" (sendTileEvent)="receiveDroppedTile($event)" (removeAll)="changeSizeWindow()" [dragUsed]="dragOrType" [boardUser]="gridService.board" [canvasBoard]="canvasElement" [isBoardClicked]="boardClicked"></app-chevalet>
+        <app-chevalet class="chevalet" (resetDragEvent)="setDragFree($event)" (removeTileEvent)="returnRackTile($event)" (sendTileEvent)="receiveDroppedTile($event)" (removeAll)="changeSizeWindow()" [dragUsed]="dragOrType" [boardUser]="gridService.board" [canvasBoard]="canvasElement" [isBoardClicked]="boardClicked"></app-chevalet>
     </div>
 </div>
 

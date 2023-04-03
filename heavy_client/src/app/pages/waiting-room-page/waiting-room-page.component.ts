@@ -123,6 +123,7 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
     openAcceptDialog(userInfos: PlayerInfos): void {
         const dialogRef = this.dialog.open(AcceptPlayerGameComponent, {
             width: 'auto',
+            disableClose: true,
             data: { username: userInfos.username },
         });
 

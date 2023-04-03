@@ -73,6 +73,7 @@ class _GalleryPageState extends State<GalleryPage> {
                   Padding(
                     padding: const EdgeInsets.only(right: 50.0),
                     child: FloatingActionButton(
+                        heroTag: "btn1",
                         onPressed: () {
                           setState(() {
                             imageFile = null;
@@ -82,13 +83,16 @@ class _GalleryPageState extends State<GalleryPage> {
                         child: Icon(Icons.close)),
                   ),
                 FloatingActionButton(
-                    onPressed: pickImage, child: Icon(Icons.image_search)),
+                    heroTag: "btn2",
+                    onPressed: pickImage,
+                    child: Icon(Icons.image_search)),
                 if (imageFile != null || index > -1)
                   Padding(
                     padding: const EdgeInsets.only(left: 50.0),
                     child: FloatingActionButton(
+                      heroTag: "btn3",
                       onPressed: () {
-                        if(index >= 0){
+                        if (index >= 0) {
                           imageFile = File("$index");
                         }
                         Navigator.pop(context, imageFile);

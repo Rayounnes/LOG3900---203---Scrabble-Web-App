@@ -10,7 +10,8 @@ const ONE_SECOND = 1000;
 
 class CooperativeActionWidget extends StatefulWidget {
   final CooperativeAction actionParam;
-  const CooperativeActionWidget({super.key, required this.actionParam});
+  final bool isObserver;
+  const CooperativeActionWidget({super.key, required this.actionParam, required this.isObserver});
 
   @override
   _CooperativeActionWidgetState createState() =>
@@ -39,7 +40,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
           _start -= 1;
           if (_start == 0) {
             timer.cancel();
-            if (!choiceMade) sendVote(false);
+            if (!choiceMade && !widget.isObserver) sendVote(false);
           }
         },
       ),
@@ -192,7 +193,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
             ],
           ),
         ),
-        !choiceMade
+        !choiceMade && !widget.isObserver
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

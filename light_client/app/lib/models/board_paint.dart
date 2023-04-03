@@ -53,16 +53,14 @@ class BoardPaint extends CustomPainter {
         path.moveTo(x, TILE_SIZE * 16);
         path.relativeLineTo(0, TILE_SIZE);
       }
-    }
 
-    // Draw horizontal lines
-    for (var i = 16; i < 18; ++i) {
-      final y = TILE_SIZE * i;
-      path.moveTo(TILE_SIZE * 4, y);
-      path.relativeLineTo(TILE_SIZE * 7, 0);
-    }
+      // Draw horizontal lines
+      for (var i = 16; i < 18; ++i) {
+        final y = TILE_SIZE * i;
+        path.moveTo(TILE_SIZE * 4, y);
+        path.relativeLineTo(TILE_SIZE * 7, 0);
+      }
 
-    if (!isObserver) {
       // fill rack
       for (var i = 4; i < 11; i += 1) {
         final x = TILE_SIZE * i;

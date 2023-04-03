@@ -31,7 +31,7 @@
       </svg>
   </div>
   </div>
-  <div class="choices" *ngIf="!choiceMade">
+  <div class="choices" *ngIf="!choiceMade && !this.data.isObserver">
     <mat-dialog-actions>
       <button mat-raised-button color="#1c8135" (click)="acceptAction()">Accepter</button>
     <button mat-raised-button color="warn" (click)="rejectAction()">Refuser</button>

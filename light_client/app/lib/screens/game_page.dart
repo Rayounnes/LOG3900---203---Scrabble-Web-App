@@ -290,15 +290,15 @@ class _GamePageState extends State<GamePage> {
         getIt<SocketService>().send('draw-letters-rack');
     });
 
-    getIt<SocketService>().on(
-        'draw-letters-rack',
-        (letters) => {
-              setState(() {
-                for (var index in rackIDList) {
-                  tileLetter[index] = letters[index % RACK_SIZE].toString();
-                }
-              })
-            });
+    getIt<SocketService>().on('draw-letters-rack', (letters) {
+      if (!widget.isObserver) {
+        setState(() {
+          for (var index in rackIDList) {
+            tileLetter[index] = letters[index % RACK_SIZE].toString();
+          }
+        });
+      }
+    });
     getIt<SocketService>().on('verify-place-message', (placedWord) {
       if (placedWord["letters"] is String) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -650,7 +650,8 @@ class _GamePageState extends State<GamePage> {
                   child: AlertDialog(
                       shape: RoundedRectangleBorder(
                           side: BorderSide(color: Colors.yellow, width: 5)),
-                      content: CooperativeActionWidget(actionParam: action))),
+                      content: CooperativeActionWidget(
+                          actionParam: action, isObserver: widget.isObserver))),
             ],
           );
         }).then((result) {
@@ -672,10 +673,12 @@ class _GamePageState extends State<GamePage> {
               !result["isAccepted"] ||
           result["action"].socketId != getIt<SocketService>().socketId) {
         setState(() {
-          commandSent = false;
-          setTileOnRack();
-          // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
-          lettersofBoard = [];
+          if (!widget.isObserver) {
+            commandSent = false;
+            setTileOnRack();
+            // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+            lettersofBoard = [];
+          }
         });
       }
       final message =

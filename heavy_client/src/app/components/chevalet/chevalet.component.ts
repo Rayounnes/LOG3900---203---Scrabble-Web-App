@@ -175,17 +175,19 @@ export class ChevaletComponent implements AfterViewInit {
     // }
 
     ngAfterViewInit(): void {
-        this.chevaletService.chevaletContext = this.chevaletCanvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        this.chevaletService.fillChevalet();
-        this.chevaletService.drawChevalet();
-        this.chevaletCanvas.nativeElement.focus();
-        console.log(this.canvasBoard);
-        this.setDragMap();
+        if (!this.isObserver) {
+            this.chevaletService.chevaletContext = this.chevaletCanvas.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+            this.chevaletService.fillChevalet();
+            this.chevaletService.drawChevalet();
+            this.chevaletCanvas.nativeElement.focus();
+            console.log(this.canvasBoard);
+            this.setDragMap();
+        }
         this.connect();
     }
     connect() {
         this.configureBaseSocketFeatures();
-        this.socketService.send('draw-letters-rack');
+        if (!this.isObserver) this.socketService.send('draw-letters-rack');
     }
 
     configureBaseSocketFeatures() {
@@ -251,7 +253,8 @@ export class ChevaletComponent implements AfterViewInit {
         this.dialogConfig.panelClass = 'custom-panel';
         this.dialogConfig.width = '400px';
         this.dialogConfig.height = '600px';
-        this.dialogConfig.data = { vote: voteAction };
+        this.dialogConfig.disableClose = true;
+        this.dialogConfig.data = { vote: voteAction, isObserver: this.isObserver };
         const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action.socketId === this.socketService.socketId && result.isAccepted) {

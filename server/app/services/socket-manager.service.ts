@@ -390,10 +390,17 @@ export class SocketManager {
             this.sio.to(socket.id).emit('remove-arrow-and-letter');
         });
         socket.on('draw-letters-rack', () => {
-            const room = this.usersRoom.get(socket.id) as string;
+            // const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             if (scrabbleGame.isClassicMode) this.sio.to(socket.id).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
-            else this.sio.to(room).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
+            else {
+                // dessiner le chevalet des joueurs
+                for (const playerSocket of scrabbleGame.getPlayersSockets())
+                    this.sio.to(playerSocket).emit('draw-letters-rack', scrabbleGame.getPlayerRack(socket.id));
+            }
+            // update le panneau de chevalet des observateurs
+            const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: '' };
+            for (const observer of scrabbleGame.observers) this.sio.to(observer).emit('send-info-to-panel', data);
         });
         socket.on('remove-letters-rack', (letters) => {
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);

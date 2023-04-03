@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild,ElementRef ,OnDestroy} from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
@@ -14,12 +14,9 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
     action!: CooperativeAction;
     usernameAndAvatars: any = {}; // { socketId : [username,avatar]}
     infoget: boolean = false;
-    choiceMade : boolean = false;
+    choiceMade: boolean = false;
     timer: ReturnType<typeof setInterval>;
-    clock : number = 60;
-
-
-
+    clock: number = 60;
 
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
@@ -27,6 +24,7 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
         public socketService: ChatSocketClientService,
     ) {
         this.action = this.data.vote;
+        console.log(this.data);
         this.getUsernameAndAvatar();
         this.setCreator();
         this.timer = setInterval(() => this.intervalHandler(), 1000);
@@ -34,7 +32,6 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.connect();
-        
     }
 
     connect() {
@@ -96,7 +93,7 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
         this.clock--;
         this.updateProgress(this.clock / 60);
         if (this.clock === 0) {
-            if(!this.choiceMade) this.rejectAction()
+            if (!this.choiceMade && !this.data.isObserver) this.rejectAction();
             clearInterval(this.timer);
         }
     }
@@ -111,8 +108,8 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
         circle.style.strokeDashoffset = `${offset}`;
     }
 
-    setCreator(){
-        if(this.action.socketAndChoice[this.socketService.socketId] == "yes"){
+    setCreator() {
+        if (this.action.socketAndChoice[this.socketService.socketId] == 'yes') {
             this.choiceMade = true;
         }
     }
@@ -141,7 +138,6 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
             this.updateProgress(1);
         }
     }
-
 
     ngOnDestroy(): void {
         clearInterval(this.timer);

@@ -265,7 +265,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.dialogConfig.panelClass = 'custom-panel';
         this.dialogConfig.width = '400px';
         this.dialogConfig.height = '600px';
-        this.dialogConfig.data = { vote: voteAction };
+        this.dialogConfig.disableClose = true;
+        this.dialogConfig.data = { vote: voteAction, isObserver: this.isObserver };
         const dialogRef = this.dialog.open(CooperativeVoteComponent, this.dialogConfig);
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action.action === 'place' && result.action.socketId === this.socketService.socketId)
