@@ -77,7 +77,6 @@ class translateConstants {
     "Créez ou rejoignez une partie": "",
     "Créer une partie": "",
     "Rejoindre une partie": "",
-    "Créer une partie": "",
     "Créez une partie publique ou privée": "",
     "Partie privée": "",
     "Nombres de joueurs humains": "",
@@ -92,24 +91,18 @@ class translateConstants {
     "Veillez choisir un dictionnaire": "",
     "Mot de passe de partie": "",
     "Mot de passe de partie publique (optionnel)": "",
-    "Annuler": "",
     "Créer la partie": "",
 
     //game_page
     "Abandonner la partie": "",
     "Voulez-vous abandonner la partie?": "",
-    "Oui": "",
-    "Non": "",
     "Erreur : les mots crées sont invalides": "",
     "Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant": "",
     'Page de jeu': "",
 
     //home_page
     "Vous avez été déconnecté avec succés":"",
-    "Conversations": "",
-    "Déconnexion": "",
     "Notifications": "",
-    "Etes-vous sur de vous déconnecter ?": "",
 
     //join_game
     "Parties": "",
