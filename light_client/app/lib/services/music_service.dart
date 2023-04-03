@@ -83,9 +83,8 @@ class MusicService {
       if (state.processingState == audio.ProcessingState.completed) {
         print("Music has ended $musicPosition - $musicDuration and time is");
         isPlaying = false;
-        stopMusic();
-        // getPlaylist();
       }
+      if(!isPlaying)nextMusic();
     });
   }
 

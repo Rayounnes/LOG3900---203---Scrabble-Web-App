@@ -53,42 +53,68 @@ class _HelpSectionState extends State<HelpSection> {
         title: Text('Aide'),
       ),
       body: Scrollbar(
-      thickness: 15,
-      thumbVisibility: true,
-        child: ListView.builder(
-          itemCount: TOPICS_NAME.length,
-          itemBuilder: (context, index) {
-            return Flex(
-              direction: Axis.horizontal,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  height: 350,
-                  width: 350,
-                  child: displayHelpTopics(context, topicList[index]!),
-                ),
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(TOPICS_NAME[index]),
-                    ),
-                    FloatingActionButton(
-                      backgroundColor: Color.fromARGB(255, 161, 205, 217),
-                      onPressed: () => {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return SlidingImage(
-                              imagePath: topicList[index]!,imageText: textList[index]!, helpTopic: TOPICS_NAME[index]);
-                        }))
-                      },
-                      child: Icon(Icons.info),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
+        thickness: 15,
+        thumbVisibility: true,
+        child: Container(color: Color.fromARGB(255, 145, 213, 161),
+          child: ListView.builder(
+            itemCount: TOPICS_NAME.length,
+            itemBuilder: (context, index) {
+              return Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: 450,
+                    width: 450,
+                    child: displayHelpTopics(context, topicList[index]!),
+                  ),
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          color: Color.fromARGB(255, 204, 238, 248),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(TOPICS_NAME[index],
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                              return Color.fromARGB(255, 231, 227, 221);
+                            },
+                          ),
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                              return Color.fromARGB(255, 31, 89, 96);
+                            },
+                          ),
+                        ),
+                        onPressed: () => {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SlidingImage(
+                                imagePath: topicList[index]!,
+                                imageText: textList[index]!,
+                                helpTopic: TOPICS_NAME[index]);
+                          }))
+                        },
+                        child: Icon(Icons.info),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -100,10 +126,8 @@ class _HelpSectionState extends State<HelpSection> {
         child: Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            height: 200,
             child: Image.asset(
               imagePath[0],
-              width: MediaQuery.of(context).size.width / 2,
             ),
           ),
         ));

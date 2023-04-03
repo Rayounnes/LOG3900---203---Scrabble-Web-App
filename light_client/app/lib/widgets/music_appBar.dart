@@ -13,16 +13,16 @@ class _MusicAppBarState extends State<MusicAppBar> {
   @override
   void initState() {
     super.initState();
-    if(musicService.isPlaying){musicService.resumeMusic();}
+    musicService.resumeMusic();
   }
 
   @override
   void dispose() {
-    super.dispose();
     musicService.stopMusic();
     if (ModalRoute.of(context)?.settings.name == '/loginScreen') {
       musicService.disposeMusic();
     }
+    super.dispose();
   }
 
   @override

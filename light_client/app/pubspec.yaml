@@ -115,6 +115,8 @@ flutter:
     - assets/images/Profile/Avatar.png
     - assets/images/Training/Orthographe.png
     - assets/images/Training/Choice.png
+    - assets/images/Bonus/Music.png
+    - assets/images/Bonus/Astuces.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
