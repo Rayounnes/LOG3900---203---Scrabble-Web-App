@@ -172,8 +172,18 @@ export class GameManager {
         }
         this.sio.to(room).emit('send-info-to-panel', data);
         if(isWinnerHuman && scrabbleGame.isClassicMode){
-            console.log('GAGNANT TROUVé')
-            this.sio.to(winner).emit('game-won')
+            for(let player of playersInfo){
+                if(player.socket == winner){
+                    this.sio.to(winner).emit('game-won')
+                }else if (player.socket) {
+                    this.sio.to(player.socket).emit('game-loss')
+                }
+            }
+            
+        }else if(scrabbleGame.isClassicMode){
+            for(let player of playersInfo){
+                if(!player.isVirtualPlayer) this.sio.to(player.socket as string).emit('game-loss')
+            }
         }
     }
     // TODO a corriger pour les joeurs virtuels

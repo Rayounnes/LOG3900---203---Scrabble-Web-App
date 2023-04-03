@@ -33,6 +33,14 @@
             <span>Capture d'écrans</span>
         </div>
     </div>
+    <div class="infos" *ngIf="currentCategory == 'Parties'">
+        <div class="data"  *ngFor="let data of gameHistory">
+            <span *ngIf="data[1]" class="connect">Gagnée</span>
+            <span *ngIf="!data[1]" class="disconnect">Perdue</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
     <div class="infos" *ngIf="currentCategory == 'Connexions'">
         <div class="data"  *ngFor="let data of connexionHistory">
 

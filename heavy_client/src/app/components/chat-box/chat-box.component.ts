@@ -258,6 +258,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         this.socketService.on('game-won',() =>{
             console.log('partie gagnée')
             this.socketService.send('game-won')
+            this.socketService.send('game-history-update',true)
+        })
+        this.socketService.on('game-loss',() =>{
+            this.socketService.send('game-history-update',false)
         })
         this.socketService.on("update-points-mean",(points : number)=>{
             this.socketService.send("update-points-mean",points)

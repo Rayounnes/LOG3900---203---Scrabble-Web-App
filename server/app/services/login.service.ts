@@ -51,10 +51,8 @@ export class LoginService {
     async getUserCoins(username : string) : Promise<number[]>{
         let user = await this.userCollection.findOne({username : username})
         if(user && user['coins']){
-            console.log("on peut get")
             return [user['coins']]
         }else{
-            console.log("on peut pas get")
             await this.userCollection.updateOne({username : username},{$set : {coins : 0}})
             return [0]
         }
@@ -63,12 +61,10 @@ export class LoginService {
     async addCoinsToUser(username : string, coinsToAdd : number) : Promise<boolean>{
         let user = await this.userCollection.findOne({username : username})
         if(user){
-            console.log("on peut set")
             let currentCoins = user['coins']
             this.userCollection.updateOne({username : username},{$set : {coins : currentCoins + coinsToAdd}});
             return true;
         }
-        console.log("on peut pas set")
         return false;
         
     }
@@ -176,7 +172,7 @@ export class LoginService {
         }
       }
 
-    async addGameCount(username : string){
+    async updateUserGameCount(username : string){
         let player = await this.userCollection.findOne({ username: username });
         if(player && player['numberOfGames']){
             let newNumberOfGames : number = player['numberOfGames'] + 1
@@ -189,7 +185,7 @@ export class LoginService {
         }
     }
 
-    async getGameCount(username : string){
+    async getUserGameCount(username : string){
         let player = await this.userCollection.findOne({ username: username });
         if(player && player['numberOfGames']){
             let numberOfGames : number = player['numberOfGames']
@@ -200,7 +196,7 @@ export class LoginService {
         }
     }
 
-    async addGameWon(username : string){
+    async updateUserGameWon(username : string){
         let player = await this.userCollection.findOne({ username: username });
         if(player && player['gamesWon']){
             let newNumberOfGames : number = player['gamesWon'] + 1
@@ -213,7 +209,7 @@ export class LoginService {
         }
     }
 
-    async getGameWonCount(username : string){
+    async getUserGameWon(username : string){
         let player = await this.userCollection.findOne({ username: username });
         if(player &&  player['gamesWon']){
             let numberOfGames : number = player['gamesWon']
@@ -229,7 +225,7 @@ export class LoginService {
         let player = await this.userCollection.findOne({ username: username });
         if(player && player['points']){
             let old = player['points'];
-            let newMean = (old+points)/player['numberOfGames']
+            let newMean = Math.floor((old+points)/player['numberOfGames']);
             await this.userCollection.updateOne({username : username},{$set : {points : newMean}});
         }else{
             await this.userCollection.updateOne({username : username},{$set : {points : points}});
@@ -279,6 +275,29 @@ export class LoginService {
         }
     }
 
+    async getUserGameHistory(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['gameHistory']){
+            let gameHistory = player['gameHistory'];
+            return gameHistory
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {gameHistory : []}})
+            return []
+        }
+    }
+
+    async updateUserGameHistory(username : string, gameWin : boolean){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player && player['gameHistory']){
+            let gameHistory = player['gameHistory'];
+            gameHistory.push([new Date().toLocaleString(),gameWin])
+            await this.userCollection.updateOne({username : username},{$set : { gameHistory : gameHistory}})
+        }else{
+            let gameHistory = [new Date().toLocaleString(),gameWin]
+            await this.userCollection.updateOne({username : username},{$set : { gameHistory : [gameHistory]}})
+        }
+    }
+
     async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);
@@ -287,7 +306,6 @@ export class LoginService {
 
         let usernameExists = await this.userCollection.findOne({ username: newUsername });
         if(usernameExists){
-            console.log("fauxxxx")
             return false;
         }else{
             //Update le nom du username dans la collection Users

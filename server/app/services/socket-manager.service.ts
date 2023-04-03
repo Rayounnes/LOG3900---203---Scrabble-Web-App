@@ -627,7 +627,7 @@ export class SocketManager {
     }
 
     async addGameToPlayer(username : string){
-        let numberOfGames = await this.loginService.addGameCount(username);
+        let numberOfGames = await this.loginService.updateUserGameCount(username);
         return numberOfGames
     }
 
@@ -635,14 +635,14 @@ export class SocketManager {
         socket.on('game-won',async ()=>{
             console.log('update des wins')
             let username = this.usernames.get(socket.id) as string;
-            await this.loginService.addGameWon(username)
+            await this.loginService.updateUserGameWon(username)
         })
     }
 
     getNumberOfGamesHandler(socket : io.Socket){
         socket.on('get-number-games',async ()=>{
             let username = this.usernames.get(socket.id) as string;
-            let numberOfGames = await this.loginService.getGameCount(username);
+            let numberOfGames = await this.loginService.getUserGameCount(username);
             this.sio.to(socket.id).emit('get-number-games',numberOfGames)
         })
     }
@@ -651,7 +651,7 @@ export class SocketManager {
         socket.on('get-number-games-won',async ()=>{
             console.log('get les wins')
             let username = this.usernames.get(socket.id) as string;
-            let numberOfGames = await this.loginService.getGameWonCount(username);
+            let numberOfGames = await this.loginService.getUserGameWon(username);
             this.sio.to(socket.id).emit('get-number-games-won',numberOfGames)
         })
     }
@@ -683,6 +683,21 @@ export class SocketManager {
             let username = this.usernames.get(socket.id) as string;
             let timeAverage = await this.loginService.getUserTimeAverage(username);
             this.sio.to(socket.id).emit("get-game-average",timeAverage)
+        })
+    }
+
+    updateGameHistory(socket : io.Socket){
+        socket.on('game-history-update',async (gameWin : boolean)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserGameHistory(username,gameWin);
+        })
+    }
+
+    getGameHistory(socket : io.Socket){
+        socket.on('get-game-history', async ()=>{
+            let username = this.usernames.get(socket.id) as string;
+            let gameHistory = await this.loginService.getUserGameHistory(username);
+            this.sio.to(socket.id).emit('get-game-history',gameHistory)
         })
     }
 
@@ -729,6 +744,8 @@ export class SocketManager {
             this.getUserPointsMean(socket);
             this.updateGameTimeAverage(socket);
             this.getGameTimeAverage(socket);
+            this.updateGameHistory(socket);
+            this.getGameHistory(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;
