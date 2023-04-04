@@ -12,23 +12,48 @@
                 <mat-card-content>
                     <div>
                         <h3>Réglages de la partie:</h3>
-                        <mat-label><mat-icon>people</mat-icon> {{ game.humanPlayers }}</mat-label>
-                        <mat-label *ngIf="game.isClassicMode"><mat-icon>smart_toy</mat-icon> {{ 4 - game.humanPlayers }}</mat-label>
+                        <!-- <mat-label><mat-icon>people</mat-icon> {{ game.humanPlayers }}</mat-label> -->
+                        <!-- <mat-label *ngIf="game.isClassicMode"><mat-icon>smart_toy</mat-icon> {{ game.virtualPlayers }}</mat-label> -->
                         <mat-label *ngIf="game.isClassicMode"><mat-icon>timer</mat-icon> {{ game.time }} (s)</mat-label>
                         <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
                     </div>
                     <div>
                         <h3 *ngIf="!game.hasStarted">Salle d'attente:</h3>
                         <h3 *ngIf="game.hasStarted">Partie en cours:</h3>
-                        <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
-                        <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
+                        <button mat-button [matMenuTriggerFor]="menuPlayers">
+                            <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
+                          </button>
+                          <mat-menu #menuPlayers>
+                            <ng-container *ngFor="let joinedPlayer of game.joinedPlayers">
+                              <button mat-menu-item>{{joinedPlayer.username}}</button>
+                            </ng-container>
+                          </mat-menu>
+                        <!-- <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label> -->
+                        <!-- <mat-label *ngIf="game.isClassicMode"><mat-icon>smart_toy</mat-icon> {{ game.virtualPlayers }}</mat-label> -->
+                        <button mat-button *ngIf="game.isClassicMode" [matMenuTriggerFor]="menuVirtualPlayers">
+                            <mat-label><mat-icon>smart_toy</mat-icon> {{ game.virtualPlayers }}</mat-label>
+                          </button>
+                          <mat-menu #menuVirtualPlayers>
+                            <ng-container *ngFor="let item of [].constructor(game.virtualPlayers); let i = index">
+                              <button mat-menu-item>Bot {{i+1}}</button>
+                            </ng-container>
+                          </mat-menu>
+                        <!-- <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label> -->
+                        <button mat-button *ngIf="!game.isPrivate" [matMenuTriggerFor]="menuObservers">
+                            <mat-label><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
+                          </button>
+                          <mat-menu #menuObservers>
+                            <ng-container *ngFor="let joinedObserver of game.joinedObservers">
+                              <button mat-menu-item>{{joinedObserver.username}}</button>
+                            </ng-container>
+                          </mat-menu>
                     </div>
                 </mat-card-content>
                 <mat-card-actions>
                     <button
                         mat-raised-button
                         color="primary"
-                        [disabled]="game.playersWaiting + game.joinedPlayers.length === game.humanPlayers || game.isFullPlayers"
+                        [disabled]="game.playersWaiting + game.joinedPlayers.length === 4 || game.hasStarted"
                         (click)="joinWaitingRoom(game)"
                     >
                         Rejoindre

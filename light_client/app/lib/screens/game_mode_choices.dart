@@ -20,7 +20,7 @@ class GameChoices extends StatefulWidget {
 class _GameChoicesState extends State<GameChoices> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final timeController = TextEditingController(text: "60");
-  final humanPlayersController = TextEditingController(text: "2");
+  // final humanPlayersController = TextEditingController(text: "2");
   final passwordGameController = TextEditingController();
   bool isClassicMode = false;
   Game game = Game(
@@ -52,7 +52,7 @@ class _GameChoicesState extends State<GameChoices> {
   @override
   void dispose() {
     timeController.dispose();
-    humanPlayersController.dispose();
+    // humanPlayersController.dispose();
     passwordGameController.dispose();
     super.dispose();
   }
@@ -62,13 +62,13 @@ class _GameChoicesState extends State<GameChoices> {
     game.time = int.parse(timeController.text);
     game.isPrivate = isPrivateGame;
     game.isClassicMode = isClassicMode;
-    game.humanPlayers = int.parse(humanPlayersController.text);
+    // game.humanPlayers = int.parse(humanPlayersController.text);
     game.password = passwordGameController.text;
     game.dictionary =
         dictionary == "Francais" ? FRENCH_DICTIONNARY : ENGLISH_DICTIONNARY;
     game.joinedPlayers = [];
     game.joinedObservers = [];
-    game.virtualPlayers = 4 - game.humanPlayers;
+    game.virtualPlayers = 3;
     Navigator.of(context).pop();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return WaitingRoom(
@@ -173,27 +173,27 @@ class _GameChoicesState extends State<GameChoices> {
                         },
                         controlAffinity: ListTileControlAffinity.leading,
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller: humanPlayersController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: "Nombres de joueurs humains",
-                              labelText: "Nombres de joueurs humains"),
-                          validator: (String? value) {
-                            if (value == null || value.isEmpty) {
-                              return "Nombre de joeurs humains requis.";
-                            } else if (int.parse(value) < 2) {
-                              return "Le nombre de joueurs humains minimum est de 2.";
-                            } else if (int.parse(value) > 4) {
-                              return "Le nombre de joueurs humains maximum est de 4.";
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.all(8.0),
+                      //   child: TextFormField(
+                      //     controller: humanPlayersController,
+                      //     keyboardType: TextInputType.number,
+                      //     decoration: InputDecoration(
+                      //         border: OutlineInputBorder(),
+                      //         hintText: "Nombres de joueurs humains",
+                      //         labelText: "Nombres de joueurs humains"),
+                      //     validator: (String? value) {
+                      //       if (value == null || value.isEmpty) {
+                      //         return "Nombre de joeurs humains requis.";
+                      //       } else if (int.parse(value) < 2) {
+                      //         return "Le nombre de joueurs humains minimum est de 2.";
+                      //       } else if (int.parse(value) > 4) {
+                      //         return "Le nombre de joueurs humains maximum est de 4.";
+                      //       }
+                      //       return null;
+                      //     },
+                      //   ),
+                      // ),
                       if (isClassicMode)
                         Container(
                           padding: const EdgeInsets.all(8.0),

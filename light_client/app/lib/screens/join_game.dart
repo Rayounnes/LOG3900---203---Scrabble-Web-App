@@ -1,5 +1,6 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
+import 'package:app/models/player_infos.dart';
 import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/game_page.dart';
 import 'package:app/screens/waiting_room.dart';
@@ -185,18 +186,20 @@ class _JoinGamesState extends State<JoinGames> {
                 SizedBox(height: 8),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.people),
-                    SizedBox(width: 4.0),
-                    Text(game.humanPlayers.toString()),
-                    SizedBox(width: 16.0),
-                    Icon(Icons.smart_toy),
-                    SizedBox(width: 4.0),
-                    Text('${4 - game.humanPlayers}'),
-                    SizedBox(width: 16.0),
-                    Icon(Icons.timer),
-                    SizedBox(width: 4.0),
-                    Text('${game.time} (s)'),
-                    SizedBox(width: 16.0),
+                    // Icon(Icons.people),
+                    // SizedBox(width: 4.0),
+                    // Text(game.humanPlayers.toString()),
+                    // SizedBox(width: 16.0),
+                    // Icon(Icons.smart_toy),
+                    // SizedBox(width: 4.0),
+                    // Text('${game.virtualPlayers}'),
+                    // SizedBox(width: 16.0),
+                    if (game.isClassicMode) ...[
+                      Icon(Icons.timer),
+                      SizedBox(width: 4.0),
+                      Text('${game.time} (s)'),
+                      SizedBox(width: 16.0)
+                    ],
                     Icon(Icons.book),
                     SizedBox(width: 4.0),
                     Text(game.dictionary.title),
@@ -210,14 +213,77 @@ class _JoinGamesState extends State<JoinGames> {
                 SizedBox(height: 8),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.people),
-                    SizedBox(width: 4.0),
-                    Text('${game.joinedPlayers.length}'),
+                    PopupMenuButton<String>(
+                      itemBuilder: (BuildContext context) {
+                        return game.joinedPlayers.map((PlayerInfos player) {
+                          return PopupMenuItem<String>(
+                            value: player.username,
+                            child: Text(player.username),
+                          );
+                        }).toList();
+                      },
+                      child: Row(children: [
+                        Icon(
+                          Icons.people,
+                          size: 35.0,
+                        ),
+                        SizedBox(width: 4.0),
+                        Text('${game.joinedPlayers.length}')
+                      ]),
+                      onSelected: (String selectedName) {
+                        // Do something with the selected name
+                      },
+                    ),
+                    SizedBox(width: 40.0),
+                    if (game.isClassicMode)
+                      PopupMenuButton<String>(
+                        itemBuilder: (BuildContext context) {
+                          List<PopupMenuItem<String>> items = [];
+                          for (int i = 0; i < game.virtualPlayers; i++) {
+                            items.add(
+                              PopupMenuItem<String>(
+                                value: 'Bot ${i + 1}',
+                                child: Text('Bot ${i + 1}'),
+                              ),
+                            );
+                          }
+                          return items;
+                        },
+                        child: Row(children: [
+                          Icon(
+                            Icons.smart_toy,
+                            size: 35.0,
+                          ),
+                          SizedBox(width: 4.0),
+                          Text('${game.virtualPlayers}')
+                        ]),
+                        onSelected: (String selectedName) {
+                          // Do something with the selected name
+                        },
+                      ),
                     if (!game.isPrivate) ...[
-                      SizedBox(width: 16.0),
-                      Icon(Icons.visibility),
-                      SizedBox(width: 4.0),
-                      Text('${game.joinedObservers.length}'),
+                      SizedBox(width: 40.0),
+                      PopupMenuButton<String>(
+                        itemBuilder: (BuildContext context) {
+                          return game.joinedObservers.map((PlayerInfos player) {
+                            return PopupMenuItem<String>(
+                              value: player.username,
+                              child: Text(player.username),
+                            );
+                          }).toList();
+                        },
+                        child: Row(children: [
+                          Icon(
+                            Icons.visibility,
+                            size: 35.0,
+                          ),
+                          SizedBox(width: 4.0),
+                          Text('${game.joinedObservers.length}')
+                        ]),
+                        onSelected: (String selectedName) {
+                          // Do something with the selected name
+                        },
+                      ),
                     ],
                   ],
                 )
@@ -227,11 +293,11 @@ class _JoinGamesState extends State<JoinGames> {
           ButtonBar(
             children: <Widget>[
               ElevatedButton(
-                onPressed: game.playersWaiting + game.joinedPlayers.length ==
-                            game.humanPlayers ||
-                        game.isFullPlayers
-                    ? null
-                    : () => joinWaitingRoom(game),
+                onPressed:
+                    game.playersWaiting + game.joinedPlayers.length == 4 ||
+                            game.hasStarted
+                        ? null
+                        : () => joinWaitingRoom(game),
                 child: Text('Rejoindre'),
               ),
               if (!game.isPrivate) ...[

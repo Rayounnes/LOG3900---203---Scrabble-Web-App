@@ -236,7 +236,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                     ],
                     TextPhrase(
                         text:
-                            "Joueurs restants pour démarrer la partie: ${game.humanPlayers - game.joinedPlayers.length}"),
+                            "Joueurs restants pour démarrer la partie: ${game.joinedPlayers.length == 1 ? 1 : 0}"),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -258,7 +258,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                               getIt<SocketService>().send('join-game', true);
                             },
                             isButtonDisabled:
-                                game.humanPlayers != game.joinedPlayers.length,
+                                game.joinedPlayers.length < 2,
                           ),
                           GameButton(
                             padding: 16.0,

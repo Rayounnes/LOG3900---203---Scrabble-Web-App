@@ -27,12 +27,12 @@
             </div>
         </div>
         <div class="remaining-players">
-            <h2>Joueurs restants pour démarrer la partie: {{ game.humanPlayers - game.joinedPlayers.length }}</h2>
+            <h2>Joueurs restants pour démarrer la partie: {{ game.joinedPlayers.length === 1 ? 1 : 0 }}</h2>
         </div>
 
         <div class="buttons">
             <button mat-raised-button color="warn" (click)="cancelWaiting()" *ngIf="!isHost">Quitter</button>
-            <button mat-raised-button color="primary" *ngIf="isHost" (click)="startGame()" [disabled]="game.humanPlayers !== game.joinedPlayers.length">Lancer Partie</button>
+            <button mat-raised-button color="primary" *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2">Lancer Partie</button>
             <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button>
         </div>
     </div>

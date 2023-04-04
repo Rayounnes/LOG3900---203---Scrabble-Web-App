@@ -5,13 +5,13 @@
     </div>
     <form #myForm="ngForm" (ngSubmit)="createGame()">
         <mat-checkbox [(ngModel)]="game.isPrivate" [ngModelOptions]="{standalone: true}" #checkbox>Partie Privée</mat-checkbox>
-        <mat-form-field appearance="fill">
+        <!-- <mat-form-field appearance="fill">
             <mat-label>Nombre de joueurs humains: </mat-label>
             <input matInput type="number" [(ngModel)]="game.humanPlayers" [ngModelOptions]="{standalone: true}" max="4" min="2" value="2" id="humanPlayers" step="1" required />
             <mat-error *ngIf="game.humanPlayers > 4">Nombre de joeurs humains trop grand.</mat-error>
             <mat-error *ngIf="game.humanPlayers < 2">Nombre de joeurs humains trop petit.</mat-error>
             <mat-icon matSuffix></mat-icon>
-        </mat-form-field>
+        </mat-form-field> -->
         <mat-form-field *ngIf="data.isClassic" appearance="fill">
             <mat-label>Temps par tour (en secondes): </mat-label>
             <input matInput type="number" [(ngModel)]="game.time" [ngModelOptions]="{standalone: true}" max="300" min="30" value="60" id="time" step="30" required />

@@ -33,6 +33,7 @@ import { JoindrePartieComponent } from './pages/joindre-partie/joindre-partie.co
 import { WaitingRoomPageComponent } from './pages/waiting-room-page/waiting-room-page.component';
 import { DictionaryComponent } from './components/dictionary/dictionary.component';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
 import { ConnexionPageComponent } from './components/connexion-page/connexion-page.component';
 import { ChatPrototypeComponent } from './components/chat-prototype/chat-prototype.component';
 import { GameCreationComponent } from './pages/game-creation/game-creation.component';
@@ -117,6 +118,7 @@ import { WhiteLetterDialogComponent } from './components/white-letter-dialog/whi
         MatListModule,
         PopoutWindowModule,
         DragDropModule,
+        MatMenuModule,
     ],
     providers: [GridConstants],
     bootstrap: [AppComponent],

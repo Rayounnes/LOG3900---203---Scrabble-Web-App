@@ -82,7 +82,6 @@ export class GameManager {
     abandonClassicGame(socketId: string) {
         const room = this.usersRoom.get(socketId) as string;
         const game: Game = this.gameRooms.get(room) as Game;
-        game.humanPlayers--;
         game.virtualPlayers++;
         game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
         const gameScrabbleAbandoned = this.scrabbleGames.get(room) as ScrabbleClassicMode;
@@ -116,7 +115,7 @@ export class GameManager {
     abandonCooperativeGame(socketId: string) {
         const room = this.usersRoom.get(socketId) as string;
         const game: Game = this.gameRooms.get(room) as Game;
-        game.humanPlayers--;
+        game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
         const gameScrabbleAbandoned = this.getScrabbleGame(socketId) as ScrabbleCooperativeMode;
         const playerRemaining: number = gameScrabbleAbandoned.abandonPlayer(socketId);
         const abandonMessage = `${this.usernames.get(socketId)} a abandonné la partie.`;
@@ -141,6 +140,8 @@ export class GameManager {
         this.sio.to(socketId).emit('send-info-to-panel', data);
         const lettersPosition = scrabbleGame.boardLetters;
         this.sio.to(socketId).emit('draw-letters-opponent', lettersPosition);
+        const reserveLength: number = scrabbleGame.getReserveLettersLength();
+        this.sio.to(socketId).emit('update-reserve', reserveLength);
     }
 
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode | ScrabbleCooperativeMode): boolean {

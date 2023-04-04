@@ -269,7 +269,6 @@ class _TimerPageState extends State<TimerPage> {
     super.initState();
     handleSockets();
     _timer = Timer(Duration(milliseconds: 1), () {});
-    getIt<SocketService>().send('update-reserve');
     if (!coinsGotFromDB && !widget.isObserver)
       getUserCoins(); // On doit s'assurer que la variable player est remplie avant d'ller get les coins
   }
