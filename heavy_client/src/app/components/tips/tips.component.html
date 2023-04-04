@@ -1,5 +1,13 @@
 <div *ngIf="tips && tips.length > 0" class="carousel-container">
-    <div *ngFor="let tip of tips">
+    <div *ngFor="let tip of tips; let i = index" [class]="{'tip-active' : selectedIndex === i}" class="fade">
         {{tip}}
     </div>
+</div>
+
+<div *ngIf="controls" class="btn-carousel btn-prev">
+    <i class="fas fa-arrow-circle-left icon-carousel icon-prev"></i>
+</div>
+
+<div *ngIf="controls" class="btn-carousel btn-next" (click)="onPrevClick()">
+
 </div>

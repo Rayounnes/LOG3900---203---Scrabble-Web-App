@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 const TIPS_FR = [
   'Astuces : Passez votre tour en dernier recours,il est toujours mieux de placer une lettre.',
@@ -32,12 +32,48 @@ const TIPS_FR = [
 "Le saviez-vous : Le Scrabble est considéré comme un sport mental et est joué en compétition à travers le monde.",
 "Astuces : Tentez des agencements de lettres si vous n'avez plus d'idée.",
 ];
+const SLIDE_INTERVAL = 5000;
 @Component({
     selector: 'app-tips',
     templateUrl: './tips.component.html',
     styleUrls: ['./tips.component.scss'],
 })
 export class TipsComponent implements OnInit {
-    tips = TIPS_FR;
-    ngOnInit(): void {}
+    @Input() tips = TIPS_FR;
+    @Input() controls = false;
+    @Input() autoSlide = false;
+    @Input() slideInterval = SLIDE_INTERVAL;
+
+    selectedIndex = 0;
+
+    ngOnInit(): void {
+        if (this.autoSlide) {
+            this.autoSlideTips();
+        }
+    }
+
+    autoSlideTips() : void {
+        setInterval(() => {
+            this.onNextClick();
+        }, this.slideInterval);
+    }
+    selectedTip(index: number): void {
+        this.selectedIndex = index;
+    }
+
+    onPrevClick(): void {
+        if (this.selectedIndex === 0) {
+            this.selectedIndex = this.tips.length - 1;
+        } else {
+            this.selectedIndex--;
+        }
+    }
+
+    onNextClick(): void {
+        if (this.selectedIndex === this.tips.length - 1) {
+            this.selectedIndex = 0;
+        } else {
+            this.selectedIndex++;
+        }
+    }
 }
