@@ -70,7 +70,7 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
-        this.socketService.send('get-info')
+        this.socketService.send('get-config')
     }
 
     configureBaseSocketFeatures() {
