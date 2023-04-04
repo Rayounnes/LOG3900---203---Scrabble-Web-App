@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 
+import '../models/personnalisation.dart';
+
 class GameChoices extends StatefulWidget {
   final String modeName;
   const GameChoices({super.key, required this.modeName});
@@ -22,6 +24,8 @@ class _GameChoicesState extends State<GameChoices> {
   final timeController = TextEditingController(text: "60");
   final humanPlayersController = TextEditingController(text: "2");
   final passwordGameController = TextEditingController();
+  late Personnalisation langOrTheme;
+
   bool isClassicMode = false;
   Game game = Game(
       hostUsername: getIt<UserInfos>().user,
@@ -46,6 +50,7 @@ class _GameChoicesState extends State<GameChoices> {
   @override
   void initState() {
     super.initState();
+    handleSockets();
     isClassicMode = widget.modeName == GameNames.classic;
   }
 
@@ -55,6 +60,12 @@ class _GameChoicesState extends State<GameChoices> {
     humanPlayersController.dispose();
     passwordGameController.dispose();
     super.dispose();
+  }
+
+  void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   createGame(bool isPrivateGame) {

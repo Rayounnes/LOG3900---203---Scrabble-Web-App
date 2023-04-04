@@ -2,6 +2,9 @@ import 'package:app/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 
+import '../main.dart';
+import '../models/personnalisation.dart';
+import '../services/socket_client.dart';
 
 class RecoverAccountPage extends StatefulWidget {
   @override
@@ -15,6 +18,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
   final passwordController = TextEditingController();
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
+  late Personnalisation langOrTheme;
+
 
   String securityQuestion = "Bonjour?";
   int securityID = -1;
@@ -34,12 +39,20 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
   @override
   void initState() {
     super.initState();
+    handleSockets();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   void validateUser() async {
-    try{
+    try {
       securityID = await ApiService().getSecurityQstID(usernameController.text);
-      securityAnswer = await ApiService().getSecurityAnswer(usernameController.text);
+      securityAnswer =
+          await ApiService().getSecurityAnswer(usernameController.text);
 
       if (securityID >= 0 && securityAnswer.isNotEmpty) {
         List variable = await ApiService().getSecurityQst();
@@ -49,10 +62,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
           userName = usernameController.text;
           isUserValid = true;
         });
-
       }
-    }
-    catch(e) {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             backgroundColor: Colors.blue,
@@ -64,12 +75,11 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
 
   void recoverAccount() async {
     if (securityResponseController.text == securityAnswer) {
-      try{
+      try {
         if (await ApiService()
             .changePassword(usernameController.text, passwordController.text))
           Navigator.pop(context, '/loginScreen');
-      }
-      catch (e) {
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               backgroundColor: Colors.blue,

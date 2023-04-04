@@ -2,15 +2,18 @@ class translateConstants {
   Map<String, String> translation = {
     //login_page
     'Connexion à votre compte': 'login to your account',
-    "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer":"",
+    "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer":
+        "",
     "Nom d'utilisateur": " ",
     "Mot de passe": " ",
     "Connexion": " ",
     "Nouveau? Créer votre compte": " ",
     "Mot de passe oublié?": " ",
+
     //sign_page
     "Votre compte a été créé avec succés": " ",
-    "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.":"",
+    "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.":
+        "",
     'Création de compte': "",
     "Nom d'utilisateur": "",
     "Nom d'utilisateur requis": "",
@@ -28,6 +31,7 @@ class translateConstants {
     "Réponse à la question": "",
     "Entrez une réponse à la question de sécurité": "",
     "Créer le compte": "",
+
     //game_modes_page
     "Application Scrabble": "",
     "Mode de jeu classique": "",
@@ -38,6 +42,7 @@ class translateConstants {
     "Etes-vous sur de vous déconnecter ?": "",
     "Oui": "",
     "Non": "",
+
     //channels_pages
     "General": "General",
     "Nouvelle discussion": " ",
@@ -97,11 +102,12 @@ class translateConstants {
     "Abandonner la partie": "",
     "Voulez-vous abandonner la partie?": "",
     "Erreur : les mots crées sont invalides": "",
-    "Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant": "",
+    "Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant":
+        "",
     'Page de jeu': "",
 
     //home_page
-    "Vous avez été déconnecté avec succés":"",
+    "Vous avez été déconnecté avec succés": "",
     "Notifications": "",
 
     //join_game
@@ -113,10 +119,7 @@ class translateConstants {
     "Partie en cours:' : 'Salle d'attente:": "",
     "Rejoindre": "",
     "Observer": "",
-    "Mot de passe de partie": "",
-    "Mot de passe requis.": "",
     "Mot de passe incorrect": "",
-    "Annuler": "",
     "Ok": "Ok",
     "Attente d'acceptation": "",
     "Vous êtes en attente d'être accepté par le hôte de la partie": "",
@@ -128,19 +131,18 @@ class translateConstants {
     "Votre meilleur score": "",
     "Quitter": "",
     "Désolé, vous avez perdu !": "",
-    "Bien joué, vous avez fini le mode d'entraînement orthographe !":"",
-
+    "Bien joué, vous avez fini le mode d'entraînement orthographe !": "",
 
     //password_recovering_page
-    "Ce nom d'utilisateur n'existe pas":"",
-    "Modification du mot de passe non-autorisée":"",
+    "Ce nom d'utilisateur n'existe pas": "",
+    "Modification du mot de passe non-autorisée": "",
     "Retour": "",
     "Récupération de compte": "",
     "Entrez votre nom d'utilisateur": "",
     "Nom d'utilisateur requis.": "",
     "Vérifier l'identifiant": "",
     "Nouveau mot de passe": "",
-    "Réponse incorrecte, veuillez réessayer":"",
+    "Réponse incorrecte, veuillez réessayer": "",
     "Valider les modifications": "",
     "Lettre à échanger": "",
     "Ce username est deja utilisé !": "",
@@ -162,7 +164,7 @@ class translateConstants {
     "Joueurs": "",
     "Observateurs": "",
     "En attente de joueurs": "",
-    "Joueurs restants pour démarrer la partie:":"",
+    "Joueurs restants pour démarrer la partie:": "",
     "Lancer Partie": "",
     "Annuler Partie": "",
     "Demande d'acceptation": "",
@@ -170,32 +172,15 @@ class translateConstants {
     "Rejeter": "",
     "Accepter": "",
     "a quitté l'attente d'acceptation.": "",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   };
-  // translateConstants() {
+  translateConstants() {}
 
-  // }
+  translateString(String language, String stringToTranslate) {
+    if (language == 'fr') {
+      return stringToTranslate;
+    }
+    else if(language == 'en'){
+      return translation[stringToTranslate];
+    }
+  }
 }

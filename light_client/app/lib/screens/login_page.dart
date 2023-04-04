@@ -8,6 +8,8 @@ import "package:app/services/api_service.dart";
 import 'package:app/services/user_infos.dart';
 import 'package:app/main.dart';
 
+import '../models/personnalisation.dart';
+
 class LoginDemo extends StatefulWidget {
   @override
   _LoginDemoState createState() => _LoginDemoState();
@@ -18,6 +20,8 @@ class _LoginDemoState extends State<LoginDemo> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
+  late Personnalisation langOrTheme;
+
 
   String selectedLanguage = 'fr';
 
@@ -34,6 +38,7 @@ class _LoginDemoState extends State<LoginDemo> {
     super.initState();
     if (!getIt<SocketService>().isSocketAlive())
       getIt<SocketService>().connect();
+    handleSockets();
   }
 
   @override
@@ -41,6 +46,12 @@ class _LoginDemoState extends State<LoginDemo> {
     usernameController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+    void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   void setLanguage() {

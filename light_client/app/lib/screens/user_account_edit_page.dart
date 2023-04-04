@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
 import '../main.dart';
+import '../models/personnalisation.dart';
 import '../services/api_service.dart';
 import '../services/socket_client.dart';
 import 'game_modes_page.dart';
@@ -15,6 +16,7 @@ class UserAccountEditPage extends StatefulWidget {
   final String username;
 
   const UserAccountEditPage({super.key, required this.username});
+
 
   @override
   _UserAccountEditPageState createState() => _UserAccountEditPageState();
@@ -28,12 +30,15 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   List iconList = [];
   List decodedBytesList = [];
   bool isIcon = false;
-  int number =-1;
+  int number = -1;
+  late Personnalisation langOrTheme;
+
 
   @override
   void initState() {
     super.initState();
     getIconList();
+    handleSockets();
   }
 
   @override
@@ -41,6 +46,12 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     newUsernameController.dispose();
     usernameValidationController.dispose();
     super.dispose();
+  }
+
+  void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+  });
   }
 
   void setProfilePic(String imagePath) {
@@ -64,18 +75,23 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       if (picturePath != '' || isIcon) {
         File imageFile = File(picturePath);
         List<int> imageBytes = [];
-        if(!isIcon) imageBytes = await imageFile.readAsBytes();
-        String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) :BASE64PREFIX + base64Encode(imageBytes);
+        if (!isIcon) imageBytes = await imageFile.readAsBytes();
+        String imageBase64 = isIcon
+            ? BASE64PREFIX + base64Encode(decodedBytesList[number])
+            : BASE64PREFIX + base64Encode(imageBytes);
         await ApiService().pushIcon(imageBase64, newUsernameController.text);
-        await ApiService().changeIcon(usernameValidationController.text, imageBase64);
+        await ApiService()
+            .changeIcon(usernameValidationController.text, imageBase64);
       }
       if (newUsernameController.text != '') {
-        bool res = await ApiService().changeUsername(newUsernameController.text, usernameValidationController.text,);
-        if(res){
+        bool res = await ApiService().changeUsername(
+          newUsernameController.text,
+          usernameValidationController.text,
+        );
+        if (res) {
           name = newUsernameController.text;
-          getIt<SocketService>().send('change-username',name);
-        }
-        else{
+          getIt<SocketService>().send('change-username', name);
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 backgroundColor: Color.fromARGB(255, 83, 162, 84),
@@ -86,8 +102,8 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         }
       }
 
-      Navigator.push(context, MaterialPageRoute(
-            builder: (context) => GameModes(name: name)));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => GameModes(name: name)));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -148,25 +164,27 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                                         size: TILE_SIZE,
                                         color: Color.fromARGB(255, 0, 0, 0)),
                                     onPressed: () async {
-                                        File? imageFile = await Navigator.push(context,
-                                            MaterialPageRoute(builder: (context) {
-                                              return GalleryPage(
-                                                iconList: decodedBytesList,
-                                              );
-                                            })) as File?;
-                                        if (imageFile != null) {
-                                          try {
-                                            number = int.parse(imageFile.path);
-                                            if(number>=0){
-                                              setState(() {
-                                                isIcon = true;
-                                              });
-                                            }
-                                          }catch(e){
-                                            print("Erreur de parsage en int pour le FileImage");
-                                            setProfilePic(imageFile.path);
+                                      File? imageFile = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) {
+                                        return GalleryPage(
+                                          iconList: decodedBytesList,
+                                        );
+                                      })) as File?;
+                                      if (imageFile != null) {
+                                        try {
+                                          number = int.parse(imageFile.path);
+                                          if (number >= 0) {
+                                            setState(() {
+                                              isIcon = true;
+                                            });
                                           }
+                                        } catch (e) {
+                                          print(
+                                              "Erreur de parsage en int pour le FileImage");
+                                          setProfilePic(imageFile.path);
                                         }
+                                      }
                                     },
                                   ),
                                 ),
@@ -196,13 +214,18 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                             )
                           : Stack(
                               children: <Widget>[
-                                isIcon? Center(
-                                  child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
-                                ):Center(
-                                  child: Image.file(
-                                    File(picturePath),
-                                  ),
-                                ),
+                                isIcon
+                                    ? Center(
+                                        child: Image.memory(
+                                            decodedBytesList[number],
+                                            height: 180,
+                                            width: 180),
+                                      )
+                                    : Center(
+                                        child: Image.file(
+                                          File(picturePath),
+                                        ),
+                                      ),
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: ElevatedButton(

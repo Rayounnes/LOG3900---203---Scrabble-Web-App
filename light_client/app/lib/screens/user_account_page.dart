@@ -4,6 +4,10 @@ import 'dart:typed_data';
 import 'package:app/screens/user_account_edit_page.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+import '../models/personnalisation.dart';
+import '../services/socket_client.dart';
+
 
 class UserAccountPage extends StatefulWidget {
   final String userName ;
@@ -21,6 +25,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
   List<String> newList = [];
   bool isShow = false;
   bool isEmpty = true;
+
 
   @override
   void initState() {
@@ -133,7 +138,21 @@ class ConnectionHistoryList extends StatefulWidget {
 }
 
 class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
+  late Personnalisation langOrTheme;
 
+
+  @override
+  void initState() {
+    super.initState();
+    handleSockets();
+
+  }
+
+    void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

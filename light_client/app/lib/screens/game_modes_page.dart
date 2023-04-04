@@ -14,6 +14,7 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
+import '../models/personnalisation.dart';
 import '../widgets/loading_tips.dart';
 
 class GameModes extends StatefulWidget {
@@ -31,16 +32,25 @@ class _GameModesState extends State<GameModes> {
   Uint8List decodedBytes = Uint8List(1);
   String userName = "user";
   int userPoints = 100;
+  late Personnalisation langOrTheme;
+
 
   @override
   void initState() {
     super.initState();
     getUserInfo();
+    handleSockets();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   void getUserInfo() async {
@@ -117,7 +127,7 @@ class _GameModesState extends State<GameModes> {
                         );
                       }));
                     }),
-                    GameButton(
+                GameButton(
                     padding: 32.0,
                     name: "Mode d'entrainement orthographe",
                     route: () {

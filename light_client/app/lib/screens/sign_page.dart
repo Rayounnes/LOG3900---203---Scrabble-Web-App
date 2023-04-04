@@ -12,6 +12,8 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/socket_client.dart';
 
+import '../models/personnalisation.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -26,14 +28,15 @@ class _SignUpState extends State<SignUp> {
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
   final securityQuestionController = TextEditingController();
+  late Personnalisation langOrTheme;
+
 
   String selectedQuestion = "";
   String picturePath = "";
   List iconList = [];
   List decodedBytesList = [];
   bool isIcon = false;
-  int number =-1;
-
+  int number = -1;
 
   final List<String> questions = List.from(SECURITY_QUESTIONS);
 
@@ -52,6 +55,13 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     super.initState();
     getIconList();
+    handleSockets();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   void setProfilePic(String imagePath) {
@@ -73,9 +83,11 @@ class _SignUpState extends State<SignUp> {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
     File imageFile = File(picturePath);
-    List<int> imageBytes =[];
-    if(!isIcon) imageBytes = await imageFile.readAsBytes();
-    String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) : BASE64PREFIX + base64Encode(imageBytes);
+    List<int> imageBytes = [];
+    if (!isIcon) imageBytes = await imageFile.readAsBytes();
+    String imageBase64 = isIcon
+        ? BASE64PREFIX + base64Encode(decodedBytesList[number])
+        : BASE64PREFIX + base64Encode(imageBytes);
 
     bool iconResponse = await ApiService().pushIcon(imageBase64, username);
     if (iconResponse) {
@@ -292,14 +304,14 @@ class _SignUpState extends State<SignUp> {
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: ElevatedButton(
-                            onPressed:
-                                (picturePath.isEmpty && !isIcon) || selectedQuestion == ''
-                                    ? null
-                                    : () {
-                                        if (_formKey.currentState!.validate()) {
-                                          createAccount();
-                                        }
-                                      },
+                            onPressed: (picturePath.isEmpty && !isIcon) ||
+                                    selectedQuestion == ''
+                                ? null
+                                : () {
+                                    if (_formKey.currentState!.validate()) {
+                                      createAccount();
+                                    }
+                                  },
                             child: Text('Créer le compte'),
                           ),
                         ),
@@ -354,15 +366,18 @@ class _SignUpState extends State<SignUp> {
                             })) as File?;
                             if (imageFile != null) {
                               try {
-                               number = int.parse(imageFile.path);
-                               if(number>=0){
-                                 setState(() {
-                                   isIcon = true;
-                                 });
-                               }
-                               print(BASE64PREFIX + base64Encode(decodedBytesList[number])+'DECODEEE \n');
-                              }catch(e){
-                                print("Erreur de parsage en int pour le FileImage");
+                                number = int.parse(imageFile.path);
+                                if (number >= 0) {
+                                  setState(() {
+                                    isIcon = true;
+                                  });
+                                }
+                                print(BASE64PREFIX +
+                                    base64Encode(decodedBytesList[number]) +
+                                    'DECODEEE \n');
+                              } catch (e) {
+                                print(
+                                    "Erreur de parsage en int pour le FileImage");
                                 setProfilePic(imageFile.path);
                               }
                             }
@@ -393,14 +408,16 @@ class _SignUpState extends State<SignUp> {
                   )
                 : Stack(
                     children: <Widget>[
-                     isIcon? Center(
-                      child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
-                     ):
-                      Center(
-                        child: Image.file(
-                          File(picturePath),
-                        ),
-                      ),
+                      isIcon
+                          ? Center(
+                              child: Image.memory(decodedBytesList[number],
+                                  height: 180, width: 180),
+                            )
+                          : Center(
+                              child: Image.file(
+                                File(picturePath),
+                              ),
+                            ),
                       Align(
                         alignment: Alignment.topRight,
                         child: ElevatedButton(

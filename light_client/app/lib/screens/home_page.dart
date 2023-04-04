@@ -5,6 +5,8 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
+import '../models/personnalisation.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,6 +15,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+    late Personnalisation langOrTheme;
+
+
+  @override
+  void initState() {
+    super.initState();
+    handleSockets();
+
+  }
+
+  void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
+  }
+
   int _selectedIndex = -1;
   int _counter = 5;
   void logoutUser() async {

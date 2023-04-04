@@ -11,6 +11,7 @@ import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/text.dart';
 import 'package:flutter/material.dart';
 
+import '../models/personnalisation.dart';
 import '../widgets/loading_tips.dart';
 
 class WaitingRoom extends StatefulWidget {
@@ -30,6 +31,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   bool acceptPlayerQuit = false;
   String hostUsername = '';
   Game game = Game(hostUsername: "", time: 60);
+  late Personnalisation langOrTheme;
 
   @override
   void initState() {
@@ -121,6 +123,10 @@ class _WaitingRoomState extends State<WaitingRoom> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return JoinGames(modeName: widget.modeName);
       }));
+    });
+
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
     });
   }
 

@@ -2,6 +2,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+import '../models/personnalisation.dart';
+import '../services/socket_client.dart';
+
 class GalleryPage extends StatefulWidget {
   final List iconList;
   const GalleryPage({super.key, required this.iconList});
@@ -13,6 +17,8 @@ class GalleryPage extends StatefulWidget {
 class _GalleryPageState extends State<GalleryPage> {
   File? imageFile;
   int index = -1;
+  late Personnalisation langOrTheme;
+
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
@@ -34,6 +40,18 @@ class _GalleryPageState extends State<GalleryPage> {
         );
       }
     }
+  }
+    @override
+  void initState() {
+    print("-------------------------Initiation game-page-------------------");
+    super.initState();
+    handleSockets();
+
+  }
+  void handleSockets(){
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   @override

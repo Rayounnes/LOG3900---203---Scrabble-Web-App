@@ -8,6 +8,8 @@ import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Message;
 
+import '../models/personnalisation.dart';
+
 
 
 class ChatPage extends StatefulWidget {
@@ -48,7 +50,8 @@ class _ChatPageState extends State<ChatPage> {
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  
+  late Personnalisation langOrTheme;
+
 
   void initNotifications() async {
   var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -193,6 +196,10 @@ class _ChatPageState extends State<ChatPage> {
       } catch (e) {
         print(e);
       }
+    });
+
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
     });
   }
 

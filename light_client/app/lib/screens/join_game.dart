@@ -8,6 +8,7 @@ import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 
+import '../models/personnalisation.dart';
 import '../widgets/loading_tips.dart';
 
 class JoinGames extends StatefulWidget {
@@ -23,6 +24,8 @@ class _JoinGamesState extends State<JoinGames> {
   List<Game> games = [];
   String mode = CLASSIC_MODE;
   bool isClassic = false;
+  late Personnalisation langOrTheme;
+
 
   @override
   void initState() {
@@ -47,6 +50,10 @@ class _JoinGamesState extends State<JoinGames> {
           games.add(Game.fromJson(game));
         }
       });
+    });
+
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
     });
   }
 

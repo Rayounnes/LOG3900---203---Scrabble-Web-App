@@ -15,6 +15,7 @@ import 'package:app/widgets/tile.dart';
 import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
+import '../models/personnalisation.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
 import '../models/letter.dart';
@@ -49,6 +50,7 @@ class _GamePageState extends State<GamePage> {
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
   MusicService musicService = MusicService();
+  late Personnalisation langOrTheme;
 
   @override
   void initState() {
@@ -166,6 +168,7 @@ class _GamePageState extends State<GamePage> {
 
     String? letterValue = tileLetter[tileID];
     selectedLetter = '';
+
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
@@ -382,6 +385,11 @@ class _GamePageState extends State<GamePage> {
             content: Text(message)),
       );
     });
+
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
+
   }
 
   void switchRack(bool isForExchange) {

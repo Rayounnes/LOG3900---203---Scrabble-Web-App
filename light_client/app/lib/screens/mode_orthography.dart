@@ -9,6 +9,8 @@ import "package:app/services/api_service.dart";
 import 'package:app/main.dart';
 import 'package:app/models/words_orthography_model.dart';
 
+import '../models/personnalisation.dart';
+
 
 class ModeOrthography extends StatefulWidget {
   @override
@@ -33,6 +35,8 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   int bestScore = 0;
   String username = "";
   int countdown = 3;
+  late Personnalisation langOrTheme;
+
 
   void initState() {
     super.initState();
@@ -94,6 +98,10 @@ class _ModeOrthographyState extends State<ModeOrthography> {
       } catch (e) {
         print(e);
       }
+    });
+
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
     });
   }
 

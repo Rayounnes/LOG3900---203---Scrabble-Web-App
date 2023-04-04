@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 
 import '../constants/letters_points.dart';
+import '../models/personnalisation.dart';
 import '../services/socket_client.dart';
 import '../widgets/tile.dart';
 
@@ -20,11 +21,20 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
   bool isChecked = false;
   final Map<int, bool> isCheckedList = {};
   List<int> indexToExchange = [];
+  late Personnalisation langOrTheme;
+
 
   @override
   void initState() {
     super.initState();
     initializeCheckList();
+    handleSockets();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-theme-language", (value) {
+      langOrTheme = value;
+    });
   }
 
   void initializeCheckList() {
