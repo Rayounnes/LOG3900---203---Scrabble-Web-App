@@ -5,7 +5,8 @@
             <div class="number-perso">
                 {{reserveTilesLeft}}
             </div>
-            <span>Tuiles dans la réserve</span>
+            <span *ngIf="langue == 'fr'">Tuiles dans la réserve</span>
+            <span *ngIf="langue == 'en'">Tiles in stock</span>
         </div>
         <div *ngIf="isClassic" class="timer-container">
             <svg viewBox="0 0 100 100" width="60" height="60">
@@ -24,13 +25,15 @@
                     <div class="number">
                         {{player['tiles']}}
                     </div>
-                    <span>Tuiles restantes</span>
+                    <span *ngIf="langue == 'fr'">Tuiles restantes</span>
+                    <span *ngIf="langue == 'en'">Tiles left</span>
                 </div>
                 <div class="tiles" *ngIf="player.socket == socketId">
                     <div class="coin">
                         {{coins}}
                     </div>
-                    <span>Pièces</span>
+                    <span *ngIf="langue == 'fr'">Pièces</span>
+                    <span *ngIf="langue == 'en'">Coins</span>
                 </div>
             </div>
             <div class="score">
@@ -69,7 +72,8 @@
 
     <div class="options">
         <app-surrender-game></app-surrender-game>
-        <button mat-raised-button class="screenshot" (click)="captureScreenshot()">Capture d'écran</button>
+        <button mat-raised-button class="screenshot" (click)="captureScreenshot()" *ngIf="langue == 'fr'">Capture d'écran</button>
+        <button mat-raised-button class="screenshot" (click)="captureScreenshot()" *ngIf="langue == 'en'">Screenshot</button>
     </div>
     
     

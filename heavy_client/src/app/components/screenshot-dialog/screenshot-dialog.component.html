@@ -2,10 +2,12 @@
     <img  [src]="image" width="100%" height="90%"/>
     <div class="comment" *ngIf="!hideComment">
         <mat-form-field class="example-full-width" >
-            <mat-label>Entrez un commentaire</mat-label>
+            <mat-label *ngIf="langue == 'fr'">Entrez un commentaire</mat-label>
+            <mat-label *ngIf="langue == 'en'">Write a comment</mat-label>
             <textarea matInput [(ngModel)]="comment"></textarea>
         </mat-form-field>
-        <button mat-raised-button class="custom-button" [disabled]="comment.length < 1" (click)="save()">Sauvegarder</button>
+        <button mat-raised-button class="custom-button" [disabled]="comment.length < 1" (click)="save()" *ngIf="langue == 'fr'">Sauvegarder</button>
+        <button mat-raised-button class="custom-button" [disabled]="comment.length < 1" (click)="save()" *ngIf="langue == 'en'">Save</button>
     </div>
     
     

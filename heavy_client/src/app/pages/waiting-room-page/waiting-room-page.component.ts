@@ -33,6 +33,8 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
     arrayForngForBot : number[] = [];
     arrayForngForPlayers : number[] = [];
     usersIcons : Map<string,string> = new Map<string,string>()
+    langue = ""
+    theme = ""
 
     constructor(
         public router: Router,
@@ -68,6 +70,7 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
+        this.socketService.send('get-info')
     }
 
     configureBaseSocketFeatures() {
@@ -116,6 +119,10 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
             });
             this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
 
     startGame(): void {

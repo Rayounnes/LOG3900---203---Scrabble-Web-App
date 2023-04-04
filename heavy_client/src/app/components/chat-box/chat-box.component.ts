@@ -35,6 +35,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
+    langue = ""
+    theme = ""
 
     allUserChannels: any[] = [];
     currentChannel: string = 'General';
@@ -67,6 +69,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
+        this.socketService.send('get-config')
     }
     // verifyPlaceSocket() {
     //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -265,6 +268,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         })
         this.socketService.on("update-points-mean",(points : number)=>{
             this.socketService.send("update-points-mean",points)
+        })
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
         })
     }
     validCommandName(message: string): Command {

@@ -12,7 +12,10 @@
     </head>
     <body>
         <body>
-            <div class="center-div">
+            <div class="center-div" *ngIf="langue == 'fr'">
+                <h3>Liste d'indices</h3>
+            </div>
+            <div class="center-div" *ngIf="langue == 'en'">
                 <h3>Liste d'indices</h3>
             </div>
             <div class="element-container">

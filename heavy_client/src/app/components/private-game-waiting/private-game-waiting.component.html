@@ -1,10 +1,12 @@
-<h2 mat-dialog-title>Vous êtes en attente d'être accepté par le hôte de la partie</h2>
+<h2 mat-dialog-title *ngIf="langue == 'fr'">Vous êtes en attente d'être accepté par le hôte de la partie</h2>
+<h2 mat-dialog-title *ngIf="langue == 'en'">You are waiting for the host approval</h2>
 <mat-dialog-content>
   <div class="loading-spinner">
     <mat-spinner diameter="32"></mat-spinner>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-raised-button color="warn" (click)="cancelWaitingJoinedUser()">Annuler</button>
+  <button *ngIf="langue == 'fr'" mat-raised-button color="warn" (click)="cancelWaitingJoinedUser()">Annuler</button>
+  <button *ngIf="langue == 'en'" mat-raised-button color="warn" (click)="cancelWaitingJoinedUser()">Cancel</button>
 </mat-dialog-actions>
 

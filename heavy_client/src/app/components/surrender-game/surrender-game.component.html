@@ -1,4 +1,9 @@
-<div class="button">
+<div class="button" *ngIf="langue== 'fr'">
     <button mat-raised-button class="perso" color="warn" (click)="popUp()" *ngIf="!isGameFinished">Abandonner</button> 
     <button mat-raised-button class="perso" color="warn" (click)="leaveGame()" *ngIf="isGameFinished">Quitter</button> 
+</div>
+
+<div class="button" *ngIf="langue== 'en'">
+    <button mat-raised-button class="perso" color="warn" (click)="popUp()" *ngIf="!isGameFinished">Resign</button> 
+    <button mat-raised-button class="perso" color="warn" (click)="leaveGame()" *ngIf="isGameFinished">Leave</button> 
 </div>

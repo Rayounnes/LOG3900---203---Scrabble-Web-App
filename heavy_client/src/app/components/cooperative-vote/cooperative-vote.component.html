@@ -1,12 +1,15 @@
 
 
   <div class="command">
-    <h2 mat-dialog-title>Demande d'action</h2>
+    <h2 mat-dialog-title *ngIf="langue == 'fr'">Demande d'action</h2>
+    <h2 mat-dialog-title *ngIf="langue == 'en'">Action request</h2>
   </div>
   <div class="command">
     <span *ngIf="action.placement">{{action.placement.command}}</span>
-    <span *ngIf="action.action === 'exchange'">Echanger les lettres {{action.lettersToExchange}}</span>
-    <span *ngIf="action.action === 'pass'">Passer le tour</span>
+    <span *ngIf="action.action === 'exchange' && langue == 'fr'">Echanger les lettres {{action.lettersToExchange}}</span>
+    <span *ngIf="action.action === 'pass' && langue == 'fr'">Passer le tour</span>
+    <span *ngIf="action.action === 'exchange' && langue == 'en'">Exchange letters{{action.lettersToExchange}}</span>
+    <span *ngIf="action.action === 'pass' && langue == 'en'">Pass turn</span>
   </div>
   
   <div class="players" *ngIf="infoget">
@@ -33,8 +36,10 @@
   </div>
   <div class="choices" *ngIf="!choiceMade">
     <mat-dialog-actions>
-      <button mat-raised-button color="#1c8135" (click)="acceptAction()">Accepter</button>
-    <button mat-raised-button color="warn" (click)="rejectAction()">Refuser</button>
+      <button mat-raised-button color="#1c8135" (click)="acceptAction()" *ngIf="langue == 'fr'">Accepter</button>
+    <button mat-raised-button color="warn" (click)="rejectAction()" *ngIf="langue == 'fr'">Refuser</button>
+    <button mat-raised-button color="#1c8135" (click)="acceptAction()" *ngIf="langue == 'en'">Approve</button>
+    <button mat-raised-button color="warn" (click)="rejectAction()" *ngIf="langue == 'en'">Reject</button>
   </mat-dialog-actions>
   </div>
 

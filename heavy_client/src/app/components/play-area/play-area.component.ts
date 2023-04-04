@@ -62,6 +62,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     firstLetterPos: Vec2;
     hintWords: WordArgs[] = [];
 
+    langue = ""
+    theme = ""
+
     constructor(
         public gridService: GridService,
         public socketService: ChatSocketClientService,
@@ -171,10 +174,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
-                this.snackBar.open(placedWord.letters, 'Fermer', {
-                    duration: 2000,
-                    panelClass: ['snackbar'],
-                });
+                if(this.langue == "fr"){
+                    this.snackBar.open(placedWord.letters, 'Fermer', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                }else{
+                    this.snackBar.open(placedWord.letters, 'Close', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                }
+                
             } else {
                 if (this.isClassic) {
                     this.commandSent = true;
@@ -216,10 +227,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             if (this.isClassic) this.socketService.send('freeze-timer');
             if (placedWord.points === 0) {
                 await new Promise((r) => setTimeout(r, THREE_SECONDS));
-                this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
-                    duration: 2000,
-                    panelClass: ['snackbar'],
-                });
+                if(this.langue == "fr"){
+                    this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                }else{
+                    this.snackBar.open('Error : the created words are invalid', 'Close', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                }
+                
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', true);
                 this.gridService.removeLetter(placedWord.letters);
             } else {
@@ -242,9 +261,17 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             if (voteAction.action !== 'exchange') this.openVoteActionDialog(voteAction);
         });
         this.socketService.on('cooperative-invalid-action', (isPlacement: boolean) => {
-            const message = isPlacement
+            let message = ""
+            if(this.langue == "fr"){
+                message = isPlacement
                 ? 'Erreur : les mots crées sont invalides'
                 : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+            }else{
+                message = isPlacement
+                ? 'Error : Created words are invalid'
+                : 'Impossible : not enough letters in stock';
+            }
+            
             this.snackBar.open(message, 'Fermer', {
                 duration: 2000,
                 panelClass: ['snackbar'],
@@ -281,7 +308,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                     this.socketService.send('pass-turn');
                 }
             }
-            const message = result.isAccepted ? 'Action accepted' : 'Action refused';
+            let message = ""
+            if(this.langue == "en"){
+                message = result.isAccepted ? 'Action accepted' : 'Action refused';
+            }else{
+                message = result.isAccepted ? 'Action acceptée' : 'Action refusée';
+            }
+            
             this.snackBar.open(message, 'Fermer', {
                 duration: 3000,
                 panelClass: ['snackbar'],
@@ -307,6 +340,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 this.createWord(hints);
             }
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
 
     createWord(hints: Placement[]) {
@@ -347,6 +384,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     connect() {
         this.configureBaseSocketFeatures();
+        this.socketService.send('get-config')
     }
     get width(): number {
         return this.canvasSize.x;

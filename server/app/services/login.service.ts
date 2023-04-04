@@ -298,6 +298,26 @@ export class LoginService {
         }
     }
 
+    async getUserConfigs(username : string){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player && player['configs']){
+            let configs = player['configs'];
+            return configs
+        }else{
+            let configs = {langue : "fr", theme : "white"}
+            await this.userCollection.updateOne({username : username},{$set : { configs : configs}});
+            return configs
+        }
+    }
+
+    async updateUserConfigs(username : string, newConfig : any){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player){
+            await this.userCollection.updateOne({username : username},{$set : { configs : newConfig}});
+        }
+        
+    }
+
     async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);
