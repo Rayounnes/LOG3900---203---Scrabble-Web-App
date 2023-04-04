@@ -29,6 +29,10 @@ export class MainPageComponent {
         this.router.navigate(['/mode-training'])
     }
 
+    navHelpSection() {
+        this.router.navigate(['/section-help'])
+    }
+
     popUp() {
         const messageRef = this.dialog.open(BestScoresComponent, {
             width: 'auto',
