@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/main.dart';
 import '../constants/letters_points.dart';
+import '../constants/widgets.dart';
 import '../services/api_service.dart';
+import '../services/music_service.dart';
 import '../services/user_infos.dart';
 
 const DEFAULT_CLOCK = 60;
@@ -121,6 +123,21 @@ class _TimerPageState extends State<TimerPage> {
       setState(() {
         players = playersList;
       });
+      if (isGameFinished) {
+        var bestScore = 0;
+        var PlayerIdPoints = 0;
+        for (var player in players) {
+          if (player.points > bestScore) bestScore = player.points;
+          if (player.socket == getIt<SocketService>().socketId)
+            PlayerIdPoints = player.points;
+        }
+        // joueur a gagné
+        if(PlayerIdPoints > bestScore){
+          getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
+        } else {
+          getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
+        }
+      }
     });
     getIt<SocketService>().on('freeze-timer', (_) {
       _timer.cancel();

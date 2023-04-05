@@ -465,6 +465,7 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
+                    getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
                   }
                 });
               },
