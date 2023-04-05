@@ -32,6 +32,40 @@ const TIPS_FR = [
 "Le saviez-vous : Le Scrabble est considéré comme un sport mental et est joué en compétition à travers le monde.",
 "Astuces : Tentez des agencements de lettres si vous n'avez plus d'idée.",
 ];
+
+const TIPS_EN = [
+    "Tips: Pass your turn as a last resort, it's always better to place a letter.",
+    "Help: You can change your username on the profile page.",
+    "Did you know: The first handmade Scrabble sets cost $2.50 each.",
+    "Tips: When it's not possible to form a word, exchange the letters on your rack.",
+    "Help: Move the music icon on the screen to see the game board better.",
+    "Did you know: Scrabble is derived from the English word 'scrabble' which means to scratch or scrape.",
+    "Tips: Learning short words will increase your chances of placing words.",
+    "Help: Lower the volume of the background music to focus.",
+    "Did you know: Scrabble was created in 1938 by American architect Alfred Mosher Butts.",
+    "Tips: Try to make words plural to maximize points.",
+    "Help: The Spelling mode is a good way to practice and improve your vocabulary.",
+    "Did you know: A national Scrabble championship in the United States brought together over 300 players in August 2021.",
+    "Tips: Long words often have a high value and can earn a lot of points.",
+    "Did you know: FISF stands for International French Scrabble Federation.",
+    "Help: On the homepage, click the profile button to see your information.",
+    "Did you know: In 2020, FISF added 3,000 new words to its official list.",
+    "Tips: Use bonus squares (x2, x3, ...) to maximize your points.",
+    "Help: It's possible to observe a game in progress (e.g. classic mode -> join game -> observe).",
+    "Did you know: The letters in the game are distributed based on their frequency of use in the language.",
+    "Tips: Plan your next move in advance by evaluating possible combinations.",
+    "Help: Don't hesitate to change your avatar, this is possible on the profile page.",
+    "Did you know: The word that can score the highest number of points is 'oxyphenbutazone'.",
+    "Help: If you forget your password, click on forgot password.",
+    "Tips: Block spaces to prevent your opponent from scoring points.",
+    "Did you know: Scrabble is available in over 120 countries and is available in 29 different languages.",
+    "Help: To restrict the visibility of your games, make your game private at creation.",
+    "Tips: Add 2-letter words such as 'ne', 'ni', 'on', 'je', etc.",
+    "Help: Your login and logout histories are accessible on the profile page.",
+    "Did you know: Scrabble is considered a mental sport and is played competitively around the world.",
+    "Tips: Try letter combinations if you run out of ideas.",
+];
+
 const SLIDE_INTERVAL = 5000;
 @Component({
     selector: 'app-tips',
