@@ -11,6 +11,7 @@ import { JoindrePartieComponent } from '@app/pages/joindre-partie/joindre-partie
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { OrthographyPageComponent } from '@app/pages/orthography-page/orthography-page.component';
+import { SectionHelpComponent } from '@app/pages/section-help/section-help.component';
 import { WaitingRoomPageComponent } from '@app/pages/waiting-room-page/waiting-room-page.component';
 
 const routes: Routes = [
@@ -27,6 +28,7 @@ const routes: Routes = [
     { path: 'top-scores', component: BestScoresComponent },
     { path: 'admin', component: AdminPanelComponent },
     {path: 'mode-training', component: OrthographyPageComponent},
+    {path: 'section-help', component: SectionHelpComponent},
     { path: '**', redirectTo: '/home' },
    
 ];

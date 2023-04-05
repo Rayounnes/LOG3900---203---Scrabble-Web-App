@@ -1,0 +1,263 @@
+<div class="homeDiv">
+  <h1>Section aide</h1>
+  <div *ngIf="!showHelp" class="allButtons">
+    <button class="startButton" (click)="showHelpClicked('classic')">Mode classique</button>
+    <button class="startButton" (click)="showHelpClicked('cooperatif')">Mode coopératif</button>
+    <button class="startButton" (click)="showHelpClicked('training')">Mode entrainement</button>
+    <button class="startButton" (click)="showHelpClicked('buttons')">Règles du jeu</button>
+    <button class="startButton" (click)="showHelpClicked('profil')">Profil</button>
+
+  </div>
+
+
+  <div *ngIf="helpMode === 'classic'">
+
+    <h3>Mode classique</h3>
+    <mat-tab-group  animationDuration="1000ms">
+      <mat-tab *ngIf="itemsClassic[0]" label="Aide 1">
+        <div class="item-container">
+          <p class="text">{{itemsClassic[0].description}} </p>
+          <div class="image-wrapper">
+            <img src="{{itemsClassic[0].image}}" alt="{{itemsClassic[0].alt}}" class="help-image">
+          </div>
+        </div>
+      </mat-tab>
+
+        <mat-tab *ngIf="itemsClassic[1]" label="Aide 2">
+          <div class="item-container">
+            <p class="text">{{itemsClassic[1].description}} </p>
+            <div class="image-wrapper">
+              <img src="{{itemsClassic[1].image}}" alt="{{itemsClassic[1].alt}}" class="help-image">
+            </div>
+          </div>
+        </mat-tab>
+
+
+        <mat-tab *ngIf="itemsClassic[2]" label="Aide 3">
+          <div class="item-container">
+            <p class="text">{{itemsClassic[2].description}} </p>
+            <div class="image-wrapper">
+              <img src="{{itemsClassic[2].image}}" alt="{{itemsClassic[2].alt}}" class="help-image">
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab *ngIf="itemsClassic[3]" label="Aide 4">
+          <div class="item-container">
+            <p class="text">{{itemsClassic[3].description}} </p>
+            <div class="image-wrapper">
+              <img src="{{itemsClassic[3].image}}" alt="{{itemsClassic[3].alt}}" class="help-image">
+            </div>
+          </div>
+        </mat-tab>
+
+
+        <mat-tab *ngIf="itemsClassic[4]" label="Aide 5">
+          <div class="item-container">
+            <p class="text">{{itemsClassic[4].description}} </p>
+            <div class="image-wrapper">
+              <img src="{{itemsClassic[4].image}}" alt="{{itemsClassic[4].alt}}" class="help-image">
+            </div>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+      </div>
+    
+    
+
+
+  <div *ngIf="helpMode === 'training'">
+    <h3>Mode orthographe</h3>
+<mat-tab-group  animationDuration="1000ms">
+  <mat-tab *ngIf="itemsOrthography[0]" label="Aide 1">
+    <div class="item-container">
+      <p class="text">{{itemsOrthography[0].description}} </p>
+      <div class="image-wrapper">
+        <img src="{{itemsOrthography[0].image}}" alt="{{itemsOrthography[0].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+  <mat-tab *ngIf="itemsOrthography[1]" label="Aide 2">
+    <div class="item-container">
+      <p class="text">{{itemsOrthography[1].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsOrthography[1].image}}" alt="{{itemsOrthography[1].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngIf="itemsOrthography[2]" label="Aide 3">
+    <div class="item-container">
+      <p class="text">{{itemsOrthography[2].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsOrthography[2].image}}" alt="{{itemsOrthography[2].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngIf="itemsOrthography[3]" label="Aide 4">
+    <div class="item-container">
+      <p class="text">{{itemsOrthography[3].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsOrthography[3].image}}" alt="{{itemsOrthography[3].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+
+</mat-tab-group>   
+
+  </div>
+
+
+  
+
+
+  <div *ngIf="helpMode === 'profil'">
+    <h3>Profil</h3>
+<mat-tab-group  animationDuration="1000ms">
+  <mat-tab *ngIf="itemsProfil[0]" label="Aide 1">
+    <div class="item-container">
+      <p class="text">{{itemsProfil[0].description}} </p>
+      <div class="image-wrapper">
+        <img src="{{itemsProfil[0].image}}" alt="{{itemsProfil[0].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+  <mat-tab *ngIf="itemsProfil[1]" label="Aide 2">
+    <div class="item-container">
+      <p class="text">{{itemsProfil[1].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsProfil[1].image}}" alt="{{itemsProfil[1].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngIf="itemsProfil[2]" label="Aide 3">
+    <div class="item-container">
+      <p class="text">{{itemsProfil[2].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsProfil[2].image}}" alt="{{itemsProfil[2].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+</mat-tab-group>   
+
+  </div>
+
+
+
+
+  <div *ngIf="helpMode === 'cooperatif'">
+    <h3>Mode coopératif</h3>
+  <mat-tab-group  animationDuration="1000ms">
+  <mat-tab *ngIf="itemsCooperative[0]" label="Aide 1">
+    <div class="item-container">
+      <p class="text">{{itemsCooperative[0].description}} </p>
+      <div class="image-wrapper">
+        <img src="{{itemsCooperative[0].image}}" alt="{{itemsCooperative[0].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+  <mat-tab *ngIf="itemsCooperative[1]" label="Aide 2">
+    <div class="item-container">
+      <p class="text">{{itemsCooperative[1].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsCooperative[1].image}}" alt="{{itemsCooperative[1].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngIf="itemsCooperative[2]" label="Aide 3">
+    <div class="item-container">
+      <p class="text">{{itemsCooperative[2].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsCooperative[2].image}}" alt="{{itemsCooperative[2].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+</mat-tab-group>   
+
+  </div>
+
+
+
+
+
+  <div *ngIf="helpMode === 'buttons'">
+    <h3>Regles du jeu</h3>
+<mat-tab-group  animationDuration="1000ms">
+  <mat-tab *ngIf="itemsButtons[0]" label="Aide 1">
+    <div class="item-container">
+      <p class="text">{{itemsButtons[0].description}} </p>
+      <div class="image-wrapper">
+        <img src="{{itemsButtons[0].image}}" alt="{{itemsButtons[0].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+  <mat-tab *ngIf="itemsButtons[1]" label="Aide 2">
+    <div class="item-container">
+      <p class="text">{{itemsButtons[1].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsButtons[1].image}}" alt="{{itemsButtons[1].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngIf="itemsButtons[2]" label="Aide 3">
+    <div class="item-container">
+      <p class="text">{{itemsButtons[2].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsButtons[2].image}}" alt="{{itemsButtons[2].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+
+  <mat-tab *ngIf="itemsButtons[3]" label="Aide 4">
+    <div class="item-container">
+      <p class="text">{{itemsButtons[3].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsButtons[3].image}}" alt="{{itemsButtons[3].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+
+  <mat-tab *ngIf="itemsButtons[4]" label="Aide 5">
+    <div class="item-container">
+      <p class="text">{{itemsButtons[4].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsButtons[4].image}}" alt="{{itemsButtons[4].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+</mat-tab-group>   
+
+  </div>
+ 
+  <div *ngIf="showHelp">
+    <button (click)="backHelp()" class="startButton">Retour</button>
+  </div>
+
+
+</div>

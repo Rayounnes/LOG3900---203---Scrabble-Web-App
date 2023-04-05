@@ -21,7 +21,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   List<dynamic> wordOfTraining = [];
   dynamic currentWord = [];
   int stateWord = 0;
-  int numberWordsTotal = 10;
+  int numberWordsTotal = 3;
   int chances = 3;
   bool hasStarted = false;
   bool hideButton = false;
