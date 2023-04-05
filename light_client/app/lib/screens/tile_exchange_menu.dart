@@ -1,4 +1,5 @@
 import 'package:app/constants/widgets.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
@@ -22,7 +23,8 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
   final Map<int, bool> isCheckedList = {};
   List<int> indexToExchange = [];
   late Personnalisation langOrTheme;
-
+  String lang = "en";
+  TranslateService translate = TranslateService();
 
   @override
   void initState() {
@@ -32,7 +34,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
   }
 
   void handleSockets() {
-    getIt<SocketService>().on("get-theme-language", (value) {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
   }
@@ -76,7 +78,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Lettre à échanger',
+                  translate.translateString(lang,'Lettre à échanger'),
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 50.0),
@@ -116,7 +118,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text('Annuler'),
+                        child: Text(translate.translateString(lang,'Annuler')),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 50),

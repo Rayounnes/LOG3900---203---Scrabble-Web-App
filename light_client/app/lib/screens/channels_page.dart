@@ -5,6 +5,7 @@ import 'package:app/widgets/button.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/api_service.dart';
+import '../services/translate_service.dart';
 
 import '../models/placement.dart';
 
@@ -29,14 +30,16 @@ class _ChannelsState extends State<Channels> {
   int count = -1;
   int countJoin = 0;
   late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
+
   List<dynamic> channelsUsers = [];
-  final nameController = TextEditingController(text: "Nouvelle discussion");
-  
+  var nameController = TextEditingController(text: "Nouvelle discussion");
+
   List<bool> newMessage = [false];
 
   String chatDeleted = '';
   String chatJoined = '';
- 
 
   handleSockets() async {
     ApiService().getAllChannels().then((response) {
@@ -120,6 +123,8 @@ class _ChannelsState extends State<Channels> {
 
     getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
+      nameController =TextEditingController(text: translate.translateString(lang,"Nouvelle discussion"));
+
     });
   }
 
@@ -211,7 +216,7 @@ class _ChannelsState extends State<Channels> {
                     route: () {
                       showModalAdd(context);
                     },
-                    name: "Créer un chat",
+                    name: translate.translateString(lang, "Créer un chat"),
                   ),
                 ),
                 Expanded(
@@ -220,7 +225,7 @@ class _ChannelsState extends State<Channels> {
                     route: () {
                       showModalDelete(context);
                     },
-                    name: "Supprimer un chat",
+                    name: translate.translateString(lang, "Supprimer un chat"),
                   ),
                 ),
                 Expanded(
@@ -229,7 +234,7 @@ class _ChannelsState extends State<Channels> {
                     route: () {
                       showModalSearch(context);
                     },
-                    name: "Rechercher un chat",
+                    name: translate.translateString(lang, "Rechercher un chat"),
                   ),
                 ),
               ],
@@ -245,7 +250,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: Text('Créer un nouveau chat'),
+        title: Text(translate.translateString(lang, 'Créer un nouveau chat')),
         content: Container(
           height: 150,
           child: Form(
@@ -257,7 +262,7 @@ class _ChannelsState extends State<Channels> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Nom du chat",
+                    translate.translateString(lang, "Nom du chat"),
                   ),
                 ),
                 Container(
@@ -298,7 +303,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: Text('Supprimer un chat'),
+        title: Text(translate.translateString(lang, 'Supprimer un chat')),
         content: Container(
           height: 150,
           child: Form(
@@ -310,12 +315,12 @@ class _ChannelsState extends State<Channels> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Choisissez un chat à supprimer",
+                    translate.translateString(lang, "Choisissez un chat à supprimer"),
                   ),
                 ),
                 DropdownButtonFormField(
                   validator: (value) => value == null
-                      ? "Veuillez choisir le chat à supprimer"
+                      ? translate.translateString(lang, "Veuillez choisir le chat à supprimer")
                       : null,
                   value: discussions[0],
                   onChanged: (String? newValue) {
@@ -359,7 +364,7 @@ class _ChannelsState extends State<Channels> {
               Navigator.of(context).pop();
             },
             child: Text(
-              "Supprimer le chat",
+              translate.translateString(lang, "Supprimer le chat"),
             ),
           )
         ],
@@ -405,7 +410,7 @@ class _ChannelsState extends State<Channels> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher',
+                    hintText: translate.translateString(lang, 'Rechercher'),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -466,7 +471,7 @@ class _ChannelsState extends State<Channels> {
 
                         Navigator.of(context).pop();
                       },
-                      child: Text("Rejoindre le(s) chat(s)"),
+                      child: Text(translate.translateString(lang, "Rejoindre le(s) chat(s)")),
                     ),
                   ],
                 ),

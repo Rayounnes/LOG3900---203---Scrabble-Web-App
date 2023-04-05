@@ -1,3 +1,4 @@
+import 'package:app/services/translate_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -18,7 +19,8 @@ class _GalleryPageState extends State<GalleryPage> {
   File? imageFile;
   int index = -1;
   late Personnalisation langOrTheme;
-
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
@@ -33,23 +35,24 @@ class _GalleryPageState extends State<GalleryPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text("Image trop volumineuse")),
+              content: Text(translate.translateString(lang, "Image trop volumineuse"))),
         );
       }
     }
   }
-    @override
+
+  @override
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
     handleSockets();
-
   }
-  void handleSockets(){
-    getIt<SocketService>().on("get-theme-language", (value) {
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
   }
@@ -58,7 +61,7 @@ class _GalleryPageState extends State<GalleryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Page de choix d'icône"),
+        title: Text(translate.translateString(lang, "Page de choix d'icône")),
       ),
       body: Center(
         child: Column(
@@ -72,7 +75,7 @@ class _GalleryPageState extends State<GalleryPage> {
               Column(
                 children: [
                   Text(
-                    'Choississez une icône ou importer une image',
+                    translate.translateString(lang, 'Choississez une icône ou importer une image'),
                     style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w700,
@@ -106,7 +109,7 @@ class _GalleryPageState extends State<GalleryPage> {
                     padding: const EdgeInsets.only(left: 50.0),
                     child: FloatingActionButton(
                       onPressed: () {
-                        if(index >= 0){
+                        if (index >= 0) {
                           imageFile = File("$index");
                         }
                         Navigator.pop(context, imageFile);

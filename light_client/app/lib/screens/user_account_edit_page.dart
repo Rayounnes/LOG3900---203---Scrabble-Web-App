@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 
 import 'package:app/screens/gallery_page.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
@@ -16,7 +17,6 @@ class UserAccountEditPage extends StatefulWidget {
   final String username;
 
   const UserAccountEditPage({super.key, required this.username});
-
 
   @override
   _UserAccountEditPageState createState() => _UserAccountEditPageState();
@@ -32,7 +32,8 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   bool isIcon = false;
   int number = -1;
   late Personnalisation langOrTheme;
-
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -48,10 +49,10 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     super.dispose();
   }
 
-  void handleSockets(){
-    getIt<SocketService>().on("get-theme-language", (value) {
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
-  });
+    });
   }
 
   void setProfilePic(String imagePath) {
@@ -93,10 +94,11 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
           getIt<SocketService>().send('change-username', name);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
                 backgroundColor: Color.fromARGB(255, 83, 162, 84),
                 duration: Duration(seconds: 3),
-                content: Text("Ce username est deja utilisé !")),
+                content: Text(translate.translateString(
+                    lang, translate.translateString(lang,"Ce username est deja utilisé !")))),
           );
           return;
         }
@@ -121,7 +123,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Modification du compte',
+          translate.translateString(lang,'Modification du compte'),
         ),
       ),
       body: Center(
@@ -249,16 +251,16 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                       left: 30.0, bottom: 15.0, right: 30.0, top: 50),
                   child: TextFormField(
                     controller: usernameValidationController,
-                    decoration: const InputDecoration(
-                      hintText: "Entrez votre nom d'utilisateur",
+                    decoration:  InputDecoration(
+                      hintText: translate.translateString(lang,"Entrez votre nom d'utilisateur"),
                       icon: Icon(Icons.account_box),
                       border: OutlineInputBorder(),
                     ),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Entrez votre nom d'utilisateur";
+                        return translate.translateString(lang,"Entrez votre nom d'utilisateur");
                       } else if (value != widget.username) {
-                        return "Le nom utilisateur est incorrect";
+                        return translate.translateString(lang,"Le nom utilisateur est incorrect");
                       }
                       return null;
                     },
@@ -269,17 +271,17 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                       left: 30.0, bottom: 15.0, right: 30.0, top: 20),
                   child: TextFormField(
                     controller: newUsernameController,
-                    decoration: const InputDecoration(
-                      hintText: "Nouveau nom d'utilisateur",
+                    decoration: InputDecoration(
+                      hintText: translate.translateString(lang,"Nouveau nom d'utilisateur"),
                       border: OutlineInputBorder(),
                       icon: Icon(Icons.account_box),
                     ),
                     validator: (String? value) {
                       if (value != '' && value!.length < 5) {
-                        return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                        return translate.translateString(lang,"Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                       } else if (value != '' &&
                           !value!.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                        return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                        return translate.translateString(lang,"Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                       }
                       return null;
                     },

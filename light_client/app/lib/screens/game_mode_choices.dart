@@ -3,6 +3,7 @@ import 'package:app/models/game.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,8 @@ class _GameChoicesState extends State<GameChoices> {
   final humanPlayersController = TextEditingController(text: "2");
   final passwordGameController = TextEditingController();
   late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   bool isClassicMode = false;
   Game game = Game(
@@ -62,8 +65,8 @@ class _GameChoicesState extends State<GameChoices> {
     super.dispose();
   }
 
-  void handleSockets(){
-    getIt<SocketService>().on("get-theme-language", (value) {
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
   }
@@ -123,7 +126,7 @@ class _GameChoicesState extends State<GameChoices> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child:
-                      Text('Créez ou rejoignez une partie ${widget.modeName}',
+                      Text(translate.translateString(lang, 'Créez ou rejoignez une partie')+ widget.modeName,
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
@@ -132,13 +135,13 @@ class _GameChoicesState extends State<GameChoices> {
                 SizedBox(height: 15.0),
                 GameButton(
                     padding: 25.0,
-                    name: "Créer une partie",
+                    name: translate.translateString(lang, "Créer une partie"),
                     route: () {
                       showModal(context);
                     }),
                 GameButton(
                     padding: 32.0,
-                    name: "Rejoindre une partie",
+                    name: translate.translateString(lang, "Rejoindre une partie"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -163,7 +166,7 @@ class _GameChoicesState extends State<GameChoices> {
           bool _isChecked = false;
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text('Créer une partie ${widget.modeName}'),
+              title: Text(translate.translateString(lang, 'Créer une partie') +  widget.modeName),
               content: Container(
                 width: 500,
                 child: Form(
@@ -173,9 +176,9 @@ class _GameChoicesState extends State<GameChoices> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Text("Créez une partie publique ou privée"),
+                      Text(translate.translateString(lang, "Créez une partie publique ou privée")),
                       CheckboxListTile(
-                        title: Text('Partie privée'),
+                        title: Text(translate.translateString(lang, 'Partie privée')),
                         value: _isChecked,
                         onChanged: (newValue) {
                           setState(() {
@@ -191,15 +194,15 @@ class _GameChoicesState extends State<GameChoices> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: "Nombres de joueurs humains",
-                              labelText: "Nombres de joueurs humains"),
+                              hintText: translate.translateString(lang, "Nombres de joueurs humains"),
+                              labelText: translate.translateString(lang, "Nombres de joueurs humains")),
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
-                              return "Nombre de joeurs humains requis.";
+                              return translate.translateString(lang, "Nombre de joeurs humains requis.");
                             } else if (int.parse(value) < 2) {
-                              return "Le nombre de joueurs humains minimum est de 2.";
+                              return translate.translateString(lang, "Le nombre de joueurs humains minimum est de 2.");
                             } else if (int.parse(value) > 4) {
-                              return "Le nombre de joueurs humains maximum est de 4.";
+                              return translate.translateString(lang, "Le nombre de joueurs humains maximum est de 4.");
                             }
                             return null;
                           },
@@ -213,15 +216,15 @@ class _GameChoicesState extends State<GameChoices> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Temps par tour (s)',
-                                labelText: 'Temps'),
+                                hintText: translate.translateString(lang, 'Temps par tour (s)'),
+                                labelText: translate.translateString(lang, 'Temps')),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return "Temps par tour requis.";
+                                return translate.translateString(lang, "Temps par tour requis.");
                               } else if (int.parse(value) < MIN_TIME_TURN) {
-                                return "Le temps minimum est 30 secondes.";
+                                return translate.translateString(lang, "Le temps minimum est 30 secondes.");
                               } else if (int.parse(value) > MAX_TIME_TURN) {
-                                return "Le temps maximum est de 300 secondes.";
+                                return translate.translateString(lang, "Le temps maximum est de 300 secondes.");
                               }
                               return null;
                             },
@@ -230,12 +233,12 @@ class _GameChoicesState extends State<GameChoices> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "Dictionnaire de jeu",
+                          translate.translateString(lang, "Dictionnaire de jeu"),
                         ),
                       ),
                       DropdownButtonFormField(
                           validator: (value) => value == null
-                              ? "Veillez choisir un dictionnaire"
+                              ? translate.translateString(lang, "Veillez choisir un dictionnaire")
                               : null,
                           value: dictionary,
                           onChanged: (String? newValue) {
@@ -252,9 +255,9 @@ class _GameChoicesState extends State<GameChoices> {
                             obscureText: true,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Mot de passe de partie',
+                                hintText: translate.translateString(lang, 'Mot de passe de partie'),
                                 labelText:
-                                    'Mot de passe de partie publique (optionnel)'),
+                                    translate.translateString(lang, 'Mot de passe de partie publique (optionnel)')),
                           ),
                         ),
                     ],
@@ -267,7 +270,7 @@ class _GameChoicesState extends State<GameChoices> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    "Annuler",
+                    translate.translateString(lang, "Annuler"),
                   ),
                 ),
                 ElevatedButton(
@@ -275,7 +278,7 @@ class _GameChoicesState extends State<GameChoices> {
                     createGame(_isChecked);
                   },
                   child: Text(
-                    "Créer la partie",
+                    translate.translateString(lang, "Créer la partie"),
                   ),
                 )
               ],

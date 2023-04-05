@@ -1,5 +1,6 @@
 import 'package:app/screens/channels_page.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
@@ -15,18 +16,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-    late Personnalisation langOrTheme;
-
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
     handleSockets();
-
   }
 
-  void handleSockets(){
-    getIt<SocketService>().on("get-theme-language", (value) {
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
   }
@@ -38,10 +39,10 @@ class _HomePageState extends State<HomePage> {
     await ApiService().logoutUser(username);
     getIt<SocketService>().disconnect();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
           backgroundColor: Colors.blue,
           duration: Duration(seconds: 3),
-          content: Text("Vous avez été déconnecté avec succés")),
+          content: Text(translate.translateString(lang, "Vous avez été déconnecté avec succés"))),
     );
     Navigator.pushNamed(context, '/loginScreen');
   }
@@ -76,11 +77,11 @@ class _HomePageState extends State<HomePage> {
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.message),
-          label: "Conversations",
+          label: translate.translateString(lang, "Conversations"),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.logout),
-          label: "Déconnexion",
+          label: translate.translateString(lang, "Déconnexion"),
         ),
         BottomNavigationBarItem(
           icon: Stack(
@@ -121,14 +122,14 @@ class _HomePageState extends State<HomePage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Etes-vous sur de vous déconnecter ?'),
+        title:  Text(translate.translateString(lang, 'Déconnexion')),
+        content:  Text(translate.translateString(lang, 'Etes-vous sur de vous déconnecter ?')),
         actions: <TextButton>[
           TextButton(
             onPressed: () {
               logoutUser();
             },
-            child: const Text('Oui'),
+            child:  Text(translate.translateString(lang, 'Oui')),
           ),
           TextButton(
             onPressed: () {
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                 },
               );
             },
-            child: const Text('Non'),
+            child:  Text(translate.translateString(lang, 'Non')),
           ),
         ],
       ),

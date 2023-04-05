@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
@@ -51,6 +52,8 @@ class _GamePageState extends State<GamePage> {
   String selectedLetter = '';
   MusicService musicService = MusicService();
   late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -78,8 +81,8 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("Abandonner la partie"),
-            content: Text("Voulez-vous abandonner la partie?"),
+            title:  Text(translate.translateString(lang, "Abandonner la partie")),
+            content: Text(translate.translateString(lang, "Voulez-vous abandonner la partie?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -90,13 +93,13 @@ class _GamePageState extends State<GamePage> {
                     return GameModes();
                   }));
                 },
-                child: const Text('Oui'),
+                child:  Text(translate.translateString(lang, 'Oui')),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Non'),
+                child:  Text(translate.translateString(lang, 'Non')),
               ),
             ],
           );
@@ -310,7 +313,7 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('validate-created-words', (placedWord) async {
       if (widget.isClassicMode) getIt<SocketService>().send('freeze-timer');
       if (placedWord["points"] != 0) {
-        musicService.playMusic(GOOD_PLACEMENT_SOUND,false);
+        musicService.playMusic(GOOD_PLACEMENT_SOUND, false);
         final lettersjson = jsonEncode(placedWord["letters"]);
         getIt<SocketService>().send('draw-letters-opponent', placedWord);
 
@@ -323,11 +326,11 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
-              content: Text('Erreur : les mots crées sont invalides')),
+              content: Text(translate.translateString(lang, 'Erreur : les mots crées sont invalides'))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
-        musicService.playMusic(BAD_PLACEMENT_SOUND,false);
+        musicService.playMusic(BAD_PLACEMENT_SOUND, false);
         setTileOnRack();
         changeTurn();
       }
@@ -368,8 +371,8 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
       final message = isPlacement
-          ? 'Erreur : les mots crées sont invalides'
-          : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+          ? translate.translateString(lang, 'Erreur : les mots crées sont invalides')
+          : translate.translateString(lang, 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
@@ -386,10 +389,9 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    getIt<SocketService>().on("get-theme-language", (value) {
+    getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
-
   }
 
   void switchRack(bool isForExchange) {
@@ -464,7 +466,7 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         switchRack(true);
       });
-      musicService.playMusic(SWITCH_TURN_SOUND,false);
+      musicService.playMusic(SWITCH_TURN_SOUND, false);
     } else {
       sendVoteAction("pass", null, null);
     }
@@ -473,7 +475,7 @@ class _GamePageState extends State<GamePage> {
   void exchangeCommand(String lettersToExchange) {
     if (widget.isClassicMode) {
       getIt<SocketService>().send('exchange-command', lettersToExchange);
-      musicService.playMusic(CHANGE_TILE_SOUND,false);
+      musicService.playMusic(CHANGE_TILE_SOUND, false);
     } else {
       sendVoteAction("exchange", null, lettersToExchange);
     }
@@ -486,8 +488,8 @@ class _GamePageState extends State<GamePage> {
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
-            title: const Text(
-              'Page de jeu',
+            title:  Text(
+              translate.translateString(lang, 'Page de jeu'),
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             actions: [
@@ -495,7 +497,7 @@ class _GamePageState extends State<GamePage> {
                 heroTag: "btn1",
                 onPressed: () {
                   isEndGame ? leaveGame() : openAbandonDialog(context);
-                  musicService.playMusic(LOSE_GAME_SOUND,false);
+                  musicService.playMusic(LOSE_GAME_SOUND, false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return GameModes();
                   }));
