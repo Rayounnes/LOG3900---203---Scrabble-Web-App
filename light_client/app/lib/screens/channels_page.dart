@@ -1,9 +1,13 @@
+import 'package:app/models/personnalisation.dart';
 import 'package:flutter/material.dart';
 import 'package:app/widgets/channel.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/api_service.dart';
+import '../services/translate_service.dart';
+
+import '../models/placement.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -25,11 +29,15 @@ class _ChannelsState extends State<Channels> {
   List<String> selectedList = [];
   int count = -1;
   int countJoin = 0;
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   List<dynamic> channelsUsers = [];
-  final nameController = TextEditingController(text: "Nouvelle discussion");
+  var nameController = TextEditingController(text: "Nouvelle discussion");
+
   List<bool> newMessage = [false];
-  
+
   String chatDeleted = '';
   String chatJoined = '';
 
@@ -51,10 +59,10 @@ class _ChannelsState extends State<Channels> {
         channelsUsers = response;
         setState(() {
           discussions = ["General"];
-          for(String channel in channelsUsers) {
-            if(channel != "General") {
-                discussions.add(channel);
-                newMessage.add(false);
+          for (String channel in channelsUsers) {
+            if (channel != "General") {
+              discussions.add(channel);
+              newMessage.add(false);
             }
           }
         });
@@ -76,16 +84,15 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-      getIt<SocketService>().on("notify-message", (message) {
+    getIt<SocketService>().on("notify-message", (message) {
       try {
         if (mounted) {
           setState(() {
-            for(int i=0; i< discussions.length; i++) {
-              if(message['channel'] == discussions[i]) {
+            for (int i = 0; i < discussions.length; i++) {
+              if (message['channel'] == discussions[i]) {
                 newMessage[i] = true;
               }
             }
-
           });
         }
       } catch (e) {
@@ -101,7 +108,6 @@ class _ChannelsState extends State<Channels> {
           countJoin = countJoin + 1;
           print(countJoin);
           setState(() {
-          
             print(selectedList.length);
            
             if(countJoin == selectedList.length) {
@@ -117,6 +123,12 @@ class _ChannelsState extends State<Channels> {
       } catch (e) {
         print(e);
       }
+    });
+
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+      nameController =TextEditingController(text: translate.translateString(lang,"Nouvelle discussion"));
+
     });
   }
 
@@ -141,30 +153,95 @@ class _ChannelsState extends State<Channels> {
   }
 
   void updateMessageState(int index) {
-  setState(() {
-    newMessage[index] = false;
-  });
-}
+    setState(() {
+      newMessage[index] = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    physics: BouncingScrollPhysics(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  "Conversations",
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                )
-              ],
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    "Conversations",
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
             ),
+          ),
+          ListView.separated(
+            itemCount: discussions.length,
+            shrinkWrap: true,
+            padding: EdgeInsets.all(16),
+            physics: BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Stack(
+                children: [
+                  Channel(
+                    name: discussions[index],
+                    updateMessageState: () => updateMessageState(index),
+                  ),
+                  if (newMessage[index])
+                    Positioned(
+                      right: 8,
+                      top: 17,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+            separatorBuilder: (context, index) => SizedBox(
+              height: 10,
+            ),
+          ),
+          ListTile(
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalAdd(context);
+                    },
+                    name: translate.translateString(lang, "Créer un chat"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalDelete(context);
+                    },
+                    name: translate.translateString(lang, "Supprimer un chat"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalSearch(context);
+                    },
+                    name: translate.translateString(lang, "Rechercher un chat"),
+                  ),
+                ),
+              ],
           ),
         ),
         ListView.separated(
@@ -209,7 +286,7 @@ class _ChannelsState extends State<Channels> {
                   route: () {
                     showModalAdd(context);
                   }, 
-                  name: "Créer un chat",
+                  name: translate.translateString(lang, "Créer un chat"),
                 ),
               ),
               Expanded(
@@ -218,7 +295,7 @@ class _ChannelsState extends State<Channels> {
                   route: () {
                     showModalDelete(context);
                   }, 
-                  name: "Supprimer un chat",
+                  name: translate.translateString(lang, "Supprimer un chat"),
                 ),
               ),
               Expanded(
@@ -227,7 +304,7 @@ class _ChannelsState extends State<Channels> {
                   route: () {
                     showModalSearch(context);
                   }, 
-                  name: "Rechercher un chat",
+                  name: translate.translateString(lang, "Rechercher un chat"),
                 ),
               ),
             ],
@@ -238,13 +315,12 @@ class _ChannelsState extends State<Channels> {
   );
 }
 
-
   void showModalAdd(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: Text('Créer un nouveau chat'),
+        title: Text(translate.translateString(lang, 'Créer un nouveau chat')),
         content: Container(
           height: 150,
           child: Form(
@@ -256,7 +332,7 @@ class _ChannelsState extends State<Channels> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Nom du chat",
+                    translate.translateString(lang, "Nom du chat"),
                   ),
                 ),
                 Container(
@@ -274,7 +350,7 @@ class _ChannelsState extends State<Channels> {
               Navigator.of(context).pop();
             },
             child: Text(
-              "Annuler",
+              translate.translateString(lang, "Annuler"),
             ),
           ),
           ElevatedButton(
@@ -285,7 +361,7 @@ class _ChannelsState extends State<Channels> {
               Navigator.of(context).pop();
             },
             child: Text(
-              "Créer le chat",
+              translate.translateString(lang, "Créer le chat"),
             ),
           )
         ],
@@ -298,7 +374,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: Text('Supprimer un chat'),
+        title: Text(translate.translateString(lang, 'Supprimer un chat')),
         content: Container(
           height: 150,
           child: Form(
@@ -310,12 +386,12 @@ class _ChannelsState extends State<Channels> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Choisissez un chat à supprimer",
+                    translate.translateString(lang, "Choisissez un chat à supprimer"),
                   ),
                 ),
                 DropdownButtonFormField(
                   validator: (value) => value == null
-                      ? "Veuillez choisir le chat à supprimer"
+                      ? translate.translateString(lang, "Veuillez choisir le chat à supprimer")
                       : null,
                   value: discussions[0],
                   onChanged: (String? newValue) {
@@ -340,7 +416,7 @@ class _ChannelsState extends State<Channels> {
               Navigator.of(context).pop();
             },
             child: Text(
-              "Annuler",
+              translate.translateString(lang, "Annuler"),
             ),
           ),
           ElevatedButton(
@@ -359,7 +435,7 @@ class _ChannelsState extends State<Channels> {
               Navigator.of(context).pop();
             },
             child: Text(
-              "Supprimer le chat",
+              translate.translateString(lang, "Supprimer le chat"),
             ),
           )
         ],
@@ -405,7 +481,7 @@ class _ChannelsState extends State<Channels> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher',
+                    hintText: translate.translateString(lang, 'Rechercher'),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -454,7 +530,7 @@ class _ChannelsState extends State<Channels> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text("Annuler"),
+                      child: Text(translate.translateString(lang, "Annuler")),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -466,7 +542,7 @@ class _ChannelsState extends State<Channels> {
 
                         Navigator.of(context).pop();
                       },
-                      child: Text("Rejoindre le(s) chat(s)"),
+                      child: Text(translate.translateString(lang, "Rejoindre le(s) chat(s)")),
                     ),
                   ],
                 ),

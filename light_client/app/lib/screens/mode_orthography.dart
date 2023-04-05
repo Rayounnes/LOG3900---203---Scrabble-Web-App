@@ -4,11 +4,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:app/services/socket_client.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import 'package:app/main.dart';
 import 'package:app/models/words_orthography_model.dart';
 
+import '../models/personnalisation.dart';
 import '../services/user_infos.dart';
 
 class ModeOrthography extends StatefulWidget {
@@ -33,6 +35,9 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   int bestScore = 0;
   String username = getIt<UserInfos>().user;
   int countdown = 0;
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -191,7 +196,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              "Bienvenue au mode entrainement orthographe",
+              translate.translateString(lang, "Bienvenue au mode entrainement orthographe"),
               style: TextStyle(fontSize: 30.0, color: Color(0xFF0c5c03)),
             ),
             if (countdown > 0) Text("$countdown"),
@@ -202,7 +207,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                   backgroundColor: MaterialStateProperty.all(Color(0xFF0c5c03)),
                 ),
                 onPressed: hideButton ? null : startCountdown,
-                child: Text("Commencer l'entraînement",
+                child: Text(translate.translateString(lang, "Commencer l'entraînement"),
                     style: TextStyle(color: Colors.white)),
               ),
             SizedBox(height: 16.0),
@@ -269,7 +274,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
               style: TextStyle(fontSize: 25.0, color: Color(0xFF0c5c03)),
             ),
             Text(
-              "Votre meilleur score : $bestScore",
+              translate.translateString(lang, "Votre meilleur score") + ": $bestScore",
               style: TextStyle(fontSize: 25.0, color: Color(0xFF0c5c03)),
             ),
             SizedBox(height: 16.0),
@@ -278,13 +283,13 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                 backgroundColor: MaterialStateProperty.all(Color(0xFF0c5c03)),
               ),
               onPressed: leavePage,
-              child: Text("Quitter", style: TextStyle(color: Colors.white)),
+              child: Text(translate.translateString(lang, "Quitter"), style: TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 16.0),
             Visibility(
               visible: gameOver,
               child: Text(
-                "Désolé, vous avez perdu !",
+                translate.translateString(lang, "Désolé, vous avez perdu !"),
                 style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
@@ -294,7 +299,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
             Visibility(
               visible: modeDone,
               child: Text(
-                "Bien joué, vous avez fini le mode d'entraînement orthographe !",
+                translate.translateString(lang, "Bien joué, vous avez fini le mode d'entraînement orthographe !"),
                 style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,

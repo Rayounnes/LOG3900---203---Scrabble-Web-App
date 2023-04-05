@@ -8,6 +8,9 @@ import "package:app/services/api_service.dart";
 import 'package:app/services/user_infos.dart';
 import 'package:app/main.dart';
 
+import '../models/personnalisation.dart';
+import '../services/translate_service.dart';
+
 class LoginDemo extends StatefulWidget {
   @override
   _LoginDemoState createState() => _LoginDemoState();
@@ -19,11 +22,26 @@ class _LoginDemoState extends State<LoginDemo> {
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
 
+  String lang = "en";
+  late Personnalisation langOrTheme;
+  TranslateService translate = new TranslateService();
+  String selectedLanguage = 'fr';
+
+  int _selectedButton = 1;
+
+  void _onButtonSelected(int? value) {
+    setState(() {
+      _selectedButton = value!;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     if (!getIt<SocketService>().isSocketAlive())
       getIt<SocketService>().connect();
+    getIt<SocketService>().send("update-configs");
+    handleSockets();
   }
 
   @override
@@ -31,6 +49,18 @@ class _LoginDemoState extends State<LoginDemo> {
     usernameController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+    });
+  }
+
+  void setLanguage() {
+    selectedLanguage = _selectedButton == 1 ? "fr" : "en";
+    getIt<SocketService>().send("setLanguage", selectedLanguage);
+    lang = selectedLanguage;
   }
 
   void connect() async {
@@ -47,13 +77,12 @@ class _LoginDemoState extends State<LoginDemo> {
       });
       Navigator.pushNamed(context, '/gameChoicesScreen');
     } else if (response == HTTP_STATUS_UNAUTHORIZED) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-            content: Text(
-                "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.blue,
+        duration: Duration(seconds: 3),
+        content: Text(translate.translateString(lang,
+            "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer")),
+      ));
     }
   }
 
@@ -82,7 +111,9 @@ class _LoginDemoState extends State<LoginDemo> {
                     child: Container(
                       width: 200,
                       height: 150,
-                      child: Text('Connexion à votre compte',
+                      child: Text(
+                          translate.translateString(
+                              lang, "Connexion à votre compte"),
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
@@ -93,18 +124,22 @@ class _LoginDemoState extends State<LoginDemo> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
-                      hintText: "Nom d'utilisateur",
+                    decoration: InputDecoration(
+                      hintText:
+                          translate.translateString(lang, "Nom d'utilisateur"),
                       border: OutlineInputBorder(),
                       icon: Icon(Icons.account_box),
                     ),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Nom d'utilisateur requis.";
+                        return translate.translateString(
+                            lang, "Nom d'utilisateur requis.");
                       } else if (value.length < 5) {
-                        return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                        return translate.translateString(lang,
+                            "Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                       } else if (!value.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                        return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                        return translate.translateString(lang,
+                            "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                       }
                       return null;
                     },
@@ -114,17 +149,22 @@ class _LoginDemoState extends State<LoginDemo> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     controller: passwordController,
-                    decoration: const InputDecoration(
-                      hintText: "Mot de passe",
+                    decoration: InputDecoration(
+                      hintText: translate.translateString(lang, "Mot de passe"),
                       icon: Icon(Icons.password),
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return "Mot de passe requis.";
+                        return translate.translateString(
+                            lang, "Mot de passe requis.");
+
+                        // return "Mot de passe requis.";
                       } else if (value.length < 6) {
-                        return "Un mot de passe doit contenir au minimum 6 caractéres.";
+                        return translate.translateString(lang,
+                            "Un mot de passe doit contenir au minimum 6 caractéres.");
+                        // return "Un mot de passe doit contenir au minimum 6 caractéres.";
                       }
                       return null;
                     },
@@ -135,18 +175,21 @@ class _LoginDemoState extends State<LoginDemo> {
                   child: ElevatedButton(
                     onPressed: () {
                       connect();
+                      setLanguage();
                     },
-                    child: Text('Connexion'),
+                    child: Text(translate.translateString(lang, "Connexion")),
                   ),
                 ),
                 TextButton(
-                  child: Text('Nouveau? Créer votre compte'),
+                  child: Text(translate.translateString(
+                      lang, 'Nouveau? Créer votre compte')),
                   onPressed: () {
                     Navigator.pushNamed(context, '/signScreen');
                   },
                 ),
                 TextButton(
-                  child: Text('Mot de passe oublié?'),
+                  child: Text(
+                      translate.translateString(lang, 'Mot de passe oublié?')),
                   onPressed: () {
                     Navigator.pushNamed(context, '/recoverPassScreen');
                   },

@@ -4,7 +4,11 @@ import 'dart:typed_data';
 import 'package:app/screens/user_account_edit_page.dart';
 import 'package:app/widgets/connexion_history.dart';
 import 'package:app/widgets/stats_table.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
+import '../main.dart';
+import '../models/personnalisation.dart';
+import '../services/socket_client.dart';
 
 class UserAccountPage extends StatefulWidget {
   final String userName;
@@ -30,6 +34,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
   bool showHistory = false;
   bool showTableChart = false;
   bool isEmpty = true;
+    String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -49,12 +55,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Mon compte',
+          translate.translateString(lang,'Mon compte'),
         ),
       ),
       body: Container(color: Color.fromARGB(255, 43, 150, 46),
@@ -69,7 +75,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     child: Text(
                       isEmpty
                           ? ''
-                          : "Dernière connexion : ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
+                          : translate.translateString(lang,"Dernière connexion") + ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -167,7 +173,3 @@ class _UserAccountPageState extends State<UserAccountPage> {
     );
   }
 }
-
-
-
-

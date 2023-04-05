@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
@@ -15,6 +16,7 @@ import 'package:app/widgets/tile.dart';
 import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
+import '../models/personnalisation.dart';
 import '../services/tile_placement.dart';
 import '../services/board.dart';
 import '../models/letter.dart';
@@ -51,7 +53,9 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
-  // MusicService musicService = MusicService();
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -105,8 +109,8 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("Abandonner la partie"),
-            content: Text("Voulez-vous abandonner la partie?"),
+            title:  Text(translate.translateString(lang, "Abandonner la partie")),
+            content: Text(translate.translateString(lang, "Voulez-vous abandonner la partie?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -118,13 +122,13 @@ class _GamePageState extends State<GamePage> {
                     return GameModes();
                   }));
                 },
-                child: const Text('Oui'),
+                child:  Text(translate.translateString(lang, 'Oui')),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Non'),
+                child:  Text(translate.translateString(lang, 'Non')),
               ),
             ],
           );
@@ -197,6 +201,7 @@ class _GamePageState extends State<GamePage> {
 
     String? letterValue = tileLetter[tileID];
     selectedLetter = '';
+
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
@@ -360,7 +365,7 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
-              content: Text('Erreur : les mots crées sont invalides')),
+              content: Text(translate.translateString(lang, 'Erreur : les mots crées sont invalides'))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
@@ -405,8 +410,8 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
       final message = isPlacement
-          ? 'Erreur : les mots crées sont invalides'
-          : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+          ? translate.translateString(lang, 'Erreur : les mots crées sont invalides')
+          : translate.translateString(lang, 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
@@ -421,6 +426,10 @@ class _GamePageState extends State<GamePage> {
             duration: Duration(seconds: 2),
             content: Text(message)),
       );
+    });
+
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
     });
   }
 
@@ -519,8 +528,8 @@ class _GamePageState extends State<GamePage> {
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
-            title: const Text(
-              'Page de jeu',
+            title:  Text(
+              translate.translateString(lang, 'Page de jeu'),
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             actions: [

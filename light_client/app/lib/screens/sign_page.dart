@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:app/constants/widgets.dart';
 import 'package:app/screens/gallery_page.dart';
 import 'package:app/screens/login_page.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import "package:app/models/login_infos.dart";
@@ -11,6 +12,8 @@ import "package:app/constants/http_codes.dart";
 import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/socket_client.dart';
+
+import '../models/personnalisation.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -26,14 +29,16 @@ class _SignUpState extends State<SignUp> {
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
   final securityQuestionController = TextEditingController();
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   String selectedQuestion = "";
   String picturePath = "";
   List iconList = [];
   List decodedBytesList = [];
   bool isIcon = false;
-  int number =-1;
-
+  int number = -1;
 
   final List<String> questions = List.from(SECURITY_QUESTIONS);
 
@@ -52,6 +57,13 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     super.initState();
     getIconList();
+    handleSockets();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+    });
   }
 
   void setProfilePic(String imagePath) {
@@ -73,9 +85,11 @@ class _SignUpState extends State<SignUp> {
     if (!_formKey.currentState!.validate()) return;
     String username = usernameController.text;
     File imageFile = File(picturePath);
-    List<int> imageBytes =[];
-    if(!isIcon) imageBytes = await imageFile.readAsBytes();
-    String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) : BASE64PREFIX + base64Encode(imageBytes);
+    List<int> imageBytes = [];
+    if (!isIcon) imageBytes = await imageFile.readAsBytes();
+    String imageBase64 = isIcon
+        ? BASE64PREFIX + base64Encode(decodedBytesList[number])
+        : BASE64PREFIX + base64Encode(imageBytes);
 
     bool iconResponse = await ApiService().pushIcon(imageBase64, username);
     if (iconResponse) {
@@ -94,20 +108,20 @@ class _SignUpState extends State<SignUp> {
           "socketId": getIt<SocketService>().socketId
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text("Votre compte a été créé avec succés")),
+              content: Text(translate.translateString(lang,"Votre compte a été créé avec succés"))),
         );
 
         Navigator.pushNamed(context, '/gameChoicesScreen');
       } else if (response == HTTP_STATUS_UNAUTHORIZED) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
               content: Text(
-                  "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer.")),
+                  translate.translateString(lang,"Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer."))),
         );
       }
     }
@@ -132,7 +146,7 @@ class _SignUpState extends State<SignUp> {
               }));
             }),
         title: Text(
-          "Retour",
+          translate.translateString(lang,"Retour"),
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
       ),
@@ -160,7 +174,7 @@ class _SignUpState extends State<SignUp> {
                       children: [
                         Padding(
                             padding: const EdgeInsets.only(top: 20.0),
-                            child: Text('Création de compte',
+                            child: Text(translate.translateString(lang,'Création de compte'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,
@@ -172,19 +186,19 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: usernameController,
-                            decoration: const InputDecoration(
-                              hintText: "Nom d'utilisateur",
+                            decoration:  InputDecoration(
+                              hintText: translate.translateString(lang,"Nom d'utilisateur"),
                               border: OutlineInputBorder(),
                               icon: Icon(Icons.account_box),
                             ),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return "Nom d'utilisateur requis.";
+                                return translate.translateString(lang,"Nom d'utilisateur requis.");
                               } else if (value.length < 5) {
-                                return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                                return translate.translateString(lang,"Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                               } else if (!value
                                   .contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                                return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                                return translate.translateString(lang,"Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                               }
                               return null;
                             },
@@ -194,8 +208,8 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
-                            decoration: const InputDecoration(
-                              hintText: 'Addresse email',
+                            decoration:  InputDecoration(
+                              hintText: translate.translateString(lang,'Addresse email'),
                               icon: Icon(Icons.email),
                               border: OutlineInputBorder(),
                             ),
@@ -204,7 +218,7 @@ class _SignUpState extends State<SignUp> {
                               if (value!.isEmpty ||
                                   !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
                                       .hasMatch(value)) {
-                                return 'Entrez une adresse email valide.';
+                                return translate.translateString(lang,'Entrez une adresse email valide.');
                               }
                               return null;
                             },
@@ -214,17 +228,17 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordController,
-                            decoration: const InputDecoration(
-                              hintText: "Mot de passe",
+                            decoration: InputDecoration(
+                              hintText: translate.translateString(lang,"Mot de passe"),
                               icon: Icon(Icons.password),
                               border: OutlineInputBorder(),
                             ),
                             obscureText: true,
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return "Mot de passe requis.";
+                                return translate.translateString(lang,"Mot de passe requis.");
                               } else if (value.length < 6) {
-                                return "Un mot de passe doit contenir au minimum 6 caractéres.";
+                                return translate.translateString(lang,"Un mot de passe doit contenir au minimum 6 caractéres.");
                               }
                               return null;
                             },
@@ -234,8 +248,8 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordCheckController,
-                            decoration: const InputDecoration(
-                              hintText: "Retapez votre mot de passe",
+                            decoration:  InputDecoration(
+                              hintText: translate.translateString(lang,"Retapez votre mot de passe"),
                               icon: Icon(Icons.password),
                               border: OutlineInputBorder(),
                             ),
@@ -244,7 +258,7 @@ class _SignUpState extends State<SignUp> {
                               if (value == null ||
                                   value.isEmpty ||
                                   value != passwordController.text) {
-                                return "Le mot de passe écrit ne correspond pas";
+                                return translate.translateString(lang,"Le mot de passe écrit ne correspond pas");
                               }
                               return null;
                             },
@@ -259,7 +273,7 @@ class _SignUpState extends State<SignUp> {
                               leadingIcon: Icon(Icons.security_outlined),
                               // initialSelection: questions[0],
                               controller: securityQuestionController,
-                              label: const Text('Question de sécurité'),
+                              label:  Text(translate.translateString(lang,'Question de sécurité')),
                               dropdownMenuEntries: qsts,
                               onSelected: (String? question) {
                                 setState(() {
@@ -276,14 +290,14 @@ class _SignUpState extends State<SignUp> {
                             decoration: InputDecoration(
                               icon: Icon(Icons.question_answer_outlined),
                               label: Text(selectedQuestion == ''
-                                  ? 'Choisissez une question de sécurité'
+                                  ? translate.translateString(lang,'Choisissez une question de sécurité')
                                   : securityQuestionController.text),
-                              hintText: 'Réponse à la question',
+                              hintText: translate.translateString(lang,'Réponse à la question'),
                               border: OutlineInputBorder(),
                             ),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return "Entrez une réponse à la question de sécurité";
+                                return translate.translateString(lang,"Entrez une réponse à la question de sécurité");
                               }
                               return null;
                             },
@@ -292,15 +306,15 @@ class _SignUpState extends State<SignUp> {
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: ElevatedButton(
-                            onPressed:
-                                (picturePath.isEmpty && !isIcon) || selectedQuestion == ''
-                                    ? null
-                                    : () {
-                                        if (_formKey.currentState!.validate()) {
-                                          createAccount();
-                                        }
-                                      },
-                            child: Text('Créer le compte'),
+                            onPressed: (picturePath.isEmpty && !isIcon) ||
+                                    selectedQuestion == ''
+                                ? null
+                                : () {
+                                    if (_formKey.currentState!.validate()) {
+                                      createAccount();
+                                    }
+                                  },
+                            child: Text(translate.translateString(lang,'Créer le compte')),
                           ),
                         ),
                       ],
@@ -354,15 +368,18 @@ class _SignUpState extends State<SignUp> {
                             })) as File?;
                             if (imageFile != null) {
                               try {
-                               number = int.parse(imageFile.path);
-                               if(number>=0){
-                                 setState(() {
-                                   isIcon = true;
-                                 });
-                               }
-                               print(BASE64PREFIX + base64Encode(decodedBytesList[number])+'DECODEEE \n');
-                              }catch(e){
-                                print("Erreur de parsage en int pour le FileImage");
+                                number = int.parse(imageFile.path);
+                                if (number >= 0) {
+                                  setState(() {
+                                    isIcon = true;
+                                  });
+                                }
+                                print(BASE64PREFIX +
+                                    base64Encode(decodedBytesList[number]) +
+                                    'DECODEEE \n');
+                              } catch (e) {
+                                print(
+                                    "Erreur de parsage en int pour le FileImage");
                                 setProfilePic(imageFile.path);
                               }
                             }
@@ -393,14 +410,16 @@ class _SignUpState extends State<SignUp> {
                   )
                 : Stack(
                     children: <Widget>[
-                     isIcon? Center(
-                      child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
-                     ):
-                      Center(
-                        child: Image.file(
-                          File(picturePath),
-                        ),
-                      ),
+                      isIcon
+                          ? Center(
+                              child: Image.memory(decodedBytesList[number],
+                                  height: 180, width: 180),
+                            )
+                          : Center(
+                              child: Image.file(
+                                File(picturePath),
+                              ),
+                            ),
                       Align(
                         alignment: Alignment.topRight,
                         child: ElevatedButton(

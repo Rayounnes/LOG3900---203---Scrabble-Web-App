@@ -5,6 +5,7 @@ import 'package:app/constants/widgets.dart';
 import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/mode_orthography.dart';
 import 'package:app/screens/user_account_page.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
 
+import '../models/personnalisation.dart';
 import '../widgets/loading_tips.dart';
 
 class GameModes extends StatefulWidget {
@@ -31,16 +33,43 @@ class _GameModesState extends State<GameModes> {
   Uint8List decodedBytes = Uint8List(1);
   String userName = "user";
   int userPoints = 100;
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
+  int _selectedButton = 1;
+  int _selectedThemeButton = 1;
+  bool _darkMode = false;
+
+  List<bool> _isSelected = [false, false, false];
+
+  void _onButtonSelected(int? value) {
+    setState(() {
+      _selectedButton = value!;
+    });
+  }
+
+  void _onButtonThemeSelected(int? value) {
+    setState(() {
+      _selectedThemeButton = value!;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     getUserInfo();
+    handleSockets();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+    });
   }
 
   void getUserInfo() async {
@@ -58,10 +87,11 @@ class _GameModesState extends State<GameModes> {
     await ApiService().logoutUser(username);
     getIt<SocketService>().disconnect();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
           backgroundColor: Color.fromARGB(255, 32, 107, 34),
           duration: Duration(seconds: 3),
-          content: Text("Vous avez été déconnecté avec succés")),
+          content: Text(translate.translateString(
+              lang, "Vous avez été déconnecté avec succés"))),
     );
     Navigator.pushNamed(context, '/loginScreen');
   }
@@ -71,6 +101,65 @@ class _GameModesState extends State<GameModes> {
     return ParentWidget(
         child: Stack(
       children: [
+        // Positioned(
+        //   top: 80,
+        //   left: 300,
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //     children: <Widget>[
+        //       ElevatedButton(
+        //         onPressed: () {
+        //           _onButtonThemeSelected(1);
+        //         },
+        //         style: ElevatedButton.styleFrom(
+        //           primary: _selectedButton == 1
+        //               ? Color.fromARGB(255, 47, 60, 47)
+        //               : Colors.grey,
+        //         ),
+        //         child: Icon(Icons.dark_mode),
+        //       ),
+        //       ElevatedButton(
+        //         onPressed: () {
+        //           _onButtonThemeSelected(2);
+        //         },
+        //         style: ElevatedButton.styleFrom(
+        //           primary:
+        //               _selectedThemeButton == 2 ? Colors.green : Colors.grey,
+        //         ),
+        //         child: Icon(Icons.light_mode),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        Positioned(
+          top: 100,
+          left: 150,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  _onButtonSelected(1);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: _selectedButton == 1
+                      ? Color.fromARGB(255, 92, 196, 95)
+                      : Colors.grey,
+                ),
+                child: Text('Français'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _onButtonSelected(2);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: _selectedButton == 2 ? Colors.green : Colors.grey,
+                ),
+                child: Text('English'),
+              ),
+            ],
+          ),
+        ),
         Center(
           child: Container(
             height: 750,
@@ -87,7 +176,8 @@ class _GameModesState extends State<GameModes> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(top: 60.0),
-                  child: Text('Application Scrabble',
+                  child: Text(
+                      translate.translateString(lang, 'Application Scrabble'),
                       style: TextStyle(
                         fontSize: 23,
                         color: Colors.black,
@@ -96,8 +186,9 @@ class _GameModesState extends State<GameModes> {
                 ),
                 SizedBox(height: 16.0),
                 GameButton(
-                    padding: 25.0,
-                    name: "Mode de jeu classique",
+                    padding: 32.0,
+                    name: translate.translateString(
+                        lang, "Mode de jeu classique"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -107,8 +198,9 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 25.0,
-                    name: "Mode de jeu coopératif",
+                    padding: 32.0,
+                    name: translate.translateString(
+                        lang, "Mode de jeu coopératif"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -117,9 +209,10 @@ class _GameModesState extends State<GameModes> {
                         );
                       }));
                     }),
-                    GameButton(
-                    padding: 25.0,
-                    name: "Mode d'entrainement orthographe",
+                GameButton(
+                    padding: 32.0,
+                    name: translate.translateString(
+                        lang, "Mode d'entrainement orthographe"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -127,8 +220,8 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 25.0,
-                    name: "Profil",
+                    padding: 32.0,
+                    name: translate.translateString(lang, "Profil"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -147,8 +240,8 @@ class _GameModesState extends State<GameModes> {
                       Navigator.pushNamed(context,'/helpScreen');
                     }),
                 GameButton(
-                    padding: 25.0,
-                    name: "Déconnexion",
+                    padding: 32.0,
+                    name: translate.translateString(lang, "Déconnexion"),
                     route: () {
                       showModal(context);
                     })
@@ -166,20 +259,21 @@ class _GameModesState extends State<GameModes> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Etes-vous sur de vous déconnecter ?'),
+        title: Text(translate.translateString(lang, 'Déconnexion')),
+        content: Text(translate.translateString(
+            lang, 'Etes-vous sur de vous déconnecter ?')),
         actions: <TextButton>[
           TextButton(
             onPressed: () {
               logoutUser();
             },
-            child: const Text('Oui'),
+            child: Text(translate.translateString(lang, 'Oui')),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text('Non'),
+            child: Text(translate.translateString(lang, 'Non')),
           ),
         ],
       ),

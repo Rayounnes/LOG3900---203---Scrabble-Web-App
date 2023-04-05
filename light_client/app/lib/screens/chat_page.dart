@@ -1,5 +1,6 @@
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app/models/chat_message_model.dart';
@@ -9,6 +10,7 @@ import 'package:app/services/api_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Message;
 
 import '../constants/widgets.dart';
+import '../models/personnalisation.dart';
 
 
 
@@ -51,7 +53,10 @@ class _ChatPageState extends State<ChatPage> {
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
+
 
   void initNotifications() async {
   var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -69,7 +74,7 @@ class _ChatPageState extends State<ChatPage> {
     var notificationDetails = NotificationDetails(android: androidDetails);
 
     await flutterLocalNotificationsPlugin.show(
-    0, 'Nouveau message dans $channel', message, notificationDetails);
+    0, translate.translateString(lang, 'Nouveau message dans')+ '$channel', message, notificationDetails);
 }
 
 
@@ -190,6 +195,10 @@ class _ChatPageState extends State<ChatPage> {
         print(e);
       }
     });
+
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+    });
   }
 
   void sendUserIsTyping() {
@@ -274,7 +283,7 @@ class _ChatPageState extends State<ChatPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
-                "Plusieurs joueurs sont en train d'écrire ...",
+                translate.translateString(lang, "Plusieurs joueurs sont en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
@@ -282,7 +291,7 @@ class _ChatPageState extends State<ChatPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
-                userTyping + " est en train d'écrire ...",
+                userTyping + translate.translateString(lang, " est en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
@@ -293,7 +302,7 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                   onPressed: () {
-                    messageController.text = 'Salut!';
+                    messageController.text = translate.translateString(lang, 'Salut!');
                     sendMessage(messageController.text);
                   },
                   child: Text('Salut!'),
@@ -301,17 +310,17 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = 'Bien joué!';
+                      messageController.text = translate.translateString(lang, 'Bien joué!');
                       sendMessage(messageController.text);
                     },
-                    child: Text('Bien joué!')),
+                    child: Text(translate.translateString(lang, 'Bien joué!'))),
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = 'Nul!';
+                      messageController.text = translate.translateString(lang, 'Nul!');
                       sendMessage(messageController.text);
                     },
-                    child: Text('Nul!')),
+                    child: Text(translate.translateString(lang, 'Nul!'))),
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
@@ -322,14 +331,14 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = 'Bonne chance!';
+                      messageController.text = translate.translateString(lang, 'Bonne chance!');
                       sendMessage(messageController.text);
                     },
                     child: Text('Bonne chance!')),
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = 'Oh non!';
+                      messageController.text = translate.translateString(lang, 'Oh non!');
                       sendMessage(messageController.text);
                     },
                     child: Text('Oh non!')),
@@ -362,7 +371,7 @@ class _ChatPageState extends State<ChatPage> {
                         }
                       },
                       decoration: InputDecoration(
-                        hintText: "Écris un message ...",
+                        hintText: translate.translateString(lang, "Écris un message ..."),
                         hintStyle: TextStyle(color: Colors.black54),
                         border: OutlineInputBorder(),
                         suffixIcon: IconButton(

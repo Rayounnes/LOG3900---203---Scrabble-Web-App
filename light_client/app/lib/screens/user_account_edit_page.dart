@@ -4,10 +4,12 @@ import 'dart:core';
 
 import 'package:app/screens/gallery_page.dart';
 import 'package:app/services/user_infos.dart';
+import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
 import '../main.dart';
+import '../models/personnalisation.dart';
 import '../services/api_service.dart';
 import '../services/socket_client.dart';
 import 'game_modes_page.dart';
@@ -29,12 +31,16 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   List iconList = [];
   List decodedBytesList = [];
   bool isIcon = false;
-  int number =-1;
+  int number = -1;
+  late Personnalisation langOrTheme;
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
     getIconList();
+    handleSockets();
   }
 
   @override
@@ -42,6 +48,12 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     newUsernameController.dispose();
     usernameValidationController.dispose();
     super.dispose();
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-configs", (value) {
+      langOrTheme = value;
+    });
   }
 
   void setProfilePic(String imagePath) {
@@ -65,37 +77,43 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       if (picturePath != '' || isIcon) {
         File imageFile = File(picturePath);
         List<int> imageBytes = [];
-        if(!isIcon) imageBytes = await imageFile.readAsBytes();
-        String imageBase64 = isIcon ? BASE64PREFIX + base64Encode(decodedBytesList[number]) :BASE64PREFIX + base64Encode(imageBytes);
+        if (!isIcon) imageBytes = await imageFile.readAsBytes();
+        String imageBase64 = isIcon
+            ? BASE64PREFIX + base64Encode(decodedBytesList[number])
+            : BASE64PREFIX + base64Encode(imageBytes);
         await ApiService().pushIcon(imageBase64, newUsernameController.text);
-        await ApiService().changeIcon(usernameValidationController.text, imageBase64);
+        await ApiService()
+            .changeIcon(usernameValidationController.text, imageBase64);
       }
       if (newUsernameController.text != '') {
-        bool res = await ApiService().changeUsername(newUsernameController.text, usernameValidationController.text,);
-        if(res){
+        bool res = await ApiService().changeUsername(
+          newUsernameController.text,
+          usernameValidationController.text,
+        );
+        if (res) {
           name = newUsernameController.text;
           getIt<SocketService>().send('change-username',name);
           getIt<UserInfos>().setUser(name);
         }
         else{
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
                 backgroundColor: Color.fromARGB(255, 83, 162, 84),
                 duration: Duration(seconds: 3),
-                content: Text("Ce username est deja utilisé !")),
+                content: Text(translate.translateString(lang,"Ce username est deja utilisé !"))),
           );
           return;
         }
       }
 
-      Navigator.push(context, MaterialPageRoute(
-            builder: (context) => GameModes(name: name)));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => GameModes(name: name)));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
             backgroundColor: Color.fromARGB(255, 83, 162, 84),
             duration: Duration(seconds: 3),
-            content: Text("Veuillez entrer un nouvel utilisateur ou avatar")),
+            content: Text(translate.translateString(lang,"Veuillez entrer un nouvel utilisateur ou avatar"))),
       );
       return;
     }
@@ -106,7 +124,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Modification du compte',
+          translate.translateString(lang,'Modification du compte'),
         ),
       ),
       body: Container(
@@ -229,16 +247,16 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                         left: 30.0, bottom: 15.0, right: 30.0, top: 50),
                     child: TextFormField(
                       controller: usernameValidationController,
-                      decoration: const InputDecoration(
-                        hintText: "Entrez votre nom d'utilisateur",
+                      decoration: InputDecoration(
+                        hintText: translate.translateString(lang,"Entrez votre nom d'utilisateur"),
                         icon: Icon(Icons.account_box),
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
                         if (value == null || value.isEmpty) {
-                          return "Entrez votre nom d'utilisateur";
+                          return translate.translateString(lang,"Entrez votre nom d'utilisateur");
                         } else if (value != widget.username) {
-                          return "Le nom utilisateur est incorrect";
+                          return translate.translateString(lang,"Le nom utilisateur est incorrect");
                         }
                         return null;
                       },
@@ -249,17 +267,17 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                         left: 30.0, bottom: 15.0, right: 30.0, top: 20),
                     child: TextFormField(
                       controller: newUsernameController,
-                      decoration: const InputDecoration(
-                        hintText: "Nouveau nom d'utilisateur",
+                      decoration: InputDecoration(
+                        hintText: translate.translateString(lang, "Nouveau nom d'utilisateur"),
                         border: OutlineInputBorder(),
                         icon: Icon(Icons.account_box),
                       ),
                       validator: (String? value) {
                         if (value != '' && value!.length < 5) {
-                          return "Un nom d'utilisateur doit au moins contenir 5 caractéres.";
+                          return translate.translateString(lang,"Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                         } else if (value != '' &&
                             !value!.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                          return "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres";
+                          return translate.translateString(lang,"Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                         }
                         return null;
                       },
@@ -284,4 +302,5 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       ),
     );
   }
+
 }
