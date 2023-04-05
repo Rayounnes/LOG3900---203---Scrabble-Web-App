@@ -85,7 +85,7 @@ connect() {
         
         this.allWords = allWordsOrthography;
         console.log(this.allWords);
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 3; i++) {
           const randomIndex = Math.floor(Math.random() * this.allWords.length);
           this.wordOfTraining.push(this.allWords[randomIndex]);
           this.allWords.splice(randomIndex, 1);
@@ -140,6 +140,7 @@ onClick(wordItem: any) {
     else {
       this.modeDone = true;
       this.socketService.send('score-orthography', this.score);
+      this.countdown = 3;
     }
 
   }

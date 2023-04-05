@@ -67,6 +67,7 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() {
+            print(discussions);
             discussions.add(channel['name']);
           });
         }
@@ -101,13 +102,15 @@ class _ChannelsState extends State<Channels> {
           print(countJoin);
           setState(() {
           
+            print(selectedList.length);
            
             if(countJoin == selectedList.length) {
               for(String channel in selectedList) {
                   discussions.add(channel);
-                  print(discussions);
-                  print(selectedList);
+                  
               }
+              print(discussions);
+              print(selectedList);
             }
           });
         }
@@ -170,8 +173,11 @@ class _ChannelsState extends State<Channels> {
           padding: EdgeInsets.all(16),
           physics: BouncingScrollPhysics(),
           itemBuilder: (context, index) {
+            print(discussions);
             return Stack(
+             
               children: [
+                
                 Channel(name: discussions[index],
                 updateMessageState: () => updateMessageState(index),),
                 if (newMessage[index])
@@ -275,6 +281,7 @@ class _ChannelsState extends State<Channels> {
             onPressed: () {
               getIt<SocketService>()
                   .send("channel-creation", nameController.text);
+                  print(nameController.text);
               Navigator.of(context).pop();
             },
             child: Text(

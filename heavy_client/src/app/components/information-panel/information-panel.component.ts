@@ -12,10 +12,10 @@ import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { DOCUMENT } from '@angular/common';
-import html2canvas from 'html2canvas';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
+// import { DOCUMENT } from '@angular/common';
+// import html2canvas from 'html2canvas';
+// import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+// import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
