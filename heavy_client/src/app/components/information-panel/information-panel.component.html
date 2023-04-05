@@ -77,8 +77,8 @@
 
     <div class="options">
         <app-surrender-game *ngIf="!isObserver"></app-surrender-game>
-        <button mat-raised-button *ngIf="isObserver" class="quit-observer" color="warn" *ngIf="langue === 'fr'" (click)="observerLeave()">Quitter</button>
-        <button mat-raised-button *ngIf="isObserver" class="quit-observer" color="warn" *ngIf="langue === 'fr'" (click)="observerLeave()">Leave</button>
+        <button mat-raised-button *ngIf="isObserver && langue === 'fr'" class="quit-observer" color="warn" (click)="observerLeave()">Quitter</button>
+        <button mat-raised-button *ngIf="isObserver && langue === 'en'" class="quit-observer" color="warn" (click)="observerLeave()">Leave</button>
         <button mat-raised-button class="screenshot" (click)="captureScreenshot()" *ngIf="langue === 'fr'">Capture d'écran</button>
         <button mat-raised-button class="screenshot" (click)="captureScreenshot()" *ngIf="langue === 'en'">Screenshot</button>
     </div>
