@@ -207,24 +207,26 @@ class _TimerPageState extends State<TimerPage> {
     });
   }
 
-  void buyTimeDialog(BuildContext context) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Achat de temps"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                timeBuyOption(5, 10, Icons.timer),
-                timeBuyOption(10, 20, Icons.timer),
-                timeBuyOption(20, 40, Icons.timer),
-              ],
-            ),
-          );
-        });
-  }
+  // void buyTimeDialog(BuildContext context) {
+  //   showDialog(
+  //       context: context,
+  //       barrierDismissible: true,
+  //       builder: (BuildContext context) {
+  //         return StatefulBuilder(builder: (context, setState) {
+  //           return AlertDialog(
+  //             title: const Text("Achat de temps"),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 timeBuyOption(5, 10, Icons.timer),
+  //                 timeBuyOption(10, 20, Icons.timer),
+  //                 timeBuyOption(20, 40, Icons.timer),
+  //               ],
+  //             ),
+  //           );
+  //         });
+  //       });
+  // }
 
   void coinsCongratulation(BuildContext context, int gainedCoins) {
     showDialog(
@@ -248,19 +250,15 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   Widget timeBuyOption(int time, int cost, IconData icon) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text('+${time}s'),
-      subtitle: Text('$cost coins'),
-      trailing: coins >= cost
-          ? ElevatedButton(
-              onPressed: () {
-                buyTime(time);
-                Navigator.of(context).pop();
-              },
-              child: Text('Buy'),
-            )
-          : Text('Not enough coins'),
+    return ElevatedButton.icon(
+      icon: Icon(icon),
+      onPressed:
+          coins >= cost && timerDuration - _start >= time && isPlayersTurn
+              ? () {
+                  buyTime(time);
+                }
+              : null,
+      label: Text('+${time}s ($cost c)'),
     );
   }
 
@@ -324,25 +322,11 @@ class _TimerPageState extends State<TimerPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               widget.isClassicMode ? timerWidget(context) : Container(),
-              widget.isClassicMode && !widget.isObserver
-                  ? ElevatedButton.icon(
-                      onPressed: !isPlayersTurn
-                          ? null
-                          : () {
-                              buyTimeDialog(context);
-                            },
-                      icon: Icon(Icons.watch_later_rounded),
-                      label: Text('Buy Time'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.yellow[700],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                      ),
-                    )
-                  : Container(),
+              if (widget.isClassicMode && !widget.isObserver) ...[
+                timeBuyOption(5, 10, Icons.timer),
+                timeBuyOption(10, 20, Icons.timer),
+                timeBuyOption(20, 40, Icons.timer),
+              ]
             ],
           ),
           for (int i = 0; i < players.length; i += 2)
