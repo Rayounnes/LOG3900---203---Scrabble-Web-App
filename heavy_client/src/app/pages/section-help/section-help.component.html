@@ -1,1 +1,56 @@
-<p>section-help works!</p>
+<div class="homeDiv">
+  <h1>Section aide</h1>
+  <div *ngIf="!showHelp" class="buttons">
+    <button class="startButton" (click)="showHelpClicked('classic')">Mode classique</button>
+    <button class="startButton" (click)="showHelpClicked('cooperatif')">Mode coopératif</button>
+    <button class="startButton" (click)="showHelpClicked('training')">Mode entrainement</button>
+
+  </div>
+
+
+  <div *ngIf="helpMode === 'classic'">
+
+    <div class="container">
+      <div class="image-container" *ngFor="let item of itemsClassic">
+        <div class="item-container">
+          <p style="white-space: pre-wrap;">{{item.description}}</p>
+          <div class="image-wrapper">
+            <img src="{{item.image}}" alt="{{item.alt}}" class="help-image">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  </div>
+
+
+
+
+
+  <div *ngIf="helpMode === 'training'">
+
+    <div  class="container">
+      <div class="image-container" *ngFor="let item of itemsOrthography">
+        <div class="item-container">
+          <p style="white-space: pre-wrap;">{{item.description}}</p>
+          <div class="image-wrapper">
+            <img src="{{item.image}}" alt="{{item.alt}}" class="help-image">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+   
+
+  </div>
+
+
+    
+  <div *ngIf="showHelp">
+    <button (click)="backHelp()" class="startButton">Retour</button>
+  </div>
+
+
+</div>

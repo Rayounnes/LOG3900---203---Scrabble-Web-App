@@ -54,7 +54,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GridConstants } from 'src/constants/grid-constants';
 import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
 import { SectionHelpComponent } from './pages/section-help/section-help.component';
-
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
