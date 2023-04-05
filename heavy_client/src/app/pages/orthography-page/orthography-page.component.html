@@ -1,4 +1,4 @@
-<div class="homeDiv">
+<div class="homeDiv" *ngIf="langue == 'fr'">
   <h1>Bienvenue au mode d'entrainement orthographe</h1>
   <button class="startButton" (click)="startCountdown()" *ngIf="!hideButton">Commencer l'entraînement</button>
   <div class="countdown" *ngIf="countdown > 0">{{ countdown }}</div>
@@ -22,3 +22,29 @@
   <div class="score">Votre meilleur score : {{ bestScore }}</div>
   <button class="leaveButton" (click)="leavePage()">Quitter</button>
 </div>
+
+<div class="homeDiv" *ngIf="langue == 'en'">
+  <h1>Welcome to your spelling training</h1>
+  <button class="startButton" (click)="startCountdown()" *ngIf="!hideButton">Start training</button>
+  <div class="countdown" *ngIf="countdown > 0">{{ countdown }}</div>
+  <div class="game" *ngIf="countdown === 0 && !gameOver">
+    <ng-container *ngFor="let word of this.currentWord">
+      <button class="dataButton" (click)="onClick(word)">{{word.word}}</button>
+    </ng-container>
+    <div *ngIf="successMessage">You won !</div>
+
+  </div>
+  <div class="health-bar-container">
+    <div class="health-bar" [style.width.%]="(chances / 3) * 100"></div>
+  </div>
+  <div class="gameOver" *ngIf="gameOver">
+    <p>Sorry, you lost !</p>
+  </div>
+  <div class="modeDone" *ngIf="modeDone">
+    <p>Well played, you finished the whole training</p>
+  </div>
+  <div class="score">Score : {{ score }}</div>
+  <div class="score">Your best score : {{ bestScore }}</div>
+  <button class="leaveButton" (click)="leavePage()">Leave</button>
+</div>
+

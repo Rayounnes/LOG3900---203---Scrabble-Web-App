@@ -19,6 +19,8 @@ export class JoindrePartieComponent implements OnInit {
     paramsObject: any;
     mode: string;
     isClassic: boolean;
+    langue = '';
+    theme = '';
     constructor(
         public router: Router,
         public socketService: ChatSocketClientService,
@@ -35,6 +37,7 @@ export class JoindrePartieComponent implements OnInit {
         this.mode = this.isClassic ? 'Classique' : 'Coopératif';
         this.connect();
         this.socketService.send('update-joinable-matches', this.isClassic);
+        this.socketService.send('get-config');
     }
 
     connect() {
@@ -52,6 +55,10 @@ export class JoindrePartieComponent implements OnInit {
         });
         this.socketService.on('join-late-observer', () => {
             this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic, isObserver: true } });
+        });
+        this.socketService.on('get-config', (config: any) => {
+            this.langue = config.langue;
+            this.theme = config.theme;
         });
     }
 

@@ -51,10 +51,8 @@ export class LoginService {
     async getUserCoins(username : string) : Promise<number[]>{
         let user = await this.userCollection.findOne({username : username})
         if(user && user['coins']){
-            console.log("on peut get")
             return [user['coins']]
         }else{
-            console.log("on peut pas get")
             await this.userCollection.updateOne({username : username},{$set : {coins : 0}})
             return [0]
         }
@@ -63,12 +61,10 @@ export class LoginService {
     async addCoinsToUser(username : string, coinsToAdd : number) : Promise<boolean>{
         let user = await this.userCollection.findOne({username : username})
         if(user){
-            console.log("on peut set")
             let currentCoins = user['coins']
             this.userCollection.updateOne({username : username},{$set : {coins : currentCoins + coinsToAdd}});
             return true;
         }
-        console.log("on peut pas set")
         return false;
         
     }
@@ -176,6 +172,152 @@ export class LoginService {
         }
       }
 
+    async updateUserGameCount(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['numberOfGames']){
+            let newNumberOfGames : number = player['numberOfGames'] + 1
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : newNumberOfGames}})
+            return newNumberOfGames;
+        }else{
+            let newNumberOfGames : number =  1
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : newNumberOfGames}});
+            return newNumberOfGames;
+        }
+    }
+
+    async getUserGameCount(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['numberOfGames']){
+            let numberOfGames : number = player['numberOfGames']
+            return numberOfGames
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {numberOfGames : 0}});
+            return 0
+        }
+    }
+
+    async updateUserGameWon(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['gamesWon']){
+            let newNumberOfGames : number = player['gamesWon'] + 1
+            await this.userCollection.updateOne({username : username},{$set : {gamesWon : newNumberOfGames}})
+            return newNumberOfGames;
+        }else{
+            let newNumberOfGames : number =  1
+            await this.userCollection.updateOne({username : username},{$set : {gamesWon : newNumberOfGames}});
+            return newNumberOfGames;
+        }
+    }
+
+    async getUserGameWon(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player &&  player['gamesWon']){
+            let numberOfGames : number = player['gamesWon']
+            return numberOfGames
+        }else{
+            let newNumberOfGames : number =  0
+            await this.userCollection.updateOne({username : username},{$set : {gamesWon : newNumberOfGames}});
+            return newNumberOfGames;
+        }
+    }
+
+    async updateUserPointsMean(username : string, points : number){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['points']){
+            let old = player['points'];
+            let newMean = Math.floor((old+points)/player['numberOfGames']);
+            await this.userCollection.updateOne({username : username},{$set : {points : newMean}});
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {points : points}});
+        }
+    }
+
+    async getUserPointsMean(username : string) : Promise<number>{
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['points']){
+            return player['points'];
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {points : 0}});
+            return 0
+        }
+    }
+
+    async updateUserTimeAverage(username : string, duration : number){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['timeAverage']){
+            const oldAverage = player['timeAverage'].split(' ')
+            const oldMinutes = parseInt(oldAverage[0], 10);
+            const oldSeconds = parseInt(oldAverage[2], 10);
+            const oldTime = oldMinutes * 60 + oldSeconds;
+
+            let newAverage = (oldTime+duration)/player['numberOfGames']
+            const newMinutes = Math.floor(newAverage / 60);
+            const newSeconds = Math.floor(newAverage % 60);
+            const newTime = `${newMinutes} m ${newSeconds} s`;
+
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : newTime}});
+        }else{
+            const newMinutes = Math.floor(duration / 60);
+            const newSeconds = Math.floor(duration % 60);
+            const newTime = `${newMinutes} m ${newSeconds} s`;
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : newTime}});
+        }
+    }
+
+    async getUserTimeAverage(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['timeAverage']){
+            let timeAverage = player['timeAverage'].split(" ").join("")// De "1 m 30 s" a "1m30s"
+            return timeAverage
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {timeAverage : "0 m 0 s"}});
+            return "0m0s"
+        }
+    }
+
+    async getUserGameHistory(username : string){
+        let player = await this.userCollection.findOne({ username: username });
+        if(player && player['gameHistory']){
+            let gameHistory = player['gameHistory'];
+            return gameHistory
+        }else{
+            await this.userCollection.updateOne({username : username},{$set : {gameHistory : []}})
+            return []
+        }
+    }
+
+    async updateUserGameHistory(username : string, gameWin : boolean){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player && player['gameHistory']){
+            let gameHistory = player['gameHistory'];
+            gameHistory.push([new Date().toLocaleString(),gameWin])
+            await this.userCollection.updateOne({username : username},{$set : { gameHistory : gameHistory}})
+        }else{
+            let gameHistory = [new Date().toLocaleString(),gameWin]
+            await this.userCollection.updateOne({username : username},{$set : { gameHistory : [gameHistory]}})
+        }
+    }
+
+    async getUserConfigs(username : string){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player && player['configs']){
+            let configs = player['configs'];
+            return configs
+        }else{
+            let configs = {langue : "fr", theme : "white"}
+            await this.userCollection.updateOne({username : username},{$set : { configs : configs}});
+            return configs
+        }
+    }
+
+    async updateUserConfigs(username : string, newConfig : any){
+        let player = await this.userCollection.findOne({username :  username});
+        if(player){
+            await this.userCollection.updateOne({username : username},{$set : { configs : newConfig}});
+        }
+        
+    }
+
     async changeUsername(oldUsername : string, newUsername : string, isLightClient? : boolean) : Promise<boolean>{
         if(isLightClient){
             oldUsername = this.adjustStringFormat(oldUsername);
@@ -184,7 +326,6 @@ export class LoginService {
 
         let usernameExists = await this.userCollection.findOne({ username: newUsername });
         if(usernameExists){
-            console.log("fauxxxx")
             return false;
         }else{
             //Update le nom du username dans la collection Users

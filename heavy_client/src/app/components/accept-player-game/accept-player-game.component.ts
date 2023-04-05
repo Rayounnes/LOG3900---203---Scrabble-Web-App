@@ -8,6 +8,10 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     styleUrls: ['./accept-player-game.component.scss'],
 })
 export class AcceptPlayerGameComponent implements OnInit {
+
+    langue = ""
+    theme = ""
+
     constructor(
         public dialogRef: MatDialogRef<AcceptPlayerGameComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { username: string },
@@ -24,12 +28,17 @@ export class AcceptPlayerGameComponent implements OnInit {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
+        this.socketService.send('get-config')
     }
 
     configureBaseSocketFeatures() {
         this.socketService.on('left-private-player', () => {
             this.dialogRef.close(null);
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
 
     onAcceptClick(): void {

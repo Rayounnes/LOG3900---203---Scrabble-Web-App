@@ -1,39 +1,86 @@
-<div class="homeDiv">
-    <div class="modesContainer">
+
+<div class="homeDiv" *ngIf="langue == 'fr'">
+    <div class="main">
         <h1 mat-dialog-title>Salle d'attente de {{game.hostUsername}} </h1>
-        <div class="game-lobby-container">
-            <div class="users-list">
-                <h2 class="joined-users">Joueurs</h2>
-                <mat-list>
-                    <mat-list-item *ngFor="let user of game.joinedPlayers">
-                        <span mat-line>{{ user.username }}</span>
-                    </mat-list-item>
-                </mat-list>
+        <div class="players">
+            <div class="gameplayer" *ngFor="let user of game.joinedPlayers">
+                <img [src]="usersIcons.get(user.username)" width="25%" height="70%">
+                <span mat-line>{{user.username}}</span>
             </div>
 
-            <div class="observers-list" *ngIf="!game.isPrivate">
-                <h2 class="joined-observers">Observateurs</h2>
-                <mat-list>
-                    <mat-list-item *ngFor="let observer of game.joinedObservers">
-                        <span mat-line>{{ observer.username }}</span>
-                    </mat-list-item>
-                </mat-list>
+            <div class="waiting-player" *ngIf="game.joinedPlayers.length === 1">
+                <div class="loading-spinner">
+                    <mat-spinner diameter="64"></mat-spinner>
+                </div>
             </div>
-        </div>
-        <div class="waiting-players" *ngIf="!game.isFullPlayers">
-            <h2>En attente de joueurs</h2>
-            <div class="loading-spinner">
-                <mat-spinner diameter="32"></mat-spinner>
-            </div>
-        </div>
-        <div class="remaining-players">
-            <h2>Joueurs restants pour démarrer la partie: {{ game.joinedPlayers.length === 1 ? 1 : 0 }}</h2>
-        </div>
 
-        <div class="buttons">
-            <button mat-raised-button color="warn" (click)="cancelWaiting()" *ngIf="!isHost">Quitter</button>
-            <button mat-raised-button color="primary" *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2">Lancer Partie</button>
-            <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button>
+            <div class="gameplayer" *ngFor="let item of arrayForngForBot">
+                <img [src]="botIcon" width="25%" height="70%">
+                <span mat-line>Bot</span>
+            </div>
+            <div class="options">
+                <button mat-button (click)="cancelMatch()" *ngIf="isHost" class="cancel-button">Annuler Partie</button>
+                <button mat-raised-button (click)="cancelWaiting()" *ngIf="!isHost" class="cancel-button">Quitter</button>
+                <button mat-raised-button  *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2" class="validate-button">Lancer Partie</button>
+            </div>
+        </div>
+        <h2 class="joined-observers">Observateurs</h2>
+        <div class="observers">
+            <div class="observer" *ngFor="let observer of game.joinedObservers">
+                <img [src]="usersIcons.get(observer.username)" width="45%" height="70%">
+                <span mat-line>{{observer.username}}</span>
+            </div>
         </div>
     </div>
 </div>
+<!-- <div class="waiting-players" *ngIf="!game.isFullPlayers">
+    <h2>En attente de joueurs</h2>
+    <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+    </div>
+</div>
+<div class="remaining-players">
+    <h2>Joueurs restants pour démarrer la partie: {{ game.joinedPlayers.length === 1 ? 1 : 0 }}</h2>
+</div>
+
+<div class="buttons">
+    <button mat-raised-button color="warn" (click)="cancelWaiting()" *ngIf="!isHost">Quitter</button>
+    <button mat-raised-button color="primary" *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2">Lancer Partie</button>
+    <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button> -->
+
+<div class="homeDiv" *ngIf="langue == 'en'">
+    <div class="main">
+        <h1 mat-dialog-title>Waiting room of {{game.hostUsername}} </h1>
+        <div class="players">
+            <div class="gameplayer" *ngFor="let user of game.joinedPlayers">
+                <img [src]="usersIcons.get(user.username)" width="25%" height="70%">
+                <span mat-line>{{user.username}}</span>
+            </div>
+
+            <div class="waiting-player" *ngFor="let item of arrayForngForPlayers">
+                <div class="loading-spinner">
+                    <mat-spinner diameter="64"></mat-spinner>
+                </div>
+            </div>
+
+            <div class="gameplayer" *ngFor="let item of arrayForngForBot">
+                <img [src]="botIcon" width="25%" height="70%">
+                <span mat-line>Bot</span>
+            </div>
+            <div class="options">
+                <button mat-button (click)="cancelMatch()" *ngIf="isHost" class="cancel-button">Cancel game</button>
+                <button mat-raised-button (click)="cancelWaiting()" *ngIf="!isHost" class="cancel-button">Leave</button>
+                <button mat-raised-button  *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2" class="validate-button">Start game</button>
+            </div>
+        </div>
+        <h2 class="joined-observers">Observers</h2>
+        <div class="observers">
+            <div class="observer" *ngFor="let observer of game.joinedObservers">
+                <img [src]="usersIcons.get(observer.username)" width="45%" height="70%">
+                <span mat-line>{{observer.username}}</span>
+            </div>
+        </div>
+    </div>
+    
+</div>
+

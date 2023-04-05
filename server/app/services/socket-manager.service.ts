@@ -116,7 +116,7 @@ export class SocketManager {
             }
             this.gameRooms.delete(gameCanceled.room);
             this.sio.emit('update-joinable-matches', this.gameList(gameCanceled.isClassicMode));
-            await this.deleteChannel(gameCanceled.room);
+            //await this.deleteChannel(gameCanceled.room);
         });
     }
     waitingRoomJoinedPlayerHandler(socket: io.Socket) {
@@ -256,6 +256,7 @@ export class SocketManager {
             for (const player of game.joinedPlayers) {
                 playerSockets.push(player.socketId);
                 playersUsernames.set(player.socketId, player.username);
+                this.addGameToPlayer(player.username)
             }
             for (let i = 0; i < game.virtualPlayers; i++) {
                 const botName = `Bot ${i + 1}`;
@@ -667,6 +668,103 @@ export class SocketManager {
         });
     }
 
+    handleIconChange(socket : io.Socket){
+        socket.on('icon-change',(infos : any)=>{
+            this.sio.emit('icon-change',infos)
+        })
+    }
+
+    async addGameToPlayer(username : string){
+        let numberOfGames = await this.loginService.updateUserGameCount(username);
+        return numberOfGames
+    }
+
+    async addGameWinToPlayer(socket : io.Socket){
+        socket.on('game-won',async ()=>{
+            console.log('update des wins')
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserGameWon(username)
+        })
+    }
+
+    getNumberOfGamesHandler(socket : io.Socket){
+        socket.on('get-number-games',async ()=>{
+            let username = this.usernames.get(socket.id) as string;
+            let numberOfGames = await this.loginService.getUserGameCount(username);
+            this.sio.to(socket.id).emit('get-number-games',numberOfGames)
+        })
+    }
+
+    getNumberOfGamesWonHandler(socket : io.Socket){
+        socket.on('get-number-games-won',async ()=>{
+            console.log('get les wins')
+            let username = this.usernames.get(socket.id) as string;
+            let numberOfGames = await this.loginService.getUserGameWon(username);
+            this.sio.to(socket.id).emit('get-number-games-won',numberOfGames)
+        })
+    }
+
+    updateUserPointsMean(socket : io.Socket){
+        socket.on("update-points-mean",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserPointsMean(username,points);
+        })
+    }
+
+    getUserPointsMean(socket : io.Socket){
+        socket.on("get-points-mean",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            let userPoints = await this.loginService.getUserPointsMean(username);
+            this.sio.to(socket.id).emit("get-points-mean",userPoints)
+        })
+    }
+
+    updateGameTimeAverage(socket : io.Socket){
+        socket.on("game-duration",async (duration : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserTimeAverage(username,duration)
+        })
+    }
+
+    getGameTimeAverage(socket : io.Socket){
+        socket.on("get-game-average",async (points : number)=>{
+            let username = this.usernames.get(socket.id) as string;
+            let timeAverage = await this.loginService.getUserTimeAverage(username);
+            this.sio.to(socket.id).emit("get-game-average",timeAverage)
+        })
+    }
+
+    updateGameHistory(socket : io.Socket){
+        socket.on('game-history-update',async (gameWin : boolean)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserGameHistory(username,gameWin);
+        })
+    }
+
+    getGameHistory(socket : io.Socket){
+        socket.on('get-game-history', async ()=>{
+            let username = this.usernames.get(socket.id) as string;
+            let gameHistory = await this.loginService.getUserGameHistory(username);
+            this.sio.to(socket.id).emit('get-game-history',gameHistory)
+        })
+    }
+
+    getPlayerConfigs(socket : io.Socket){
+        socket.on('get-config', async ()=>{
+            let username = this.usernames.get(socket.id) as string;
+            let configs = await this.loginService.getUserConfigs(username);
+            this.sio.to(socket.id).emit('get-config',configs);
+        })
+    }
+
+    updatePlayerConfigs(socket : io.Socket){
+        socket.on('update-config', async (newConfig : any)=>{
+            let username = this.usernames.get(socket.id) as string;
+            await this.loginService.updateUserConfigs(username,newConfig);
+            this.sio.to(socket.id).emit('get-config',newConfig);
+        })
+    }
+
     handleSockets(): void {
         this.sio.on('connection', (socket) => {
             // if (this.disconnectedSocket.oldSocketId) {
@@ -703,6 +801,18 @@ export class SocketManager {
             this.handleTimeBuy(socket);
             this.scoreOrthography(socket);
             this.observerQuitHandler(socket);
+            this.handleIconChange(socket);
+            this.getNumberOfGamesHandler(socket);
+            this.addGameWinToPlayer(socket);
+            this.getNumberOfGamesWonHandler(socket);
+            this.updateUserPointsMean(socket);
+            this.getUserPointsMean(socket);
+            this.updateGameTimeAverage(socket);
+            this.getGameTimeAverage(socket);
+            this.updateGameHistory(socket);
+            this.getGameHistory(socket);
+            this.getPlayerConfigs(socket);
+            this.updatePlayerConfigs(socket);
             socket.on('disconnect', (reason) => {
                 if (this.usernames.get(socket.id)) {
                     /* const MAX_DISCONNECTED_TIME = 5000;

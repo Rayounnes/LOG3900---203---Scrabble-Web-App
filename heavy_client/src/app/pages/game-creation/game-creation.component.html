@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="langue == 'fr'">
     <div class="add-title">
         <h2 class="primary">Créer une partie {{ data.mode }}</h2>
         <p>Créez une partie publique ou privée</p>
@@ -39,6 +39,51 @@
         <div class="btn-sec">
             <button mat-raised-button type="submit" color="primary" class="Update-btn">Créer partie</button>
             <button mat-raised-button type="button" class="Discard-btn" (click)="onNoClick()">Annuler</button>
+        </div>
+    </form>
+</div>
+
+<div *ngIf="langue == 'en'">
+    <div class="add-title">
+        <h2 class="primary">Create a {{ data.mode }} game</h2>
+        <p>Create a public or private game</p>
+    </div>
+    <form #myForm="ngForm" (ngSubmit)="createGame()">
+        <mat-checkbox [(ngModel)]="game.isPrivate" [ngModelOptions]="{standalone: true}" #checkbox>Private game</mat-checkbox>
+        <mat-form-field appearance="fill">
+            <mat-label>Number of human players: </mat-label>
+            <input matInput type="number" [(ngModel)]="game.humanPlayers" [ngModelOptions]="{standalone: true}" max="4" min="2" value="2" id="humanPlayers" step="1" required />
+            <mat-error *ngIf="game.humanPlayers > 4">Too much human players</mat-error>
+            <mat-error *ngIf="game.humanPlayers < 2">Not enough human players</mat-error>
+            <mat-icon matSuffix></mat-icon>
+        </mat-form-field>
+        <mat-form-field *ngIf="data.isClassic" appearance="fill">
+            <mat-label>Duration per turn (in seconds): </mat-label>
+            <input matInput type="number" [(ngModel)]="game.time" [ngModelOptions]="{standalone: true}" max="300" min="30" value="60" id="time" step="30" required />
+            <mat-error *ngIf="game.time < 30">Duration per turn too small</mat-error>
+            <mat-error *ngIf="game.time > 300">Duration per turn too big</mat-error>
+            <mat-icon matSuffix></mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Dictionnary</mat-label>
+            <mat-select [(ngModel)]="game.dictionary" [ngModelOptions]="{standalone: true}">
+                <mat-option [value]="frenchDictionary" selected>French</mat-option>
+                <mat-option [value]="englishDictionary">English</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" *ngIf="!checkbox.checked"
+            ><input
+                matInput
+                placeholder="Mot de passe de partie publique (optionnel)"
+                [type]="hide ? 'password' : 'text'"
+                [(ngModel)]="game.password"
+                [ngModelOptions]="{standalone: true}"
+            /><mat-icon matSuffix (click)="hide = !hide">{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon></mat-form-field
+        >
+
+        <div class="btn-sec">
+            <button mat-raised-button type="submit" color="primary" class="Update-btn">Create game</button>
+            <button mat-raised-button type="button" class="Discard-btn" (click)="onNoClick()">Cancel</button>
         </div>
     </form>
 </div>

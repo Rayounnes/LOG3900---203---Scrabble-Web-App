@@ -1,4 +1,4 @@
-<div class="homeDiv">
+<div class="homeDiv" *ngIf="langue == 'fr'">
     <div class="modesContainer">
         <h1 class="title">Liste des parties joignables mode "{{ mode }}"</h1>
         <div class="gameContainer" *ngFor="let game of gameList; let i = index">
@@ -64,4 +64,47 @@
         </div>
     </div>
     <button mat-raised-button color="primary" routerLink="/classique">Retour</button>
+</div>
+
+<div class="homeDiv" *ngIf="langue == 'en'">
+    <div class="modesContainer">
+        <h1 class="title">List of joignable games "{{ mode }}" mode</h1>
+        <div class="gameContainer" *ngFor="let game of gameList; let i = index">
+            <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : !game.isFinished" class="example-card">
+                <mat-card-header>
+                    <mat-card-title>Game of  {{ game.hostUsername }}</mat-card-title>
+                    <mat-card-subtitle *ngIf="!game.isPrivate && game.password">Public (protected by a password)</mat-card-subtitle>
+                    <mat-card-subtitle *ngIf="!game.isPrivate && !game.password">Public</mat-card-subtitle>
+                    <mat-card-subtitle *ngIf="game.isPrivate">Private</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div>
+                        <h3>Game settings:</h3>
+                        <mat-label><mat-icon>people</mat-icon> {{ game.humanPlayers }}</mat-label>
+                        <mat-label *ngIf="game.isClassicMode"><mat-icon>smart_toy</mat-icon> {{ 4 - game.humanPlayers }}</mat-label>
+                        <mat-label *ngIf="game.isClassicMode"><mat-icon>timer</mat-icon> {{ game.time }} (s)</mat-label>
+                        <mat-label><mat-icon>book</mat-icon> {{ game.dictionary.title }}</mat-label>
+                    </div>
+                    <div>
+                        <h3 *ngIf="!game.hasStarted">Waiting room:</h3>
+                        <h3 *ngIf="game.hasStarted">Active game:</h3>
+                        <mat-label><mat-icon>people</mat-icon> {{ game.joinedPlayers.length }}</mat-label>
+                        <mat-label *ngIf="!game.isPrivate"><mat-icon>visibility</mat-icon> {{ game.joinedObservers.length }}</mat-label>
+                    </div>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button
+                        mat-raised-button
+                        color="primary"
+                        [disabled]="game.playersWaiting + game.joinedPlayers.length === game.humanPlayers || game.isFullPlayers"
+                        (click)="joinWaitingRoom(game)"
+                    >
+                        Join
+                    </button>
+                    <button *ngIf="!game.isPrivate" mat-raised-button color="accent" (click)="joinAsObserver(game)">Observe</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/classique">Back</button>
 </div>

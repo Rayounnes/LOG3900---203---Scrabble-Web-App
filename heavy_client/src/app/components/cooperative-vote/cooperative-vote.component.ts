@@ -16,7 +16,11 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
     infoget: boolean = false;
     choiceMade: boolean = false;
     timer: ReturnType<typeof setInterval>;
-    clock: number = 60;
+    clock : number = 60;
+    langue = ""
+    theme = ""
+
+
 
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
@@ -40,6 +44,7 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
+        this.socketService.send('get-config')
     }
 
     configureBaseSocketFeatures() {
@@ -61,6 +66,10 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
             console.log('recu client');
             console.log(usernamesAndAvatar);
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
     acceptAction() {
         this.choiceMade = true;

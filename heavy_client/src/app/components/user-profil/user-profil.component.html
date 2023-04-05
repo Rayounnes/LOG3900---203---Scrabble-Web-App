@@ -4,24 +4,28 @@
         <span class="username" (click)="changeUsername()">{{username}}</span>
     </div>
     <div class="col">
-        <span class="number">45</span>
-        <span class="info">Parties jouées</span>
+        <span class="number">{{numberOfGames}}</span>
+        <span class="info" *ngIf="langue == 'fr'">Parties jouées</span>
+        <span class="info" *ngIf="langue == 'en'">Played games</span>
     </div>
     <div class="col">
-        <span class="number">22</span>
-        <span class="info">Parties gagnées</span>
+        <span class="number">{{numberOfGamesWon}}</span>
+        <span class="info" *ngIf="langue == 'fr'">Parties gagnées</span>
+        <span class="info" *ngIf="langue == 'en'">Games won</span>
     </div>
     <div class="col">
-        <span class="number">323</span>
-        <span class="info">Points en moyenne</span>
+        <span class="number">{{pointsMean}}</span>
+        <span class="info" *ngIf="langue == 'fr'">Points en moyenne</span>
+        <span class="info" *ngIf="langue == 'en'">Average points</span>
     </div>
     <div class="col2">
-        <span class="number">34m20s</span>
-        <span class="info">Temps moyen</span>
+        <span class="number">{{timeAverage}}</span>
+        <span class="info" *ngIf="langue == 'fr'">Temps moyen</span>
+        <span class="info" *ngIf="langue == 'en'">Average duration</span>
     </div>
 </div>
 
-<div class="row2">
+<div class="row2" *ngIf="langue == 'fr'">
     <div class="category">
         <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
             <span >Historique des parties</span>
@@ -33,12 +37,58 @@
             <span>Capture d'écrans</span>
         </div>
     </div>
+    <div class="infos" *ngIf="currentCategory == 'Parties'">
+        <div class="data"  *ngFor="let data of gameHistory">
+            <span *ngIf="data[1]" class="connect">Gagnée</span>
+            <span *ngIf="!data[1]" class="disconnect">Perdue</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
     <div class="infos" *ngIf="currentCategory == 'Connexions'">
         <div class="data"  *ngFor="let data of connexionHistory">
 
             <span *ngIf="data[1]" class="connect">Connexion</span>
             <span *ngIf="!data[1]" class="disconnect">Déconnexion</span>
             <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Screenshot'">
+        <div class="data"  *ngFor="let screenshot of screenshots">
+            <img  class="screen" [src]="screenshot[0]" (click)="openScreenShot(screenshot[0])" />
+            <span class="time">{{screenshot[1]}}</span>
+        </div>
+        
+    </div>
+</div>
+
+<div class="row2" *ngIf="langue == 'en'">
+    <div class="category">
+        <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
+            <span >Games history</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Connexions' ? 'choice' : 'no-choice'" (click)="changeCategory('Connexions')">
+            <span>Connections history</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Screenshot' ? 'choice' : 'no-choice'" (click)="changeCategory('Screenshot')">
+            <span>Screenshots</span>
+        </div>
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Parties'">
+        <div class="data"  *ngFor="let data of gameHistory">
+            <span *ngIf="data[1]" class="connect">Win</span>
+            <span *ngIf="!data[1]" class="disconnect">Loose</span>
+            <span class="time"> {{data[0].split(',')[0]}} at {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Connexions'">
+        <div class="data"  *ngFor="let data of connexionHistory">
+
+            <span *ngIf="data[1]" class="connect">Connect</span>
+            <span *ngIf="!data[1]" class="disconnect">Disconnect</span>
+            <span class="time"> {{data[0].split(',')[0]}} at {{data[0].split(',')[1]}}</span>
         </div>
         
     </div>

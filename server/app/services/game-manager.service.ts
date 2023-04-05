@@ -159,12 +159,34 @@ export class GameManager {
         this.sio.to(room).emit('end-game');
         const playersInfo: GamePlayerInfos[] = scrabbleGame.getPlayersInfo();
         const data = { players: playersInfo, turnSocket: scrabbleGame.socketTurn };
-        for (const player of playersInfo) {
+        let maxPoints = -999999999;
+        let winner: string = '';
+        let isWinnerHuman: boolean = false;
+        for (let player of playersInfo) {
             if (!player.isVirtualPlayer) {
                 this.calculateCoinsWin(player);
+                this.addScoreToUser(player.socket as string, player.points);
+            }
+            if (player.points > maxPoints) {
+                maxPoints = player.points;
+                winner = player.socket as string;
+                isWinnerHuman = !player.isVirtualPlayer;
             }
         }
         this.sio.to(room).emit('send-info-to-panel', data);
+        if (isWinnerHuman && scrabbleGame.isClassicMode) {
+            for (let player of playersInfo) {
+                if (player.socket == winner) {
+                    this.sio.to(winner).emit('game-won');
+                } else if (player.socket) {
+                    this.sio.to(player.socket).emit('game-loss');
+                }
+            }
+        } else if (scrabbleGame.isClassicMode) {
+            for (let player of playersInfo) {
+                if (!player.isVirtualPlayer) this.sio.to(player.socket as string).emit('game-loss');
+            }
+        }
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {
@@ -209,5 +231,9 @@ export class GameManager {
     calculateCoinsWin(player: GamePlayerInfos) {
         const coinsWon: number = Math.round(Math.max(5, player.points / 10));
         if (player.socket) this.sio.to(player.socket).emit('coins-win', coinsWon);
+    }
+
+    addScoreToUser(socketId: string, points: number) {
+        this.sio.to(socketId).emit('update-points-mean', points);
     }
 }

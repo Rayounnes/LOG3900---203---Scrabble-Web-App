@@ -1,0 +1,18 @@
+<div class="main">
+    <mat-form-field appearance="fill">
+        <mat-label *ngIf="langue == 'fr'">Sélectionnez une langue</mat-label>
+        <mat-label *ngIf="langue == 'en'">Sélectionnez une langue</mat-label>
+        <mat-select [(ngModel)]="langue" (selectionChange)="updateConfig()">
+          <mat-option value="fr">Francais</mat-option>
+          <mat-option value="en">English</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Sélectionnez un theme</mat-label>
+        <mat-select [(ngModel)]="theme" (selectionChange)="updateConfig()">
+          <mat-option value="dark">Dark</mat-option>
+          <mat-option value="white">White</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+</div>

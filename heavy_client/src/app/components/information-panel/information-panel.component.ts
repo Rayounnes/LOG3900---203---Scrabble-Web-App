@@ -55,6 +55,8 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     coins: number = 0;
     coinsGotFromDB: boolean = false;
     dialogConfig = new MatDialogConfig();
+    langue = '';
+    theme = '';
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -63,7 +65,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         @Inject(DOCUMENT) private document: Document,
         private dialog: MatDialog,
-        public router: Router
+        public router: Router,
     ) {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
@@ -100,6 +102,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('update-reserve');
+        this.socketService.send('get-config');
     }
     /* intervalHandler() {
         this.gameDuration++;
@@ -191,21 +194,37 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.panelDisplaySockets();
         this.socketService.on('abandon-game', (abandonMessage: string) => {
             this.isAbandon = true;
-            this.snackBar.open(abandonMessage, 'Fermer', {
-                duration: 2000,
-                panelClass: ['snackbar'],
-            });
+            if (this.langue == 'fr') {
+                this.snackBar.open(abandonMessage, 'Fermer', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            } else {
+                this.snackBar.open(abandonMessage, 'Close', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            }
         });
         this.socketService.on('end-game', (isAbandoned: boolean) => {
             if (isAbandoned) this.isAbandon = true;
             this.isGameFinished = true;
-            this.snackBar.open('La partie est terminée', 'Fermer', {
-                duration: 2000,
-                panelClass: ['snackbar'],
-            });
+            if (this.langue == 'fr') {
+                this.snackBar.open('La partie est terminée', 'Fermer', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            } else {
+                this.snackBar.open('Game is Finished', 'Close', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            }
+
             clearInterval(this.timer);
             this.addScore();
             this.addGameToHistory();
+            this.socketService.send('game-duration', this.gameDuration);
         });
 
         this.socketService.on('coins-win', (coins: number) => {
@@ -216,7 +235,24 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
 
         this.socketService.on('time-add', (toAdd: number) => {
-            this.clock = Math.min(this.game.time, this.clock + toAdd);
+            this.clock = this.clock + toAdd;
+            this.gameDuration += toAdd;
+            if (this.langue == 'fr') {
+                this.snackBar.open(`${toAdd} secondes ont été payées !`, 'Fermer', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            } else {
+                this.snackBar.open(`${toAdd} seconds have been bought !`, 'Close', {
+                    duration: 1000,
+                    panelClass: ['snackbar'],
+                });
+            }
+        });
+
+        this.socketService.on('get-config', (config: any) => {
+            this.langue = config.langue;
+            this.theme = config.theme;
         });
     }
 
@@ -328,29 +364,50 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 if (comment) {
                     this.communicationService.addScreenshotToUser(this.getUsername(), base64Image, comment).subscribe((isValid: boolean) => {
                         if (isValid) {
-                            this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
-                                duration: 1000,
-                                panelClass: ['snackbar'],
-                            });
+                            if (this.langue == 'fr') {
+                                this.snackBar.open('La capture décran a été ajoutée dans votre profil', 'Fermer', {
+                                    duration: 1000,
+                                    panelClass: ['snackbar'],
+                                });
+                            } else {
+                                this.snackBar.open('The screenshot has been added to your profil', 'Close', {
+                                    duration: 1000,
+                                    panelClass: ['snackbar'],
+                                });
+                            }
                         } else {
-                            this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
-                                duration: 1000,
-                                panelClass: ['snackbar'],
-                            });
+                            if (this.langue == 'fr') {
+                                this.snackBar.open('Erreur lors de lenregistrement de la capture décran', 'Fermer', {
+                                    duration: 1000,
+                                    panelClass: ['snackbar'],
+                                });
+                            } else {
+                                this.snackBar.open('Error while saving the screenshot', 'Close', {
+                                    duration: 1000,
+                                    panelClass: ['snackbar'],
+                                });
+                            }
                         }
                     });
                 } else {
-                    this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
-                        duration: 1000,
-                        panelClass: ['snackbar'],
-                    });
+                    if (this.langue == 'fr') {
+                        this.snackBar.open('Vous navez entré aucun commentaire', 'Fermer', {
+                            duration: 1000,
+                            panelClass: ['snackbar'],
+                        });
+                    } else {
+                        this.snackBar.open('You did not write any comment !', 'Close', {
+                            duration: 1000,
+                            panelClass: ['snackbar'],
+                        });
+                    }
                 }
             });
         });
     }
 
-    observerLeave(){
-        this.socketService.send('observer-left')
+    observerLeave() {
+        this.socketService.send('observer-left');
         this.router.navigate(['/home']);
     }
 }

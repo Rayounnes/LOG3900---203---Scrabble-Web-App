@@ -57,6 +57,8 @@ export class ChevaletComponent implements AfterViewInit {
     rackY: number;
     lettersOut: TileDragRack[] = [];
     currentPixelRatio: number = window.devicePixelRatio;
+    langue = ""
+    theme = ""
 
     dragTiles: Map<any, any> = new Map([
         ['tile0', undefined],
@@ -188,6 +190,7 @@ export class ChevaletComponent implements AfterViewInit {
     connect() {
         this.configureBaseSocketFeatures();
         if (!this.isObserver) this.socketService.send('draw-letters-rack');
+        this.socketService.send('get-config');
     }
 
     configureBaseSocketFeatures() {
@@ -219,10 +222,18 @@ export class ChevaletComponent implements AfterViewInit {
         });
         this.socketService.on('exchange-command', (command: Command) => {
             if (command.type === 'system') {
-                this.snackBar.open(command.name, 'Fermer', {
-                    duration: 3000,
-                    panelClass: ['snackbar'],
-                });
+                if(this.langue == "fr"){
+                    this.snackBar.open(command.name, 'Fermer', {
+                        duration: 3000,
+                        panelClass: ['snackbar'],
+                    });
+                }else{
+                    this.snackBar.open(command.name, 'Close', {
+                        duration: 3000,
+                        panelClass: ['snackbar'],
+                    });
+                }
+                
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', false);
             } else {
                 this.socketService.send('draw-letters-rack');
@@ -232,6 +243,10 @@ export class ChevaletComponent implements AfterViewInit {
                 }
             }
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
     get width(): number {
         return this.chevalet.width + 9;
@@ -261,10 +276,17 @@ export class ChevaletComponent implements AfterViewInit {
                 this.exchange();
             }
             const message = result.isAccepted ? 'Action accepted' : 'Action refused';
-            this.snackBar.open(message, 'Fermer', {
-                duration: 3000,
-                panelClass: ['snackbar'],
-            });
+            if(this.langue == "fr"){
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }else{
+                this.snackBar.open(message, 'Close', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }
         });
     }
     exchange() {

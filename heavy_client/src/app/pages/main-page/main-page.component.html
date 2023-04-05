@@ -1,10 +1,23 @@
-<div class="homeDiv">
+<div class="homeDiv" *ngIf="langue == 'fr'">
     <div class="modesContainer">
         <h1>Application Scrabble</h1>
         <button mat-raised-button (click)="navModePage(true)" class="dataButton">Mode de jeu classique</button>
         <button mat-raised-button (click)="navModePage(false)" class="dataButton">Mode de jeu coopératif</button>
         <button mat-raised-button (click)="navModeTraining()" class="dataButton">Mode d'entrainement orthographe</button>
         <button mat-raised-button (click)="openProfile()" class="dataButton">Profil</button>
+        <button mat-raised-button (click)="openConfigurations()" class="dataButton">Configurations</button>
         <button mat-raised-button (click)="userDisconnect()" class="dataButton">Déconnexion</button>
+    </div>
+</div>
+
+<div class="homeDiv" *ngIf="langue == 'en'">
+    <div class="modesContainer">
+        <h1>Application Scrabble</h1>
+        <button mat-raised-button (click)="navModePage(true)" class="dataButton">Classic Mode</button>
+        <button mat-raised-button (click)="navModePage(false)" class="dataButton">Cooperative mode</button>
+        <button mat-raised-button (click)="navModeTraining()" class="dataButton">Spelling practice mode</button>
+        <button mat-raised-button (click)="openProfile()" class="dataButton">Profil</button>
+        <button mat-raised-button (click)="openConfigurations()" class="dataButton">Configurations</button>
+        <button mat-raised-button (click)="userDisconnect()" class="dataButton">Disconnect</button>
     </div>
 </div>

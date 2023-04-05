@@ -22,6 +22,13 @@ export class UserProfilComponent implements OnInit {
   avatarChoosed : string = "";
   screenshots : string[][] = [] //[[image,commentaire],[image,commentaire]]
   dialogConfig = new MatDialogConfig();
+  numberOfGames : number = 0;
+  numberOfGamesWon : number = 0;
+  pointsMean : number = 0;
+  timeAverage : string = "";
+  gameHistory : any = []
+  langue = ""
+  theme = ""
 
   constructor(private communicationService : CommunicationService,
     public socketService: ChatSocketClientService,private dialog : MatDialog, private _snackBar: MatSnackBar) { 
@@ -36,12 +43,32 @@ export class UserProfilComponent implements OnInit {
         this.getConnexionHistory();
         this.getScreenshots()
     });;
+    this.socketService.on('get-number-games',(games : number)=>{
+      this.numberOfGames = games
+    })
+    this.socketService.on('get-number-games-won',(games : number) =>{
+      this.numberOfGamesWon = games
+    })
+    this.socketService.on("get-points-mean",(points : number) =>{
+      this.pointsMean = points
+    })
+    this.socketService.on("get-game-average",(average : string)=>{
+      this.timeAverage = average
+    })
+    this.socketService.on('get-game-history',(gameHistory : any) =>{
+      this.gameHistory = gameHistory
+    })
+    this.socketService.on('get-config',(config : any)=>{
+      this.langue = config.langue;
+      this.theme = config.theme;
+    })
 
   }
 
   connect() {
     this.configureBaseSocketFeatures();
     this.socketService.send('sendUsername');
+    this.socketService.send('get-config')
     
   }
 
@@ -90,6 +117,7 @@ export class UserProfilComponent implements OnInit {
         if(this.currentIcon !== avatar){
           this.currentIcon = avatar;
           this.communicationService.changeIcon(this.username,this.currentIcon).subscribe((isValid : boolean)=>{
+            this.socketService.send('icon-change',{username : this.username, icon : this.currentIcon})
             return isValid;
           })  
         }
@@ -128,6 +156,11 @@ export class UserProfilComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.socketService.send('get-number-games')
+    this.socketService.send('get-number-games-won')
+    this.socketService.send("get-points-mean")
+    this.socketService.send("get-game-average")
+    this.socketService.send('get-game-history')
   }
 
 }

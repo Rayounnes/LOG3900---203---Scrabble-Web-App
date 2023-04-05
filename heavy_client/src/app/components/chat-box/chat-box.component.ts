@@ -35,6 +35,8 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     isCommandSent = false;
     isGameFinished = false;
     writtenCommand = '';
+    langue = ""
+    theme = ""
 
     allUserChannels: any[] = [];
     currentChannel: string = 'General';
@@ -67,6 +69,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
+        this.socketService.send('get-config')
     }
     // verifyPlaceSocket() {
     //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -206,10 +209,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.isGameFinished = true;
         });
         this.socketService.on('channel-created', (newChannel: any) => {
-            newChannel['unread'] = false;
+            /* newChannel['unread'] = false;
             newChannel['typing'] = [false, 0];
             this.allUserChannels.push(newChannel);
-            this.changeChannel(newChannel);
+            this.changeChannel(newChannel); */
+            this.getUserChannels();
         });
         this.socketService.on('duplicate-name',()=>{
             this._snackBar.open(
@@ -250,6 +254,25 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 setTimeout(() => this.automaticScroll(), 1);
             }
         });
+        this.socketService.on('icon-change',(infos : any)=>{
+            this.usersIcons.set(infos.username, infos.icon)
+            console.log(infos)
+        })
+        this.socketService.on('game-won',() =>{
+            console.log('partie gagnée')
+            this.socketService.send('game-won')
+            this.socketService.send('game-history-update',true)
+        })
+        this.socketService.on('game-loss',() =>{
+            this.socketService.send('game-history-update',false)
+        })
+        this.socketService.on("update-points-mean",(points : number)=>{
+            this.socketService.send("update-points-mean",points)
+        })
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
     validCommandName(message: string): Command {
         const commandName: string = message.split(' ')[0].substring(1);

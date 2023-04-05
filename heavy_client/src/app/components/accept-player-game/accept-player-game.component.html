@@ -1,8 +1,16 @@
-<h2 mat-dialog-title>Demande d'acceptation</h2>
-<mat-dialog-content>
+<h2 mat-dialog-title *ngIf="langue == 'fr'">Demande d'acceptation</h2>
+<h2 mat-dialog-title *ngIf="langue == 'en'">Acceptance request</h2>
+<mat-dialog-content *ngIf="langue == 'fr'">
   <p>{{data.username}} essaye de rejoindre la partie. Accepter ou rejeter le joueur?</p>
 </mat-dialog-content>
-<mat-dialog-actions>
+<mat-dialog-content *ngIf="langue == 'en'">
+  <p>{{data.username}} is trying to join the game. Accept or reject the player.</p>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="langue == 'fr'">
   <button mat-button (click)="onRejectClick()">Rejeter</button>
   <button mat-raised-button color="primary" (click)="onAcceptClick()">Accepter</button>
+</mat-dialog-actions>
+<mat-dialog-actions *ngIf="langue == 'en'">
+  <button mat-button (click)="onRejectClick()">Reject</button>
+  <button mat-raised-button color="primary" (click)="onAcceptClick()">Accept</button>
 </mat-dialog-actions>

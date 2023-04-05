@@ -54,6 +54,7 @@ import { HintDialogComponent } from './components/hint-dialog/hint-dialog.compon
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GridConstants } from 'src/constants/grid-constants';
 import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
+import { ConfigurationChoiceDialogComponent } from './components/configuration-choice-dialog/configuration-choice-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -95,6 +96,7 @@ import { WhiteLetterDialogComponent } from './components/white-letter-dialog/whi
         ScreenshotDialogComponent,
         OrthographyPageComponent,
         WhiteLetterDialogComponent,
+        ConfigurationChoiceDialogComponent,
     ],
     imports: [
         MatProgressSpinnerModule,

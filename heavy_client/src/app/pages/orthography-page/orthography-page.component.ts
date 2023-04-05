@@ -27,7 +27,8 @@ export class OrthographyPageComponent implements OnInit {
   score = 0;
   bestScore = 0;
   username = "";
-
+  langue = ""
+  theme = ""
   ngOnInit(): void {
   
   }
@@ -37,11 +38,16 @@ export class OrthographyPageComponent implements OnInit {
     this.socketService.on('sendUsername', (name: string) => {
         this.username = name;
     });
+    this.socketService.on('get-config',(config : any)=>{
+      this.langue = config.langue;
+      this.theme = config.theme;
+  })
 }
 
 connect() {
   this.configureBaseSocketFeatures();
   this.socketService.send('sendUsername');
+  this.socketService.send('get-config')
 }
 
   countdown = 0;

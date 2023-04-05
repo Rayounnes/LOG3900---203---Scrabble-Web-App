@@ -11,6 +11,10 @@ import { Router } from '@angular/router';
 })
 export class SurrenderGameComponent implements OnInit {
     isGameFinished = false;
+
+    langue = ""
+    theme = ""
+
     constructor(public router: Router, private dialog: MatDialog, public socketService: ChatSocketClientService) {}
     ngOnInit(): void {
         this.connect();
@@ -18,11 +22,16 @@ export class SurrenderGameComponent implements OnInit {
 
     connect() {
         this.configureBaseSocketFeatures();
+        this.socketService.send('get-config')
     }
     configureBaseSocketFeatures() {
         this.socketService.on('end-game', () => {
             this.isGameFinished = true;
         });
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
     }
     popUp() {
         const message = new ConfirmationService('Confirmer votre abandon', 'Voulez-vous abandonner cette partie ?');
