@@ -9,6 +9,21 @@ body {
   background-color: #f2f2f2;
 }
 
+.allButtons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 800px;
+  margin:170px
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #5F9E6E;
+}
+
+
 .homeDiv {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,11 +31,6 @@ body {
   text-align: center;
 }
 
-h1 {
-  font-size: 32px;
-  color: #4a4a4a;
-  margin-bottom: 20px;
-}
 
 .buttons {
   display: flex;
@@ -29,19 +39,20 @@ h1 {
 }
 
 .startButton {
-  background-color: #ff6b81;
+  background-color: #6e9071;
   color: #ffffff;
   font-size: 16px;
   padding: 12px 24px;
   margin: 10px;
   border: none;
   border-radius: 30px;
+  height: 75px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .startButton:hover {
-  background-color: #ff3c5a;
+  background-color: #115213;
 }
 
 // .image-container {
@@ -65,6 +76,7 @@ h1 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin: 10px;
+  
 }
 
 p {
@@ -78,15 +90,24 @@ p {
 .image-wrapper {
   position: relative;
   width: 100%;
+  height: 100%;
   overflow: hidden;
-  padding-top: 75%;
+  padding-top: 50%;
 }
 
 .help-image {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 75%;
+  height: 75%;
   object-fit: cover;
+  justify-content: center;
+}
+
+.text {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #0c3f18;
+  text-align: center;
 }
