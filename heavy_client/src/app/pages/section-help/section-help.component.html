@@ -99,6 +99,17 @@
 
   </mat-tab>
 
+  <mat-tab *ngIf="itemsOrthography[3]" label="Aide 4">
+    <div class="item-container">
+      <p class="text">{{itemsOrthography[3].description}}</p>
+      <div class="image-wrapper">
+        <img src="{{itemsOrthography[3].image}}" alt="{{itemsOrthography[3].alt}}" class="help-image">
+      </div>
+    </div>
+
+  </mat-tab>
+
+
 </mat-tab-group>   
 
   </div>
@@ -147,7 +158,7 @@
 
 
   <div *ngIf="helpMode === 'cooperatif'">
-    <h3>Profil</h3>
+    <h3>Mode coopératif</h3>
   <mat-tab-group  animationDuration="1000ms">
   <mat-tab *ngIf="itemsCooperative[0]" label="Aide 1">
     <div class="item-container">
@@ -243,9 +254,7 @@
 </mat-tab-group>   
 
   </div>
-
-
-    
+ 
   <div *ngIf="showHelp">
     <button (click)="backHelp()" class="startButton">Retour</button>
   </div>

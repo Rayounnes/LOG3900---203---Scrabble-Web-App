@@ -109,6 +109,11 @@ export class SectionHelpComponent implements OnInit {
     ];
 
     itemsOrthography = [
+      {
+        image: 'assets/section-aide/mode-orthography/mode-entrainement.png',
+        alt: 'Image 1',
+        description: "Le mode orthographe est un mode pour pratiquer son orthographe. Ce mode n'affectera pas vos points d'expérience. Vous avez le droit à 3 chances. Si vous faites 3 erreurs, vous perdez.",
+    },
         {
             image: 'assets/section-aide/mode-orthography/game-orthography.png',
             alt: 'Image 1',
