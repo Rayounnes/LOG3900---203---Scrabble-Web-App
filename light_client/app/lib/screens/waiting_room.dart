@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app/constants/constants.dart';
 import 'package:app/main.dart';
 import 'package:app/models/game.dart';
@@ -11,6 +13,7 @@ import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/text.dart';
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
 import '../widgets/loading_tips.dart';
 
 class WaitingRoom extends StatefulWidget {
@@ -30,6 +33,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   bool acceptPlayerQuit = false;
   String hostUsername = '';
   Game game = Game(hostUsername: "", time: 60);
+  Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
 
   @override
   void initState() {
@@ -53,17 +57,67 @@ class _WaitingRoomState extends State<WaitingRoom> {
     super.dispose();
   }
 
+  void getPlayersIcons() {
+    for (var player in game.joinedPlayers) {
+      if (icons[player.username] == null) {
+        try {
+          ApiService().getAvatar(player.username).then((response) {
+            setState(() {
+              icons[player.username] =
+                  MemoryImage(base64Decode(response[0].split(',')[1]));
+            });
+          }).catchError((error) {
+            print('Error fetching avatar: $error');
+          });
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
+    for (var observer in game.joinedObservers) {
+      if (icons[observer.username] == null) {
+        try {
+          ApiService().getAvatar(observer.username).then((response) {
+            setState(() {
+              icons[observer.username] =
+                  MemoryImage(base64Decode(response[0].split(',')[1]));
+            });
+          }).catchError((error) {
+            print('Error fetching avatar: $error');
+          });
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
+  }
+
+  Widget playerWaitingInfos(String player) {
+    return Expanded(
+      child: Card(
+        color: game.hostUsername == player ? Colors.green : Colors.white,
+        child: ListTile(
+          leading: CircleAvatar(
+            radius: 30,
+            backgroundImage: icons[player],
+          ),
+          title: Text(player),
+        ),
+      ),
+    );
+  }
+
   void handleSockets() {
     getIt<SocketService>().on('create-game', (gameJson) {
       print("received create-game");
       setState(() {
         try {
-          print(gameJson);
           game = Game.fromJson(gameJson);
           isHost = true;
         } catch (e) {
           print(e);
         }
+        getPlayersIcons();
       });
     });
     getIt<SocketService>().on('waiting-room-player', (gameJson) {
@@ -71,6 +125,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
         print("received game waiting room $gameJson");
         game = Game.fromJson(gameJson);
       });
+      getPlayersIcons();
     });
     getIt<SocketService>().on('waiting-player-status', (observerPerson) {
       setState(() {
@@ -184,10 +239,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                                 ),
                               );
                             } else {
-                              return ListTile(
-                                title: Text(
-                                    game.joinedPlayers[index - 1].username),
-                              );
+                              return playerWaitingInfos(
+                                  game.joinedPlayers[index - 1].username);
                             }
                           },
                         ),
@@ -212,10 +265,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                                     ),
                                   );
                                 } else {
-                                  return ListTile(
-                                    title: Text(game
-                                        .joinedObservers[index - 1].username),
-                                  );
+                                  return playerWaitingInfos(
+                                      game.joinedObservers[index - 1].username);
                                 }
                               },
                             ))
@@ -257,8 +308,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                               // true: isLightClient
                               getIt<SocketService>().send('join-game', true);
                             },
-                            isButtonDisabled:
-                                game.joinedPlayers.length < 2,
+                            isButtonDisabled: game.joinedPlayers.length < 2,
                           ),
                           GameButton(
                             padding: 16.0,
