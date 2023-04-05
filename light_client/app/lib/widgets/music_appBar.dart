@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/music_service.dart';
 
 class MusicAppBar extends StatefulWidget {
@@ -8,33 +9,30 @@ class MusicAppBar extends StatefulWidget {
 }
 
 class _MusicAppBarState extends State<MusicAppBar> {
-  MusicService musicService = MusicService();
+  //getIt<MusicService>() getIt<MusicService>() = getIt<MusicService>()();
 
   @override
   void initState() {
     super.initState();
-    musicService.resumeMusic();
+    getIt<MusicService>().resumeMusic();
   }
 
   @override
   void dispose() {
-    musicService.stopMusic();
-    if (ModalRoute.of(context)?.settings.name == '/loginScreen') {
-      musicService.disposeMusic();
-    }
+    getIt<MusicService>().resumeMusic();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: musicService.xPosition,
-      top: musicService.yPosition,
+      left: getIt<MusicService>().xPosition,
+      top: getIt<MusicService>().yPosition,
       child: GestureDetector(
         onPanUpdate: (gesture) {
           setState(() {
-            musicService.xPosition += gesture.delta.dx;
-            musicService.yPosition += gesture.delta.dy;
+            getIt<MusicService>().xPosition += gesture.delta.dx;
+            getIt<MusicService>().yPosition += gesture.delta.dy;
           });
         },
         child: CircleAvatar(backgroundColor:Color.fromARGB(255, 231, 228, 52),
@@ -69,7 +67,7 @@ class _MusicAppBarState extends State<MusicAppBar> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  musicService.musicID != -1 ?'Music ${musicService.musicID}.mp3':
+                  getIt<MusicService>().musicID != -1 ?'Music ${getIt<MusicService>().musicID}.mp3':
                   'Lancer la playlist',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Color.fromARGB(
                       255, 0, 0, 0)),
@@ -83,44 +81,44 @@ class _MusicAppBarState extends State<MusicAppBar> {
                           color: Color.fromARGB(255, 188, 81, 234)),
                       onPressed: () {
                         setState(() {
-                          musicService.volumeDown();
+                          getIt<MusicService>().volumeDown();
                         });
                       },
                     ),
-                    if(musicService.musicID != -1)IconButton(iconSize: 25,
+                    if(getIt<MusicService>().musicID != -1)IconButton(iconSize: 25,
                       icon: Icon(Icons.skip_previous_rounded,
                           color: Color.fromARGB(255, 246, 174, 10)),
                       onPressed: () {
                         setState(() {
-                          musicService.previousMusic();
+                          getIt<MusicService>().previousMusic();
                         });
                       },
                     ),
-                    if(musicService.musicID != -1)IconButton(iconSize: 30,
+                    if(getIt<MusicService>().musicID != -1)IconButton(iconSize: 30,
                       icon: Icon(
-                          musicService.isPlaying
+                          getIt<MusicService>().isPlaying
                               ? Icons.pause
                               : Icons.play_arrow,
-                          color: musicService.isPlaying
+                          color: getIt<MusicService>().isPlaying
                               ? Color.fromARGB(255, 255, 57, 31)
                               : Color.fromARGB(255, 14, 117, 25)),
                       onPressed: () {
                         setState(() {
-                          if (musicService.isPlaying) {
-                            musicService.pauseMusic();
+                          if (getIt<MusicService>().isPlaying) {
+                            getIt<MusicService>().pauseMusic();
                           } else {
-                            musicService.resumeMusic();
+                            getIt<MusicService>().resumeMusic();
                           }
                         });
                       },
                     ),
                     IconButton(iconSize: 25,
-                      icon: Icon(musicService.musicID != -1 ? Icons.skip_next_rounded:
+                      icon: Icon(getIt<MusicService>().musicID != -1 ? Icons.skip_next_rounded:
                           Icons.queue_music,
                           color: Color.fromARGB(255, 246, 174, 10)),
                       onPressed: () {
                         setState(() {
-                          musicService.nextMusic();
+                          getIt<MusicService>().nextMusic();
                         });
                       },
                     ),
@@ -129,7 +127,7 @@ class _MusicAppBarState extends State<MusicAppBar> {
                           color: Color.fromARGB(255, 188, 81, 234)),
                       onPressed: () {
                         setState(() {
-                          musicService.volumeUp();
+                          getIt<MusicService>().volumeUp();
                         });
                       },
                     ),
