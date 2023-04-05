@@ -40,6 +40,7 @@ dependencies:
   image_picker: ^0.8.7
   image_cropper: ^3.0.1
   image: ^4.0.15
+  pie_chart: ^5.3.2
 
 
     # The following adds the Cupertino Icons font to your application.
@@ -92,8 +93,30 @@ flutter:
     - assets/Me Mario.mp3
     - assets/Pokemon win.mp3
     - assets/Yay.mp3
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+    - assets/images/Classic/ClassicMode.png
+    - assets/images/Classic/Create.png
+    - assets/images/Classic/PrivateOrPublic.png
+    - assets/images/Classic/Join.png
+    - assets/images/Classic/WaitingRoom.png
+    - assets/images/Classic/Accept.png
+    - assets/images/Classic/Pass.png
+    - assets/images/Classic/Exchange.png
+    - assets/images/Classic/Validate.png
+    - assets/images/Classic/Placement.png
+    - assets/images/Coop/CoopMode.png
+    - assets/images/Coop/Placement.png
+    - assets/images/Coop/Accept.png
+    - assets/images/Profile/Profil.png
+    - assets/images/Profile/History.png
+    - assets/images/Profile/Stats.png
+    - assets/images/Profile/Edit1.png
+    - assets/images/Profile/Edit2.png
+    - assets/images/Profile/Username.png
+    - assets/images/Profile/Avatar.png
+    - assets/images/Training/Orthographe.png
+    - assets/images/Training/Choice.png
+    - assets/images/Bonus/Music.png
+    - assets/images/Bonus/Astuces.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

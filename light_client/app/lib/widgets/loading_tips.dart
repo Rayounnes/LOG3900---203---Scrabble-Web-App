@@ -71,6 +71,7 @@ class _LoadingTipsState extends State<LoadingTips> {
         },
         child: Text(
           tip,
+          textAlign: TextAlign.center,
           key: ValueKey(tip),
           style: TextStyle(
             color: Colors.black,

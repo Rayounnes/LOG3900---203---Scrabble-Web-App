@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/music_service.dart';
 
 class MusicAppBar extends StatefulWidget {
@@ -8,31 +9,30 @@ class MusicAppBar extends StatefulWidget {
 }
 
 class _MusicAppBarState extends State<MusicAppBar> {
-  MusicService musicService = MusicService();
+  //getIt<MusicService>() getIt<MusicService>() = getIt<MusicService>()();
 
   @override
   void initState() {
     super.initState();
-    if(musicService.isPlaying){musicService.resumeMusic();}
+    getIt<MusicService>().resumeMusic();
   }
 
   @override
   void dispose() {
+    getIt<MusicService>().resumeMusic();
     super.dispose();
-    musicService.stopMusic();
-    //if (ModalRoute.of(context)?.settings?.name == '/loginScreen') {}
   }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: musicService.xPosition,
-      top: musicService.yPosition,
+      left: getIt<MusicService>().xPosition,
+      top: getIt<MusicService>().yPosition,
       child: GestureDetector(
         onPanUpdate: (gesture) {
           setState(() {
-            musicService.xPosition += gesture.delta.dx;
-            musicService.yPosition += gesture.delta.dy;
+            getIt<MusicService>().xPosition += gesture.delta.dx;
+            getIt<MusicService>().yPosition += gesture.delta.dy;
           });
         },
         child: CircleAvatar(backgroundColor:Color.fromARGB(255, 231, 228, 52),
@@ -61,48 +61,75 @@ class _MusicAppBarState extends State<MusicAppBar> {
         child: Container(
           height: 200,
           width: 250,
-          color: Color.fromARGB(255, 163, 218, 240),
+          color: Color.fromARGB(253, 229, 223, 223),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Music ${musicService.musicID}.mp3',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  getIt<MusicService>().musicID != -1 ?'Music ${getIt<MusicService>().musicID}.mp3':
+                  'Lancer la playlist',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Color.fromARGB(
+                      255, 0, 0, 0)),
                 ),
                 SizedBox(height: 50.0),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: Icon(
-                          musicService.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          color: musicService.isPlaying
-                              ? Color.fromARGB(255, 255, 57, 31)
-                              : Color.fromARGB(255, 35, 122, 0)),
+                    IconButton(iconSize: 25,
+                      icon: Icon(Icons.volume_down,
+                          color: Color.fromARGB(255, 188, 81, 234)),
                       onPressed: () {
                         setState(() {
-                          if (musicService.isPlaying) {
-                            musicService.pauseMusic();
+                          getIt<MusicService>().volumeDown();
+                        });
+                      },
+                    ),
+                    if(getIt<MusicService>().musicID != -1)IconButton(iconSize: 25,
+                      icon: Icon(Icons.skip_previous_rounded,
+                          color: Color.fromARGB(255, 246, 174, 10)),
+                      onPressed: () {
+                        setState(() {
+                          getIt<MusicService>().previousMusic();
+                        });
+                      },
+                    ),
+                    if(getIt<MusicService>().musicID != -1)IconButton(iconSize: 30,
+                      icon: Icon(
+                          getIt<MusicService>().isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                          color: getIt<MusicService>().isPlaying
+                              ? Color.fromARGB(255, 255, 57, 31)
+                              : Color.fromARGB(255, 14, 117, 25)),
+                      onPressed: () {
+                        setState(() {
+                          if (getIt<MusicService>().isPlaying) {
+                            getIt<MusicService>().pauseMusic();
                           } else {
-                            musicService.resumeMusic();
+                            getIt<MusicService>().resumeMusic();
                           }
                         });
                       },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 70),
-                      child: IconButton(
-                        icon: Icon(Icons.skip_next_rounded,
-                            color: Color.fromARGB(255, 218, 9, 218)),
-                        onPressed: () {
-                          setState(() {
-                            musicService.nextMusic();
-                          });
-                        },
-                      ),
+                    IconButton(iconSize: 25,
+                      icon: Icon(getIt<MusicService>().musicID != -1 ? Icons.skip_next_rounded:
+                          Icons.queue_music,
+                          color: Color.fromARGB(255, 246, 174, 10)),
+                      onPressed: () {
+                        setState(() {
+                          getIt<MusicService>().nextMusic();
+                        });
+                      },
+                    ),
+                    IconButton(iconSize: 25,
+                      icon: Icon(Icons.volume_up,
+                          color: Color.fromARGB(255, 188, 81, 234)),
+                      onPressed: () {
+                        setState(() {
+                          getIt<MusicService>().volumeUp();
+                        });
+                      },
                     ),
                   ],
                 ),
