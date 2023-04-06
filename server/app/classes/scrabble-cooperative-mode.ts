@@ -9,6 +9,7 @@ import { ReserveCommandService } from '@app/services/reserve-command.service';
 import { Command } from '@app/interfaces/command';
 import { GamePlayerInfos } from '@app/interfaces/game-player-infos';
 import { CooperativeAction } from '@app/interfaces/cooperative-action';
+import { Placement } from '@app/interfaces/placement';
 
 // const PASS_MAX_STREAK = 6;
 // const MAX_PLAYERS = 4;
@@ -141,8 +142,9 @@ export class ScrabbleCooperativeMode {
     getPlayerRack(): string[] {
         return this.gamePlayer.lettersRack.lettersRack as string[];
     }
-    getPlayerHintWords(): string {
-        return this.gamePlayer.hintWords.hintPlacement(this.firstTurn) as string;
+    getPlayerHintWords(socketId: string): Placement[] {
+        const placements = this.gamePlayer.hintWords.getBestHints(this.firstTurn) as Placement[];
+        return placements;
     }
     getPlayerTilesLeft(): number {
         return this.gamePlayer.lettersRack.rackInString.length as number;

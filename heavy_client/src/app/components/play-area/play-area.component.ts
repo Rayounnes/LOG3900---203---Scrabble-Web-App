@@ -333,6 +333,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.socketTurn = socketTurn;
             this.dragOrType = 'free';
         });
+        this.socketService.on('hint-cooperative', () => {
+            this.socketService.send('hint-command');
+            this.dragOrType = 'free';
+        });
         this.socketService.on('end-game', () => {
             this.commandSent = true;
             this.isEndGame = true;

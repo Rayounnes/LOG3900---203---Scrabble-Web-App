@@ -512,8 +512,14 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     isNotDraggable() {
-        if (this.dragAccepted.includes(this.dragUsed) && this.socketService.socketId === this.socketTurn) {
-            return false;
+        if (this.isClassic) {
+            if (this.dragAccepted.includes(this.dragUsed) && this.socketService.socketId === this.socketTurn) {
+                return false;
+            }
+        } else {
+            if (this.dragAccepted.includes(this.dragUsed)) {
+                return false;
+            }
         }
         return true;
     }

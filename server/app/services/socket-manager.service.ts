@@ -244,6 +244,7 @@ export class SocketManager {
         const scrabbleGame = this.scrabbleCooperativeGames.get(room) as ScrabbleCooperativeMode;
         const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: '' };
         this.sio.to(room).emit('send-info-to-panel', data);
+        this.sio.to(room).emit('hint-cooperative');
     }
     joinGameHandler(socket: io.Socket) {
         socket.on('join-game', (isLightClient: boolean) => {
@@ -348,9 +349,11 @@ export class SocketManager {
             this.sio.to(socket.id).emit('reserve-command', reserveResult);
         });
         socket.on('hint-command', () => {
+            const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             const hintWords = scrabbleGame.getPlayerHintWords(socket.id);
-            this.sio.to(socket.id).emit('hint-command', hintWords);
+            if (scrabbleGame.isClassicMode) this.sio.to(socket.id).emit('hint-command', hintWords);
+            else this.sio.to(room).emit('hint-command', hintWords);
         });
     }
     exchangeCommandHandler(socket: io.Socket) {
