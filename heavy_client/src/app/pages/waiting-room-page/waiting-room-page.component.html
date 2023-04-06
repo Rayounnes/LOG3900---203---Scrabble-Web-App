@@ -13,11 +13,12 @@
                     <mat-spinner diameter="64"></mat-spinner>
                 </div>
             </div>
-
+            <ng-container *ngIf="isClassic">
             <div class="gameplayer" *ngFor="let item of arrayForngForBot">
                 <img [src]="botIcon" width="25%" height="70%">
                 <span mat-line>Bot</span>
             </div>
+            </ng-container>
             <div class="options">
                 <button mat-button (click)="cancelMatch()" *ngIf="isHost" class="cancel-button">Annuler Partie</button>
                 <button mat-raised-button (click)="cancelWaiting()" *ngIf="!isHost" class="cancel-button">Quitter</button>

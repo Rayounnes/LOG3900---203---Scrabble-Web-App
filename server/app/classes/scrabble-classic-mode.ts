@@ -182,7 +182,7 @@ export class ScrabbleClassicMode {
             const indexObserverSocket = this.observersSockets.indexOf(observerSocketId);
             if (indexObserverSocket > -1) {
                 this.observersSockets.splice(indexObserverSocket, 1);
-                console.log("OBSERVEUR SUPPRIMé")
+                console.log('OBSERVEUR SUPPRIMé');
             }
         }
     }
@@ -251,10 +251,10 @@ export class ScrabbleClassicMode {
         if (indexPlayerSocket > -1) {
             this.playersSockets.splice(indexPlayerSocket, 1);
         }
-        this.passMaxStreak = this.playersSockets.length * 2;
-        // Si le joueur abandonne pendant la suite de passer son tour on lui enleve son passer
-        if (this.passStreak !== 0) this.passStreak--;
+        // Si le joueur abandonne pendant la suite de passer et qu'il a voté une premiere fois, on retire son passer
+        if (this.passStreak !== 0 && this.passStreak > this.passMaxStreak / 2) this.passStreak--;
         if (this.turnSocket === abandonPlayerSocket) this.turnSocket = newVirtualPlayerName;
+        this.passMaxStreak = this.playersSockets.length * 2;
         return newVirtualPlayerName;
     }
     get notTurnSockets(): string[] {
