@@ -81,7 +81,7 @@ export class ChevaletComponent implements AfterViewInit {
 
     @Input() isBoardClicked: boolean;
     @Input() dragUsed: string;
-    dragAccepted = ['free', 'drag', 'type'];
+    dragAccepted = ['free', 'drag'];
     posBoard: DOMRect;
 
     constructor(
@@ -491,6 +491,7 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     isNotDraggable() {
+        console.log(this.dragUsed)
         if (this.dragAccepted.includes(this.dragUsed) && this.socketService.socketId === this.socketTurn) {
             return false;
         }

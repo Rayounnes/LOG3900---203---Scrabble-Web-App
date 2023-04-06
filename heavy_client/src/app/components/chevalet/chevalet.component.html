@@ -13,7 +13,7 @@
                     class="example-box"
                     [style.left.px]="position0.x"
                     [style.top.px]="position0.y"
-                    *ngIf="items[0] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[0] "
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile1
@@ -26,7 +26,7 @@
                     class="example-box"
                     [style.left.px]="position1.x"
                     [style.top.px]="position1.y"
-                    *ngIf="items[1] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[1]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile2
@@ -38,7 +38,7 @@
                     class="example-box"
                     [style.left.px]="position2.x"
                     [style.top.px]="position2.y"
-                    *ngIf="items[2] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[2]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile3
@@ -50,7 +50,7 @@
                     class="example-box"
                     [style.left.px]="position3.x"
                     [style.top.px]="position3.y"
-                    *ngIf="items[3] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[3]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile4
@@ -62,7 +62,7 @@
                     class="example-box"
                     [style.left.px]="position4.x"
                     [style.top.px]="position4.y"
-                    *ngIf="items[4] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[4]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile5
@@ -74,7 +74,7 @@
                     class="example-box"
                     [style.left.px]="position5.x"
                     [style.top.px]="position5.y"
-                    *ngIf="items[5] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[5]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile6
@@ -86,7 +86,7 @@
                     class="example-box"
                     [style.left.px]="position6.x"
                     [style.top.px]="position6.y"
-                    *ngIf="items[6] && dragAccepted.includes(dragUsed)"
+                    *ngIf="items[6]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable()"
                     #tile7
