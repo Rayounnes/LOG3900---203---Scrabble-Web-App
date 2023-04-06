@@ -7,14 +7,17 @@
     flex-direction: column;
     margin-left: 20px;
     // bottom: 0;
+    width: 99%;
+    height: 100%;
 
 }
 
 .sameUser{
     background-color: lightskyblue;
     position: relative;
-	max-width: 17em;
-    left:125px;
+	width: 30%;
+    min-width: 270px;
+    left : 69%;
 	padding: 0.5em 0.5em;
 	font-size: 1em;
 	border-radius: 1rem;
@@ -23,7 +26,8 @@
 .opponent{
     background-color: lightgreen;
     position: relative;
-	max-width: 17em;
+	width: 30%;
+    min-width: 270px;
 	padding: 0.5em 0.5em;
 	font-size: 1em;
 	border-radius: 1rem;
@@ -36,7 +40,7 @@
 
 
 .channels{
-    width: 400px;
+    width: 80%;
     background-color: #373636;
     height: 30px;
     display: flex;
@@ -110,8 +114,8 @@
 
 .messagesBox {
     background-color: rgb(55, 54, 54);
-    width: 400px;
-    height: 350px;
+    width: 100%;
+    height: 90%;
     border: 1px solid black;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -123,8 +127,8 @@
 
 #inputChat{
     background-color: rgb(55, 54, 54);
-    width: 395px;
-    height: 30px;
+    width: 100%;
+    height: 5%;
     margin-bottom: 5px;
     border-radius: 10px;
     color:white;
@@ -288,5 +292,12 @@ stroke-width: 1;
     color: white;
     margin-left: 3%;
     margin-right: 7%;
+}
+
+img{
+    height: 10%;
+    width: 15%;
+    min-width: 84px;
+    min-height: 71px;
 }
 

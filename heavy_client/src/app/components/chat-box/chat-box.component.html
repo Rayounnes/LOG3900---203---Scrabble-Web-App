@@ -54,78 +54,78 @@
         </div>
         
     </div>
-<div class="messagesBox" #scrollMessages *ngIf="!searching">
+    <div class="messagesBox" #scrollMessages *ngIf="!searching">
 
-    <ul class="persoM" *ngIf="langue == 'fr'">
-        <button class = 'persoMessage'(click)="personalizedMessage($event)">Salut !</button>
-        <button class = 'persoMessage'(click)="personalizedMessage($event)">Bien joué !</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Nul!</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Bonne chance !</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
+        <ul class="persoM" *ngIf="langue == 'fr'">
+            <button class = 'persoMessage'(click)="personalizedMessage($event)">Salut !</button>
+            <button class = 'persoMessage'(click)="personalizedMessage($event)">Bien joué !</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Nul!</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Bonne chance !</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
 
-    </ul>
+        </ul>
 
-    <ul class="persoM" *ngIf="langue == 'en'">
-        <button class = 'persoMessage'(click)="personalizedMessage($event)">Hi !</button>
-        <button class = 'persoMessage'(click)="personalizedMessage($event)">Well played !</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Bad!</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Good luck !</button>
-        <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
+        <ul class="persoM" *ngIf="langue == 'en'">
+            <button class = 'persoMessage'(click)="personalizedMessage($event)">Hi !</button>
+            <button class = 'persoMessage'(click)="personalizedMessage($event)">Well played !</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Bad!</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Good luck !</button>
+            <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
 
-    </ul>
+        </ul>
 
 
 
-    <ul>
-        <li
-            *ngFor="let message of chatMessages"
-            [ngClass]="{
-                sameUser: message.type === 'player' && username === message.username,
-                system: message.type === 'system',
-                opponent: username !== message.username
-            }"
-        >
-        <img [src]="getIcon(message.username)" width="15%" height="10%" alt="">
-        <p>{{message.time}}</p>
-        <p>{{message.username}} : {{ message.message }}</p>
-        </li>
-    </ul>
-    <div class="typing" *ngFor="let channel of allUserChannels" >
-        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1 && langue == 'fr'">{{channel.typing[2][0]}} est en train decrire</span>
-        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1  && langue == 'fr'">Plusieurs personnes sont train decrire</span>
-        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1 && langue == 'en'">{{channel.typing[2][0]}} is typing</span>
-        <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1  && langue == 'en'">Many persons are typing</span>
-        <div *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] >= 1" class="dot-typing"></div>
+        <ul>
+            <li
+                *ngFor="let message of chatMessages"
+                [ngClass]="{
+                    sameUser: message.type === 'player' && username === message.username,
+                    system: message.type === 'system',
+                    opponent: username !== message.username
+                }"
+            >
+            <img [src]="getIcon(message.username)"  alt="">
+            <p>{{message.time}}</p>
+            <p>{{message.username}} : {{ message.message }}</p>
+            </li>
+        </ul>
+        <div class="typing" *ngFor="let channel of allUserChannels" >
+            <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1 && langue == 'fr'">{{channel.typing[2][0]}} est en train decrire</span>
+            <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1  && langue == 'fr'">Plusieurs personnes sont train decrire</span>
+            <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1 && langue == 'en'">{{channel.typing[2][0]}} is typing</span>
+            <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1  && langue == 'en'">Many persons are typing</span>
+            <div *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] >= 1" class="dot-typing"></div>
+        </div>
     </div>
-</div>
 
-<div class="messageBox" *ngIf="searching">
-    
-    <mat-selection-list  (selectionChange)="selectionChange($event.option)" >
-        <span class="hint" *ngIf="langue == 'en'"><em>Select channels to join and press "+". If you want to create a new channel, type the name and press "+"</em></span>  
-        <span class="hint" *ngIf="langue == 'fr'"><em>Sélectionnez les channels a rejoindre et cliquez sur "+". Pour créer un channel, entrez le nom et cliquez "+"</em></span>  
-        <mat-list-option  *ngFor="let channel of $search|async" [value]="channel" [selected]="channelsControl.value &&channelsControl.value?.indexOf(channel)>=0">
-    
-            <span class="hint">{{channel}}</span>
-            
-        </mat-list-option>
-    </mat-selection-list>
+    <div class="messageBox" *ngIf="searching">
+        
+        <mat-selection-list  (selectionChange)="selectionChange($event.option)" >
+            <span class="hint" *ngIf="langue == 'en'"><em>Select channels to join and press "+". If you want to create a new channel, type the name and press "+"</em></span>  
+            <span class="hint" *ngIf="langue == 'fr'"><em>Sélectionnez les channels a rejoindre et cliquez sur "+". Pour créer un channel, entrez le nom et cliquez "+"</em></span>  
+            <mat-list-option  *ngFor="let channel of $search|async" [value]="channel" [selected]="channelsControl.value &&channelsControl.value?.indexOf(channel)>=0">
+        
+                <span class="hint">{{channel}}</span>
+                
+            </mat-list-option>
+        </mat-selection-list>
 
-</div>
+    </div>
 
-<input
-    type="text"
-    placeholder="Écrivez un message"
-    id="inputChat"
-    maxlength="512"
-    [(ngModel)]="chatMessage"
-    (keydown.enter)="this.chatMessage.trim() && sendMessage()"
-    *ngIf="!searching"
-    (keydown.backspace)="this.chatMessage.trim() && this.isNotTyping()"
-    (keydown)="isTyping($event)"
-/>
+    <input
+        type="text"
+        placeholder="Écrivez un message"
+        id="inputChat"
+        maxlength="512"
+        [(ngModel)]="chatMessage"
+        (keydown.enter)="this.chatMessage.trim() && sendMessage()"
+        *ngIf="!searching"
+        (keydown.backspace)="this.chatMessage.trim() && this.isNotTyping()"
+        (keydown)="isTyping($event)"
+    />
 
 
 </div>
