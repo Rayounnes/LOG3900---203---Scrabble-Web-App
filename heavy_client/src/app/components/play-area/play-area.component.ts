@@ -103,6 +103,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             }
         }
         this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
+        console.log(this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
             console.log('jai clique sur le canvas avant ?');

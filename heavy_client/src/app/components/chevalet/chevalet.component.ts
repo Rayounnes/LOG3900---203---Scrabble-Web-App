@@ -105,19 +105,25 @@ export class ChevaletComponent implements AfterViewInit {
     buttonDetect(event: any) {
         console.log(event);
         if (this.dragUsed === 'type') {
-            if (event.key !== 'Backspace') {
-                let index = this.items.findIndex((item) => item === event.key);
+            if (event.key !== 'Backspace' && event.key !=='Escape') {
+                console.log(event.key);
+                let letter = event.key;
+                if(event.key === event.key.toUpperCase()){
+                    letter = '*';
+                }
+                let index = this.items.findIndex((item) => item === letter);
                 if (index !== -1) {
                     this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
                     console.log(this.items, 'new list ');
+                    console.log({ position: index, value: event.key } as TileDragRack);
+                    this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
                 }
-                console.log({ position: index, value: event.key } as TileDragRack);
-                this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
             } else {
                 if (event.key === 'Backspace' && this.lettersOut.length >= 1) {
                     this.removeLastOutLetter();
                 }
-                if (event.key === 'Escape' && this.lettersOut.length >= 1) {
+                else if (event.key === 'Escape' && this.lettersOut.length >= 1) {
+                    console.log("ON A APPUYER SUR LE ESCAPE")
                     this.removeAllOutLetter();
                 }
             }
@@ -141,14 +147,16 @@ export class ChevaletComponent implements AfterViewInit {
         console.log(event);
     }
     removeAllOutLetter() {
+        console.log("dans le bail");
         while (this.lettersOut.length >= 1) {
+
             this.removeLastOutLetter();
         }
     }
     removeLastOutLetter() {
         console.log('dans le backspace', this.lettersOut as TileDragRack[]);
         let letterOut = this.lettersOut.pop();
-        console.log(letterOut);
+        console.log("la outuuuuu", letterOut);
         this.items[letterOut?.position as number] = letterOut?.value as string;
         console.log('apres supression de tuile', this.items);
     }
@@ -303,7 +311,7 @@ export class ChevaletComponent implements AfterViewInit {
         setTimeout(() => {
             const dialogRef = this.dialog.open(ExchangeDialogComponent, {
                 width: '200px',
-                data: { rackList: this.items },
+                data: { rackList: this.items},
             });
 
             dialogRef.afterClosed().subscribe((result) => {

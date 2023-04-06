@@ -12,34 +12,34 @@
     </head>
     <body>
         <body>
-            <div class="center-div" *ngIf="langue == 'fr'">
+            <div class="center-div" *ngIf="langue === 'fr'">
                 <h3>Liste d'indices</h3>
             </div>
-            <div class="center-div" *ngIf="langue == 'en'">
-                <h3>Liste d'indices</h3>
+            <div class="center-div" *ngIf="langue === 'en'">
+                <h3>Hints List</h3>
             </div>
             <div class="element-container">
-                <a class="element" (click)="onNoClick(items[0])">
+                <a class="element" *ngIf="items[0]" (click)="onNoClick(items[0])">
                     <h3>{{ items[0].value }}</h3>
                     Position: {{ items[0].line }},{{ items[0].column }}<br />
                     Orientation: {{ items[0].orientation }} <br />Points: {{ items[0].points }}
                 </a>
-                <a class="element" (click)="onNoClick(items[1])">
+                <a class="element" *ngIf="items[1]" (click)="onNoClick(items[1])">
                   <h3>{{ items[1].value }}</h3>
                   Position: {{ items[1].line }},{{ items[1].column }}<br />
                     Orientation: {{ items[1].orientation }}<br />Points: {{ items[1].points }}
                 </a>
-                <a class="element" (click)="onNoClick(items[2])">
+                <a class="element" *ngIf="items[2]" (click)="onNoClick(items[2])">
                   <h3>{{ items[2].value }}</h3>
                   Position: {{ items[2].line }},{{ items[2].column }}<br />
                     Orientation: {{ items[2].orientation }}<br />Points: {{ items[2].points }}
                 </a>
-                <a class="element" (click)="onNoClick(items[3])">
+                <a class="element" *ngIf="items[3]" (click)="onNoClick(items[3])">
                   <h3>{{ items[3].value }}</h3>
                   Position: {{ items[3].line }},{{ items[3].column }}<br />
                     Orientation: {{ items[3].orientation }}<br />Points: {{ items[3].points }}
                 </a>
-                <a class="element" (click)="onNoClick(items[4])">
+                <a class="element" *ngIf="items[4]" (click)="onNoClick(items[4])">
                   <h3>{{ items[4].value }}</h3>
                   Position: {{ items[4].line }},{{ items[4].column }}<br />
                     Orientation: {{ items[4].orientation }}<br />Points: {{ items[4].points }}

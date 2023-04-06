@@ -325,6 +325,7 @@ export class KeyboardManagementService {
             console.log("remove last from backspace");
             this.removeLastLetter();
             if (this.letters.length === 0) {
+                console.log("on rentre dans la derniers lettre");
                 this.putOldTile(start?.x as number, start?.y as number);
                 this.gridService.board.resetStartTile();
                 this.gridService.board.wordStarted = false;
