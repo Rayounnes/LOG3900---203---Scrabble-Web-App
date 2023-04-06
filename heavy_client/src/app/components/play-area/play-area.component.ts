@@ -93,7 +93,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        console.log('tdddddddddddddddd', this.gridCanvas);
 
         this.buttonPressed = event.key;
         if (this.buttonPressed === 'Enter') {
@@ -103,10 +102,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             }
         }
         this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
-        console.log(this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
-            console.log('jai clique sur le canvas avant ?');
             this.keyboard.placerOneLetter(letter);
             this.chevaletService.removeLetterOnRack(letter);
         }
@@ -117,12 +114,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickDetect(event: any) {
         if (event.target.id === 'canvas') return;
-        // console.log("removeAllLetters");
         // // this.keyboard.removeAllLetters();
         // let start = this.gridService.board.getStartTile();
         // if(start){
 
-        //     console.log(this.gridService.board.getStartTile());
         //     this.keyboard.putOldTile(start?.x,start.y);
         //     this.gridService.board.wordStarted = false;
         //     this.dragOrType = "free";
@@ -156,7 +151,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.keyboard.removeLetterOnBoard(letter);
         }
         this.keyboard.addDropLettersArray(letter);
-        console.log('la lettre', letter);
         this.boardClicked = false;
         this.dragOrType = 'drag';
     }
@@ -206,7 +200,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                         votesAgainst: 0,
                         socketAndChoice: choiceMap,
                     } as CooperativeAction;
-                    console.log(voteAction);
                     this.socketService.send('vote-action', voteAction);
                 }
             }

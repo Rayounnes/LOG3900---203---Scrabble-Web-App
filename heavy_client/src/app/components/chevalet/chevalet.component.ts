@@ -103,10 +103,8 @@ export class ChevaletComponent implements AfterViewInit {
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buttonDetect(event: any) {
-        console.log(event);
         if (this.dragUsed === 'type') {
             if (event.key !== 'Backspace' && event.key !=='Escape') {
-                console.log(event.key);
                 let letter = event.key;
                 if(event.key === event.key.toUpperCase()){
                     letter = '*';
@@ -114,8 +112,6 @@ export class ChevaletComponent implements AfterViewInit {
                 let index = this.items.findIndex((item) => item === letter);
                 if (index !== -1) {
                     this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
-                    console.log(this.items, 'new list ');
-                    console.log({ position: index, value: event.key } as TileDragRack);
                     this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
                 }
             } else {
@@ -123,7 +119,6 @@ export class ChevaletComponent implements AfterViewInit {
                     this.removeLastOutLetter();
                 }
                 else if (event.key === 'Escape' && this.lettersOut.length >= 1) {
-                    console.log("ON A APPUYER SUR LE ESCAPE")
                     this.removeAllOutLetter();
                 }
             }
@@ -138,27 +133,21 @@ export class ChevaletComponent implements AfterViewInit {
             this.positionTiles();
             this.removeAll.emit();
 
-            console.log('Zoom level changed');
         }
         this.positionTiles();
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
         this.removeAll.emit();
 
-        console.log(event);
     }
     removeAllOutLetter() {
-        console.log("dans le bail");
         while (this.lettersOut.length >= 1) {
 
             this.removeLastOutLetter();
         }
     }
     removeLastOutLetter() {
-        console.log('dans le backspace', this.lettersOut as TileDragRack[]);
         let letterOut = this.lettersOut.pop();
-        console.log("la outuuuuu", letterOut);
         this.items[letterOut?.position as number] = letterOut?.value as string;
-        console.log('apres supression de tuile', this.items);
     }
 
     @HostListener('mousewheel', ['$event'])
@@ -190,7 +179,6 @@ export class ChevaletComponent implements AfterViewInit {
             this.chevaletService.fillChevalet();
             this.chevaletService.drawChevalet();
             this.chevaletCanvas.nativeElement.focus();
-            console.log(this.canvasBoard);
             this.setDragMap();
         }
         this.connect();
@@ -337,7 +325,6 @@ export class ChevaletComponent implements AfterViewInit {
                     lettersToExchange: this.lettersExchange,
                     socketAndChoice: choiceMap,
                 } as CooperativeAction;
-                console.log(voteAction);
                 this.socketService.send('vote-action', voteAction);
             } else {
                 this.exchange();
@@ -362,29 +349,21 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     getPositionDroppedX(posX: number, firstTilePos?: any) {
-        console.log(Math.floor((posX - firstTilePos) / 50));
         return Math.floor((posX - firstTilePos) / this.gridConstant.tileSize);
     }
 
     getPositionDroppedY(posY: number, firstTilePos?: any) {
-        console.log(Math.floor(posY / this.gridConstant.tileSize));
         return Math.floor((posY - firstTilePos) / this.gridConstant.tileSize);
     }
     setDragMap() {
-        console.log(`boxes ${this.boxes}`);
-        console.log(this.boxes);
         let tileBoxes: ElementRef<any>[] = [];
         this.boxes.forEach((box) => {
-            console.log(`unique box ${box}`);
             tileBoxes.push(box);
-            console.log(`tilebox ${tileBoxes}`);
         });
-        console.log(`tilebox fini  ${tileBoxes}`);
         let i = 0;
         for (let key of this.dragTiles.keys()) {
             this.dragTiles.set(key, tileBoxes[i++]);
         }
-        console.log(`dragtil fini  ${this.dragTiles}`);
         this.positionTiles();
     }
     isInRange(drop: number, startBoardPos: number, posBoard: number) {
@@ -396,16 +375,12 @@ export class ChevaletComponent implements AfterViewInit {
     }
     drop(event: CdkDragDrop<string[]>) {
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
-        console.log('position board', this.posBoard);
         let startBoard = { x: this.posBoard.x + this.gridConstant.tileSize, y: this.posBoard.y + this.gridConstant.tileSize };
 
         let tile = this.dragTiles.get(event.item.element.nativeElement.id);
-        console.log(tile.nativeElement.innerText.charAt(0));
         const keysArray = Array.from(this.dragTiles.keys());
         // let letterValue = event.item.element.nativeElement.innerText.charAt(0);
         let letterValue = this.items[keysArray.indexOf(event.item.element.nativeElement.id)];
-        console.log('le txt', letterValue);
-        // console.log("le txt 2", newVal);
         if (
             this.isInRange(event.dropPoint.x, startBoard.x, this.posBoard.x) &&
             this.isInRange(event.dropPoint.y, startBoard.y, this.posBoard.y) &&
@@ -414,7 +389,6 @@ export class ChevaletComponent implements AfterViewInit {
                 this.getPositionDroppedX(event.dropPoint.x, startBoard.x) + 1,
             )
         ) {
-            console.log('dans board');
             this.placeTileElement(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
         } else {
             this.backTileOnRack(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
@@ -423,10 +397,7 @@ export class ChevaletComponent implements AfterViewInit {
     placeTileElement(tile: any, event: any, letterValue: any, startBoard: any, posTileRack: number) {
         let posTileX = event.dropPoint.x;
         let posTileY = event.dropPoint.y;
-        console.log('x', this.getPositionDroppedX(posTileX, startBoard.x));
-        console.log('y', this.getPositionDroppedY(posTileY, startBoard.y));
         if (posTileX < startBoard.x + this.gridConstant.tileSize) {
-            console.log(startBoard.x);
             tile.nativeElement.style.left = `${startBoard.x}px`; // REVOIR LA POSITION 741
         } else {
             // tile.nativeElement.style.left = `${startBoard.x + this.gridConstant.tileSize * this.getPositionDroppedX(posTileX)}px`;
@@ -539,7 +510,6 @@ export class ChevaletComponent implements AfterViewInit {
 
                     this.sendTileEvent.emit(letter);
 
-                    console.log(result);
                 }
             });
         });
