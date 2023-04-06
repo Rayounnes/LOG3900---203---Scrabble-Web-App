@@ -54,9 +54,17 @@
         </div>
         
     </div>
+    <div class="predef">
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Hi !</button>
+        <button class = 'persoMessage'(click)="personalizedMessage($event)">Well played !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Bad!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Wow!</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Good luck !</button>
+        <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
+    </div>
     <div class="messagesBox" #scrollMessages *ngIf="!searching">
 
-        <ul class="persoM" *ngIf="langue == 'fr'">
+        <!-- <ul class="persoM" *ngIf="langue == 'fr'">
             <button class = 'persoMessage'(click)="personalizedMessage($event)">Salut !</button>
             <button class = 'persoMessage'(click)="personalizedMessage($event)">Bien joué !</button>
             <button class = 'persoMessage' (click)="personalizedMessage($event)">Nul!</button>
@@ -74,11 +82,23 @@
             <button class = 'persoMessage' (click)="personalizedMessage($event)">Good luck !</button>
             <button class = 'persoMessage' (click)="personalizedMessage($event)">Oh no!</button>
 
-        </ul>
+        </ul> -->
+        
 
+        <div
+                *ngFor="let message of chatMessages"
+                [ngClass]="{
+                    curr: message.type === 'player' && username === message.username,
+                    system: message.type === 'system',
+                    opp: username !== message.username
+                }"
+        >
+        <img [src]="getIcon(message.username)"  alt="">
+            <p>{{message.time}}</p>
+            <p>{{message.username}} : {{ message.message }}</p>
+        </div>
 
-
-        <ul>
+        <!-- <ul>
             <li
                 *ngFor="let message of chatMessages"
                 [ngClass]="{
@@ -91,7 +111,7 @@
             <p>{{message.time}}</p>
             <p>{{message.username}} : {{ message.message }}</p>
             </li>
-        </ul>
+        </ul> -->
         <div class="typing" *ngFor="let channel of allUserChannels" >
             <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] == 1 && langue == 'fr'">{{channel.typing[2][0]}} est en train decrire</span>
             <span class="typingSpan" *ngIf="currentChannel == channel.name && channel.typing[0] && channel.typing[1] > 1  && langue == 'fr'">Plusieurs personnes sont train decrire</span>

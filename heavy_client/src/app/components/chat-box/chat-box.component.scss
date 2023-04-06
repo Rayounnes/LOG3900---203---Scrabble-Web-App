@@ -1,13 +1,12 @@
 .container{
     position: absolute;
 
-    padding: 60px, 70px;
+    //padding: 60px, 70px;
     left:0;
     display: flex;
     flex-direction: column;
-    margin-left: 20px;
     // bottom: 0;
-    width: 99%;
+    width: 99.9%;
     height: 100%;
 
 }
@@ -122,6 +121,48 @@
     word-wrap:break-word;
     white-space:normal;
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.predef{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 20px;
+    justify-content: space-evenly;
+    background-color: #373636;
+}
+
+.opp{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    height: min-content;
+    background-color: lightgreen;
+    position: relative;
+    min-width: 270px;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    margin-bottom: 0.2%;
+}
+
+.curr{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    height: min-content;
+    background-color: rgb(144, 192, 238);
+    position: relative;
+    min-width: 270px;
+	padding: 0.5em 0.5em;
+	font-size: 1em;
+	border-radius: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    margin-bottom: 0.2%;
+    align-self: flex-end;
 }
 
 
@@ -132,6 +173,7 @@
     margin-bottom: 5px;
     border-radius: 10px;
     color:white;
+    min-height: 30px;
 }
 ul {
     list-style-type: none;
