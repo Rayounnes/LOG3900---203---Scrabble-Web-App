@@ -51,7 +51,7 @@ class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
       width: 250,
       child: Scrollbar(
         thickness: 10,
-        thumbVisibility: true,
+        // thumbVisibility: true,
         child: ListView.builder(
           itemCount: data.length,
           itemBuilder: (BuildContext context, int index) {

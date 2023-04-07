@@ -18,11 +18,12 @@ class UserAccountPage extends StatefulWidget {
   final Uint8List decodedBytes;
   final List<dynamic> connexionHistory;
 
-  const UserAccountPage({super.key,
-    required this.userName,
-    required this.userPoints,
-    required this.connexionHistory,
-    required this.decodedBytes});
+  const UserAccountPage(
+      {super.key,
+      required this.userName,
+      required this.userPoints,
+      required this.connexionHistory,
+      required this.decodedBytes});
 
   @override
   _UserAccountPageState createState() => _UserAccountPageState();
@@ -64,19 +65,19 @@ class _UserAccountPageState extends State<UserAccountPage> {
   }
 
   handleSocket() {
-    getIt<SocketService>().on("get-number-games",(games) {
+    getIt<SocketService>().on("get-number-games", (games) {
       gamesPlayed = games;
       print(gamesPlayed);
     });
-    getIt<SocketService>().on('get-number-games-won',(games){
+    getIt<SocketService>().on('get-number-games-won', (games) {
       gamesWon = games;
       print(gamesWon);
     });
-    getIt<SocketService>().on("get-points-mean",(points){
+    getIt<SocketService>().on("get-points-mean", (points) {
       avgPointsPerGame = points;
       print(avgPointsPerGame);
     });
-    getIt<SocketService>().on("get-game-average",(average){
+    getIt<SocketService>().on("get-game-average", (average) {
       avgTimePerGame = average;
       print(avgTimePerGame);
     });
@@ -101,11 +102,13 @@ class _UserAccountPageState extends State<UserAccountPage> {
           translate.translateString(lang, 'Mon compte'),
         ),
       ),
-      body: Container(color: Color.fromARGB(255, 43, 150, 46),
+      body: Container(
+        color: Color.fromARGB(255, 43, 150, 46),
         child: Padding(
           padding: const EdgeInsets.all(80.0),
           child: Center(
-            child: Container(color: Color.fromARGB(255, 228, 231, 224),
+            child: Container(
+              color: Color.fromARGB(255, 228, 231, 224),
               child: Column(
                 children: [
                   Container(
@@ -114,9 +117,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                       isEmpty
                           ? ''
                           : translate.translateString(
-                          lang, "Dernière connexion") +
-                          ": ${widget.connexionHistory[widget.connexionHistory
-                              .length - 1][0]}",
+                                  lang, "Dernière connexion") +
+                              ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -137,8 +139,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                   ),
                   Container(
                     padding: EdgeInsets.all(20),
-                    child:
-                    Image.memory(widget.decodedBytes, height: 180, width: 180),
+                    child: Image.memory(widget.decodedBytes,
+                        height: 180, width: 180),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -197,12 +199,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     ),
                   if (showTableChart)
                     Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: StatsTable(
                         gamesPlayed: gamesPlayed,
                         gamesWon: gamesWon,
-                        avgPointsPerGame:avgPointsPerGame,
-                        avgTimePerGame:avgTimePerGame ,
+                        avgPointsPerGame: avgPointsPerGame,
+                        avgTimePerGame: avgTimePerGame,
                       ),
                     ),
                 ],

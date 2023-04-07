@@ -80,14 +80,14 @@ class TranslateService {
     "est en train d'écrire ...": "is typing...",
     'Bien joué!': "Well done!",
     'Wow!': "Wow!",
-     'Nul!':"Nothing!",
+    'Nul!': "Nothing!",
     'Bonne chance!': "Good luck!",
     'Oh non!': "Oh no!",
     "Écris un message ...": "Write a message...",
 
     //gallery_page && camera_page
-     "Page caméra":"Camera page",
-     "Image en cours de traitement...": "Image being processed...",
+    "Page caméra": "Camera page",
+    "Image en cours de traitement...": "Image being processed...",
     "Image trop volumineuse": "Image too large",
     "Page de choix d'icône": "Icon choice page",
     "Choississez une icône ou importer une image":
@@ -95,12 +95,14 @@ class TranslateService {
 
     //game_mode_choices
     "Francais": "French",
-     "Classique": "Classic",
-     "Coopératif": "Cooperative",
+    "Classique": "Classic",
+    "Coopératif": "Cooperative",
     "Mode de jeu Classique": "Classic Game mode",
     "Mode de jeu Coopératif": "Coop Game mode",
-    "Créez ou rejoignez une partie en mode Classique": "Create or join a Classic game mode",
-    "Créez ou rejoignez une partie en mode Coopératif": "Create or join a Coop game mode",
+    "Créez ou rejoignez une partie en mode Classique":
+        "Create or join a Classic game mode",
+    "Créez ou rejoignez une partie en mode Coopératif":
+        "Create or join a Coop game mode",
     "Créer une partie": "Create a game",
     "Rejoindre une partie": "Join a game",
     "Créez une partie publique ou privée": "Create a public or private game",
@@ -136,9 +138,9 @@ class TranslateService {
         "You have been successfully logged out",
     "Notifications": "Notifications",
 
-     //MusicpopUp
-     "Musique":'Music',
-     "Lancer la liste de lecture": 'Start playlist',
+    //MusicpopUp
+    "Musique": 'Music',
+    "Lancer la liste de lecture": 'Start playlist',
 
     //join_game
     "Parties": "Games",
@@ -200,11 +202,11 @@ class TranslateService {
     "Points": "Points",
     "Historique des connexions": "Login history",
     "Historique des déconnexions": "Log out history",
-     "Temps moyen par partie": "Average time per game",
-     "Moyenne de points par partie": "Average points per game",
-     'Parties perdues':"Lost games",
-     'Parties gagnées':"Games won",
-     'Parties jouées':"Games played",
+    "Temps moyen par partie": "Average time per game",
+    "Moyenne de points par partie": "Average points per game",
+    'Parties perdues': "Lost games",
+    'Parties gagnées': "Games won",
+    'Parties jouées': "Games played",
 
     //waiting_room
     "Salle d'attente de": "Waiting room of",
@@ -230,7 +232,10 @@ class TranslateService {
     if (language == 'fr') {
       return stringToTranslate;
     } else if (language == 'en') {
-      return translation[stringToTranslate];
+      if (translation[stringToTranslate] != null)
+        return translation[stringToTranslate];
+      else
+        return "";
     }
     return stringToTranslate;
   }

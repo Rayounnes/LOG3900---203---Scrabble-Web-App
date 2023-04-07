@@ -460,6 +460,7 @@ class _GamePageState extends State<GamePage> {
           for (var index in rackIDList) {
             tileLetter[index] = letters[index % RACK_SIZE].toString();
           }
+          tempHintRack = letters;
         });
       }
     });
