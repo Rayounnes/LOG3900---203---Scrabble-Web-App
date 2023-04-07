@@ -41,26 +41,20 @@ class _StatsTableState extends State<StatsTable> {
           children: [
             TableRow(
               children: [
-                ColoredBox(
-                  color: Color.fromARGB(255, 248, 212, 172),
-                  child: TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Moyenne de points par partie',
-                          style: TextStyle(fontSize: 18)),
-                    ),
+                TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Moyenne de points par partie',
+                        style: TextStyle(fontSize: 18)),
                   ),
                 ),
-                ColoredBox(
-                  color: Color.fromARGB(255, 248, 212, 172),
-                  child: TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(widget.avgPointsPerGame.toStringAsFixed(2),
-                            style: TextStyle(
-                                fontSize: 18)),
-                      ),
+                TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(widget.avgPointsPerGame.toStringAsFixed(2),
+                          style: TextStyle(
+                              fontSize: 18)),
                     ),
                   ),
                 )
@@ -68,27 +62,21 @@ class _StatsTableState extends State<StatsTable> {
             ),
             TableRow(
               children: [
-                ColoredBox(
-                  color: Color.fromARGB(255, 248, 228, 198),
-                  child: TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Temps moyen par partie',
-                          style: TextStyle(fontSize: 18)),
-                    ),
+                TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Temps moyen par partie',
+                        style: TextStyle(fontSize: 18)),
                   ),
                 ),
-                ColoredBox(
-                  color: Color.fromARGB(255, 248, 228, 198),
-                  child: TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(
-                            widget.avgTimePerGame.inMinutes.toString() + ' minutes',
-                            style:
-                                TextStyle(fontSize: 18)),
-                      ),
+                TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                          widget.avgTimePerGame.inMinutes.toString() + ' minutes',
+                          style:
+                              TextStyle(fontSize: 18)),
                     ),
                   ),
                 )

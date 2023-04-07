@@ -21,10 +21,10 @@ class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
           automaticallyImplyLeading: false,
           bottom: TabBar(
             tabs: [
-              Tab(
+              Tab(key: Key("Connexions"),
                 text: 'Historique des connexions',
               ),
-              Tab(
+              Tab(key: Key("Déconnexions"),
                 text: 'Historique des déconnexions',
               ),
             ],

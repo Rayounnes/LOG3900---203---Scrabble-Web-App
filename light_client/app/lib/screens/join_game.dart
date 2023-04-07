@@ -1,7 +1,6 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
 import 'package:app/models/player_infos.dart';
-import 'package:app/screens/game_mode_choices.dart';
 import 'package:app/screens/game_page.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
@@ -25,7 +24,6 @@ class JoinGames extends StatefulWidget {
 class _JoinGamesState extends State<JoinGames> {
   String username = getIt<UserInfos>().user;
   List<Game> games = [];
-  String mode = CLASSIC_MODE;
   bool isClassic = false;
   late Personnalisation langOrTheme;
   String lang = "en";
@@ -124,15 +122,8 @@ class _JoinGamesState extends State<JoinGames> {
         bottomNavigationBar: LoadingTips(),
         appBar: AppBar(
           backgroundColor: Colors.white,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return GameChoices(modeName: widget.modeName);
-                }));
-              }),
           title: Text(
-            translate.translateString(lang, "Parties")+ widget.modeName + translate.translateString(lang, "disponibles"),
+            translate.translateString(lang, "Parties")+" "+ translate.translateString(lang,widget.modeName) +" "+ translate.translateString(lang, "disponibles"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
@@ -395,7 +386,7 @@ class _JoinGamesState extends State<JoinGames> {
               height: 150,
               child: Column(
                 children: [
-                  Text(translate.translateString(lang, 
+                  Text(translate.translateString(lang,
                       "Vous êtes en attente d'être accepté par le hôte de la partie")),
                   Padding(
                     padding: const EdgeInsets.all(16.0),

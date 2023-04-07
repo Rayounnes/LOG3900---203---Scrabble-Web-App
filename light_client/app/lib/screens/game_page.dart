@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
 import 'package:app/models/cooperative_action.dart';
-import 'package:app/models/tile.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/music_service.dart';
@@ -13,7 +12,6 @@ import 'package:app/widgets/cooperative_action.dart';
 import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/tile.dart';
-import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
 import '../models/personnalisation.dart';
@@ -474,7 +472,7 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
-                    getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
+                    getIt<MusicService>().playMusic(GOOD_PLACEMENT_SOUND, false);
                   }
                 });
               },
@@ -515,7 +513,6 @@ class _GamePageState extends State<GamePage> {
   void exchangeCommand(String lettersToExchange) {
     if (widget.isClassicMode) {
       getIt<SocketService>().send('exchange-command', lettersToExchange);
-      getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
     } else {
       sendVoteAction("exchange", null, lettersToExchange);
     }

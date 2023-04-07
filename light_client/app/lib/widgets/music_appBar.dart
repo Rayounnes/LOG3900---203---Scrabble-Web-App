@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../services/music_service.dart';
+import '../services/translate_service.dart';
 
 class MusicAppBar extends StatefulWidget {
 
@@ -9,7 +10,8 @@ class MusicAppBar extends StatefulWidget {
 }
 
 class _MusicAppBarState extends State<MusicAppBar> {
-  //getIt<MusicService>() getIt<MusicService>() = getIt<MusicService>()();
+  String lang = "en";
+  TranslateService translate = new TranslateService();
 
   @override
   void initState() {
@@ -67,9 +69,9 @@ class _MusicAppBarState extends State<MusicAppBar> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  getIt<MusicService>().musicID != -1 ?'Music ${getIt<MusicService>().musicID}.mp3':
-                  'Lancer la playlist',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Color.fromARGB(
+                  getIt<MusicService>().musicID != -1 ? translate.translateString(lang, "Musique")+'${getIt<MusicService>().musicID}.mp3':
+                    translate.translateString(lang, "Lancer la liste de lecture"),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600,color: Color.fromARGB(
                       255, 0, 0, 0)),
                 ),
                 SizedBox(height: 50.0),

@@ -33,12 +33,19 @@ const WIN_GAME_SOUND = 'assets/Pokemon win.mp3';
 
 const BASE64PREFIX = 'data:image/png;base64,';
 
-const SECURITY_QUESTIONS = [
+const SECURITY_QUESTIONS_FR = [
   "Quel est votre destination de rêve ?",
   "Quel est votre nourriture préféré ?",
   "Quel est votre animal préféré ?",
   "Quel est votre sport préféré ?",
   "Quel est votre langage de programmation préféré ?",
+];
+const SECURITY_QUESTIONS_EN = [
+  "What is your dream destination?",
+  "What is your favorite food?",
+  "What is your favorite animal?",
+  "What is your favorite sport?",
+  "What is your favorite programming language?",
 ];
 
 // LOADING_SCREEN_TIPS
@@ -77,11 +84,20 @@ const TIPS_FR = [
 
 // Section Aide
 const TOPICS_NAME = [
+  [
   'Mode Classique',
   'Mode Coopératif',
   'Mode Orthographe',
   'Compte Utilisateur',
   'Outils Bonus',
+  ],
+  [
+    'Classic Mode',
+    'Cooperative Mode',
+    'Spelling Mode',
+    'User Account',
+    'Bonus Tools',
+  ]
 ];
 
 const CLASSIC_MODE_HELP_IMAGE = [
@@ -97,7 +113,8 @@ const CLASSIC_MODE_HELP_IMAGE = [
   'assets/images/Classic/Validate.png',
 ];
 
-const CLASSIC_MODE_HELP_TEXT = ["Le mode classique est un mode de jeu dans lequel 4 adversaires s'affrontent."
+const CLASSIC_MODE_HELP_TEXT = [
+  ["Le mode classique est un mode de jeu dans lequel 4 adversaires s'affrontent."
     "\nIl faut au minimum de 2 joueurs humains."
     "\nUne limite de temps est accordé à chaque tour pour faire un placement.",
   "Pour créer une partie selon vos préférences, cliquer sur le bouton 'Créer une Partie'.",
@@ -109,6 +126,21 @@ const CLASSIC_MODE_HELP_TEXT = ["Le mode classique est un mode de jeu dans leque
   "Ce bouton permet de d'échanger les lettres du chevalet.",
   "Pour faire un placement, il faut placer les lettres dans un sens de lecture\ndu haut vers le bas ou de la gauche vers la droite.",
   "Ce bouton permet de valider le placement des lettres sur le plateau.",
+  ],
+  [
+  "Classic mode is a game mode in which 4 opponents compete."
+    "\nA minimum of 2 human players are required."
+    "\nA time limit is granted for each turn to make a placement.",
+  "To create a game according to your preferences, click on the 'Create a Game' button.",
+  "You have the option of making your games private\nand choosing the time for each turn.",
+  "To join a game, click on the 'Join a Game' button.",
+  "This is the waiting room before joining a game.\nThe game information is presented there.",
+  "The creator of a game can decide to start the game or cancel it.",
+  "This button allows you to pass your turn.",
+  "This button allows you to exchange letters from your rack.",
+  "To make a placement, letters must be placed in a reading direction\nfrom top to bottom or from left to right.",
+  "This button allows you to validate the placement of letters on the board.",
+  ]
 ];
 
 
@@ -118,7 +150,8 @@ const COOP_MODE_HELP_IMAGE = [
   'assets/images/Coop/Accept.png',
 ];
 
-const COOP_MODE_HELP_TEXT = ["Le mode coopératif est un mode de jeu dans lequel tous les joueurs"
+const COOP_MODE_HELP_TEXT = [
+  ["Le mode coopératif est un mode de jeu dans lequel tous les joueurs"
     "\ncoopèrent pour remplir le plateau de lettres."
     "\nLe minimum de joueurs est de 2 et le maximum est de 4."
     "\nLes joueurs partagent le même chevalet, donc ils doivent s'entendre pour les placements."
@@ -126,6 +159,17 @@ const COOP_MODE_HELP_TEXT = ["Le mode coopératif est un mode de jeu dans lequel
   "Lorsqu'un joueur fait un placement, il sera en attente"
       "\nde la validation de ses coéquipiers.",
   "Lorsqu'un coéquipier fait un placement, vous pouvez accepter ou refuser."
+  ],
+  [
+    "Cooperative mode is a game mode in which all players"
+     "\nwork together to fill the board with letters."
+      "\nThe minimum number of players is 2 and the maximum is 4."
+      "\nThe players share the same rack, so they must agree on the placements."
+      "\nThere is no time limit or virtual players.",
+    "When a player makes a placement, they will be waiting",
+    "\nfor validation from their teammates.",
+    "When a teammate makes a placement, you can accept or refuse it."
+  ]
 ];
 
 const TRAINING_MODE_HELP_IMAGE = [
@@ -133,10 +177,18 @@ const TRAINING_MODE_HELP_IMAGE = [
   'assets/images/Training/Choice.png',
 ];
 
-const TRAINING_MODE_HELP_TEXT = ["Le mode orthographe est un mode pour pratiquer son orthographe."
+const TRAINING_MODE_HELP_TEXT = [
+  ["Le mode orthographe est un mode pour pratiquer son orthographe."
     "\nCe mode n'affectera pas vos points d'expérience.",
   "Le but est de choisir les bons mots jusqu'à ce qu'il n'y en ai plus."
       "\nVous avez le droit à 3 chances. Si vous faites 3 erreurs, vous perdez."
+  ],
+  [
+    "Spelling mode is a mode to practice your spelling."
+    "\nThis mode will not affect your experience points.",
+    "The goal is to choose the correct words until there are none left."
+    "\nYou have 3 chances. If you make 3 mistakes, you lose."
+  ]
 ];
 
 const PROFILE_HELP_IMAGE = [
@@ -149,7 +201,8 @@ const PROFILE_HELP_IMAGE = [
   'assets/images/Profile/Avatar.png'
 ];
 
-const PROFILE_HELP_TEXT = ["La page de profil est la page pour modifier "
+const PROFILE_HELP_TEXT = [
+  ["La page de profil est la page pour modifier "
     "\nou consulter les informations de l'utilisateur.",
   "En cliquant sur cet icone, l'utilisateur accède à son historique"
     "\nde connexions et de déconnexions de l'application.",
@@ -161,6 +214,21 @@ const PROFILE_HELP_TEXT = ["La page de profil est la page pour modifier "
       "\nLe nom d'utilisateur actuel est requis pour valider toute modification.",
   "Voici un exemple de modification du nom d'utilisateur.",
   "Voici un exemple de modification de l'avatar."
+  ],
+  [
+    "The profile page is the page to modify"
+    "\nor view user's information.",
+    "By clicking on this icon, the user accesses their"
+    "\napplication login and logout history.",
+    "By clicking on this icon, the user accesses their statistics,"
+    "\nsuch as their number of wins and games played.",
+    "By clicking on this icon, the user is directed to a page"
+    "\nto modify their information.",
+    "The user can modify their avatar and/or username."
+    "\nThe current username is required to validate any modification.",
+    "Here is an example of modifying the username.",
+    "Here is an example of modifying the avatar."
+  ]
 ];
 
 const BONUS_HELP_IMAGE = [
@@ -169,11 +237,19 @@ const BONUS_HELP_IMAGE = [
 ];
 
 const BONUS_HELP_TEXT = [
+  [
   "Cet icone de musique peut être déplacé sur l'écran."
       "\nEn cliquant dessus vous pouvez changer la musique et modifier le son.",
   "Ces phrases se trouvant au bas de la page d'accueil et dans les salles d'attente"
       "\nde parties sont des informations divisés en 3 types.Il y a des astuces de jeu,"
       "\ndes anecdotes et des informations pour faciliter l'utilisation de l'application"
+  ],
+  [
+    "This music icon can be moved on the screen.\nBy clicking on it, you can change the music and adjust the sound.",
+    "These sentences at the bottom of the homepage and in the waiting rooms"
+        "\nof the games are information divided into 3 types. There are game tips, anecdotes,"
+        "\nand information to facilitate the use of the application."
+  ]
 ];
 
 

@@ -99,8 +99,7 @@ class _GameChoicesState extends State<GameChoices> {
     return ParentWidget(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            "Mode de jeu ${widget.modeName}",
+          title: Text(translate.translateString(lang, "Mode de jeu ${widget.modeName}"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
@@ -119,14 +118,13 @@ class _GameChoicesState extends State<GameChoices> {
             ),
             child: Column(
               children: <Widget>[
-                Text(
-                  "Mode de jeu ${widget.modeName}",
+                Text(translate.translateString(lang, "Mode de jeu ${widget.modeName}"),
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child:
-                      Text(translate.translateString(lang, 'Créez ou rejoignez une partie')+ widget.modeName,
+                      Text(translate.translateString(lang, 'Créez ou rejoignez une partie en mode ${widget.modeName}'),
                           style: TextStyle(
                             fontSize: 23,
                             color: Colors.black,
@@ -166,7 +164,7 @@ class _GameChoicesState extends State<GameChoices> {
           bool _isChecked = false;
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text(translate.translateString(lang, 'Créer une partie') +  widget.modeName),
+              title: Text(translate.translateString(lang, 'Créer une partie') +" "+  translate.translateString(lang, widget.modeName)),
               content: Container(
                 width: 500,
                 child: Form(

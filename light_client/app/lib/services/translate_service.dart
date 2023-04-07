@@ -47,8 +47,9 @@ class TranslateService {
     "Application Scrabble": "Scrabble app",
     "Mode de jeu classique": "Classic game mode",
     "Mode de jeu coopératif": "Coop game mode",
-    "Mode d'entrainement orthographe": "Orthography training mode",
+    "Mode d'entrainement orthographe": "Spelling training mode",
     "Profil": "Profile",
+    "Aide": "Help",
     "Déconnexion": "Log out",
     "Etes-vous sur de vous déconnecter ?": "Are you sure to log out?",
     "Oui": "Yes",
@@ -81,7 +82,9 @@ class TranslateService {
     'Oh non!': "Oh no!",
     "Écris un message ...": "Write a message...",
 
-    //gallery_page
+    //gallery_page && camera_page
+     "Page caméra":"Camera page",
+     "Image en cours de traitement...": "Image being processed...",
     "Image trop volumineuse": "Image too large",
     "Page de choix d'icône": "Icon choice page",
     "Choississez une icône ou importer une image":
@@ -89,8 +92,12 @@ class TranslateService {
 
     //game_mode_choices
     "Francais": "French",
-    "Mode de jeu": "Game mode",
-    "Créez ou rejoignez une partie": "Create or join a game",
+     "Classique": "Classic",
+     "Coopératif": "Cooperative",
+    "Mode de jeu Classique": "Classic Game mode",
+    "Mode de jeu Coopératif": "Coop Game mode",
+    "Créez ou rejoignez une partie en mode Classique": "Create or join a Classic game mode",
+    "Créez ou rejoignez une partie en mode Coopératif": "Create or join a Coop game mode",
     "Créer une partie": "Create a game",
     "Rejoindre une partie": "Join a game",
     "Créez une partie publique ou privée": "Create a public or private game",
@@ -126,11 +133,17 @@ class TranslateService {
         "You have been successfully logged out",
     "Notifications": "Notifications",
 
+     //MusicpopUp
+     "Musique":'Music',
+     "Lancer la liste de lecture": 'Start playlist',
+
     //join_game
     "Parties": "Games",
     "disponibles": "available",
     "Partie de": "Game of",
     "Publique (protégé par mot de passe)": "Public (secured with password)",
+    "Publique": "Public",
+    "Privée": "Private",
     "Réglages de la partie:": "Game settings",
     "Partie en cours:": "Game in progress:",
     "Salle d'attente:": "Waiting room",
@@ -143,13 +156,13 @@ class TranslateService {
     "Vous avez été rejeté de la partie.": "",
 
     //mode_orthographe
-    "Bienvenue au mode entrainement orthographe": "Welcome to orthography mode",
+    "Bienvenue au mode entrainement orthographe": "Welcome to spelling mode",
     "Commencer l'entraînement": "Start training",
     "Votre meilleur score": "Your best score",
     "Quitter": "Quit",
     "Désolé, vous avez perdu !": "Sorry, you lost!",
     "Bien joué, vous avez fini le mode d'entraînement orthographe !":
-        "Well done, you've finished orthography mode!",
+        "Well done, you've finished spelling mode!",
 
     //password_recovering_page
     "Ce nom d'utilisateur n'existe pas": "This username does not exist",
