@@ -132,7 +132,9 @@ class _JoinGamesState extends State<JoinGames> {
                 }));
               }),
           title: Text(
-            translate.translateString(lang, "Parties")+ widget.modeName + translate.translateString(lang, "disponibles"),
+            translate.translateString(lang, "Parties") +
+                widget.modeName +
+                translate.translateString(lang, "disponibles"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
@@ -172,13 +174,18 @@ class _JoinGamesState extends State<JoinGames> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  translate.translateString(lang, 'Partie de')+ game.hostUsername,
+                  translate.translateString(lang, 'Partie de') +
+                      " " +
+                      game.hostUsername,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 if (!game.isPrivate && game.password != "")
-                  Text(translate.translateString(lang, 'Publique (protégé par mot de passe)')),
-                if (!game.isPrivate && game.password == "") Text(translate.translateString(lang, 'Publique')),
-                if (game.isPrivate) Text(translate.translateString(lang, 'Privée')),
+                  Text(translate.translateString(
+                      lang, 'Publique (protégé par mot de passe)')),
+                if (!game.isPrivate && game.password == "")
+                  Text(translate.translateString(lang, 'Publique')),
+                if (game.isPrivate)
+                  Text(translate.translateString(lang, 'Privée')),
               ],
             ),
           ),
@@ -211,12 +218,14 @@ class _JoinGamesState extends State<JoinGames> {
                     ],
                     Icon(Icons.book),
                     SizedBox(width: 4.0),
-                    Text(game.dictionary.title),
+                    Text(translate.translateString(lang, game.dictionary.title)),
                   ],
                 ),
                 SizedBox(height: 16),
                 Text(
-                  game.hasStarted ? translate.translateString(lang, 'Partie en cours:') : translate.translateString(lang, 'Salle d\'attente:'),
+                  game.hasStarted
+                      ? translate.translateString(lang, "Partie en cours:")
+                      : translate.translateString(lang, "Salle d'attente:"),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),
@@ -307,7 +316,7 @@ class _JoinGamesState extends State<JoinGames> {
                             game.hasStarted
                         ? null
                         : () => joinWaitingRoom(game),
-                child: Text('Rejoindre'),
+                child: Text(translate.translateString(lang, 'Rejoindre')),
               ),
               if (!game.isPrivate) ...[
                 ElevatedButton(
@@ -333,7 +342,8 @@ class _JoinGamesState extends State<JoinGames> {
           final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
           final passwordGameController = TextEditingController();
           return AlertDialog(
-            title:  Text(translate.translateString(lang, "Mot de passe de partie")),
+            title:
+                Text(translate.translateString(lang, "Mot de passe de partie")),
             content: Form(
                 key: _formKey,
                 child: TextFormField(
@@ -341,13 +351,17 @@ class _JoinGamesState extends State<JoinGames> {
                     obscureText: true,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: translate.translateString(lang, 'Mot de passe de partie'),
-                        labelText: translate.translateString(lang, 'Mot de passe de partie')),
+                        hintText: translate.translateString(
+                            lang, 'Mot de passe de partie'),
+                        labelText: translate.translateString(
+                            lang, 'Mot de passe de partie')),
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
-                        return translate.translateString(lang, "Mot de passe requis.");
+                        return translate.translateString(
+                            lang, "Mot de passe requis.");
                       } else if (value != gameToJoin.password) {
-                        return translate.translateString(lang, "Mot de passe incorrect");
+                        return translate.translateString(
+                            lang, "Mot de passe incorrect");
                       }
                       return null;
                     })),
@@ -356,14 +370,14 @@ class _JoinGamesState extends State<JoinGames> {
                 onPressed: () {
                   Navigator.pop(context, false);
                 },
-                child:  Text(translate.translateString(lang, 'Annuler')),
+                child: Text(translate.translateString(lang, 'Annuler')),
               ),
               TextButton(
                 onPressed: () {
                   if (!_formKey.currentState!.validate()) return;
                   Navigator.pop(context, true);
                 },
-                child:  Text(translate.translateString(lang, 'Ok')),
+                child: Text(translate.translateString(lang, 'Ok')),
               ),
             ],
           );
@@ -390,12 +404,13 @@ class _JoinGamesState extends State<JoinGames> {
             Navigator.pop(context, true);
           });
           return AlertDialog(
-            title: const Text("Attente d'acceptation"),
+            title:
+                Text(translate.translateString(lang, "Attente d'acceptation")),
             content: Container(
               height: 150,
               child: Column(
                 children: [
-                  Text(translate.translateString(lang, 
+                  Text(translate.translateString(lang,
                       "Vous êtes en attente d'être accepté par le hôte de la partie")),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -412,7 +427,7 @@ class _JoinGamesState extends State<JoinGames> {
                 onPressed: () {
                   Navigator.pop(context, null);
                 },
-                child:  Text(translate.translateString(lang, 'Annuler')),
+                child: Text(translate.translateString(lang, 'Annuler')),
               ),
             ],
           );
@@ -428,7 +443,8 @@ class _JoinGamesState extends State<JoinGames> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang, "Vous avez été rejeté de la partie."))),
+              content: Text(translate.translateString(
+                  lang, "Vous avez été rejeté de la partie."))),
         );
       }
     });

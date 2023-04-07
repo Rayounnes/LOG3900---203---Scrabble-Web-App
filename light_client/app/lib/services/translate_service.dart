@@ -8,7 +8,7 @@ class TranslateService {
   }
 
   TranslateService._internal();
-   Map<String, String> translation = {
+  Map<String, String> translation = {
     //login_page
     'Connexion à votre compte': 'Login to your account',
     "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer":
@@ -47,6 +47,8 @@ class TranslateService {
     "Application Scrabble": "Scrabble app",
     "Mode de jeu classique": "Classic game mode",
     "Mode de jeu coopératif": "Coop game mode",
+    "Mode de jeu Classique": "Classic game mode",
+    "Mode de jeu Coopératif": "Coop game mode",
     "Mode d'entrainement orthographe": "Orthography training mode",
     "Profil": "Profile",
     "Déconnexion": "Log out",
@@ -131,16 +133,22 @@ class TranslateService {
     "disponibles": "available",
     "Partie de": "Game of",
     "Publique (protégé par mot de passe)": "Public (secured with password)",
+    "Publique": "Public",
+    "Privée": "Private",
     "Réglages de la partie:": "Game settings",
     "Partie en cours:": "Game in progress:",
     "Salle d'attente:": "Waiting room",
     "Rejoindre": "Join",
+    "Francais": "French",
+    "Anglais": "English",
     "Observer": "Watch",
     "Mot de passe incorrect": "Incorrect password",
     "Ok": "Ok",
-    "Attente d'acceptation": "",
-    "Vous êtes en attente d'être accepté par le hôte de la partie": "",
-    "Vous avez été rejeté de la partie.": "",
+    "Attente d'acceptation": "Waiting for acceptance",
+    "Vous êtes en attente d'être accepté par le hôte de la partie":
+        "You are waiting to be accepted by the game host",
+    "Vous avez été rejeté de la partie.":
+        "You have been rejected from the game",
 
     //mode_orthographe
     "Bienvenue au mode entrainement orthographe": "Welcome to orthography mode",

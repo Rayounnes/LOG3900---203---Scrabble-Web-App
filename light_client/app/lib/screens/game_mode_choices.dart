@@ -100,7 +100,7 @@ class _GameChoicesState extends State<GameChoices> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Mode de jeu ${widget.modeName}",
+            translate.translateString(lang, "Mode de jeu ${widget.modeName}"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
@@ -120,17 +120,20 @@ class _GameChoicesState extends State<GameChoices> {
             child: Column(
               children: <Widget>[
                 Text(
-                  "Mode de jeu ${widget.modeName}",
+                  translate.translateString(
+                      lang, "Mode de jeu ${widget.modeName}"),
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      Text(translate.translateString(lang, 'Créez ou rejoignez une partie')+ widget.modeName,
-                          style: TextStyle(
-                            fontSize: 23,
-                            color: Colors.black,
-                          )),
+                  child: Text(
+                      translate.translateString(
+                              lang, 'Créez ou rejoignez une partie') +
+                          widget.modeName,
+                      style: TextStyle(
+                        fontSize: 23,
+                        color: Colors.black,
+                      )),
                 ),
                 SizedBox(height: 15.0),
                 GameButton(
@@ -141,7 +144,8 @@ class _GameChoicesState extends State<GameChoices> {
                     }),
                 GameButton(
                     padding: 32.0,
-                    name: translate.translateString(lang, "Rejoindre une partie"),
+                    name:
+                        translate.translateString(lang, "Rejoindre une partie"),
                     route: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -166,7 +170,8 @@ class _GameChoicesState extends State<GameChoices> {
           bool _isChecked = false;
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text(translate.translateString(lang, 'Créer une partie') +  widget.modeName),
+              title: Text(translate.translateString(lang, 'Créer une partie') +
+                  widget.modeName),
               content: Container(
                 width: 500,
                 child: Form(
@@ -176,9 +181,11 @@ class _GameChoicesState extends State<GameChoices> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Text(translate.translateString(lang, "Créez une partie publique ou privée")),
+                      Text(translate.translateString(
+                          lang, "Créez une partie publique ou privée")),
                       CheckboxListTile(
-                        title: Text(translate.translateString(lang, 'Partie privée')),
+                        title: Text(
+                            translate.translateString(lang, 'Partie privée')),
                         value: _isChecked,
                         onChanged: (newValue) {
                           setState(() {
@@ -195,15 +202,20 @@ class _GameChoicesState extends State<GameChoices> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: translate.translateString(lang, 'Temps par tour (s)'),
-                                labelText: translate.translateString(lang, 'Temps')),
+                                hintText: translate.translateString(
+                                    lang, 'Temps par tour (s)'),
+                                labelText:
+                                    translate.translateString(lang, 'Temps')),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return translate.translateString(lang, "Temps par tour requis.");
+                                return translate.translateString(
+                                    lang, "Temps par tour requis.");
                               } else if (int.parse(value) < MIN_TIME_TURN) {
-                                return translate.translateString(lang, "Le temps minimum est 30 secondes.");
+                                return translate.translateString(
+                                    lang, "Le temps minimum est 30 secondes.");
                               } else if (int.parse(value) > MAX_TIME_TURN) {
-                                return translate.translateString(lang, "Le temps maximum est de 300 secondes.");
+                                return translate.translateString(lang,
+                                    "Le temps maximum est de 300 secondes.");
                               }
                               return null;
                             },
@@ -212,12 +224,14 @@ class _GameChoicesState extends State<GameChoices> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          translate.translateString(lang, "Dictionnaire de jeu"),
+                          translate.translateString(
+                              lang, "Dictionnaire de jeu"),
                         ),
                       ),
                       DropdownButtonFormField(
                           validator: (value) => value == null
-                              ? translate.translateString(lang, "Veillez choisir un dictionnaire")
+                              ? translate.translateString(
+                                  lang, "Veillez choisir un dictionnaire")
                               : null,
                           value: dictionary,
                           onChanged: (String? newValue) {
@@ -234,9 +248,10 @@ class _GameChoicesState extends State<GameChoices> {
                             obscureText: true,
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: translate.translateString(lang, 'Mot de passe de partie'),
-                                labelText:
-                                    translate.translateString(lang, 'Mot de passe de partie publique (optionnel)')),
+                                hintText: translate.translateString(
+                                    lang, 'Mot de passe de partie'),
+                                labelText: translate.translateString(lang,
+                                    'Mot de passe de partie publique (optionnel)')),
                           ),
                         ),
                     ],

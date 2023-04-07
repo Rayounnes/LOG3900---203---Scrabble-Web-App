@@ -22,6 +22,8 @@ class HintDialog extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   if (onNoClick != null) {
+                    print("$index");
+                    print(items[index]);
                     onNoClick!(items[index]);
                   }
                   Navigator.pop(context);

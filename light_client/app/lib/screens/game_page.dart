@@ -22,6 +22,7 @@ import '../models/letter.dart';
 import '../models/board_paint.dart';
 import '../models/placement.dart';
 import '../services/hints_dialog.dart';
+import '../services/board.dart';
 
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -87,6 +88,7 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('validate-created-words');
     getIt<SocketService>().userSocket.off('exchange-command');
     getIt<SocketService>().userSocket.off('user-turn');
+    getIt<SocketService>().userSocket.off('hint-cooperative');
     getIt<SocketService>().userSocket.off('vote-action');
     getIt<SocketService>().userSocket.off('cooperative-invalid-action');
     getIt<SocketService>().userSocket.off('player-action');
@@ -715,7 +717,7 @@ class _GamePageState extends State<GamePage> {
             if (!widget.isObserver) ...[
               Positioned(
                 left: LEFT_BOARD_POSITION,
-                top: RACK_START_AXISY,
+                top: RACK_START_AXISY - 30,
                 child: FloatingActionButton(
                   heroTag: "passTurn",
                   onPressed: !isPlayerTurn || commandSent
@@ -764,7 +766,7 @@ class _GamePageState extends State<GamePage> {
               ),
               Positioned(
                 left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
-                top: RACK_START_AXISY,
+                top: RACK_START_AXISY - 30,
                 child: FloatingActionButton(
                   heroTag: "exchangeLetters",
                   onPressed: !isPlayerTurn || commandSent
@@ -799,7 +801,7 @@ class _GamePageState extends State<GamePage> {
               ),
               Positioned(
                 left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT / 2,
-                top: RACK_START_AXISY + 70,
+                top: RACK_START_AXISY + 38,
                 child: FloatingActionButton(
                   heroTag: "hintLetters",
                   onPressed: !isPlayerTurn || commandSent
@@ -820,7 +822,7 @@ class _GamePageState extends State<GamePage> {
                           );
                         },
                   backgroundColor: !isPlayerTurn || commandSent
-                      ? Color.fromARGB(255, 109, 49, 49)
+                      ? Colors.grey
                       : Color.fromARGB(255, 55, 151, 189),
                   child: Icon(
                     Icons.star_rounded,

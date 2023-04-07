@@ -162,7 +162,7 @@ class _GameModesState extends State<GameModes> {
         ),
         Center(
           child: Container(
-            height: 750,
+            height: 850,
             width: 500,
             decoration: BoxDecoration(
               color: Color.fromRGBO(203, 201, 201, 1),
@@ -233,11 +233,12 @@ class _GameModesState extends State<GameModes> {
                           decodedBytes: decodedBytes,
                         );
                       }));
-                    }),GameButton(
+                    }),
+                GameButton(
                     padding: 25.0,
                     name: "Aide",
                     route: () {
-                      Navigator.pushNamed(context,'/helpScreen');
+                      Navigator.pushNamed(context, '/helpScreen');
                     }),
                 GameButton(
                     padding: 32.0,

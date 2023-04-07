@@ -132,7 +132,7 @@ class _TimerPageState extends State<TimerPage> {
             PlayerIdPoints = player.points;
         }
         // joueur a gagné
-        if(PlayerIdPoints > bestScore){
+        if (PlayerIdPoints > bestScore) {
           getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
         } else {
           getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
