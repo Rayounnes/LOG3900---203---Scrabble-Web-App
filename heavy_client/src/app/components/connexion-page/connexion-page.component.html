@@ -8,6 +8,10 @@
         <mat-label>Password </mat-label>
         <input matInput type="password" formControlName="password">
       </mat-form-field>
+      <section class="example-full-width" [formGroup]="rememberMeForm">
+        <mat-label>Remember me </mat-label>
+        <mat-checkbox type="checkbox" formControlName="remeberMe"></mat-checkbox> 
+      </section>
       <button mat-raised-button  (click)="userConnection()" [disabled]="usernameForm.controls['username'].errors?.pattern || usernameForm.controls['username'].errors?.required
        || passwordForm.controls['password'].errors?.pattern || passwordForm.controls['password'].errors?.required || checkingConnection" class="dataButton">Connexion</button>
       <button mat-raised-button (click)="changeOption(true)" [disabled]="checkingConnection" class="dataButton">Créer un compte</button>
