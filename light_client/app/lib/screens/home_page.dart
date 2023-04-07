@@ -16,19 +16,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
+    getConfigs();
     handleSockets();
   }
 
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -42,7 +52,8 @@ class _HomePageState extends State<HomePage> {
       SnackBar(
           backgroundColor: Colors.blue,
           duration: Duration(seconds: 3),
-          content: Text(translate.translateString(lang, "Vous avez été déconnecté avec succés"))),
+          content: Text(translate.translateString(
+              lang, "Vous avez été déconnecté avec succés"))),
     );
     Navigator.pushNamed(context, '/loginScreen');
   }
@@ -122,14 +133,15 @@ class _HomePageState extends State<HomePage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title:  Text(translate.translateString(lang, 'Déconnexion')),
-        content:  Text(translate.translateString(lang, 'Etes-vous sur de vous déconnecter ?')),
+        title: Text(translate.translateString(lang, 'Déconnexion')),
+        content: Text(translate.translateString(
+            lang, 'Etes-vous sur de vous déconnecter ?')),
         actions: <TextButton>[
           TextButton(
             onPressed: () {
               logoutUser();
             },
-            child:  Text(translate.translateString(lang, 'Oui')),
+            child: Text(translate.translateString(lang, 'Oui')),
           ),
           TextButton(
             onPressed: () {
@@ -140,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                 },
               );
             },
-            child:  Text(translate.translateString(lang, 'Non')),
+            child: Text(translate.translateString(lang, 'Non')),
           ),
         ],
       ),

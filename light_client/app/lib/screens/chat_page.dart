@@ -7,12 +7,11 @@ import 'package:app/models/chat_message_model.dart';
 import 'package:app/widgets/chat_message.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/api_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Message;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    hide Message;
 
 import '../constants/widgets.dart';
 import '../models/personnalisation.dart';
-
-
 
 class ChatPage extends StatefulWidget {
   final String discussion;
@@ -30,9 +29,12 @@ class _ChatPageState extends State<ChatPage> {
     userTyping = "";
     countUsersTyping = 0;
     initNotifications();
-    
-
+    getConfigs();
     handleSockets();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -52,31 +54,35 @@ class _ChatPageState extends State<ChatPage> {
   String avatar = "";
   final messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  late Personnalisation langOrTheme;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   String lang = "en";
   TranslateService translate = new TranslateService();
 
-
   void initNotifications() async {
-  var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
-  var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-
   void showNotification(String message, String channel) async {
-    var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
-    importance: Importance.max, priority: Priority.high, showWhen: false, color:Color(0xFF2196F3));
+    var androidDetails = AndroidNotificationDetails(
+        'channel_id', 'Channel Name',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+        color: Color(0xFF2196F3));
 
     var notificationDetails = NotificationDetails(android: androidDetails);
 
     await flutterLocalNotificationsPlugin.show(
-    0, translate.translateString(lang, 'Nouveau message dans')+ '$channel', message, notificationDetails);
-}
-
+        0,
+        translate.translateString(lang, 'Nouveau message dans') + '$channel',
+        message,
+        notificationDetails);
+  }
 
   void handleSockets() async {
     ApiService().getMessagesOfChannel(widget.discussion).then((response) {
@@ -89,35 +95,31 @@ class _ChatPageState extends State<ChatPage> {
         print('Error fetching channels: $error');
       });
 
-    // ApiService().getUserChannels(username).then((response) {
-    // }).catchError((error) {
-    // print('Error fetching channels: $error');
-    // });
-      
-      
+      // ApiService().getUserChannels(username).then((response) {
+      // }).catchError((error) {
+      // print('Error fetching channels: $error');
+      // });
+
       setState(() {
-      if(widget.discussion == 'General') {      
-        response.removeAt(0);
+        if (widget.discussion == 'General') {
+          response.removeAt(0);
+        }
 
-
-      }
-
-      for (dynamic res in response) {
-      ChatMessage message = ChatMessage.fromJson(res);
-      messages.add(message);
-    }
-        
+        for (dynamic res in response) {
+          ChatMessage message = ChatMessage.fromJson(res);
+          messages.add(message);
+        }
       });
     }).catchError((error) {
       print('Error fetching channels: $error');
-      });
-    
+    });
+
     getIt<SocketService>().on("notify-message", (message) async {
       try {
         if (mounted) {
           setState(() async {
-            if(message['channel'] != widget.discussion) {
-                 showNotification(message['message'], message['channel']);
+            if (message['channel'] != widget.discussion) {
+              showNotification(message['message'], message['channel']);
             }
           });
         }
@@ -125,7 +127,6 @@ class _ChatPageState extends State<ChatPage> {
         print(e);
       }
     });
-
 
     getIt<SocketService>().on('chatMessage', (chatMessage) {
       try {
@@ -144,17 +145,12 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() {
-        
-
-          if(message['channel'] == widget.discussion) {
-          isTyping = true;
-          countUsersTyping = countUsersTyping + 1;
-          userTyping = message['player'];
-          usersTyping.add(userTyping);
-          
-          }
-
-        
+            if (message['channel'] == widget.discussion) {
+              isTyping = true;
+              countUsersTyping = countUsersTyping + 1;
+              userTyping = message['player'];
+              usersTyping.add(userTyping);
+            }
           });
         }
       } catch (e) {
@@ -186,9 +182,7 @@ class _ChatPageState extends State<ChatPage> {
               } else {
                 isTyping = false;
               }
-              }
-          
-           
+            }
           });
         }
       } catch (e) {
@@ -196,8 +190,13 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
     });
   }
 
@@ -212,11 +211,11 @@ class _ChatPageState extends State<ChatPage> {
 
   void sendUserIsNotTyping() {
     final message = ChatMessage(
-      username: username, 
-      message: '', 
-      time: DateFormat.Hms().format(DateTime.now()), 
-      type: 'player');
-      getIt<SocketService>().send('isTypingMessage', message);
+        username: username,
+        message: '',
+        time: DateFormat.Hms().format(DateTime.now()),
+        type: 'player');
+    getIt<SocketService>().send('isTypingMessage', message);
   }
 
   void sendMessage(String message) {
@@ -236,12 +235,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<String> avatarUser(String username) async {
-  List iconList = []; // declare iconList before using it
-  iconList = await ApiService().getUserIcon(username);
-  return iconList[0].toString().substring(BASE64PREFIX.length);
-
-}
-
+    List iconList = []; // declare iconList before using it
+    iconList = await ApiService().getUserIcon(username);
+    return iconList[0].toString().substring(BASE64PREFIX.length);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,17 +260,14 @@ class _ChatPageState extends State<ChatPage> {
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 10, bottom: 80),
               itemBuilder: (context, index) {
-                  if(messages[index].channel == widget.discussion){
-                     return Message(
-                    name: messages[index].username,
-                    messageContent: messages[index].message,
-                    isSender: messages[index].username == username,
-                    time: messages[index].time,
-                    avatar: avatarUser(messages[index].username)
-                    );
-
-                  }
-                 
+                if (messages[index].channel == widget.discussion) {
+                  return Message(
+                      name: messages[index].username,
+                      messageContent: messages[index].message,
+                      isSender: messages[index].username == username,
+                      time: messages[index].time,
+                      avatar: avatarUser(messages[index].username));
+                }
               },
             ),
           ),
@@ -283,7 +277,8 @@ class _ChatPageState extends State<ChatPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
-                translate.translateString(lang, "Plusieurs joueurs sont en train d'écrire ..."),
+                translate.translateString(
+                    lang, "Plusieurs joueurs sont en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
@@ -291,7 +286,9 @@ class _ChatPageState extends State<ChatPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
-                userTyping + translate.translateString(lang, " est en train d'écrire ..."),
+                userTyping +
+                    translate.translateString(
+                        lang, " est en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
@@ -302,7 +299,8 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                   onPressed: () {
-                    messageController.text = translate.translateString(lang, 'Salut!');
+                    messageController.text =
+                        translate.translateString(lang, 'Salut!');
                     sendMessage(messageController.text);
                   },
                   child: Text('Salut!'),
@@ -310,14 +308,16 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = translate.translateString(lang, 'Bien joué!');
+                      messageController.text =
+                          translate.translateString(lang, 'Bien joué!');
                       sendMessage(messageController.text);
                     },
                     child: Text(translate.translateString(lang, 'Bien joué!'))),
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = translate.translateString(lang, 'Nul!');
+                      messageController.text =
+                          translate.translateString(lang, 'Nul!');
                       sendMessage(messageController.text);
                     },
                     child: Text(translate.translateString(lang, 'Nul!'))),
@@ -331,14 +331,16 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = translate.translateString(lang, 'Bonne chance!');
+                      messageController.text =
+                          translate.translateString(lang, 'Bonne chance!');
                       sendMessage(messageController.text);
                     },
                     child: Text('Bonne chance!')),
                 SizedBox(width: 50),
                 TextButton(
                     onPressed: () {
-                      messageController.text = translate.translateString(lang, 'Oh non!');
+                      messageController.text =
+                          translate.translateString(lang, 'Oh non!');
                       sendMessage(messageController.text);
                     },
                     child: Text('Oh non!')),
@@ -371,7 +373,8 @@ class _ChatPageState extends State<ChatPage> {
                         }
                       },
                       decoration: InputDecoration(
-                        hintText: translate.translateString(lang, "Écris un message ..."),
+                        hintText: translate.translateString(
+                            lang, "Écris un message ..."),
                         hintStyle: TextStyle(color: Colors.black54),
                         border: OutlineInputBorder(),
                         suffixIcon: IconButton(
@@ -400,25 +403,24 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ],
               ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FloatingActionButton(
-            onPressed: () {
-              sendMessage(messageController.text);
-            },
-            child: Icon(
-              Icons.send,
-              color: Colors.white,
-              size: 25,
             ),
-            backgroundColor: Colors.blue,
           ),
-        ),
-       
-      ],
-    ),
-  );
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                sendMessage(messageController.text);
+              },
+              child: Icon(
+                Icons.send,
+                color: Colors.white,
+                size: 25,
+              ),
+              backgroundColor: Colors.blue,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

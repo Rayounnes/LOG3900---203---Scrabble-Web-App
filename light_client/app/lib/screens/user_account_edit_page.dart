@@ -32,7 +32,6 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   List decodedBytesList = [];
   bool isIcon = false;
   int number = -1;
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -40,7 +39,12 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   void initState() {
     super.initState();
     getIconList();
+    getConfigs();
     handleSockets();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -51,8 +55,14 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   }
 
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -92,15 +102,15 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         );
         if (res) {
           name = newUsernameController.text;
-          getIt<SocketService>().send('change-username',name);
+          getIt<SocketService>().send('change-username', name);
           getIt<UserInfos>().setUser(name);
-        }
-        else{
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 backgroundColor: Color.fromARGB(255, 83, 162, 84),
                 duration: Duration(seconds: 3),
-                content: Text(translate.translateString(lang,"Ce username est deja utilisé !"))),
+                content: Text(translate.translateString(
+                    lang, "Ce username est deja utilisé !"))),
           );
           return;
         }
@@ -113,7 +123,8 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         SnackBar(
             backgroundColor: Color.fromARGB(255, 83, 162, 84),
             duration: Duration(seconds: 3),
-            content: Text(translate.translateString(lang,"Veuillez entrer un nouvel utilisateur ou avatar"))),
+            content: Text(translate.translateString(
+                lang, "Veuillez entrer un nouvel utilisateur ou avatar"))),
       );
       return;
     }
@@ -124,7 +135,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          translate.translateString(lang,'Modification du compte'),
+          translate.translateString(lang, 'Modification du compte'),
         ),
       ),
       body: Container(
@@ -169,32 +180,35 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                                           size: TILE_SIZE,
                                           color: Color.fromARGB(255, 0, 0, 0)),
                                       onPressed: () async {
-                                          File? imageFile = await Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) {
-                                                return GalleryPage(
-                                                  iconList: decodedBytesList,
-                                                );
-                                              })) as File?;
-                                          if (imageFile != null) {
-                                            try {
-                                              number = int.parse(imageFile.path);
-                                              if(number>=0){
-                                                setState(() {
-                                                  isIcon = true;
-                                                });
-                                              }
-                                            }catch(e){
-                                              print("Erreur de parsage en int pour le FileImage");
-                                              setProfilePic(imageFile.path);
+                                        File? imageFile = await Navigator.push(
+                                            context, MaterialPageRoute(
+                                                builder: (context) {
+                                          return GalleryPage(
+                                            iconList: decodedBytesList,
+                                          );
+                                        })) as File?;
+                                        if (imageFile != null) {
+                                          try {
+                                            number = int.parse(imageFile.path);
+                                            if (number >= 0) {
+                                              setState(() {
+                                                isIcon = true;
+                                              });
                                             }
+                                          } catch (e) {
+                                            print(
+                                                "Erreur de parsage en int pour le FileImage");
+                                            setProfilePic(imageFile.path);
                                           }
+                                        }
                                       },
                                     ),
                                   ),
                                   IconButton(
                                       icon: Icon(Icons.compare_arrows,
                                           size: TILE_SIZE / 2,
-                                          color: Color.fromARGB(255, 12, 12, 12)),
+                                          color:
+                                              Color.fromARGB(255, 12, 12, 12)),
                                       onPressed: () {}),
                                   Hero(
                                     tag: 'pictureButton',
@@ -217,13 +231,18 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                               )
                             : Stack(
                                 children: <Widget>[
-                                  isIcon? Center(
-                                    child: Image.memory(decodedBytesList[number], height:180 ,width: 180),
-                                  ):Center(
-                                    child: Image.file(
-                                      File(picturePath),
-                                    ),
-                                  ),
+                                  isIcon
+                                      ? Center(
+                                          child: Image.memory(
+                                              decodedBytesList[number],
+                                              height: 180,
+                                              width: 180),
+                                        )
+                                      : Center(
+                                          child: Image.file(
+                                            File(picturePath),
+                                          ),
+                                        ),
                                   Align(
                                     alignment: Alignment.topRight,
                                     child: ElevatedButton(
@@ -248,15 +267,18 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                     child: TextFormField(
                       controller: usernameValidationController,
                       decoration: InputDecoration(
-                        hintText: translate.translateString(lang,"Entrez votre nom d'utilisateur"),
+                        hintText: translate.translateString(
+                            lang, "Entrez votre nom d'utilisateur"),
                         icon: Icon(Icons.account_box),
                         border: OutlineInputBorder(),
                       ),
                       validator: (String? value) {
                         if (value == null || value.isEmpty) {
-                          return translate.translateString(lang,"Entrez votre nom d'utilisateur");
+                          return translate.translateString(
+                              lang, "Entrez votre nom d'utilisateur");
                         } else if (value != widget.username) {
-                          return translate.translateString(lang,"Le nom utilisateur est incorrect");
+                          return translate.translateString(
+                              lang, "Le nom utilisateur est incorrect");
                         }
                         return null;
                       },
@@ -268,16 +290,19 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                     child: TextFormField(
                       controller: newUsernameController,
                       decoration: InputDecoration(
-                        hintText: translate.translateString(lang, "Nouveau nom d'utilisateur"),
+                        hintText: translate.translateString(
+                            lang, "Nouveau nom d'utilisateur"),
                         border: OutlineInputBorder(),
                         icon: Icon(Icons.account_box),
                       ),
                       validator: (String? value) {
                         if (value != '' && value!.length < 5) {
-                          return translate.translateString(lang,"Un nom d'utilisateur doit au moins contenir 5 caractéres.");
+                          return translate.translateString(lang,
+                              "Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                         } else if (value != '' &&
                             !value!.contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                          return translate.translateString(lang,"Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
+                          return translate.translateString(lang,
+                              "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                         }
                         return null;
                       },
@@ -302,5 +327,4 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       ),
     );
   }
-
 }

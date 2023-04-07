@@ -35,15 +35,20 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   int bestScore = 0;
   String username = getIt<UserInfos>().user;
   int countdown = 0;
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
+    getConfigs();
     handleSockets();
   }
+
+    getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
 
   @override
   void dispose() {
@@ -83,6 +88,17 @@ class _ModeOrthographyState extends State<ModeOrthography> {
     }).catchError((error) {
       print('Error fetching best score: $error');
     });
+
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
+    });
+    
 
     // getIt<SocketService>().on('sendUsername', (name) {
     //   try {

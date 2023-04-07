@@ -53,7 +53,6 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -61,6 +60,7 @@ class _GamePageState extends State<GamePage> {
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
+    getConfigs();
     handleSockets();
     widget.joinGameSocket();
     if (!widget.isObserver) {
@@ -69,6 +69,10 @@ class _GamePageState extends State<GamePage> {
       selectedLetter = '';
       if (!widget.isClassicMode) isPlayerTurn = true;
     }
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -109,8 +113,10 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title:  Text(translate.translateString(lang, "Abandonner la partie")),
-            content: Text(translate.translateString(lang, "Voulez-vous abandonner la partie?")),
+            title:
+                Text(translate.translateString(lang, "Abandonner la partie")),
+            content: Text(translate.translateString(
+                lang, "Voulez-vous abandonner la partie?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -122,13 +128,13 @@ class _GamePageState extends State<GamePage> {
                     return GameModes();
                   }));
                 },
-                child:  Text(translate.translateString(lang, 'Oui')),
+                child: Text(translate.translateString(lang, 'Oui')),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child:  Text(translate.translateString(lang, 'Non')),
+                child: Text(translate.translateString(lang, 'Non')),
               ),
             ],
           );
@@ -365,7 +371,8 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang, 'Erreur : les mots crées sont invalides'))),
+              content: Text(translate.translateString(
+                  lang, 'Erreur : les mots crées sont invalides'))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
@@ -410,8 +417,10 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
       final message = isPlacement
-          ? translate.translateString(lang, 'Erreur : les mots crées sont invalides')
-          : translate.translateString(lang, 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
+          ? translate.translateString(
+              lang, 'Erreur : les mots crées sont invalides')
+          : translate.translateString(lang,
+              'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
@@ -428,8 +437,14 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -528,7 +543,7 @@ class _GamePageState extends State<GamePage> {
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
-            title:  Text(
+            title: Text(
               translate.translateString(lang, 'Page de jeu'),
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),

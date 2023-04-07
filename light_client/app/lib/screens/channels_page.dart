@@ -20,7 +20,12 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
+    getConfigs();
     handleSockets();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   List<String> discussions = ["General"];
@@ -29,7 +34,7 @@ class _ChannelsState extends State<Channels> {
   List<String> selectedList = [];
   int count = -1;
   int countJoin = 0;
-  late Personnalisation langOrTheme;
+  // late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -109,11 +114,10 @@ class _ChannelsState extends State<Channels> {
           print(countJoin);
           setState(() {
             print(selectedList.length);
-           
-            if(countJoin == selectedList.length) {
-              for(String channel in selectedList) {
-                  discussions.add(channel);
-                  
+
+            if (countJoin == selectedList.length) {
+              for (String channel in selectedList) {
+                discussions.add(channel);
               }
               print(discussions);
               print(selectedList);
@@ -125,9 +129,18 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
-      nameController =TextEditingController(text: translate.translateString(lang,"Nouvelle discussion"));
+    getIt<SocketService>().on("get-config", (value) {
+      // langOrTheme.language = value['language'];
+      // langOrTheme.theme = value['theme'];
+
+      nameController = TextEditingController(
+          text: translate.translateString(lang, "Nouvelle discussion"));
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
 
     });
   }
@@ -242,78 +255,78 @@ class _ChannelsState extends State<Channels> {
                   ),
                 ),
               ],
+            ),
           ),
-        ),
-        ListView.separated(
-          itemCount: discussions.length,
-          shrinkWrap: true,
-          padding: EdgeInsets.all(16),
-          physics: BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            print(discussions);
-            return Stack(
-             
-              children: [
-                
-                Channel(name: discussions[index],
-                updateMessageState: () => updateMessageState(index),),
-                if (newMessage[index])
-                  Positioned(
-                    right: 8,
-                    top: 17,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+          ListView.separated(
+            itemCount: discussions.length,
+            shrinkWrap: true,
+            padding: EdgeInsets.all(16),
+            physics: BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              print(discussions);
+              return Stack(
+                children: [
+                  Channel(
+                    name: discussions[index],
+                    updateMessageState: () => updateMessageState(index),
+                  ),
+                  if (newMessage[index])
+                    Positioned(
+                      right: 8,
+                      top: 17,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
+                ],
+              );
+            },
+            separatorBuilder: (context, index) => SizedBox(
+              height: 10,
+            ),
+          ),
+          ListTile(
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalAdd(context);
+                    },
+                    name: translate.translateString(lang, "Créer un chat"),
                   ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalDelete(context);
+                    },
+                    name: translate.translateString(lang, "Supprimer un chat"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalSearch(context);
+                    },
+                    name: translate.translateString(lang, "Rechercher un chat"),
+                  ),
+                ),
               ],
-            );
-          },
-          separatorBuilder: (context, index) => SizedBox(
-            height: 10,
+            ),
           ),
-        ),
-        ListTile(
-          title: Row(
-            children: <Widget>[
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalAdd(context);
-                  }, 
-                  name: translate.translateString(lang, "Créer un chat"),
-                ),
-              ),
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalDelete(context);
-                  }, 
-                  name: translate.translateString(lang, "Supprimer un chat"),
-                ),
-              ),
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalSearch(context);
-                  }, 
-                  name: translate.translateString(lang, "Rechercher un chat"),
-                ),
-              ),
-            ],
-          ),
-        ),                  
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   void showModalAdd(BuildContext context) {
     showDialog(
@@ -357,7 +370,7 @@ class _ChannelsState extends State<Channels> {
             onPressed: () {
               getIt<SocketService>()
                   .send("channel-creation", nameController.text);
-                  print(nameController.text);
+              print(nameController.text);
               Navigator.of(context).pop();
             },
             child: Text(
@@ -386,12 +399,14 @@ class _ChannelsState extends State<Channels> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    translate.translateString(lang, "Choisissez un chat à supprimer"),
+                    translate.translateString(
+                        lang, "Choisissez un chat à supprimer"),
                   ),
                 ),
                 DropdownButtonFormField(
                   validator: (value) => value == null
-                      ? translate.translateString(lang, "Veuillez choisir le chat à supprimer")
+                      ? translate.translateString(
+                          lang, "Veuillez choisir le chat à supprimer")
                       : null,
                   value: discussions[0],
                   onChanged: (String? newValue) {
@@ -542,7 +557,8 @@ class _ChannelsState extends State<Channels> {
 
                         Navigator.of(context).pop();
                       },
-                      child: Text(translate.translateString(lang, "Rejoindre le(s) chat(s)")),
+                      child: Text(translate.translateString(
+                          lang, "Rejoindre le(s) chat(s)")),
                     ),
                   ],
                 ),

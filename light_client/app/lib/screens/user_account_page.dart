@@ -40,7 +40,24 @@ class _UserAccountPageState extends State<UserAccountPage> {
   @override
   void initState() {
     super.initState();
+
     fillHistoryLit();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
+  void handleSockets() {
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
+    });
   }
 
   @override

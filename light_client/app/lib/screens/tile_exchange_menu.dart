@@ -22,7 +22,6 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
   bool isChecked = false;
   final Map<int, bool> isCheckedList = {};
   List<int> indexToExchange = [];
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = TranslateService();
 
@@ -30,12 +29,23 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
   void initState() {
     super.initState();
     initializeCheckList();
+    getConfigs();
     handleSockets();
   }
 
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -78,7 +88,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  translate.translateString(lang,'Lettre à échanger'),
+                  translate.translateString(lang, 'Lettre à échanger'),
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 50.0),
@@ -118,7 +128,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text(translate.translateString(lang,'Annuler')),
+                        child: Text(translate.translateString(lang, 'Annuler')),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 50),

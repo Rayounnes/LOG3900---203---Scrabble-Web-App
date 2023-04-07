@@ -4,6 +4,8 @@ import 'package:app/constants/widgets.dart';
 import 'package:flutter/material.dart';
 
 class LoadingTips extends StatefulWidget {
+  String lang;
+  LoadingTips(this.lang);
   @override
   _LoadingTipsState createState() => _LoadingTipsState();
 }
@@ -18,7 +20,18 @@ class _LoadingTipsState extends State<LoadingTips> {
   @override
   void initState() {
     super.initState();
+    setTipsLang();
+
     changeTip();
+  }
+
+  setTipsLang() {
+    if (mounted) {
+      setState(() {
+        List<String> tips =
+            widget.lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
+      });
+    }
   }
 
   @override

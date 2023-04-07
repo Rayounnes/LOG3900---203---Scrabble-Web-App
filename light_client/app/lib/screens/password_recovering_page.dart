@@ -19,7 +19,6 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
   final passwordController = TextEditingController();
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = TranslateService();
 
@@ -41,12 +40,23 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
   @override
   void initState() {
     super.initState();
+    getConfigs();
     handleSockets();
   }
 
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -70,7 +80,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
-            content: Text(translate.translateString(lang, "Ce nom d'utilisateur n'existe pas"))),
+            content: Text(translate.translateString(
+                lang, "Ce nom d'utilisateur n'existe pas"))),
       );
     }
   }
@@ -86,7 +97,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang, "Modification du mot de passe non-autorisée"))),
+              content: Text(translate.translateString(
+                  lang, "Modification du mot de passe non-autorisée"))),
         );
       }
     }
@@ -134,7 +146,9 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
                       children: [
                         Padding(
                             padding: const EdgeInsets.only(top: 20.0),
-                            child: Text(translate.translateString(lang, 'Récupération de compte'),
+                            child: Text(
+                                translate.translateString(
+                                    lang, 'Récupération de compte'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,
@@ -146,19 +160,23 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
                           child: TextFormField(
                             controller: usernameController,
                             enabled: isUserValid ? false : true,
-                            decoration:  InputDecoration(
-                              hintText: translate.translateString(lang, "Entrez votre nom d'utilisateur"),
+                            decoration: InputDecoration(
+                              hintText: translate.translateString(
+                                  lang, "Entrez votre nom d'utilisateur"),
                               border: OutlineInputBorder(),
                               icon: Icon(Icons.account_box),
                             ),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return translate.translateString(lang, "Nom d'utilisateur requis.");
+                                return translate.translateString(
+                                    lang, "Nom d'utilisateur requis.");
                               } else if (value.length < 5) {
-                                return translate.translateString(lang, "Un nom d'utilisateur doit au moins contenir 5 caractéres.");
+                                return translate.translateString(lang,
+                                    "Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                               } else if (!value
                                   .contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                                return translate.translateString(lang, "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
+                                return translate.translateString(lang,
+                                    "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                               }
                               return null;
                             },
@@ -176,7 +194,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
                                   }
                                 });
                               },
-                              child: Text(translate.translateString(lang, "Vérifier l'identifiant")),
+                              child: Text(translate.translateString(
+                                  lang, "Vérifier l'identifiant")),
                             ),
                           ),
                       ],
@@ -200,7 +219,7 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
             controller: passwordController,
-            decoration:  InputDecoration(
+            decoration: InputDecoration(
               hintText: translate.translateString(lang, "Nouveau mot de passe"),
               icon: Icon(Icons.password),
               border: OutlineInputBorder(),
@@ -208,9 +227,10 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
             obscureText: true,
             validator: (String? value) {
               if (value == null || value.isEmpty) {
-                return translate.translateString(lang,"Mot de passe requis.");
+                return translate.translateString(lang, "Mot de passe requis.");
               } else if (value.length < 6) {
-                return translate.translateString(lang,"Un mot de passe doit contenir au minimum 6 caractéres.");
+                return translate.translateString(lang,
+                    "Un mot de passe doit contenir au minimum 6 caractéres.");
               }
               return null;
             },
@@ -220,8 +240,9 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
             controller: passwordCheckController,
-            decoration:  InputDecoration(
-              hintText: translate.translateString(lang,"Retapez votre mot de passe"),
+            decoration: InputDecoration(
+              hintText:
+                  translate.translateString(lang, "Retapez votre mot de passe"),
               icon: Icon(Icons.password),
               border: OutlineInputBorder(),
             ),
@@ -230,7 +251,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
               if (value == null ||
                   value.isEmpty ||
                   value != passwordController.text) {
-                return translate.translateString(lang,"Le mot de passe écrit ne correspond pas");
+                return translate.translateString(
+                    lang, "Le mot de passe écrit ne correspond pas");
               }
               return null;
             },
@@ -248,9 +270,11 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
             ),
             validator: (String? value) {
               if (value == '') {
-                return translate.translateString(lang,"Entrez une réponse à la question de sécurité");
+                return translate.translateString(
+                    lang, "Entrez une réponse à la question de sécurité");
               } else if (value != securityAnswer) {
-                return translate.translateString(lang,"Réponse incorrecte, veuillez réessayer");
+                return translate.translateString(
+                    lang, "Réponse incorrecte, veuillez réessayer");
               }
               return null;
             },
@@ -262,7 +286,8 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
             onPressed: () {
               if (_formKey.currentState!.validate()) recoverAccount();
             },
-            child: Text(translate.translateString(lang,'Valider les modifications')),
+            child: Text(
+                translate.translateString(lang, 'Valider les modifications')),
           ),
         ),
       ],

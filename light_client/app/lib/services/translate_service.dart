@@ -53,6 +53,7 @@ class TranslateService {
     "Etes-vous sur de vous déconnecter ?": "Are you sure to log out?",
     "Oui": "Yes",
     "Non": "No",
+    "Aide": "Help",
     //channels_pages
     "General": "General",
     "Nouvelle discussion": "New discussion",

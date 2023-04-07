@@ -33,19 +33,29 @@ class _GameModesState extends State<GameModes> {
   Uint8List decodedBytes = Uint8List(1);
   String userName = "user";
   int userPoints = 100;
-  late Personnalisation langOrTheme;
+  Personnalisation langOrTheme =
+      new Personnalisation(language: "fr", theme: "light");
   String lang = "en";
   TranslateService translate = new TranslateService();
   int _selectedButton = 1;
   int _selectedThemeButton = 1;
   bool _darkMode = false;
+  // String selectedLanguage = "fr";
 
   List<bool> _isSelected = [false, false, false];
 
   void _onButtonSelected(int? value) {
     setState(() {
       _selectedButton = value!;
+      setLanguage();
     });
+  }
+
+  void setLanguage() {
+    langOrTheme.language = _selectedButton == 1 ? "fr" : "en";
+
+    getIt<SocketService>().send("update-config", langOrTheme);
+    lang = langOrTheme.language;
   }
 
   void _onButtonThemeSelected(int? value) {
@@ -58,7 +68,12 @@ class _GameModesState extends State<GameModes> {
   void initState() {
     super.initState();
     getUserInfo();
+    getConfigs();
     handleSockets();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -67,8 +82,13 @@ class _GameModesState extends State<GameModes> {
   }
 
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
     });
   }
 
@@ -142,7 +162,7 @@ class _GameModesState extends State<GameModes> {
                   _onButtonSelected(1);
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: _selectedButton == 1
+                  primary: (_selectedButton == 1 && lang == 'fr')
                       ? Color.fromARGB(255, 92, 196, 95)
                       : Colors.grey,
                 ),
@@ -153,7 +173,9 @@ class _GameModesState extends State<GameModes> {
                   _onButtonSelected(2);
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: _selectedButton == 2 ? Colors.green : Colors.grey,
+                  primary: (_selectedButton == 2 && lang == 'en')
+                      ? Colors.green
+                      : Colors.grey,
                 ),
                 child: Text('English'),
               ),
@@ -220,7 +242,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 20.0,
                     name: translate.translateString(lang, "Profil"),
                     route: () {
                       Navigator.push(context,
@@ -233,14 +255,15 @@ class _GameModesState extends State<GameModes> {
                           decodedBytes: decodedBytes,
                         );
                       }));
-                    }),GameButton(
-                    padding: 25.0,
-                    name: "Aide",
-                    route: () {
-                      Navigator.pushNamed(context,'/helpScreen');
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 10.0,
+                    name: translate.translateString(lang, "Aide"),
+                    route: () {
+                      Navigator.pushNamed(context, '/helpScreen');
+                    }),
+                GameButton(
+                    padding: 20.0,
                     name: translate.translateString(lang, "Déconnexion"),
                     route: () {
                       showModal(context);
@@ -249,7 +272,7 @@ class _GameModesState extends State<GameModes> {
             ),
           ),
         ),
-        Align(alignment: Alignment.bottomCenter, child: LoadingTips()),
+        Align(alignment: Alignment.bottomCenter, child: LoadingTips(lang)),
       ],
     ));
   }
