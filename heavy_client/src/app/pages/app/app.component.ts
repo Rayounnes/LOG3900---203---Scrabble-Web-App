@@ -33,4 +33,9 @@ export class AppComponent{
             });
         }
     }
+
+    popIn(): void {
+        this.popoutWindow.closed.unsubscribe();
+        this.popoutWindow.popIn();
+    }
 }
