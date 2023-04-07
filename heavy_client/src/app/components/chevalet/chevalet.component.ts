@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
@@ -27,7 +27,7 @@ const RESERVE_START_LENGTH = 102;
     templateUrl: './chevalet.component.html',
     styleUrls: ['./chevalet.component.scss'],
 })
-export class ChevaletComponent implements AfterViewInit {
+export class ChevaletComponent implements AfterViewInit, OnDestroy {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
     @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
     @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>;
@@ -192,7 +192,18 @@ export class ChevaletComponent implements AfterViewInit {
         if (!this.isObserver) this.socketService.send('draw-letters-rack');
         this.socketService.send('get-config');
     }
-
+    ngOnDestroy(): void {
+        console.log("disposing chevalet sockets");
+        this.socketService.socket.off('draw-letters-rack');
+        this.socketService.socket.off('user-turn');
+        this.socketService.socket.off('update-reserve');
+        this.socketService.socket.off('end-game');
+        this.socketService.socket.off('virtual-player');
+        this.socketService.socket.off('end-game');
+        this.socketService.socket.off('vote-action');
+        this.socketService.socket.off('exchange-command');
+        this.socketService.socket.off('get-config');
+    }
     configureBaseSocketFeatures() {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
             this.items = letters;

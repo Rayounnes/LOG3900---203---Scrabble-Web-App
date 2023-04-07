@@ -16,11 +16,9 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
     infoget: boolean = false;
     choiceMade: boolean = false;
     timer: ReturnType<typeof setInterval>;
-    clock : number = 60;
-    langue = ""
-    theme = ""
-
-
+    clock: number = 60;
+    langue = '';
+    theme = '';
 
     constructor(
         public dialogRef: MatDialogRef<CooperativeVoteComponent>,
@@ -44,7 +42,7 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
-        this.socketService.send('get-config')
+        this.socketService.send('get-config');
     }
 
     configureBaseSocketFeatures() {
@@ -66,10 +64,10 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
             console.log('recu client');
             console.log(usernamesAndAvatar);
         });
-        this.socketService.on('get-config',(config : any)=>{
+        this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
-        })
+        });
     }
     acceptAction() {
         this.choiceMade = true;
@@ -150,5 +148,11 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         clearInterval(this.timer);
+        console.log('disposing cooperative sockets');
+        this.socketService.socket.off('update-vote-action');
+        this.socketService.socket.off('accept-action');
+        this.socketService.socket.off('reject-action');
+        this.socketService.socket.off('choice-pannel-info');
+        this.socketService.socket.off('get-config');
     }
 }

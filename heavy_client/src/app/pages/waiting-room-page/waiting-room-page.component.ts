@@ -63,6 +63,7 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
         this.socketService.socket.off('joined-user-left');
         this.socketService.socket.off('joined-observer-left');
         this.socketService.socket.off('cancel-match');
+        this.socketService.socket.off('get-config');
     }
 
     connect() {

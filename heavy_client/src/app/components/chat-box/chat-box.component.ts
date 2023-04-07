@@ -63,13 +63,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.connect();
     }
-
-    ngOnDestroy() {
-    }
     connect() {
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
-        this.socketService.send('get-config')
+        this.socketService.send('get-config');
     }
     // verifyPlaceSocket() {
     //     this.socketService.on('verify-place-message', (placedWord: Placement) => {
@@ -127,24 +124,24 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     //     });
     // }
     gameCommandSockets() {
-        this.socketService.on('reserve-command', (command: Command) => {
-            this.isCommandSent = false;
-            this.chatMessages.push({
-                username: '',
-                message: command.name,
-                type: 'system',
-                time: '',
-            });
-        });
-        this.socketService.on('help-command', (command: Command) => {
-            this.isCommandSent = false;
-            this.chatMessages.push({
-                username: '',
-                message: command.name,
-                type: 'system',
-                time: '',
-            });
-        });
+        // this.socketService.on('reserve-command', (command: Command) => {
+        //     this.isCommandSent = false;
+        //     this.chatMessages.push({
+        //         username: '',
+        //         message: command.name,
+        //         type: 'system',
+        //         time: '',
+        //     });
+        // });
+        // this.socketService.on('help-command', (command: Command) => {
+        //     this.isCommandSent = false;
+        //     this.chatMessages.push({
+        //         username: '',
+        //         message: command.name,
+        //         type: 'system',
+        //         time: '',
+        //     });
+        // });
         // this.socketService.on('exchange-command', (command: Command) => {
         //     if (command.type === 'system') {
         //         this.isCommandSent = false;
@@ -167,6 +164,26 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         //         this.isCommandSent = false;
         //     }
         // });
+    }
+    ngOnDestroy(): void {
+        console.log("disposing chat sockets");
+        this.socketService.socket.off('chatMessage');
+        this.socketService.socket.off('sendUsername');
+        this.socketService.socket.off('change-username');
+        this.socketService.socket.off('user-turn');
+        this.socketService.socket.off('virtual-player');
+        this.socketService.socket.off('end-game');
+        this.socketService.socket.off('channel-created');
+        this.socketService.socket.off('duplicate-name');
+        this.socketService.socket.off('channels-joined');
+        this.socketService.socket.off('leave-channel');
+        this.socketService.socket.off('isTypingMessage');
+        this.socketService.socket.off('isNotTypingMessage');
+        this.socketService.socket.off('icon-change');
+        this.socketService.socket.off('game-won');
+        this.socketService.socket.off('game-loss');
+        this.socketService.socket.off('update-points-mean');
+        this.socketService.socket.off('get-config');
     }
     configureBaseSocketFeatures() {
         // this.verifyPlaceSocket();
@@ -357,20 +374,19 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         }
     }
     sendMessage() {
-        if (this.chatMessage.startsWith('!')) {
-            if (this.isGameFinished)
-                this.chatMessages.push({ username: '', message: 'Commande impossible a réaliser : la partie est terminé', type: 'system', time: '' });
-            else if (this.socketTurn !== this.socketService.socketId && this.chatMessage !== '!réserve' && this.chatMessage !== '!aide')
-                this.chatMessages.push({
-                    username: '',
-                    message: "Commande impossible à réaliser : ce n'est pas à votre tour de jouer",
-                    type: 'system',
-                    time: '',
-                });
-            else if (!this.isCommandSent) this.sendCommand();
-        } else {
-            this.sendToRoom();
-        }
+        // if (this.chatMessage.startsWith('!')) {
+        //     if (this.isGameFinished)
+        //         this.chatMessages.push({ username: '', message: 'Commande impossible a réaliser : la partie est terminé', type: 'system', time: '' });
+        //     else if (this.socketTurn !== this.socketService.socketId && this.chatMessage !== '!réserve' && this.chatMessage !== '!aide')
+        //         this.chatMessages.push({
+        //             username: '',
+        //             message: "Commande impossible à réaliser : ce n'est pas à votre tour de jouer",
+        //             type: 'system',
+        //             time: '',
+        //         });
+        //     else if (!this.isCommandSent) this.sendCommand();
+        // } else {
+        this.sendToRoom();
         this.chatMessage = '';
         setTimeout(() => this.automaticScroll(), 1);
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 
@@ -7,24 +7,27 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     templateUrl: './private-game-waiting.component.html',
     styleUrls: ['./private-game-waiting.component.scss'],
 })
-export class PrivateGameWaitingComponent implements OnInit {
-
-    langue = ""
-    theme = ""
+export class PrivateGameWaitingComponent implements OnInit, OnDestroy {
+    langue = '';
+    theme = '';
 
     constructor(public dialogRef: MatDialogRef<PrivateGameWaitingComponent>, public socketService: ChatSocketClientService) {}
 
     ngOnInit(): void {
         this.connect();
     }
-
+    ngOnDestroy(): void {
+        this.socketService.socket.off('reject-private-player');
+        this.socketService.socket.off('accept-private-player');
+        this.socketService.socket.off('get-config');
+    }
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
             this.configureBaseSocketFeatures();
         }
         this.configureBaseSocketFeatures();
-        this.socketService.send('get-config')
+        this.socketService.send('get-config');
     }
 
     configureBaseSocketFeatures() {
@@ -34,10 +37,10 @@ export class PrivateGameWaitingComponent implements OnInit {
         this.socketService.on('accept-private-player', () => {
             this.dialogRef.close(true);
         });
-        this.socketService.on('get-config',(config : any)=>{
+        this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
-        })
+        });
     }
 
     cancelWaitingJoinedUser() {

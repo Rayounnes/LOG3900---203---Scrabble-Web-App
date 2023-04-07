@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 
@@ -7,7 +7,7 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     templateUrl: './accept-player-game.component.html',
     styleUrls: ['./accept-player-game.component.scss'],
 })
-export class AcceptPlayerGameComponent implements OnInit {
+export class AcceptPlayerGameComponent implements OnInit, OnDestroy {
 
     langue = ""
     theme = ""
@@ -22,6 +22,11 @@ export class AcceptPlayerGameComponent implements OnInit {
         this.connect();
     }
 
+    ngOnDestroy(): void {
+        console.log("disposing accept pplayer sockets");
+        this.socketService.socket.off('left-private-player');
+        this.socketService.socket.off('get-config');
+    }
     connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();

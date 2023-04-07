@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
@@ -9,7 +9,7 @@ import { CommunicationService } from '@app/services/communication.service';
     templateUrl: './avatar-selection.component.html',
     styleUrls: ['./avatar-selection.component.scss'],
 })
-export class AvatarSelectionComponent implements OnInit {
+export class AvatarSelectionComponent implements OnInit, OnDestroy {
     @Output() avatar: EventEmitter<string> = new EventEmitter<string>();
     avatars: any = [];
     username: string = '';
@@ -24,7 +24,10 @@ export class AvatarSelectionComponent implements OnInit {
     ) {
         this.connect();
     }
-
+    ngOnDestroy(): void {
+        console.log("disposing accept pplayer sockets");
+        this.socketService.socket.off('sendUsername');
+    }
     configureBaseSocketFeatures() {
         this.socketService.on('sendUsername', (uname: string) => {
             this.username = uname;

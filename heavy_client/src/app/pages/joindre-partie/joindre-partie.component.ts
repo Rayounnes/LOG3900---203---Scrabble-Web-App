@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     templateUrl: './joindre-partie.component.html',
     styleUrls: ['./joindre-partie.component.scss'],
 })
-export class JoindrePartieComponent implements OnInit {
+export class JoindrePartieComponent implements OnInit, OnDestroy {
     gameList: Game[] = [];
     paramsObject: any;
     mode: string;
@@ -39,6 +39,12 @@ export class JoindrePartieComponent implements OnInit {
         this.socketService.send('update-joinable-matches', this.isClassic);
         this.socketService.send('get-config');
     }
+    ngOnDestroy(): void {
+        console.log("disposing join games sockets");
+        this.socketService.socket.off('update-joinable-matches');
+        this.socketService.socket.off('join-late-observer');
+        this.socketService.socket.off('get-config');
+    }
 
     connect() {
         if (!this.socketService.isSocketAlive()) {
@@ -50,6 +56,7 @@ export class JoindrePartieComponent implements OnInit {
 
     configureBaseSocketFeatures() {
         this.socketService.on('update-joinable-matches', (param: Game[]) => {
+            console.log("update-joinable-matches");
             this.gameList = param;
             this.gameList.push();
         });

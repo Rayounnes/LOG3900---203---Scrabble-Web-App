@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Goal } from '@app/classes/goal';
 import { Placement } from '@app/interfaces/placement';
 import { Vec2 } from '@app/interfaces/vec2';
@@ -25,7 +25,7 @@ const THREE_SECONDS = 3000;
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit, OnInit {
+export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('gridCanvas', { static: false }) private gridCanvas!: ElementRef<HTMLCanvasElement>;
     canvasElement: any;
 
@@ -323,6 +323,22 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 panelClass: ['snackbar'],
             });
         });
+    }
+    ngOnDestroy(): void {
+        console.log('disposing play area sockets');
+        this.socketService.socket.off('verify-place-message');
+        this.socketService.socket.off('validate-created-words');
+        this.socketService.socket.off('draw-letters-opponent');
+        this.socketService.socket.off('remove-arrow-and-letter');
+        this.socketService.socket.off('vote-action');
+        this.socketService.socket.off('cooperative-invalid-action');
+        this.socketService.socket.off('player-action');
+
+        this.socketService.socket.off('user-turn');
+        this.socketService.socket.off('hint-cooperative');
+        this.socketService.socket.off('end-game');
+        this.socketService.socket.off('hint-command');
+        this.socketService.socket.off('get-config');
     }
     configureBaseSocketFeatures() {
         this.verifyPlaceSocket();
