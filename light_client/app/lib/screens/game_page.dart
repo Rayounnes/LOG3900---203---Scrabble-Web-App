@@ -82,6 +82,9 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('vote-action');
     getIt<SocketService>().userSocket.off('cooperative-invalid-action');
     getIt<SocketService>().userSocket.off('player-action');
+    getIt<SocketService>().userSocket.off('game-won');
+    getIt<SocketService>().userSocket.off('game-loss');
+    getIt<SocketService>().userSocket.off("update-points-mean");
     super.dispose();
   }
 
@@ -282,6 +285,20 @@ class _GamePageState extends State<GamePage> {
 
   void handleSockets() {
     print("game page handle sockets");
+
+    //Comptez les wins et les points
+    getIt<SocketService>().on('game-won',(_) {
+      print('partie gagnée');
+      getIt<SocketService>().send('game-won');
+      getIt<SocketService>().send('game-history-update',true);
+    });
+    getIt<SocketService>().on('game-loss',(_) {
+      getIt<SocketService>().send('game-history-update',false);
+    });
+    getIt<SocketService>().on("update-points-mean",(points) {
+      getIt<SocketService>().send("update-points-mean",points);
+    });
+
     getIt<SocketService>().on('end-game', (_) {
       // Envoyer dans endgame si il a gagné ou perdu
       getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);

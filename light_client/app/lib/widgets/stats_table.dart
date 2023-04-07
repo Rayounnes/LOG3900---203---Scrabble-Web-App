@@ -8,8 +8,8 @@ import '../services/translate_service.dart';
 class StatsTable extends StatefulWidget {
   final int gamesPlayed;
   final int gamesWon;
-  final double avgPointsPerGame;
-  final Duration avgTimePerGame;
+  final int avgPointsPerGame;
+  final String avgTimePerGame;
 
   const StatsTable({
     Key? key,
@@ -57,7 +57,7 @@ class _StatsTableState extends State<StatsTable> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
-                      child: Text(widget.avgPointsPerGame.toStringAsFixed(2),
+                      child: Text(widget.avgPointsPerGame.toString(),
                           style: TextStyle(
                               fontSize: 18)),
                     ),
@@ -79,7 +79,7 @@ class _StatsTableState extends State<StatsTable> {
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Text(
-                          widget.avgTimePerGame.inMinutes.toString() + ' min',
+                          widget.avgTimePerGame,
                           style:
                               TextStyle(fontSize: 18)),
                     ),

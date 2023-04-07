@@ -46,6 +46,7 @@ class _TimerPageState extends State<TimerPage> {
       (Timer timer) => setState(
         () {
           _start -= 1;
+          gameDuration++;
           if (_start == 0) {
             timer.cancel();
             print("sending change-user-turn from timer");
@@ -164,6 +165,7 @@ class _TimerPageState extends State<TimerPage> {
     getIt<SocketService>().on('end-game', (_) {
       // if (isAbandoned) isAbandon = true;
       isGameFinished = true;
+      getIt<SocketService>().send('game-duration',gameDuration);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.green,
@@ -300,6 +302,7 @@ class _TimerPageState extends State<TimerPage> {
     getIt<SocketService>().userSocket.off('end-game');
     getIt<SocketService>().userSocket.off('coins-win');
     getIt<SocketService>().userSocket.off('time-add');
+    getIt<SocketService>().userSocket.off('game-duration');
     _timer.cancel();
     super.dispose();
   }

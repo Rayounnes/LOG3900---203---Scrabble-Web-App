@@ -78,6 +78,7 @@ class TranslateService {
     "est en train d'écrire ...": "is typing...",
     'Bien joué!': "Well done!",
     'Wow!': "Wow!",
+     'Nul!':"Nothing!",
     'Bonne chance!': "Good luck!",
     'Oh non!': "Oh no!",
     "Écris un message ...": "Write a message...",
