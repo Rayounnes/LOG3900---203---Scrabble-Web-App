@@ -6,7 +6,7 @@ import { BestScoresComponent } from '@app/pages/best-scores/best-scores.componen
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { UserProfilComponent } from '@app/components/user-profil/user-profil.component';
 import { ConfigurationChoiceDialogComponent } from '@app/components/configuration-choice-dialog/configuration-choice-dialog.component';
-//import { TipsComponent } from '@app/components/tips/tips.component';
+import { AppComponent } from '../app/app.component';
 
 @Component({
     selector: 'app-main-page',
@@ -21,7 +21,7 @@ export class MainPageComponent {
     langue = "";
     theme = "";
 
-    constructor(public router: Router, private dialog: MatDialog, private socketService: ChatSocketClientService) {
+    constructor(public router: Router, private dialog: MatDialog, private socketService: ChatSocketClientService, private app: AppComponent) {
         this.connect();
     }
 
@@ -50,6 +50,7 @@ export class MainPageComponent {
         localStorage.removeItem('username');
         localStorage.removeItem('password');
         this.router.navigate(['/connexion']);
+        this.app.popIn();
     }
 
     openProfile(){
