@@ -1,16 +1,21 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 
+import '../services/translate_service.dart';
+
 class SlidingImage extends StatefulWidget {
   final List<String> imagePath;
   final List<String> imageText;
   final String helpTopic;
+  final String lang ;
+
 
   const SlidingImage(
       {super.key,
       required this.imagePath,
       required this.imageText,
-      required this.helpTopic});
+      required this.helpTopic,
+      required this.lang});
 
   @override
   _SlidingImageState createState() => _SlidingImageState();
@@ -19,6 +24,7 @@ class SlidingImage extends StatefulWidget {
 class _SlidingImageState extends State<SlidingImage> {
   int currentIndex = 0;
   PageController pageController = PageController();
+  TranslateService translate = TranslateService();
 
   @override
   void initState() {
@@ -36,7 +42,8 @@ class _SlidingImageState extends State<SlidingImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Aide (${widget.helpTopic})"),
+        title: Text(translate.translateString(
+            widget.lang,'Aide') + "(${widget.helpTopic})"),
       ),
       body: Container(color: Color.fromARGB(255, 145, 213, 161),
         child: PageView.builder(

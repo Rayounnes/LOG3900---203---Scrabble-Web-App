@@ -170,8 +170,7 @@ class _GameChoicesState extends State<GameChoices> {
           bool _isChecked = false;
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-              title: Text(translate.translateString(lang, 'Créer une partie') +
-                  widget.modeName),
+              title: Text(translate.translateString(lang, 'Créer une partie') +" "+  translate.translateString(lang, widget.modeName)),
               content: Container(
                 width: 500,
                 child: Form(

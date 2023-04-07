@@ -40,7 +40,7 @@ class _SignUpState extends State<SignUp> {
   bool isIcon = false;
   int number = -1;
 
-  final List<String> questions = List.from(SECURITY_QUESTIONS);
+  List<String> questions = [];
 
   @override
   void dispose() {
@@ -58,6 +58,11 @@ class _SignUpState extends State<SignUp> {
     super.initState();
     getIconList();
     handleSockets();
+    if(lang == "en") {
+      questions = List.from(SECURITY_QUESTIONS_EN);
+    } else{
+      questions = List.from(SECURITY_QUESTIONS_FR);
+    }
   }
 
   void handleSockets() {
@@ -78,7 +83,6 @@ class _SignUpState extends State<SignUp> {
       decodedBytesList.add(
           base64Decode(iconList[i].toString().substring(BASE64PREFIX.length)));
     }
-    print("$decodedBytesList BYTESSS \n");
   }
 
   void createAccount() async {

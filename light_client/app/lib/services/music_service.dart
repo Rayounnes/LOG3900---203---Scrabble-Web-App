@@ -10,7 +10,8 @@ class MusicService {
   double yPosition = 150;
   double volume = 0.7;
   int musicID = -1;
-  bool isPlaying = true;
+  bool isPlaying = false;
+  bool isStarting = true;
 
   final audio.AudioPlayer audioPlayer = audio.AudioPlayer();
 
@@ -23,10 +24,15 @@ class MusicService {
   MusicService._internal();
 
   void playMusic(String musicPath, [bool isBackgroundMusic = true]) async {
+    isStarting = false;
     await audioPlayer.setAsset(musicPath);
     await audioPlayer.setVolume(isBackgroundMusic ? volume : 1.0);
-    isPlaying = true;
+    isPlaying = isBackgroundMusic ? true : false;
     await audioPlayer.play();
+  }
+
+  Future<int> getMusicID() async {
+    return musicID;
   }
 
   void pauseMusic() async {
