@@ -76,7 +76,7 @@ export class ConnexionPageComponent implements AfterViewInit {
                 this.socketService.send('user-connection', { username: loginInfos.username, socketId: this.socketService.socketId });
                 this.appComponent.initiatePopout();
                 // on save les logins seulement si le remember me est checked
-                if (this.rememberMeForm.value) {
+                if (this.rememberMeForm.value.remeberMe) {
                     localStorage.setItem('username', loginInfos.username);
                     localStorage.setItem('password', loginInfos.password);
                 }
