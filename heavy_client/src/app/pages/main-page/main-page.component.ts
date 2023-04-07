@@ -6,6 +6,7 @@ import { BestScoresComponent } from '@app/pages/best-scores/best-scores.componen
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { UserProfilComponent } from '@app/components/user-profil/user-profil.component';
 import { ConfigurationChoiceDialogComponent } from '@app/components/configuration-choice-dialog/configuration-choice-dialog.component';
+//import { TipsComponent } from '@app/components/tips/tips.component';
 
 @Component({
     selector: 'app-main-page',

@@ -55,6 +55,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GridConstants } from 'src/constants/grid-constants';
 import { WhiteLetterDialogComponent } from './components/white-letter-dialog/white-letter-dialog.component';
 import { ConfigurationChoiceDialogComponent } from './components/configuration-choice-dialog/configuration-choice-dialog.component';
+import { TipsComponent } from './components/tips/tips.component';
 
 import { SectionHelpComponent } from './pages/section-help/section-help.component';
 /**
@@ -99,6 +100,7 @@ import { SectionHelpComponent } from './pages/section-help/section-help.componen
         WhiteLetterDialogComponent,
         ConfigurationChoiceDialogComponent,
         SectionHelpComponent,
+        TipsComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
