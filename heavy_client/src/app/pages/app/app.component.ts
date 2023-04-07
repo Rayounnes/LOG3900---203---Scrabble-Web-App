@@ -20,16 +20,15 @@ export class AppComponent{
 
     popOutParams(): void {
         if (!this.popoutWindow.isPoppedOut) {
-            this.popoutWindow.wrapperRetainSizeOnPopout = false;
-            this.popoutWindow.whiteIcon = true;
             this.popoutWindow.innerWrapperStyle = { ['height']: '400px' };
-            this.popoutWindow.popIn();
-            this.popoutWindow.popOut();
-            document.getElementsByClassName('popoutWrapper')[0].setAttribute('style', 'display : none');
+            setTimeout(() => this.popoutWindow.popOut(), 0);
 
             this.popoutWindow.closed.subscribe((isClosed) => {
                 if (isClosed) {
-                    this.popoutWindow.popOut();
+                    this.popoutWindow.wrapperRetainSizeOnPopout = false;
+                    this.popoutWindow.whiteIcon = true;
+                    this.popoutWindow.innerWrapperStyle = { ['height']: '400px' };
+                    setTimeout(() => this.popoutWindow.popOut(), 0);
                 }
             });
         }
