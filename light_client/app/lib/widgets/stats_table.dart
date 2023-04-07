@@ -2,6 +2,8 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 
+import '../services/translate_service.dart';
+
 
 class StatsTable extends StatefulWidget {
   final int gamesPlayed;
@@ -23,13 +25,16 @@ class StatsTable extends StatefulWidget {
 class _StatsTableState extends State<StatsTable> {
 
   Map<String, double> dataMap = {};
+  String lang = "en";
+  TranslateService translate = TranslateService();
+
 
   @override
   void initState() {
     super.initState();
-    dataMap['Parties perdues'] = widget.gamesPlayed.toDouble() - widget.gamesWon.toDouble();
-    dataMap['Parties gagnées'] = widget.gamesWon.toDouble();
-    dataMap['Parties jouées = ${widget.gamesPlayed}'] = 0.0;
+    dataMap[translate.translateString(lang,'Parties perdues')] = widget.gamesPlayed.toDouble() - widget.gamesWon.toDouble();
+    dataMap[translate.translateString(lang,'Parties gagnées')] = widget.gamesWon.toDouble();
+    dataMap[translate.translateString(lang,'Parties jouées') + ' = ${widget.gamesPlayed}'] = 0.0;
   }
 
   @override
@@ -44,7 +49,7 @@ class _StatsTableState extends State<StatsTable> {
                 TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Moyenne de points par partie',
+                    child: Text(translate.translateString(lang,'Moyenne de points par partie'),
                         style: TextStyle(fontSize: 18)),
                   ),
                 ),
@@ -65,7 +70,7 @@ class _StatsTableState extends State<StatsTable> {
                 TableCell(verticalAlignment: TableCellVerticalAlignment.middle,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Temps moyen par partie',
+                    child: Text(translate.translateString(lang,'Temps moyen par partie'),
                         style: TextStyle(fontSize: 18)),
                   ),
                 ),
@@ -74,7 +79,7 @@ class _StatsTableState extends State<StatsTable> {
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Text(
-                          widget.avgTimePerGame.inMinutes.toString() + ' minutes',
+                          widget.avgTimePerGame.inMinutes.toString() + ' min',
                           style:
                               TextStyle(fontSize: 18)),
                     ),

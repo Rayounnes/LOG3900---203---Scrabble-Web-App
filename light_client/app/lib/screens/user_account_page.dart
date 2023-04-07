@@ -35,7 +35,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
   bool showTableChart = false;
   bool isEmpty = true;
     String lang = "en";
-  TranslateService translate = new TranslateService();
+  TranslateService translate = TranslateService();
 
   @override
   void initState() {
