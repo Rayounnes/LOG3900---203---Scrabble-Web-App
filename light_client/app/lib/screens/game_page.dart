@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app/services/translate_service.dart';
+import 'package:app/models/Words_Args.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
@@ -13,17 +14,17 @@ import 'package:app/widgets/cooperative_action.dart';
 import 'package:app/widgets/information_pannel.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/tile.dart';
-import 'package:flutter/material.dart';
 import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
 import '../models/personnalisation.dart';
 import '../services/tile_placement.dart';
-import '../services/board.dart';
 import '../models/letter.dart';
 import '../models/board_paint.dart';
+import '../models/placement.dart';
+import '../services/hints_dialog.dart';
+
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 
 class GamePage extends StatefulWidget {
   final bool isClassicMode, isObserver;
@@ -41,9 +42,12 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   final Map<int, Offset> tilePosition = {};
   final Map<int, String> tileLetter = {};
+  final Map<int, String> hintLetters = {};
+
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
+  List<dynamic> tempHintRack = [];
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
@@ -57,6 +61,8 @@ class _GamePageState extends State<GamePage> {
   String lang = "en";
   TranslateService translate = new TranslateService();
 
+  List<Placement> hints = [];
+  List<WordArgs> formatedHints = [];
   @override
   void initState() {
     print("-------------------------Initiation game-page-------------------");
@@ -109,8 +115,10 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title:  Text(translate.translateString(lang, "Abandonner la partie")),
-            content: Text(translate.translateString(lang, "Voulez-vous abandonner la partie?")),
+            title:
+                Text(translate.translateString(lang, "Abandonner la partie")),
+            content: Text(translate.translateString(
+                lang, "Voulez-vous abandonner la partie?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -122,13 +130,13 @@ class _GamePageState extends State<GamePage> {
                     return GameModes();
                   }));
                 },
-                child:  Text(translate.translateString(lang, 'Oui')),
+                child: Text(translate.translateString(lang, 'Oui')),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child:  Text(translate.translateString(lang, 'Non')),
+                child: Text(translate.translateString(lang, 'Non')),
               ),
             ],
           );
@@ -170,6 +178,36 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  void createWord(List<dynamic> hints) {
+    formatedHints = [];
+    for (var hint in hints) {
+      if (hint["command"] == 'Ces seuls placements ont été trouvés:') {
+        continue;
+      }
+
+      if (hint["command"] ==
+          "Aucun placement n'a été trouvé,Essayez d'échanger vos lettres !") {
+        return;
+      }
+
+      var splitedCommand = hint["command"].split(' ');
+
+      var columnWord = int.parse(
+              splitedCommand[1].substring(1, splitedCommand[1].length - 1)) -
+          1;
+      var lineWord = splitedCommand[1][0].codeUnitAt(0) - 97;
+      var valueWord = splitedCommand[splitedCommand.length - 1];
+      var orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
+      formatedHints.add(WordArgs(
+        line: lineWord,
+        column: columnWord,
+        value: valueWord,
+        orientation: orientationWord,
+        points: hint["points"],
+      ));
+    }
+  }
+
   verifyLetterOnBoard(int tileID) {
     for (var letter in lettersofBoard) {
       if (letter.tileID == tileID) {
@@ -186,18 +224,91 @@ class _GamePageState extends State<GamePage> {
             .removeWhere((element) => element.tileID == letter.tileID);
         String? letterValue = tileLetter[tileID];
         // on remet la tuile a * lorsqu on remet la tuile * dans le chevalet
-        tileLetter[tileID] =
-            letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
+        if (letterValue != null) {
+          tileLetter[tileID] =
+              letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
+        }
         return;
       }
     }
   }
 
-  Offset setTileOnBoard(Offset offset, int tileID) {
+  validationHintWord(WordArgs word) {
+    if (lettersofBoard != null) {
+      setTileOnRack();
+    }
+    placeWordHint(word);
+    validatePlacement();
+  }
+
+  placeWordHint(WordArgs word) {
+    int firstX = word.column!;
+    int firstY = word.line!;
+    for (String letter in word.value!.split('')) {
+      int tileID = getTileID(letter);
+      if (word.orientation == 'h') {
+        while (board.getIsFilled(firstY, firstX)) {
+          firstX++;
+        }
+        setTileOnBoard(
+            Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
+        tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+            TOP_BOARD_POSITION + firstY * 50);
+
+        firstX++;
+      }
+      if (word.orientation == 'v') {
+        while (board.getIsFilled(firstY, firstX)) {
+          firstY++;
+        }
+        setTileOnBoard(
+            Offset(firstX.toDouble(), firstY.toDouble()), tileID, true, letter);
+        tilePosition[tileID] = Offset(LEFT_BOARD_POSITION + firstX * 50,
+            TOP_BOARD_POSITION + firstY * 50);
+
+        firstY++;
+      }
+    }
+  }
+
+  int getTileID(String letter) {
+    int? targetID;
+    // on a un rack avec les lettres et une liste avec les ids
+    if (letter == letter.toUpperCase()) {
+      letter = '*';
+    }
+    int indexInRack = tempHintRack.indexOf(letter);
+
+    targetID = rackIDList[indexInRack];
+    tempHintRack[indexInRack] = " ";
+    return targetID;
+
+    //   for (int key in hintLetters.keys) {
+    //     if (letter == letter.toUpperCase()) {
+    //       letter = '*';
+    //     }
+    //     if (hintLetters[key] == letter) {
+    //       targetKey = key;
+    //       hintLetters[key] = " ";
+    //       return targetKey;
+    //     }
+    //   }
+    //   return targetKey!;
+  }
+
+  Offset setTileOnBoard(Offset offset, int tileID, bool isHint,
+      [String? letter]) {
     Offset positionOnBoard =
         getIt<TilePlacement>().getTilePosition(offset, tileID);
-    int line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
-    int column = positionOnBoard.dx ~/ TILE_SIZE;
+    int line = 0;
+    int column = 0;
+    if (isHint) {
+      line = offset.dy.toInt();
+      column = offset.dx.toInt();
+    } else {
+      line = ((positionOnBoard.dy - TOP_BOARD_POSITION) ~/ TILE_SIZE);
+      column = positionOnBoard.dx ~/ TILE_SIZE;
+    }
 
     String? letterValue = tileLetter[tileID];
     selectedLetter = '';
@@ -209,14 +320,25 @@ class _GamePageState extends State<GamePage> {
       if (letterValue == '*') {
         _showLetterPicker(line, column, tileID);
       } else {
-        lettersofBoard
-            .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+        if (isHint) {
+          if (letter == letter!.toUpperCase()) {
+            lettersofBoard
+                .add(Letter(line, column, letter!.toUpperCase(), tileID));
+            tileLetter[tileID] = letter;
+          } else {
+            lettersofBoard
+                .add(Letter(line, column, letter!.toLowerCase(), tileID));
+          }
+        } else {
+          lettersofBoard
+              .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+        }
       }
     } else {
       removeLetterOnBoard(tileID);
     }
 
-    return getIt<TilePlacement>().setTileOnBoard(offset, tileID);
+    return getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint);
   }
 
   void validatePlacement() {
@@ -365,7 +487,8 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang, 'Erreur : les mots crées sont invalides'))),
+              content: Text(translate.translateString(
+                  lang, 'Erreur : les mots crées sont invalides'))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
@@ -404,14 +527,27 @@ class _GamePageState extends State<GamePage> {
         else
           isPlayerTurn = true;
       });
+      getIt<SocketService>().send('hint-command');
+    });
+
+    getIt<SocketService>().on('hint-cooperative', (_) {
+      getIt<SocketService>().send('hint-command');
+    });
+
+    getIt<SocketService>().on('hint-command', (placements) {
+      setState(() {
+        createWord(placements);
+      });
     });
     getIt<SocketService>().on('vote-action', (voteAction) {
       openVoteActionDialog(context, CooperativeAction.fromJson(voteAction));
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
       final message = isPlacement
-          ? translate.translateString(lang, 'Erreur : les mots crées sont invalides')
-          : translate.translateString(lang, 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
+          ? translate.translateString(
+              lang, 'Erreur : les mots crées sont invalides')
+          : translate.translateString(lang,
+              'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
@@ -470,7 +606,8 @@ class _GamePageState extends State<GamePage> {
                       isPlayerTurn &&
                       !commandSent) {
                     offset = Offset(offset.dx, offset.dy - TILE_ADJUSTMENT);
-                    Offset boardPosition = setTileOnBoard(offset, id);
+                    Offset boardPosition = setTileOnBoard(offset, id, false);
+
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
@@ -528,7 +665,7 @@ class _GamePageState extends State<GamePage> {
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
-            title:  Text(
+            title: Text(
               translate.translateString(lang, 'Page de jeu'),
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
@@ -659,7 +796,39 @@ class _GamePageState extends State<GamePage> {
                     size: TILE_SIZE,
                   ),
                 ),
-              )
+              ),
+              Positioned(
+                left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT / 2,
+                top: RACK_START_AXISY + 70,
+                child: FloatingActionButton(
+                  heroTag: "hintLetters",
+                  onPressed: !isPlayerTurn || commandSent
+                      ? null
+                      : () {
+                          HintDialog hintDialog = HintDialog(
+                            items: formatedHints,
+                            onNoClick: (word) {
+                              validationHintWord(word);
+                            },
+                          );
+
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return hintDialog;
+                            },
+                          );
+                        },
+                  backgroundColor: !isPlayerTurn || commandSent
+                      ? Color.fromARGB(255, 109, 49, 49)
+                      : Color.fromARGB(255, 55, 151, 189),
+                  child: Icon(
+                    Icons.star_rounded,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    size: TILE_SIZE,
+                  ),
+                ),
+              ),
             ]
           ])),
     );

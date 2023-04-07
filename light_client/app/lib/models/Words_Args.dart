@@ -5,8 +5,9 @@ class WordArgs {
   int? column;
   String? orientation;
   String? value;
+  int? points;
 
-  WordArgs({this.line, this.column, this.orientation, this.value});
+  WordArgs({this.line, this.column, this.orientation, this.value, this.points});
 
   factory WordArgs.fromJson(Map<String, dynamic> json) {
     return WordArgs(
@@ -16,6 +17,8 @@ class WordArgs {
       value: json['value'],
     );
   }
+
+
 
   Map toJson() => {
         'line': line,

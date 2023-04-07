@@ -27,8 +27,15 @@ class TilePlacement {
     return tilePosition;
   }
 
-  Offset setTileOnBoard(Offset position, int tileID) {
-    Offset tilePosition = getTilePosition(position, tileID);
+  Offset setTileOnBoard(Offset position, int tileID, bool isHint) {
+    if (isHint) {
+      return position;
+      // return Offset(LEFT_BOARD_POSITION + position.dx * 50, TOP_BOARD_POSITION + position.dy * 50);
+    }
+    Offset tilePosition = findTileCenter(position);
+    double dx = findTileInterval(axisX, tilePosition.dx);
+    double dy = findTileInterval(axisY, tilePosition.dy);
+    tilePosition = Offset(dx, dy);
 
     if (tilePosition.dx == 0 || tilePosition.dy == 0) {
       tilePosition = setTileOnRack(tileID);

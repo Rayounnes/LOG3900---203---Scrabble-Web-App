@@ -10,4 +10,6 @@ class Placement {
     required this.points,
     required this.command,
   });
+
+  static fromJson(placement) {}
 }
