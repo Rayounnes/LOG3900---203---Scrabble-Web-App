@@ -279,7 +279,7 @@ class _GamePageState extends State<GamePage> {
     if (letter == letter.toUpperCase()) {
       letter = '*';
     }
-    int indexInRack = tempHintRack.indexOf(letter);
+    int indexInRack = tempHintRack.indexOf(letter.toLowerCase());
 
     targetID = rackIDList[indexInRack];
     tempHintRack[indexInRack] = " ";
@@ -319,7 +319,7 @@ class _GamePageState extends State<GamePage> {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID);
       }
-      if (letterValue == '*') {
+      if (letterValue == '*' && !isHint) {
         _showLetterPicker(line, column, tileID);
       } else {
         if (isHint) {
@@ -440,6 +440,12 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('draw-letters-rack', (letters) {
       if (!widget.isObserver) {
+        tempHintRack = [];
+        for (var index in rackIDList) {
+          print("on reset le rack");
+          print(letters[index % RACK_SIZE].toString());
+          tempHintRack.add(letters[index % RACK_SIZE].toString());
+        }
         setState(() {
           for (var index in rackIDList) {
             tileLetter[index] = letters[index % RACK_SIZE].toString();
