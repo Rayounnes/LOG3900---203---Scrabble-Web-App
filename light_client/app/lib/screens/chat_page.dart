@@ -93,6 +93,9 @@ class _ChatPageState extends State<ChatPage> {
     // }).catchError((error) {
     // print('Error fetching channels: $error');
     // });
+
+
+    
       
       
       setState(() {
@@ -102,7 +105,11 @@ class _ChatPageState extends State<ChatPage> {
 
       }
 
+      print(response);
+
       for (dynamic res in response) {
+      print("AAAAAAAAAH");
+      print(res);
       ChatMessage message = ChatMessage.fromJson(res);
       messages.add(message);
     }
@@ -196,9 +203,9 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
-    });
+    // getIt<SocketService>().on("get-configs", (value) {
+    //   langOrTheme = value;
+    // });
   }
 
   void sendUserIsTyping() {

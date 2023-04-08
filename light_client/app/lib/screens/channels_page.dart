@@ -117,6 +117,7 @@ class _ChannelsState extends State<Channels> {
               }
               print(discussions);
               print(selectedList);
+              countJoin = 0;
             }
           });
         }
@@ -158,90 +159,25 @@ class _ChannelsState extends State<Channels> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    "Conversations",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  )
-                ],
-              ),
-            ),
-          ),
-          ListView.separated(
-            itemCount: discussions.length,
-            shrinkWrap: true,
-            padding: EdgeInsets.all(16),
-            physics: BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              return Stack(
-                children: [
-                  Channel(
-                    name: discussions[index],
-                    updateMessageState: () => updateMessageState(index),
-                  ),
-                  if (newMessage[index])
-                    Positioned(
-                      right: 8,
-                      top: 17,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-            separatorBuilder: (context, index) => SizedBox(
-              height: 10,
-            ),
-          ),
-          ListTile(
-            title: Row(
+@override
+Widget build(BuildContext context) {
+  return SingleChildScrollView(
+    physics: BouncingScrollPhysics(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Expanded(
-                  child: GameButton(
-                    padding: 32.0,
-                    route: () {
-                      showModalAdd(context);
-                    },
-                    name: translate.translateString(lang, "Créer un chat"),
-                  ),
-                ),
-                Expanded(
-                  child: GameButton(
-                    padding: 32.0,
-                    route: () {
-                      showModalDelete(context);
-                    },
-                    name: translate.translateString(lang, "Supprimer un chat"),
-                  ),
-                ),
-                Expanded(
-                  child: GameButton(
-                    padding: 32.0,
-                    route: () {
-                      showModalSearch(context);
-                    },
-                    name: translate.translateString(lang, "Rechercher un chat"),
-                  ),
-                ),
+                Text(
+                  "Conversations",
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                )
               ],
+            ),
           ),
         ),
         ListView.separated(
@@ -250,13 +186,12 @@ class _ChannelsState extends State<Channels> {
           padding: EdgeInsets.all(16),
           physics: BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            print(discussions);
             return Stack(
-             
               children: [
-                
-                Channel(name: discussions[index],
-                updateMessageState: () => updateMessageState(index),),
+                Channel(
+                  name: discussions[index],
+                  updateMessageState: () => updateMessageState(index),
+                ),
                 if (newMessage[index])
                   Positioned(
                     right: 8,
@@ -285,8 +220,8 @@ class _ChannelsState extends State<Channels> {
                   padding: 32.0,
                   route: () {
                     showModalAdd(context);
-                  }, 
-                  name: translate.translateString(lang, "Créer un chat"),
+                  },
+                  name: translate.translateString(lang, "Créer"),
                 ),
               ),
               Expanded(
@@ -294,8 +229,17 @@ class _ChannelsState extends State<Channels> {
                   padding: 32.0,
                   route: () {
                     showModalDelete(context);
-                  }, 
-                  name: translate.translateString(lang, "Supprimer un chat"),
+                  },
+                  name: translate.translateString(lang, "Supprimer"),
+                ),
+              ),
+               Expanded(
+                child: GameButton(
+                  padding: 32.0,
+                  route: () {
+                    showModalLeave(context);
+                  },
+                  name: translate.translateString(lang, "Quitter"),
                 ),
               ),
               Expanded(
@@ -303,17 +247,18 @@ class _ChannelsState extends State<Channels> {
                   padding: 32.0,
                   route: () {
                     showModalSearch(context);
-                  }, 
-                  name: translate.translateString(lang, "Rechercher un chat"),
+                  },
+                  name: translate.translateString(lang, "Rechercher"),
                 ),
               ),
             ],
           ),
-        ),                  
+        ),
       ],
     ),
   );
 }
+
 
   void showModalAdd(BuildContext context) {
     showDialog(
@@ -421,21 +366,95 @@ class _ChannelsState extends State<Channels> {
           ),
           ElevatedButton(
             onPressed: () {
-              String action = numberUsersOfChannel(chatDeleted);
-              if (action == "delete") {
+              if (chatDeleted != 'General') {
                 getIt<SocketService>().send("delete-channel", chatDeleted);
-              } else if (action == "leave") {
-                getIt<SocketService>().send("leave-channel", chatDeleted);
-              } else {}
-              setState(() {
-                if (chatDeleted != 'General') {
-                  discussions.remove(chatDeleted);
-                }
+                setState(() {
+
+                discussions.remove(chatDeleted);
               });
+
+              }
+             
               Navigator.of(context).pop();
             },
             child: Text(
               translate.translateString(lang, "Supprimer le chat"),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+
+
+  void showModalLeave(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(translate.translateString(lang, 'Quitter un chat')),
+        content: Container(
+          height: 150,
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    translate.translateString(lang, "Choisissez un chat à quitter"),
+                  ),
+                ),
+                DropdownButtonFormField(
+                  validator: (value) => value == null
+                      ? translate.translateString(lang, "Veuillez choisir le chat à quitter")
+                      : null,
+                  value: discussions[0],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      chatDeleted = newValue!;
+                    });
+                  },
+                  items: discussions.map((discussion) {
+                    return DropdownMenuItem(
+                      value: discussion,
+                      child: Text(discussion),
+                    );
+                  }).toList(),
+                )
+              ],
+            ),
+          ),
+        ),
+        actions: <ElevatedButton>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              translate.translateString(lang, "Annuler"),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (chatDeleted != 'General') {
+                getIt<SocketService>().send("leave-channel", chatDeleted);
+                setState(() {
+
+                discussions.remove(chatDeleted);
+              });
+
+              }
+
+              
+      
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              translate.translateString(lang, "Quitter un chat"),
             ),
           )
         ],
