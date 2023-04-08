@@ -45,6 +45,19 @@
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset !important;
 }
 
+.data-white{
+    width: 98%;
+    height: 20%;
+    background-color: #deffde;
+    border-radius: 10px;
+    margin-bottom: 0.5%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset !important;
+}
+
 .choice{
     display: flex;
     height: 100%;
@@ -63,6 +76,26 @@
 .choice:active{
     background-color: #3c742f;
     background-image: linear-gradient(to right, #c3c3c34a, #3c742f);
+}
+
+.choice-white{
+    display: flex;
+    height: 100%;
+    width: 32%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset !important;
+    background-color: #93bd93;
+    margin-right: 0.2%;
+    font-size: small;
+    color: white;
+    transition: background-color 0.5s ease;
+}
+
+.choice-white:active{
+    background-color: #93bd93;
+    background-image: linear-gradient(to right, #c3c3c34a, #93bd93);
 }
 
 .no-choice{
@@ -135,10 +168,17 @@
     margin-top: 4%;
 }
 
-.number{
+.number-dark{
     font-size: xxx-large;
     padding-bottom: 0%;
     color: rgb(60,116,47);
+    font-family: fantasy;
+}
+
+.number-white{
+    font-size: xxx-large;
+    padding-bottom: 0%;
+    color: #93bd93;
     font-family: fantasy;
 }
 

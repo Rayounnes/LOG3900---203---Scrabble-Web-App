@@ -42,7 +42,7 @@ export class UserProfilComponent implements OnInit {
         this.getAvatar();
         this.getConnexionHistory();
         this.getScreenshots()
-    });;
+    });
     this.socketService.on('get-number-games',(games : number)=>{
       this.numberOfGames = games
     })

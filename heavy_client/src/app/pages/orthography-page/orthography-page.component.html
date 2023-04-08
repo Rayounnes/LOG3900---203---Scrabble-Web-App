@@ -1,5 +1,5 @@
-<div class="homeDiv" *ngIf="langue == 'fr'">
-  <h1>Bienvenue au mode d'entrainement orthographe</h1>
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'fr'">
+  <h1 [ngClass]="theme == 'white' ? 'text-white' : 'text-dark'">Bienvenue au mode d'entrainement orthographe</h1>
   <button class="startButton" (click)="startCountdown()" *ngIf="!hideButton">Commencer l'entraînement</button>
   <div class="countdown" *ngIf="countdown > 0">{{ countdown }}</div>
   <div class="game" *ngIf="countdown === 0 && !gameOver">
@@ -18,13 +18,13 @@
   <div class="modeDone" *ngIf="modeDone">
     <p>Bien joué, vous avez fini le mode d'entraînement.</p>
   </div>
-  <div class="score">Score : {{ score }}</div>
-  <div class="score">Votre meilleur score : {{ bestScore }}</div>
+  <div [ngClass]="theme == 'white' ? 'score-white' : 'score-dark'">Score : {{ score }}</div>
+  <div [ngClass]="theme == 'white' ? 'score-white' : 'score-dark'">Votre meilleur score : {{ bestScore }}</div>
   <button class="leaveButton" (click)="leavePage()">Quitter</button>
 </div>
 
-<div class="homeDiv" *ngIf="langue == 'en'">
-  <h1>Welcome to your spelling training</h1>
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'en'">
+  <h1 [ngClass]="theme == 'white' ? 'text-white' : 'text-dark'">Welcome to your spelling training</h1>
   <button class="startButton" (click)="startCountdown()" *ngIf="!hideButton">Start training</button>
   <div class="countdown" *ngIf="countdown > 0">{{ countdown }}</div>
   <div class="game" *ngIf="countdown === 0 && !gameOver">
@@ -43,8 +43,8 @@
   <div class="modeDone" *ngIf="modeDone">
     <p>Well played, you finished the whole training</p>
   </div>
-  <div class="score">Score : {{ score }}</div>
-  <div class="score">Your best score : {{ bestScore }}</div>
+  <div [ngClass]="theme == 'white' ? 'score-white' : 'score-dark'">Score : {{ score }}</div>
+  <div [ngClass]="theme == 'white' ? 'score-white' : 'score-dark'">Your best score : {{ bestScore }}</div>
   <button class="leaveButton" (click)="leavePage()">Leave</button>
 </div>
 

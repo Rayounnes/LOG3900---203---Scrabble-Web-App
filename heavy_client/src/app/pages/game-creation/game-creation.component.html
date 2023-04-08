@@ -50,13 +50,6 @@
     </div>
     <form #myForm="ngForm" (ngSubmit)="createGame()">
         <mat-checkbox [(ngModel)]="game.isPrivate" [ngModelOptions]="{standalone: true}" #checkbox>Private game</mat-checkbox>
-        <mat-form-field appearance="fill">
-            <mat-label>Number of human players: </mat-label>
-            <input matInput type="number" [(ngModel)]="game.humanPlayers" [ngModelOptions]="{standalone: true}" max="4" min="2" value="2" id="humanPlayers" step="1" required />
-            <mat-error *ngIf="game.humanPlayers > 4">Too much human players</mat-error>
-            <mat-error *ngIf="game.humanPlayers < 2">Not enough human players</mat-error>
-            <mat-icon matSuffix></mat-icon>
-        </mat-form-field>
         <mat-form-field *ngIf="data.isClassic" appearance="fill">
             <mat-label>Duration per turn (in seconds): </mat-label>
             <input matInput type="number" [(ngModel)]="game.time" [ngModelOptions]="{standalone: true}" max="300" min="30" value="60" id="time" step="30" required />

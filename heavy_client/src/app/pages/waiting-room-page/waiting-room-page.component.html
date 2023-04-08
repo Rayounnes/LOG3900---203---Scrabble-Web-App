@@ -1,8 +1,8 @@
 
-<div class="homeDiv" *ngIf="langue == 'fr'">
-    <div class="main">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'fr'">
+    <div [ngClass]="theme == 'white' ? 'main-white' : 'main'">
         <h1 mat-dialog-title>Salle d'attente de {{game.hostUsername}} </h1>
-        <div class="players">
+        <div [ngClass]="theme == 'white' ? 'players-white' : 'players'">
             <div class="gameplayer" *ngFor="let user of game.joinedPlayers">
                 <img [src]="usersIcons.get(user.username)" width="25%" height="70%">
                 <span mat-line>{{user.username}}</span>
@@ -26,7 +26,7 @@
         </div>
         <h2 class="joined-observers">Observateurs</h2>
         <div class="observers">
-            <div class="observer" *ngFor="let observer of game.joinedObservers">
+            <div [ngClass]="theme == 'white' ? 'observers-white' : 'observers'" *ngFor="let observer of game.joinedObservers">
                 <img [src]="usersIcons.get(observer.username)" width="45%" height="70%">
                 <span mat-line>{{observer.username}}</span>
             </div>
@@ -48,10 +48,10 @@
     <button mat-raised-button color="primary" *ngIf="isHost" (click)="startGame()" [disabled]="game.joinedPlayers.length < 2">Lancer Partie</button>
     <button mat-button (click)="cancelMatch()" *ngIf="isHost">Annuler Partie</button> -->
 
-<div class="homeDiv" *ngIf="langue == 'en'">
-    <div class="main">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'en'">
+    <div [ngClass]="theme == 'white' ? 'main-white' : 'main'">
         <h1 mat-dialog-title>Waiting room of {{game.hostUsername}} </h1>
-        <div class="players">
+        <div [ngClass]="theme == 'white' ? 'players-white' : 'players'">
             <div class="gameplayer" *ngFor="let user of game.joinedPlayers">
                 <img [src]="usersIcons.get(user.username)" width="25%" height="70%">
                 <span mat-line>{{user.username}}</span>
@@ -74,7 +74,7 @@
             </div>
         </div>
         <h2 class="joined-observers">Observers</h2>
-        <div class="observers">
+        <div [ngClass]="theme == 'white' ? 'observers-white' : 'observers'">
             <div class="observer" *ngFor="let observer of game.joinedObservers">
                 <img [src]="usersIcons.get(observer.username)" width="45%" height="70%">
                 <span mat-line>{{observer.username}}</span>

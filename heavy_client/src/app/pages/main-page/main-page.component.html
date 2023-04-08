@@ -1,24 +1,25 @@
-<div class="homeDiv" *ngIf="langue == 'fr'">
-    <div class="modesContainer">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'fr'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1>Application Scrabble</h1>
-        <button mat-raised-button (click)="navModePage(true)" class="dataButton">Mode de jeu classique</button>
-        <button mat-raised-button (click)="navModePage(false)" class="dataButton">Mode de jeu coopératif</button>
-        <button mat-raised-button (click)="navModeTraining()" class="dataButton">Mode d'entrainement orthographe</button>
-        <button mat-raised-button (click)="openProfile()" class="dataButton">Profil</button>
-        <button mat-raised-button (click)="openConfigurations()" class="dataButton">Configurations</button>
-        <button mat-raised-button (click)="navHelpSection()" class="dataButton">Aide</button>
-        <button mat-raised-button (click)="userDisconnect()" class="dataButton">Déconnexion</button>
+        <button mat-raised-button (click)="navModePage(true)" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Mode de jeu classique</button>
+        <button mat-raised-button (click)="navModePage(false)" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Mode de jeu coopératif</button>
+        <button mat-raised-button (click)="navModeTraining()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Mode d'entrainement orthographe</button>
+        <button mat-raised-button (click)="openProfile()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Profil</button>
+        <button mat-raised-button (click)="openConfigurations()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Configurations</button>
+        <button mat-raised-button (click)="navHelpSection()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Aide</button>
+        <button mat-raised-button (click)="userDisconnect()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Déconnexion</button>
     </div>
 </div>
 
-<div class="homeDiv" *ngIf="langue == 'en'">
-    <div class="modesContainer">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'en'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1>Application Scrabble</h1>
-        <button mat-raised-button (click)="navModePage(true)" class="dataButton">Classic Mode</button>
-        <button mat-raised-button (click)="navModePage(false)" class="dataButton">Cooperative mode</button>
-        <button mat-raised-button (click)="navModeTraining()" class="dataButton">Spelling practice mode</button>
-        <button mat-raised-button (click)="openProfile()" class="dataButton">Profil</button>
-        <button mat-raised-button (click)="openConfigurations()" class="dataButton">Configurations</button>
-        <button mat-raised-button (click)="userDisconnect()" class="dataButton">Disconnect</button>
+        <button mat-raised-button (click)="navModePage(true)" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Classic Mode</button>
+        <button mat-raised-button (click)="navModePage(false)" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Cooperative mode</button>
+        <button mat-raised-button (click)="navModeTraining()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Spelling practice mode</button>
+        <button mat-raised-button (click)="openProfile()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Profil</button>
+        <button mat-raised-button (click)="openConfigurations()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Configurations</button>
+        <button mat-raised-button (click)="navHelpSection()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Help</button>
+        <button mat-raised-button (click)="userDisconnect()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Disconnect</button>
     </div>
 </div>
