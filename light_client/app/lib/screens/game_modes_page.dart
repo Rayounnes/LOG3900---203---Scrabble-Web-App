@@ -87,6 +87,7 @@ class _GameModesState extends State<GameModes> {
       if (mounted) {
         setState(() {
           lang = value['language'];
+          _selectedButton = (lang == 'fr') ? 1 : 2;
         });
       }
     });

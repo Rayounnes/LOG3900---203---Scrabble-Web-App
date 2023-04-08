@@ -328,7 +328,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                         if (isHost) ...[
                           GameButton(
                             padding: 16.0,
-                            name: "Lancer Partie",
+                            name: translate.translateString(lang, "Lancer Partie"),
                             route: () {
                               // true: isLightClient
                               getIt<SocketService>().send('join-game', true);

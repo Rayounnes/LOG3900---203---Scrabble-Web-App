@@ -46,7 +46,7 @@ class _GameChoicesState extends State<GameChoices> {
   String dictionary = "Francais";
   List<DropdownMenuItem<String>> dictionnaries = [
     DropdownMenuItem(child: Text("Francais"), value: "Francais"),
-    DropdownMenuItem(child: Text("Anglais"), value: "Anglais"),
+    DropdownMenuItem(child: Text("English"), value: "Anglais"),
   ];
 
   @override
@@ -77,7 +77,6 @@ class _GameChoicesState extends State<GameChoices> {
           lang = value['language'];
         });
       }
-
     });
   }
 
@@ -130,7 +129,8 @@ class _GameChoicesState extends State<GameChoices> {
             child: Column(
               children: <Widget>[
                 Text(
-                  "Mode de jeu ${widget.modeName}",
+                  translate.translateString(
+                      lang, "Mode de jeu ${widget.modeName}"),
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 Padding(

@@ -8,7 +8,7 @@ class TranslateService {
   }
 
   TranslateService._internal();
-   Map<String, String> translation = {
+  Map<String, String> translation = {
     //login_page
     'Connexion à votre compte': 'Login to your account',
     "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer":
@@ -46,7 +46,11 @@ class TranslateService {
     //game_modes_page
     "Application Scrabble": "Scrabble app",
     "Mode de jeu classique": "Classic game mode",
+    "Mode de jeu Classique": "Classic game mode",
     "Mode de jeu coopératif": "Coop game mode",
+    "Mode de jeu Coopératif": "Coop game mode",
+    "Classique": "Classic",
+    "Coopératif": "Cooperative",
     "Mode d'entrainement orthographe": "Orthography training mode",
     "Profil": "Profile",
     "Déconnexion": "Log out",
@@ -129,6 +133,8 @@ class TranslateService {
 
     //join_game
     "Parties": "Games",
+    'Publique': "Public",
+    "Privée" : "Privée",
     "disponibles": "available",
     "Partie de": "Game of",
     "Publique (protégé par mot de passe)": "Public (secured with password)",
@@ -183,7 +189,7 @@ class TranslateService {
     "Historique des déconnexions": "Log out history",
 
     //waiting_room
-    "Salle d'attente de": "Waiting room of",
+    "Salle d'attente de": "Waiting room of ",
     "Joueurs": "Players",
     "Observateurs": "Viewers",
     "En attente de joueurs": "Waiting for players",
