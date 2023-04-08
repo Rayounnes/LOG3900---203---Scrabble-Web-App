@@ -38,7 +38,8 @@ export class GridService {
     gridContext: CanvasRenderingContext2D;
     grid = new gridConstants.GridConstants();
     private canvasSize: CanvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
-
+    theme : string = ""
+    colorDone : boolean = false
     fillAndSetColor(pos1: number, pos2: number, color: string) {
         this.fillColor(pos1, pos2, color);
         this.board.setColor(pos1, pos2, color);
@@ -135,7 +136,12 @@ export class GridService {
         this.gridContext.closePath();
         this.gridContext.fill();
         this.gridContext.lineWidth = 0.5;
-        this.gridContext.strokeStyle = this.grid.gray;
+        if(this.theme == "dark"){
+            this.gridContext.strokeStyle = this.grid.gray;
+        }else{
+            this.gridContext.strokeStyle = "beige";
+        }
+        
         this.gridContext.stroke()
       }
 
@@ -149,10 +155,25 @@ export class GridService {
         );
     }
 
+    setColor(theme : string){
+        if(!this.colorDone){
+            this.theme = theme;
+        this.fillPositions()
+        this.buildBoard();
+        this.colorDone = true;
+        }
+        
+    }
+
     fillGreenTiles() {
         for (let i = this.grid.startLine; i < this.grid.endLine; i += 1) {
             for (let j = this.grid.startLine; j < this.grid.endColumn; j += 1) {
-                this.fillAndSetColor(i, j, this.grid.lightGreen);
+                if(this.theme == "white"){
+                    this.fillAndSetColor(i, j, this.grid.lightGreen);
+                }else if(this.theme == "dark"){
+                    this.fillAndSetColor(i, j, this.grid.greyTile);
+                }
+                
             }
         }
     }
@@ -274,12 +295,19 @@ export class GridService {
     }
     fillPositions() {
         for (let i = 0; i < END; i++) {
-            this.gridContext.strokeStyle = '#4c5050';
-            this.fillColor(i, 0, '#4c5050');
-            this.fillColor(0, i, '#4c5050');
+            if(this.theme == "dark"){
+                
+                this.gridContext.strokeStyle = '#4c5050';
+                this.fillColor(i, 0, '#4c5050');
+                this.fillColor(0, i, '#4c5050');
+            }else if(this.theme == "white"){
+                this.gridContext.strokeStyle = 'beige';
+                this.fillColor(i, 0, 'beige');
+                this.fillColor(0, i, 'beige');
+            }
         }
     }
-    buildBoard(wordSize: number) {
+    buildBoard(wordSize?: number) {
         this.board.intializeBoard();
         this.fillGreenTiles();
         this.fillRed();/* 

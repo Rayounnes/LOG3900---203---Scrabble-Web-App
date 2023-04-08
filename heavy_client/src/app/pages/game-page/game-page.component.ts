@@ -17,6 +17,10 @@ export class GamePageComponent implements OnInit {
         this.mouse = new MouseManagementService(gridService);
         this.keyboard = new KeyboardManagementService(gridService, chevaletService, this.mouse, socketService);
     }
+
+
+    langue = "";
+    theme = "";
     ngOnInit(): void {
         this.connect();
     }
@@ -24,6 +28,11 @@ export class GamePageComponent implements OnInit {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
         }
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
+        this.socketService.send('get-config')
     }
     // Le chargé m'a dit de mettre any comme type car le type MouseEvent ne reconnait pas target.id
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

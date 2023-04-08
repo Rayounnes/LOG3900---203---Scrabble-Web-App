@@ -346,6 +346,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.socketService.on('get-config',(config : any)=>{
             this.langue = config.langue;
             this.theme = config.theme;
+            this.gridService.setColor(config.theme)
         })
     }
 
