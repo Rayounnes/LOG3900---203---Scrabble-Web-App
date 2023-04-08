@@ -127,9 +127,8 @@ class _GameChoicesState extends State<GameChoices> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      translate.translateString(
-                              lang, 'Créez ou rejoignez une partie') +
-                          widget.modeName,
+                      translate.translateString(lang,
+                          'Créez ou rejoignez une partie en mode ${widget.modeName}'),
                       style: TextStyle(
                         fontSize: 23,
                         color: Colors.black,
@@ -171,7 +170,8 @@ class _GameChoicesState extends State<GameChoices> {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               title: Text(translate.translateString(lang, 'Créer une partie') +
-                  widget.modeName),
+                  " " +
+                  translate.translateString(lang, widget.modeName)),
               content: Container(
                 width: 500,
                 child: Form(

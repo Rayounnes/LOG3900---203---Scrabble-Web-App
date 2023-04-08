@@ -236,7 +236,7 @@ class _GameModesState extends State<GameModes> {
                     }),
                 GameButton(
                     padding: 25.0,
-                    name: "Aide",
+                    name: translate.translateString(lang, "Aide"),
                     route: () {
                       Navigator.pushNamed(context, '/helpScreen');
                     }),

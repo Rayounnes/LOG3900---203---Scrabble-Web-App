@@ -9,6 +9,7 @@
         <button mat-raised-button (click)="navHelpSection()" class="dataButton">Aide</button>
         <button mat-raised-button (click)="userDisconnect()" class="dataButton">Déconnexion</button>
     </div>
+    <app-tips [autoSlide]="true"></app-tips>
 </div>
 
 <div class="homeDiv" *ngIf="langue == 'en'">
@@ -21,4 +22,5 @@
         <button mat-raised-button (click)="openConfigurations()" class="dataButton">Configurations</button>
         <button mat-raised-button (click)="userDisconnect()" class="dataButton">Disconnect</button>
     </div>
+    <app-tips [autoSlide]="true"></app-tips>
 </div>

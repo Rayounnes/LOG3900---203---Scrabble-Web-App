@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommunicationService } from '@app/services/communication.service';
 import { /* ActivatedRoute */ Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
     templateUrl: './connexion-page.component.html',
     styleUrls: ['./connexion-page.component.scss'],
 })
-export class ConnexionPageComponent implements OnInit {
+export class ConnexionPageComponent implements AfterViewInit {
     username: string = '';
     password: string = '';
     connected: boolean = false;
@@ -39,6 +39,10 @@ export class ConnexionPageComponent implements OnInit {
     passwordForm = new FormGroup({
         password: new FormControl('', [Validators.required, Validators.pattern(this.passwordPattern)]),
     });
+
+    rememberMeForm = new FormGroup({
+        remeberMe: new FormControl(false),
+    });
     constructor(
         private communicationService: CommunicationService,
         private _snackBar: MatSnackBar,
@@ -51,16 +55,31 @@ export class ConnexionPageComponent implements OnInit {
     }
 
     async userConnection(): Promise<void> {
-        let loginInfos: loginInfos = {
-            username: this.usernameForm.value['username'],
-            password: this.passwordForm.value['password'],
-        };
+        let loginInfos: loginInfos;
+
+        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+            loginInfos = {
+                username: localStorage.getItem('username') || '',
+                password: localStorage.getItem('password') || '',
+            };
+        } else {
+            loginInfos = {
+                username: this.usernameForm.value.username,
+                password: this.passwordForm.value.password,
+            };
+        }
+
         this.communicationService.userlogin(loginInfos).subscribe((connectionValid): void => {
             if (connectionValid) {
                 this.connected = true;
                 this.router.navigate(['home']);
-                this.socketService.send('user-connection', { username: this.usernameForm.value['username'], socketId: this.socketService.socketId });
+                this.socketService.send('user-connection', { username: loginInfos.username, socketId: this.socketService.socketId });
                 this.appComponent.initiatePopout();
+                // on save les logins seulement si le remember me est checked
+                if (this.rememberMeForm.value.remeberMe) {
+                    localStorage.setItem('username', loginInfos.username);
+                    localStorage.setItem('password', loginInfos.password);
+                }
             } else {
                 this._snackBar.open(
                     "Erreur lors de la connexion. Mauvais nom d'utilisateur et/ou mot de passe ou compte deja connecté. Veuillez recommencer",
@@ -128,5 +147,10 @@ export class ConnexionPageComponent implements OnInit {
         }
         return tooltip;
     }
-    ngOnInit(): void {}
+    ngAfterViewInit(): void {
+        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+            this.connect();
+            this.userConnection();
+        }
+    }
 }

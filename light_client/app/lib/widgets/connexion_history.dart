@@ -1,6 +1,8 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 
+import '../services/translate_service.dart';
+
 class ConnectionHistoryList extends StatefulWidget {
   final List<String> connectionHistory;
 
@@ -11,6 +13,9 @@ class ConnectionHistoryList extends StatefulWidget {
 }
 
 class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
+  String lang = "en";
+  TranslateService translate = TranslateService();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -21,11 +26,11 @@ class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
           automaticallyImplyLeading: false,
           bottom: TabBar(
             tabs: [
-              Tab(
-                text: 'Historique des connexions',
+              Tab(key: Key("Connexions"),
+                text: translate.translateString(lang,'Historique des connexions'),
               ),
-              Tab(
-                text: 'Historique des déconnexions',
+              Tab(key: Key("Déconnexions"),
+                text: translate.translateString(lang,'Historique des déconnexions'),
               ),
             ],
           ),
@@ -46,7 +51,7 @@ class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
       width: 250,
       child: Scrollbar(
         thickness: 10,
-        thumbVisibility: true,
+        // thumbVisibility: true,
         child: ListView.builder(
           itemCount: data.length,
           itemBuilder: (BuildContext context, int index) {

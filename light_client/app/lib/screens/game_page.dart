@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:app/main.dart';
 import 'package:app/models/cooperative_action.dart';
-import 'package:app/models/tile.dart';
 import 'package:app/screens/game_modes_page.dart';
 import 'package:app/screens/tile_exchange_menu.dart';
 import 'package:app/services/music_service.dart';
@@ -92,6 +91,9 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('vote-action');
     getIt<SocketService>().userSocket.off('cooperative-invalid-action');
     getIt<SocketService>().userSocket.off('player-action');
+    getIt<SocketService>().userSocket.off('game-won');
+    getIt<SocketService>().userSocket.off('game-loss');
+    getIt<SocketService>().userSocket.off("update-points-mean");
     super.dispose();
   }
 
@@ -408,6 +410,20 @@ class _GamePageState extends State<GamePage> {
 
   void handleSockets() {
     print("game page handle sockets");
+
+    //Comptez les wins et les points
+    getIt<SocketService>().on('game-won',(_) {
+      print('partie gagnée');
+      getIt<SocketService>().send('game-won');
+      getIt<SocketService>().send('game-history-update',true);
+    });
+    getIt<SocketService>().on('game-loss',(_) {
+      getIt<SocketService>().send('game-history-update',false);
+    });
+    getIt<SocketService>().on("update-points-mean",(points) {
+      getIt<SocketService>().send("update-points-mean",points);
+    });
+
     getIt<SocketService>().on('end-game', (_) {
       // Envoyer dans endgame si il a gagné ou perdu
       getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
@@ -450,6 +466,7 @@ class _GamePageState extends State<GamePage> {
           for (var index in rackIDList) {
             tileLetter[index] = letters[index % RACK_SIZE].toString();
           }
+          tempHintRack = letters;
         });
       }
     });
@@ -619,7 +636,7 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
-                    getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
+                    getIt<MusicService>().playMusic(GOOD_PLACEMENT_SOUND, false);
                   }
                 });
               },
@@ -660,7 +677,6 @@ class _GamePageState extends State<GamePage> {
   void exchangeCommand(String lettersToExchange) {
     if (widget.isClassicMode) {
       getIt<SocketService>().send('exchange-command', lettersToExchange);
-      getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
     } else {
       sendVoteAction("exchange", null, lettersToExchange);
     }

@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
+import '../services/translate_service.dart';
+
 class CameraPage extends StatefulWidget {
   @override
   _CameraPageState createState() => _CameraPageState();
@@ -16,6 +18,8 @@ class _CameraPageState extends State<CameraPage> {
   int pictureCounter = 0;
   bool isValid = false;
   bool isFrontCamera = true;
+  String lang = "en";
+  TranslateService translate = TranslateService();
 
   @override
   void initState() {
@@ -56,18 +60,24 @@ class _CameraPageState extends State<CameraPage> {
     try {
       await initializeController;
 
+      if(pictureCounter >= 1){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Color.fromARGB(255, 64, 176, 119),
+              duration: Duration(seconds: 2),
+              content: Text(translate.translateString(
+                  lang, "Image en cours de traitement..."))),
+        );
+      }
       final image = await controller.takePicture();
       final directory = await getApplicationDocumentsDirectory();
-
       final fileName = DateTime.now().millisecondsSinceEpoch.toString();
 
       final filePath = '${directory.path}/$fileName.png';
       final originalImage = img.decodeImage(await image.readAsBytes());
       final compressedImage = img.encodeJpg(originalImage!, quality: 50);
       await File(filePath).writeAsBytes(compressedImage);
-
       //await File(filePath).writeAsBytes(await image.readAsBytes());
-
 
       setState(() {
         imagePath = filePath;
@@ -82,7 +92,8 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 218, 228, 231),
+      appBar: AppBar(title:Text(translate.translateString(lang, "Page caméra"))),
+      backgroundColor: Color.fromARGB(255, 156, 239, 171),
       body: FutureBuilder(
         future: initializeController,
         builder: (context, snapshot) {
@@ -114,7 +125,7 @@ class _CameraPageState extends State<CameraPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FloatingActionButton(
+                        FloatingActionButton(backgroundColor: Colors.white70,
                             onPressed: pictureCounter > 1
                                 ? () {
                                     setState(() {
@@ -125,23 +136,22 @@ class _CameraPageState extends State<CameraPage> {
                             child: Icon(Icons.close)),
                         Padding(
                           padding: const EdgeInsets.only(right: 50.0, left: 50),
-                          child: FloatingActionButton(
-                            onPressed: takePicture,
+                          child: FloatingActionButton(backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
+                            onPressed:  imagePath.isNotEmpty && isValid ? null :takePicture,
                             child: Icon(
-                                color: Color.fromARGB(255, 23, 46, 65),
                                 Icons.camera_alt),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 50.0),
-                          child: FloatingActionButton(
-                            onPressed: () => {
+                          child: FloatingActionButton(backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
+                            onPressed: imagePath.isNotEmpty && isValid ? null : () => {
                               isFrontCamera ? toggleCamera(0) : toggleCamera(1)
                             },
                             child: Icon(Icons.flip_camera_ios),
                           ),
                         ),
-                        FloatingActionButton(
+                        FloatingActionButton(backgroundColor: Colors.white70,
                             onPressed: pictureCounter > 1 ? () {
                               Navigator.pop(context, File(imagePath));
                             } : null,

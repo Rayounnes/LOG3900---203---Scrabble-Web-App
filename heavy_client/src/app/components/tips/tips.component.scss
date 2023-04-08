@@ -1,0 +1,59 @@
+.carousel-container {
+    position: relative;
+    margin: 1rem;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 500;
+    color: #3C742F;
+    background-color: whitesmoke;
+    width: 700px;
+    border-radius: 5px;
+    box-shadow: 0 6px 12px #355338;
+}
+
+.carousel-container div {
+    display: none;
+    border-radius: 15px;
+}
+
+.carousel-container div.tip-active{
+    display: block;
+}
+
+.btn-carousel {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15%;
+    padding: 0;
+    color:#fff;
+    text-align: center;
+    background: 0 0;
+    border: 0;
+    cursor: pointer;
+}
+
+.btn-prev {
+    left: 0;
+}
+
+
+.fade{
+    animation-name: fade;
+    animation-duration: 1.5s;
+}
+
+@keyframes fade {
+	0% {
+		opacity: 0;
+		transform: translateY(-50px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

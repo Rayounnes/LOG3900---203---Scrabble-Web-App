@@ -34,18 +34,57 @@ class _UserAccountPageState extends State<UserAccountPage> {
   bool showHistory = false;
   bool showTableChart = false;
   bool isEmpty = true;
-    String lang = "en";
-  TranslateService translate = new TranslateService();
+  String lang = "en";
+  TranslateService translate = TranslateService();
+  int gamesPlayed = 0;
+  int gamesWon = 0;
+  int avgPointsPerGame = 0;
+  String avgTimePerGame = "";
+  List gameHistory = [];
 
   @override
   void initState() {
     super.initState();
     fillHistoryLit();
+    getIt<SocketService>().send("get-number-games");
+    getIt<SocketService>().send('get-number-games-won');
+    getIt<SocketService>().send("get-points-mean");
+    getIt<SocketService>().send("get-game-average");
+    getIt<SocketService>().send('get-game-history');
+    handleSocket();
   }
 
   @override
   void dispose() {
+    getIt<SocketService>().userSocket.off("get-number-games");
+    getIt<SocketService>().userSocket.off('get-number-games-won');
+    getIt<SocketService>().userSocket.off("get-points-mean");
+    getIt<SocketService>().userSocket.off("get-game-average");
+    getIt<SocketService>().userSocket.off('get-game-history');
     super.dispose();
+  }
+
+  handleSocket() {
+    getIt<SocketService>().on("get-number-games", (games) {
+      gamesPlayed = games;
+      print(gamesPlayed);
+    });
+    getIt<SocketService>().on('get-number-games-won', (games) {
+      gamesWon = games;
+      print(gamesWon);
+    });
+    getIt<SocketService>().on("get-points-mean", (points) {
+      avgPointsPerGame = points;
+      print(avgPointsPerGame);
+    });
+    getIt<SocketService>().on("get-game-average", (average) {
+      avgTimePerGame = average;
+      print(avgTimePerGame);
+    });
+    getIt<SocketService>().on('get-game-history', (gameHistory) {
+      gameHistory = gameHistory; // TODO afficher liste [[temp, true || false]]
+      print(gameHistory);
+    });
   }
 
   void fillHistoryLit() {
@@ -55,19 +94,21 @@ class _UserAccountPageState extends State<UserAccountPage> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          translate.translateString(lang,'Mon compte'),
+          translate.translateString(lang, 'Mon compte'),
         ),
       ),
-      body: Container(color: Color.fromARGB(255, 43, 150, 46),
+      body: Container(
+        color: Color.fromARGB(255, 43, 150, 46),
         child: Padding(
           padding: const EdgeInsets.all(80.0),
           child: Center(
-            child: Container(color: Color.fromARGB(255, 228, 231, 224),
+            child: Container(
+              color: Color.fromARGB(255, 228, 231, 224),
               child: Column(
                 children: [
                   Container(
@@ -75,7 +116,9 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     child: Text(
                       isEmpty
                           ? ''
-                          : translate.translateString(lang,"Dernière connexion") + ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
+                          : translate.translateString(
+                                  lang, "Dernière connexion") +
+                              ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -96,8 +139,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                   ),
                   Container(
                     padding: EdgeInsets.all(20),
-                    child:
-                        Image.memory(widget.decodedBytes, height: 180, width: 180),
+                    child: Image.memory(widget.decodedBytes,
+                        height: 180, width: 180),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -156,12 +199,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     ),
                   if (showTableChart)
                     Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: StatsTable(
-                        gamesPlayed: 10,
-                        gamesWon: 7,
-                        avgPointsPerGame: 25.6,
-                        avgTimePerGame: Duration(minutes: 30),
+                        gamesPlayed: gamesPlayed,
+                        gamesWon: gamesWon,
+                        avgPointsPerGame: avgPointsPerGame,
+                        avgTimePerGame: avgTimePerGame,
                       ),
                     ),
                 ],

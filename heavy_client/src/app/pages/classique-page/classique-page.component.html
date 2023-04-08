@@ -6,6 +6,7 @@
         <button mat-raised-button (click)="navJoinGame()" class="dataButton">Rejoindre une partie</button>
         <button mat-raised-button (click)="navHome()" class="dataButton">Accueil</button>
     </div>
+    <app-tips [autoSlide]="true"></app-tips>
 </div>
 
 <div class="homeDiv" *ngIf="langue == 'en'">
@@ -16,4 +17,5 @@
         <button mat-raised-button (click)="navJoinGame()" class="dataButton">Join a game</button>
         <button mat-raised-button (click)="navHome()" class="dataButton">Home</button>
     </div>
+    <app-tips [autoSlide]="true"></app-tips>
 </div>
