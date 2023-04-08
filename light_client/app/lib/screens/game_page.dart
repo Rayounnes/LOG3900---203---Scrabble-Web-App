@@ -238,7 +238,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   validationHintWord(WordArgs word) {
-    if (lettersofBoard != null) {
+    if (lettersofBoard.isNotEmpty) {
       setTileOnRack();
     }
     placeWordHint(word);
@@ -415,13 +415,15 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('game-won',(_) {
       print('partie gagnée');
       getIt<SocketService>().send('game-won');
-      getIt<SocketService>().send('game-history-update',true);
+      getIt<SocketService>().send('game-history-update', true);
+      getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
     });
-    getIt<SocketService>().on('game-loss',(_) {
-      getIt<SocketService>().send('game-history-update',false);
+    getIt<SocketService>().on('game-loss', (_) {
+      getIt<SocketService>().send('game-history-update', false);
+      getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
     });
-    getIt<SocketService>().on("update-points-mean",(points) {
-      getIt<SocketService>().send("update-points-mean",points);
+    getIt<SocketService>().on("update-points-mean", (points) {
+      getIt<SocketService>().send("update-points-mean", points);
     });
 
     getIt<SocketService>().on('end-game', (_) {
@@ -636,7 +638,8 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
-                    getIt<MusicService>().playMusic(GOOD_PLACEMENT_SOUND, false);
+                    getIt<MusicService>()
+                        .playMusic(GOOD_PLACEMENT_SOUND, false);
                   }
                 });
               },
