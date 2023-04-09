@@ -5,12 +5,13 @@ class GameButton extends StatelessWidget {
   final void Function() route;
   final bool isButtonDisabled;
   final double padding;
-  final theme = "light";
+  final String? theme;
   const GameButton(
       {required this.name,
       required this.route,
       required this.padding,
-      this.isButtonDisabled = false});
+      this.isButtonDisabled = false,
+      this.theme});
 
   @override
   Widget build(BuildContext context) {

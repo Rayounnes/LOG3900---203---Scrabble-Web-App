@@ -27,7 +27,7 @@ class _GameChoicesState extends State<GameChoices> {
   final passwordGameController = TextEditingController();
   String lang = "en";
   TranslateService translate = new TranslateService();
-  final theme = "light";
+  String theme = "light";
 
   bool isClassicMode = false;
   Game game = Game(
@@ -73,9 +73,11 @@ class _GameChoicesState extends State<GameChoices> {
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
           lang = value['language'];
+          theme = value['theme'];
         });
       }
     });
@@ -151,12 +153,14 @@ class _GameChoicesState extends State<GameChoices> {
                 ),
                 SizedBox(height: 15.0),
                 GameButton(
+                    theme: theme,
                     padding: 25.0,
                     name: translate.translateString(lang, "Créer une partie"),
                     route: () {
                       showModal(context);
                     }),
                 GameButton(
+                    theme: theme,
                     padding: 32.0,
                     name:
                         translate.translateString(lang, "Rejoindre une partie"),

@@ -60,9 +60,17 @@ class _GameModesState extends State<GameModes> {
     lang = langOrTheme.language;
   }
 
+  void setTheme() {
+    langOrTheme.theme = _selectedThemeButton == 1 ? "dark" : "light";
+
+    getIt<SocketService>().send("update-config", langOrTheme);
+    theme = langOrTheme.theme;
+  }
+
   void _onButtonThemeSelected(int? value) {
     setState(() {
       _selectedThemeButton = value!;
+      setTheme();
     });
   }
 
@@ -86,10 +94,12 @@ class _GameModesState extends State<GameModes> {
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
           lang = value['language'];
           _selectedButton = (lang == 'fr') ? 1 : 2;
+          _selectedThemeButton = (theme == 'dark') ? 1 : 2;
         });
       }
     });
@@ -124,195 +134,203 @@ class _GameModesState extends State<GameModes> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+        theme: theme,
         child: Stack(
-      children: [
-        // Positioned(
-        //   top: 80,
-        //   left: 300,
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //     children: <Widget>[
-        //       ElevatedButton(
-        //         onPressed: () {
-        //           _onButtonThemeSelected(1);
-        //         },
-        //         style: ElevatedButton.styleFrom(
-        //           primary: _selectedButton == 1
-        //               ? Color.fromARGB(255, 47, 60, 47)
-        //               : Colors.grey,
-        //         ),
-        //         child: Icon(Icons.dark_mode),
-        //       ),
-        //       ElevatedButton(
-        //         onPressed: () {
-        //           _onButtonThemeSelected(2);
-        //         },
-        //         style: ElevatedButton.styleFrom(
-        //           primary:
-        //               _selectedThemeButton == 2 ? Colors.green : Colors.grey,
-        //         ),
-        //         child: Icon(Icons.light_mode),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        Positioned(
-          top: 125,
-          left: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () {
-                  // _onButtonSelected(1);
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: (_selectedButton == 1 && lang == 'fr')
-                      ? Color.fromARGB(255, 92, 196, 95)
-                      : Colors.grey,
-                ),
-                child: Icon(Icons.dark_mode),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _onButtonSelected(2);
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: (_selectedButton == 2 && lang == 'en')
-                      ? Colors.green
-                      : Colors.grey,
-                ),
-                child: Icon(Icons.light_mode),
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          top: 100,
-          left: 150,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () {
-                  _onButtonSelected(1);
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: (_selectedButton == 1 && lang == 'fr')
-                      ? Color.fromARGB(255, 92, 196, 95)
-                      : Colors.grey,
-                ),
-                child: Text('Français'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _onButtonSelected(2);
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: (_selectedButton == 2 && lang == 'en')
-                      ? Colors.green
-                      : Colors.grey,
-                ),
-                child: Text('English'),
-              ),
-            ],
-          ),
-        ),
-        Center(
-          child: Container(
-            height: 750,
-            width: 500,
-            decoration: BoxDecoration(
-              color: theme == "dark"
-                  ? Color.fromARGB(255, 203, 201, 201)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                width: 1,
-                color: Colors.grey,
+          children: [
+            // Positioned(
+            //   top: 80,
+            //   left: 300,
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //     children: <Widget>[
+            //       ElevatedButton(
+            //         onPressed: () {
+            //           _onButtonThemeSelected(1);
+            //         },
+            //         style: ElevatedButton.styleFrom(
+            //           primary: _selectedButton == 1
+            //               ? Color.fromARGB(255, 47, 60, 47)
+            //               : Colors.grey,
+            //         ),
+            //         child: Icon(Icons.dark_mode),
+            //       ),
+            //       ElevatedButton(
+            //         onPressed: () {
+            //           _onButtonThemeSelected(2);
+            //         },
+            //         style: ElevatedButton.styleFrom(
+            //           primary:
+            //               _selectedThemeButton == 2 ? Colors.green : Colors.grey,
+            //         ),
+            //         child: Icon(Icons.light_mode),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            Positioned(
+              top: 160,
+              left: 550,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      _onButtonThemeSelected(1);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: (_selectedThemeButton == 1)
+                          ? Color.fromARGB(255, 0, 0, 0)
+                          : Colors.grey,
+                    ),
+                    child: Icon(Icons.dark_mode),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _onButtonThemeSelected(2);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: (_selectedThemeButton == 2)
+                          ? Color.fromARGB(255, 255, 255, 255)
+                          : Colors.grey,
+                    ),
+                    child: Icon(Icons.light_mode),
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 60.0),
-                  child: Text(
-                      translate.translateString(lang, 'Application Scrabble'),
-                      style: TextStyle(
-                        fontSize: 23,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                      )),
-                ),
-                SizedBox(height: 16.0),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(
-                        lang, "Mode de jeu classique"),
-                    route: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return GameChoices(
-                          modeName: GameNames.classic,
-                        );
-                      }));
-                    }),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(
-                        lang, "Mode de jeu coopératif"),
-                    route: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return GameChoices(
-                          modeName: GameNames.cooperative,
-                        );
-                      }));
-                    }),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(
-                        lang, "Mode d'entrainement orthographe"),
-                    route: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return ModeOrthography();
-                      }));
-                    }),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(lang, "Profil"),
-                    route: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        getUserInfo();
-                        return UserAccountPage(
-                          connexionHistory: connexionHistory,
-                          userName: userName,
-                          userPoints: userPoints,
-                          decodedBytes: decodedBytes,
-                        );
-                      }));
-                    }),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(lang, "Aide"),
-                    route: () {
-                      Navigator.pushNamed(context, '/helpScreen');
-                    }),
-                GameButton(
-                    padding: 20.0,
-                    name: translate.translateString(lang, "Déconnexion"),
-                    route: () {
-                      showModal(context);
-                    })
-              ],
+            Positioned(
+              top: 160,
+              left: 150,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      _onButtonSelected(1);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: (_selectedButton == 1 && lang == 'fr')
+                          ? Color.fromARGB(255, 156, 237, 158)
+                          : Colors.grey,
+                    ),
+                    child: Text('Français'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _onButtonSelected(2);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: (_selectedButton == 2 && lang == 'en')
+                          ? Color.fromARGB(255, 156, 237, 158)
+                          : Colors.grey,
+                    ),
+                    child: Text('English'),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        Align(alignment: Alignment.bottomCenter, child: LoadingTips(lang)),
-      ],
-    ));
+            Center(
+              child: Container(
+                height: 750,
+                width: 500,
+                decoration: BoxDecoration(
+                  color: theme == "dark"
+                      ? Color.fromARGB(255, 203, 201, 201)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    width: 1,
+                    color: Colors.grey,
+                  ),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 60.0),
+                      child: Text(
+                          translate.translateString(
+                              lang, 'Application Scrabble'),
+                          style: TextStyle(
+                            fontSize: 23,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          )),
+                    ),
+                    SizedBox(height: 16.0),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(
+                            lang, "Mode de jeu classique"),
+                        route: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return GameChoices(
+                              modeName: GameNames.classic,
+                            );
+                          }));
+                        }),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(
+                            lang, "Mode de jeu coopératif"),
+                        route: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return GameChoices(
+                              modeName: GameNames.cooperative,
+                            );
+                          }));
+                        }),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(
+                            lang, "Mode d'entrainement orthographe"),
+                        route: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ModeOrthography();
+                          }));
+                        }),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(lang, "Profil"),
+                        route: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            getUserInfo();
+                            return UserAccountPage(
+                              connexionHistory: connexionHistory,
+                              userName: userName,
+                              userPoints: userPoints,
+                              decodedBytes: decodedBytes,
+                            );
+                          }));
+                        }),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(lang, "Aide"),
+                        route: () {
+                          Navigator.pushNamed(context, '/helpScreen');
+                        }),
+                    GameButton(
+                        theme: theme,
+                        padding: 20.0,
+                        name: translate.translateString(lang, "Déconnexion"),
+                        route: () {
+                          showModal(context);
+                        })
+                  ],
+                ),
+              ),
+            ),
+            Align(alignment: Alignment.bottomCenter, child: LoadingTips(lang)),
+          ],
+        ));
   }
 
   void showModal(BuildContext context) {

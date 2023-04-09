@@ -190,9 +190,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
           lang = value['language'];
+          theme = value['theme'];
         });
       }
     });
@@ -340,6 +342,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             isButtonDisabled: game.joinedPlayers.length < 2,
                           ),
                           GameButton(
+                            theme: theme,
                             padding: 16.0,
                             name: translate.translateString(
                                 lang, "Annuler Partie"),

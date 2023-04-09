@@ -491,7 +491,6 @@ export class ChevaletComponent implements AfterViewInit {
     }
 
     isNotDraggable() {
-        console.log(this.dragUsed)
         if (this.dragAccepted.includes(this.dragUsed) && this.socketService.socketId === this.socketTurn) {
             return false;
         }

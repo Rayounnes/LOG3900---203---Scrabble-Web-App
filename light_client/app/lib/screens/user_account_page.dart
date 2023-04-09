@@ -41,7 +41,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
   @override
   void initState() {
     super.initState();
-
+    handleSockets();
+    getConfigs();
     fillHistoryLit();
   }
 
@@ -52,9 +53,11 @@ class _UserAccountPageState extends State<UserAccountPage> {
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
           lang = value['language'];
+          theme = value['theme'];
         });
       }
     });

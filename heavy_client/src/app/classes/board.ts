@@ -33,6 +33,8 @@ export class Board {
     }
 
     getIsFilled(line: number, column: number) {
+      console.log(line, column);
+        if(line>15 || column>15) return false;
         return this.boardMatrix[line - 1][column - 1].isFilled;
     }
 

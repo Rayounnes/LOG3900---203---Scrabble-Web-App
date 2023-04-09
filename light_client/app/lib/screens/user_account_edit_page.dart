@@ -34,6 +34,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   int number = -1;
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "dark";
 
   @override
   void initState() {
@@ -57,12 +58,14 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
+
       if (mounted) {
         setState(() {
           lang = value['language'];
+          theme = value['theme'];
         });
       }
-
     });
   }
 
@@ -139,7 +142,9 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
         ),
       ),
       body: Container(
-        color: Color.fromARGB(255, 43, 150, 46),
+        color: theme == "dark"
+            ? Color.fromARGB(255, 43, 150, 46)
+            : Color.fromARGB(255, 207, 241, 207),
         child: Center(
           child: Container(
             height: 900,
