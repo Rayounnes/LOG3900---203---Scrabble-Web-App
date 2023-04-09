@@ -148,8 +148,9 @@ class _ChannelsState extends State<Channels> {
             print(selectedList.length);
            
             if(countJoin == selectedList.length) {
-              for(String channel in selectedList) {
-                  discussions.add(channel);
+              for(int i=0; i<selectedList.length; i++) {
+                  discussions.add(selectedList[i]);
+                  newMessage.add(false);
                   
               }
               print(discussions);
