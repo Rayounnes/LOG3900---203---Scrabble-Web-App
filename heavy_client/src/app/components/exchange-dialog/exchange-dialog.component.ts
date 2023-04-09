@@ -30,20 +30,16 @@ export class ExchangeDialogComponent{
 
   onNoClick(): void {
     this.dialogRef.close();
-    console.log(this.data);
   }
 
   onChange(){
     this.exchangeWord = '';
     this.checkedItems = this.items.filter(item => item.checked);
-    console.log(this.checkedItems[0].label);
     for(let i = 0; i<this.checkedItems.length; i++){
       // this.exchangeword+=item;
       this.exchangeWord += this.checkedItems[i].label;
 
-      console.log(this.checkedItems[i].label);
     }
-    console.log(this.exchangeWord);
 
 
 

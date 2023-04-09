@@ -30,7 +30,7 @@ const RESERVE_START_LENGTH = 102;
 export class ChevaletComponent implements AfterViewInit, OnDestroy {
     @ViewChild('chevaletCanvas', { static: false }) private chevaletCanvas!: ElementRef<HTMLCanvasElement>;
     @ViewChild('rotateBtn', { static: false }) rotateBtn!: ElementRef;
-    @ViewChildren('tile1, tile2, tile3, tile4, tile5, tile6, tile7') boxes: QueryList<ElementRef>;
+    @ViewChildren('tile0, tile1, tile2, tile3, tile4, tile5, tile6') boxes: QueryList<ElementRef>;
 
     buttonPressed = '';
     chevalet = new chevaletConstants.ChevaletConstants();
@@ -54,6 +54,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     dialogConfig = new MatDialogConfig();
     items = [' ', ' ', ' ', ' ', ' ', ' ', ' '];
     rackX: number;
+    
     rackY: number;
     lettersOut: TileDragRack[] = [];
     currentPixelRatio: number = window.devicePixelRatio;
@@ -103,15 +104,12 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buttonDetect(event: any) {
-        console.log(event);
         if (this.dragUsed === 'type') {
             if (event.key !== 'Backspace') {
                 let index = this.items.findIndex((item) => item === event.key);
                 if (index !== -1) {
                     this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
-                    console.log(this.items, 'new list ');
                 }
-                console.log({ position: index, value: event.key } as TileDragRack);
                 this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
             } else {
                 if (event.key === 'Backspace' && this.lettersOut.length >= 1) {
@@ -129,16 +127,14 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         if (window.devicePixelRatio !== this.currentPixelRatio) {
             this.currentPixelRatio = window.devicePixelRatio;
             this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
-            this.positionTiles();
+            // this.positionTiles();
             this.removeAll.emit();
 
-            console.log('Zoom level changed');
         }
         this.positionTiles();
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
         this.removeAll.emit();
 
-        console.log(event);
     }
     removeAllOutLetter() {
         while (this.lettersOut.length >= 1) {
@@ -146,11 +142,8 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         }
     }
     removeLastOutLetter() {
-        console.log('dans le backspace', this.lettersOut as TileDragRack[]);
         let letterOut = this.lettersOut.pop();
-        console.log(letterOut);
         this.items[letterOut?.position as number] = letterOut?.value as string;
-        console.log('apres supression de tuile', this.items);
     }
 
     @HostListener('mousewheel', ['$event'])
@@ -182,8 +175,8 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             this.chevaletService.fillChevalet();
             this.chevaletService.drawChevalet();
             this.chevaletCanvas.nativeElement.focus();
-            console.log(this.canvasBoard);
             this.setDragMap();
+            
         }
         this.connect();
     }
@@ -193,7 +186,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         this.socketService.send('get-config');
     }
     ngOnDestroy(): void {
-        console.log("disposing chevalet sockets");
         this.socketService.socket.off('draw-letters-rack');
         this.socketService.socket.off('user-turn');
         this.socketService.socket.off('update-reserve');
@@ -206,24 +198,40 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
     configureBaseSocketFeatures() {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
-            this.items = letters;
-
-            this.chevaletService.updateRack(letters);
+            // this.setDragMap();
+            console.log(letters);
+            console.log(" le tout premier boxe", this.boxes);
             this.chevaletLetters = letters;
+            // this.items = letters;
+            // if(letters.includes('')){
+
+            //     this.chevaletLetters = letters;
+            // }
+            this.chevaletService.updateRack(letters);
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
                 this.chevaletService.rackArray[i].letter = this.chevaletLetters[i];
-                this.items[i] = letters[i].toLowerCase();
+                console.log(letters[i], this.chevaletLetters[i]);
+            
+                this.items[i] = letters[i]==="" ? " ":this.chevaletLetters[i];
+
+                
             }
+            console.log("avant le premier appel de positionTiles")
+            
+
             this.positionTiles();
+            
+ 
         });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
             this.resetDragEvent.emit('free');
-            this.positionTiles();
+            
+            // this.positionTiles();
         });
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
-            this.positionTiles();
+            // this.positionTiles();
         });
         this.socketService.on('end-game', () => {
             this.isEndGame = true;
@@ -340,7 +348,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                     lettersToExchange: this.lettersExchange,
                     socketAndChoice: choiceMap,
                 } as CooperativeAction;
-                console.log(voteAction);
                 this.socketService.send('vote-action', voteAction);
             } else {
                 this.exchange();
@@ -365,30 +372,24 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
 
     getPositionDroppedX(posX: number, firstTilePos?: any) {
-        console.log(Math.floor((posX - firstTilePos) / 50));
         return Math.floor((posX - firstTilePos) / this.gridConstant.tileSize);
     }
 
     getPositionDroppedY(posY: number, firstTilePos?: any) {
-        console.log(Math.floor(posY / this.gridConstant.tileSize));
         return Math.floor((posY - firstTilePos) / this.gridConstant.tileSize);
     }
     setDragMap() {
-        console.log(`boxes ${this.boxes}`);
-        console.log(this.boxes);
+        console.log("dans le drag map")
+      
         let tileBoxes: ElementRef<any>[] = [];
         this.boxes.forEach((box) => {
-            console.log(`unique box ${box}`);
             tileBoxes.push(box);
-            console.log(`tilebox ${tileBoxes}`);
         });
-        console.log(`tilebox fini  ${tileBoxes}`);
         let i = 0;
         for (let key of this.dragTiles.keys()) {
             this.dragTiles.set(key, tileBoxes[i++]);
         }
-        console.log(`dragtil fini  ${this.dragTiles}`);
-        this.positionTiles();
+        // this.positionTiles();
     }
     isInRange(drop: number, startBoardPos: number, posBoard: number) {
         if (drop > startBoardPos && drop < posBoard + this.gridConstant.defaultHeight) {
@@ -399,15 +400,12 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
     drop(event: CdkDragDrop<string[]>) {
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
-        console.log('position board', this.posBoard);
         let startBoard = { x: this.posBoard.x + this.gridConstant.tileSize, y: this.posBoard.y + this.gridConstant.tileSize };
 
         let tile = this.dragTiles.get(event.item.element.nativeElement.id);
-        console.log(tile.nativeElement.innerText.charAt(0));
         const keysArray = Array.from(this.dragTiles.keys());
         // let letterValue = event.item.element.nativeElement.innerText.charAt(0);
         let letterValue = this.items[keysArray.indexOf(event.item.element.nativeElement.id)];
-        console.log('le txt', letterValue);
         // console.log("le txt 2", newVal);
         if (
             this.isInRange(event.dropPoint.x, startBoard.x, this.posBoard.x) &&
@@ -417,7 +415,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                 this.getPositionDroppedX(event.dropPoint.x, startBoard.x) + 1,
             )
         ) {
-            console.log('dans board');
             this.placeTileElement(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
         } else {
             this.backTileOnRack(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
@@ -426,10 +423,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     placeTileElement(tile: any, event: any, letterValue: any, startBoard: any, posTileRack: number) {
         let posTileX = event.dropPoint.x;
         let posTileY = event.dropPoint.y;
-        console.log('x', this.getPositionDroppedX(posTileX, startBoard.x));
-        console.log('y', this.getPositionDroppedY(posTileY, startBoard.y));
         if (posTileX < startBoard.x + this.gridConstant.tileSize) {
-            console.log(startBoard.x);
             tile.nativeElement.style.left = `${startBoard.x}px`; // REVOIR LA POSITION 741
         } else {
             // tile.nativeElement.style.left = `${startBoard.x + this.gridConstant.tileSize * this.getPositionDroppedX(posTileX)}px`;
@@ -482,6 +476,8 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
 
     positionTiles() {
+        // console.log("les boxes",this.boxes);
+        // console.log("map des tuiles", this.dragTiles);
         let lineWidth = this.chevalet.rackLineWidth;
         this.rackX = this.chevaletCanvas.nativeElement.offsetLeft;
         this.rackY = this.chevaletCanvas.nativeElement.offsetTop + lineWidth / 2;
@@ -489,27 +485,26 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         let rackTileSize = rackWidth / 7;
         const keysArray = Array.from(this.dragTiles.keys());
 
-        this.position0.x = this.rackX + 0 * rackTileSize; //42 et 1
-        this.position0.y = this.rackY;
+        // this.position0.x = this.rackX + 0 * rackTileSize; //42 et 1
+        // this.position0.y = this.rackY;
 
-        this.position1.x = this.rackX + 1 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position1.y = this.rackY;
+        // this.position1.x = this.rackX + 1 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position1.y = this.rackY;
 
-        this.position2.x = this.rackX + 2 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position2.y = this.rackY;
+        // this.position2.x = this.rackX + 2 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position2.y = this.rackY;
 
-        this.position3.x = this.rackX + 3 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position3.y = this.rackY;
+        // this.position3.x = this.rackX + 3 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position3.y = this.rackY;
 
-        this.position4.x = this.rackX + 4 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position4.y = this.rackY;
+        // this.position4.x = this.rackX + 4 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position4.y = this.rackY;
 
-        this.position5.x = this.rackX + 5 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position5.y = this.rackY;
+        // this.position5.x = this.rackX + 5 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position5.y = this.rackY;
 
-        this.position6.x = this.rackX + 6 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
-        this.position6.y = this.rackY;
-
+        // this.position6.x = this.rackX + 6 * rackTileSize + (rackTileSize - this.gridConstant.tileSize) / 2;
+        // this.position6.y = this.rackY;
         for (let i = 0; i < 7; i++) {
             this.dragTiles.get(keysArray[i]).nativeElement.style.top = `${this.rackY}px`;
             this.dragTiles.get(keysArray[i]).nativeElement.style.left = `${
@@ -548,7 +543,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
 
                     this.sendTileEvent.emit(letter);
 
-                    console.log(result);
                 }
             });
         });

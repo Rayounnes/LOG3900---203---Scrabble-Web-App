@@ -26,7 +26,6 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
         public socketService: ChatSocketClientService,
     ) {
         this.action = this.data.vote;
-        console.log(this.data);
         this.getUsernameAndAvatar();
         this.setCreator();
         this.timer = setInterval(() => this.intervalHandler(), 1000);
@@ -61,8 +60,6 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
         this.socketService.on('choice-pannel-info', (usernamesAndAvatar: any) => {
             this.usernameAndAvatars = usernamesAndAvatar;
             this.infoget = true;
-            console.log('recu client');
-            console.log(usernamesAndAvatar);
         });
         this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
@@ -148,7 +145,6 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         clearInterval(this.timer);
-        console.log('disposing cooperative sockets');
         this.socketService.socket.off('update-vote-action');
         this.socketService.socket.off('accept-action');
         this.socketService.socket.off('reject-action');

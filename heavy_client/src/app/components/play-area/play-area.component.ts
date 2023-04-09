@@ -93,7 +93,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        console.log('tdddddddddddddddd', this.gridCanvas);
 
         this.buttonPressed = event.key;
         if (this.buttonPressed === 'Enter') {
@@ -105,7 +104,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
-            console.log('jai clique sur le canvas avant ?');
             this.keyboard.placerOneLetter(letter);
             this.chevaletService.removeLetterOnRack(letter);
         }
@@ -155,7 +153,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             this.keyboard.removeLetterOnBoard(letter);
         }
         this.keyboard.addDropLettersArray(letter);
-        console.log('la lettre', letter);
         this.boardClicked = false;
         this.dragOrType = 'drag';
     }
@@ -205,7 +202,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                         votesAgainst: 0,
                         socketAndChoice: choiceMap,
                     } as CooperativeAction;
-                    console.log(voteAction);
                     this.socketService.send('vote-action', voteAction);
                 }
             }
@@ -248,12 +244,15 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             }
             this.commandSent = false;
             this.socketService.send('change-user-turn');
+            console.log("socket validatePlaceSocket")
             this.socketService.send('draw-letters-rack');
         });
         this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
             this.gridService.placeLetter(lettersPosition as Letter[]);
             this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
             this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
+            console.log("socket drawlettersopponent")
+
             if (!this.isClassic) this.socketService.send('draw-letters-rack');
         });
         this.socketService.on('remove-arrow-and-letter', () => {
@@ -325,7 +324,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
     ngOnDestroy(): void {
-        console.log('disposing play area sockets');
         this.socketService.socket.off('verify-place-message');
         this.socketService.socket.off('validate-created-words');
         this.socketService.socket.off('draw-letters-opponent');
@@ -433,7 +431,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                 votesAgainst: 0,
                 socketAndChoice: choiceMap,
             } as CooperativeAction;
-            console.log(voteAction);
             this.socketService.send('vote-action', voteAction);
         }
     }

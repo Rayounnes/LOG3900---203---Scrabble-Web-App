@@ -62,8 +62,7 @@ export class ChevaletService {
 
 
     private drawRoundedRect(x: number, y: number, width: number, height: number, radius: number): void {
-        console.log(x)
-        console.log(y)
+
         this.chevaletContext.beginPath();
         this.chevaletContext.moveTo(x + radius, y);
         this.chevaletContext.lineTo(x + width - radius, y);
