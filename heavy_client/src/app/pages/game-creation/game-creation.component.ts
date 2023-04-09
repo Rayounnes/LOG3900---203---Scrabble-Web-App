@@ -33,8 +33,8 @@ export class GameCreationComponent implements OnInit {
     hide: boolean = true;
     hostusername: string = '';
     publicParty: boolean = false;
-    langue = ""
-    theme = ""
+    langue = '';
+    theme = '';
 
     constructor(
         public router: Router,
@@ -54,17 +54,17 @@ export class GameCreationComponent implements OnInit {
         }
         this.configureBaseSocketFeatures();
         this.socketService.send('sendUsername');
-        this.socketService.send('get-config')
+        this.socketService.send('get-config');
     }
 
     configureBaseSocketFeatures() {
         this.socketService.on('sendUsername', (uname: string) => {
             this.hostusername = uname;
         });
-        this.socketService.on('get-config',(config : any)=>{
+        this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
-        })
+        });
     }
     createGame() {
         if (this.game.time < 30 || this.game.time > 300) return;

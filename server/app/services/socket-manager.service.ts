@@ -542,7 +542,7 @@ export class SocketManager {
         socket.on('user-connection', (loginInfos) => {
             this.usernames.set(loginInfos.socketId, loginInfos.username);
             this.userJoinChannels(socket);
-            // this.loginService.changeConnectionState(loginInfos.username, true);
+            this.loginService.changeConnectionState(loginInfos.username, true);
         });
     }
 

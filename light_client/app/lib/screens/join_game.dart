@@ -41,6 +41,7 @@ class _JoinGamesState extends State<JoinGames> {
   @override
   void dispose() {
     getIt<SocketService>().userSocket.off('update-joinable-matches');
+    getIt<SocketService>().userSocket.off("get-config");
     super.dispose();
   }
 

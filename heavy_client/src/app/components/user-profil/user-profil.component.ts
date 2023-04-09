@@ -170,12 +170,4 @@ export class UserProfilComponent implements OnInit, OnDestroy {
         this.socketService.send('get-game-average');
         this.socketService.send('get-game-history');
     }
-
-    ngOnInit(): void {
-        this.socketService.send('get-number-games');
-        this.socketService.send('get-number-games-won');
-        this.socketService.send('get-points-mean');
-        this.socketService.send('get-game-average');
-        this.socketService.send('get-game-history');
-    }
 }
