@@ -234,6 +234,8 @@ export class SocketManager {
         this.sio.to(room).emit('send-game-timer', game.time);
         this.sio.to(room).emit('user-turn', this.scrabbleGames.get(room)?.socketTurn);
         this.sio.to(room).emit('send-info-to-panel', data);
+        const reserveLength: number = scrabbleGame.getReserveLettersLength();
+        this.sio.to(room).emit('update-reserve', reserveLength);
         // Si jamais un des joueur virtuel est le premier joueur a jouer
         const socketTurn = this.scrabbleGames.get(game.room)?.socketTurn as string;
         if (scrabbleGame.virtualNames.includes(socketTurn)) {
@@ -245,6 +247,8 @@ export class SocketManager {
         const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: '' };
         this.sio.to(room).emit('send-info-to-panel', data);
         this.sio.to(room).emit('hint-cooperative');
+        const reserveLength: number = scrabbleGame.getReserveLettersLength();
+        this.sio.to(room).emit('update-reserve', reserveLength);
     }
     joinGameHandler(socket: io.Socket) {
         socket.on('join-game', (isLightClient: boolean) => {
@@ -304,6 +308,13 @@ export class SocketManager {
             this.sio.emit('update-joinable-matches', this.gameList(gameParams.isClassicMode));
             this.sio.to(socketId).emit('join-late-observer');
             this.gameManager.joinAsLateObserver(socketId, roomToJoin);
+        });
+        // envoyer le temps du chronometre a l observateur qui arrive qd le jeu a deja commencé
+        socket.on('game-time-observer', (gameLiveTime: number) => {
+            const room = this.usersRoom.get(socket.id) as string;
+            const game = this.gameRooms.get(room) as Game;
+            const newObserverSocket = game.joinedObservers[game.joinedObservers.length - 1].socketId;
+            this.sio.to(newObserverSocket).emit('game-time-observer', gameLiveTime);
         });
     }
     cooperativeModeHandler(socket: io.Socket) {
@@ -515,13 +526,13 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             await this.leaveChannel(socket, game.room);
-            this.sio.to(room).emit('chatMessage', {
-                username: '',
-                message: `${this.usernames.get(socket.id)} a quitté le jeu.`,
-                time: new Date().toTimeString().split(' ')[0],
-                type: 'system',
-                channel: this.usersRoom.get(socket.id) as string,
-            });
+            // this.sio.to(room).emit('chatMessage', {
+            //     username: '',
+            //     message: `${this.usernames.get(socket.id)} a quitté le jeu.`,
+            //     time: new Date().toTimeString().split(' ')[0],
+            //     type: 'system',
+            //     channel: this.usersRoom.get(socket.id) as string,
+            // });
             this.gameManager.leaveRoom(socket.id);
             // socket.disconnect();
         });

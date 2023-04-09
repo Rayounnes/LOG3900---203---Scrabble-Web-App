@@ -26,6 +26,14 @@ void setup() {
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setup();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    //this line prints the default flutter gesture caught exception in console
+    //FlutterError.dumpErrorToConsole(details);
+    print("Error From INSIDE FRAME_WORK");
+    print("----------------------");
+    print("Error :  ${details.exception}");
+    print("StackTrace :  ${details.stack}");
+  };
   runApp(const MyApp());
 }
 

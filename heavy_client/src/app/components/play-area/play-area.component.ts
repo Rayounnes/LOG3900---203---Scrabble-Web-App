@@ -344,13 +344,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.verifyPlaceSocket();
         this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
-            this.socketService.send('hint-command');
+            if (!this.isObserver) this.socketService.send('hint-command');
 
             this.socketTurn = socketTurn;
             this.dragOrType = 'free';
         });
         this.socketService.on('hint-cooperative', () => {
-            this.socketService.send('hint-command');
+            if (!this.isObserver) this.socketService.send('hint-command');
             this.dragOrType = 'free';
         });
         this.socketService.on('end-game', () => {

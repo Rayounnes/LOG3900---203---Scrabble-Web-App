@@ -112,6 +112,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.socketService.socket.off('coins-win');
         this.socketService.socket.off('time-add');
         this.socketService.socket.off('get-config');
+
+        this.socketService.socket.off('game-time-live');
+        this.socketService.socket.off('game-time-observer');
     }
     connect() {
         this.configureBaseSocketFeatures();
@@ -240,7 +243,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             clearInterval(this.timer);
             this.addScore();
             this.addGameToHistory();
-            this.socketService.send('game-duration', this.gameDuration);
+            if (!this.isObserver) this.socketService.send('game-duration', this.gameDuration);
         });
 
         this.socketService.on('coins-win', (coins: number) => {
@@ -269,6 +272,17 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
+        });
+        // envoyer le timer a l observateur
+        this.socketService.on('game-time-live', () => {
+            this.socketService.send('game-time-observer', this.clock);
+        });
+        // temps recu par l observateur
+        this.socketService.on('game-time-observer', (gameLiveTime: number) => {
+            clearInterval(this.timer);
+            this.clock = gameLiveTime - 1;
+            this.resetProgressCircle();
+            this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
         });
     }
 

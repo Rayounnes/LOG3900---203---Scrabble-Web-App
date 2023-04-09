@@ -94,6 +94,8 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('game-won');
     getIt<SocketService>().userSocket.off('game-loss');
     getIt<SocketService>().userSocket.off("update-points-mean");
+    getIt<SocketService>().userSocket.off('hint-command');
+    getIt<SocketService>().userSocket.off('get-configs');
     super.dispose();
   }
 
@@ -412,16 +414,16 @@ class _GamePageState extends State<GamePage> {
     print("game page handle sockets");
 
     //Comptez les wins et les points
-    getIt<SocketService>().on('game-won',(_) {
+    getIt<SocketService>().on('game-won', (_) {
       print('partie gagnée');
       getIt<SocketService>().send('game-won');
-      getIt<SocketService>().send('game-history-update',true);
+      getIt<SocketService>().send('game-history-update', true);
     });
-    getIt<SocketService>().on('game-loss',(_) {
-      getIt<SocketService>().send('game-history-update',false);
+    getIt<SocketService>().on('game-loss', (_) {
+      getIt<SocketService>().send('game-history-update', false);
     });
-    getIt<SocketService>().on("update-points-mean",(points) {
-      getIt<SocketService>().send("update-points-mean",points);
+    getIt<SocketService>().on("update-points-mean", (points) {
+      getIt<SocketService>().send("update-points-mean", points);
     });
 
     getIt<SocketService>().on('end-game', (_) {
@@ -456,6 +458,7 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('draw-letters-rack', (letters) {
       if (!widget.isObserver) {
+        if (!mounted) return;
         setState(() {
           for (var index in rackIDList) {
             tileLetter[index] = letters[index % RACK_SIZE].toString();
@@ -546,11 +549,11 @@ class _GamePageState extends State<GamePage> {
         else
           isPlayerTurn = true;
       });
-      getIt<SocketService>().send('hint-command');
+      if (!widget.isObserver) getIt<SocketService>().send('hint-command');
     });
 
     getIt<SocketService>().on('hint-cooperative', (_) {
-      getIt<SocketService>().send('hint-command');
+      if (!widget.isObserver) getIt<SocketService>().send('hint-command');
     });
 
     getIt<SocketService>().on('hint-command', (placements) {
@@ -583,7 +586,7 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
+    getIt<SocketService>().on('get-configs', (value) {
       langOrTheme = value;
     });
   }
@@ -630,7 +633,8 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
-                    getIt<MusicService>().playMusic(GOOD_PLACEMENT_SOUND, false);
+                    getIt<MusicService>()
+                        .playMusic(GOOD_PLACEMENT_SOUND, false);
                   }
                 });
               },
@@ -887,14 +891,14 @@ class _GamePageState extends State<GamePage> {
       } else if (result["action"].socketId == getIt<SocketService>().socketId &&
               !result["isAccepted"] ||
           result["action"].socketId != getIt<SocketService>().socketId) {
-        setState(() {
-          if (!widget.isObserver) {
+        if (!widget.isObserver) {
+          setState(() {
             commandSent = false;
             setTileOnRack();
             // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
             lettersofBoard = [];
-          }
-        });
+          });
+        }
       }
       final message =
           result["isAccepted"] ? 'Action accepted' : 'Action refused';

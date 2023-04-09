@@ -130,6 +130,9 @@ export class ScrabbleClassicMode {
     get humansPlayerInGame(): number {
         return this.playersSockets.length;
     }
+    get firstPlayerSocket(): string {
+        return this.playersSockets[0];
+    }
     get boardLetters(): Letter[] {
         return this.board.allPlacedLetters;
     }

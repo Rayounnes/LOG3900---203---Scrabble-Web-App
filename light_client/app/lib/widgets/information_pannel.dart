@@ -165,7 +165,8 @@ class _TimerPageState extends State<TimerPage> {
     getIt<SocketService>().on('end-game', (_) {
       // if (isAbandoned) isAbandon = true;
       isGameFinished = true;
-      getIt<SocketService>().send('game-duration',gameDuration);
+      if (!widget.isObserver)
+        getIt<SocketService>().send('game-duration', gameDuration);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.green,
@@ -198,6 +199,16 @@ class _TimerPageState extends State<TimerPage> {
             duration: Duration(seconds: 1),
             content: Text('Un achat de ${timeToAdd}s a été réalisé')),
       );
+    });
+    // envoyer le timer a l observateur
+    getIt<SocketService>().on('game-time-live', (_) {
+      getIt<SocketService>().send('game-time-observer', _start);
+    });
+    // temps recu par l observateur
+    getIt<SocketService>().on('game-time-observer', (gameLiveTime) {
+      _timer.cancel();
+      _start = gameLiveTime - 1;
+      startTimer();
     });
   }
 
@@ -303,6 +314,8 @@ class _TimerPageState extends State<TimerPage> {
     getIt<SocketService>().userSocket.off('coins-win');
     getIt<SocketService>().userSocket.off('time-add');
     getIt<SocketService>().userSocket.off('game-duration');
+    getIt<SocketService>().userSocket.off('game-time-live');
+    getIt<SocketService>().userSocket.off('game-time-observer');
     _timer.cancel();
     super.dispose();
   }

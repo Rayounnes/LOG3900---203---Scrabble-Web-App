@@ -174,7 +174,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
-            content: Text(translate.translateString(lang, "La partie a été annulée."))),
+            content: Text(
+                translate.translateString(lang, "La partie a été annulée."))),
       );
       Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -223,7 +224,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    TextPhrase(text: (translate.translateString(lang,"Salle d'attente de") + game.hostUsername)),
+                    TextPhrase(
+                        text: (translate.translateString(
+                                lang, "Salle d'attente de") +
+                            " " +
+                            game.hostUsername)),
                     SizedBox(
                       height: 30,
                     ),
@@ -239,7 +244,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             if (index == 0) {
                               return ListTile(
                                 title: Text(
-                                  translate.translateString(lang,'Joueurs'),
+                                  translate.translateString(lang, 'Joueurs'),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,
@@ -265,7 +270,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                                 if (index == 0) {
                                   return ListTile(
                                     title: Text(
-                                      translate.translateString(lang,"Observateurs"),
+                                      translate.translateString(
+                                          lang, "Observateurs"),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 24,
@@ -283,8 +289,10 @@ class _WaitingRoomState extends State<WaitingRoom> {
                     SizedBox(
                       height: 50,
                     ),
-                    if (!game.isFullPlayers) ...[
-                      TextPhrase(text: translate.translateString(lang,"En attente de joueurs")),
+                    if (game.joinedPlayers.length < 2) ...[
+                      TextPhrase(
+                          text: translate.translateString(
+                              lang, "En attente de joueurs")),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SizedBox(
@@ -294,15 +302,16 @@ class _WaitingRoomState extends State<WaitingRoom> {
                       )
                     ],
                     TextPhrase(
-                        text:
-                            translate.translateString(lang,"Joueurs restants pour démarrer la partie:") + " ${game.joinedPlayers.length == 1 ? 1 : 0}"),
+                        text: translate.translateString(lang,
+                                "Joueurs restants pour démarrer la partie:") +
+                            " ${game.joinedPlayers.length == 1 ? 1 : 0}"),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (!isHost)
                           GameButton(
                             padding: 16.0,
-                            name: translate.translateString(lang,"Quitter"),
+                            name: translate.translateString(lang, "Quitter"),
                             route: () {
                               cancelWaiting();
                             },
@@ -320,7 +329,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                           ),
                           GameButton(
                             padding: 16.0,
-                            name: translate.translateString(lang,"Annuler Partie"),
+                            name: translate.translateString(
+                                lang, "Annuler Partie"),
                             route: () {
                               cancelMatch();
                             },
@@ -344,9 +354,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
             Navigator.pop(context, true);
           });
           return AlertDialog(
-            title:  Text(translate.translateString(lang,"Demande d'acceptation")),
-            content: Text(
-                userInfos.username +  translate.translateString(lang,"essaye de rejoindre la partie. Accepter ou rejeter le joueur?")),
+            title:
+                Text(translate.translateString(lang, "Demande d'acceptation")),
+            content: Text(userInfos.username +
+                translate.translateString(lang,
+                    "essaye de rejoindre la partie. Accepter ou rejeter le joueur?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -355,7 +367,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                       .send('reject-private-player', userInfos);
                   Navigator.pop(context);
                 },
-                child:  Text(translate.translateString(lang,'Rejeter')),
+                child: Text(translate.translateString(lang, 'Rejeter')),
               ),
               TextButton(
                 onPressed: () {
@@ -363,7 +375,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                       .send('accept-private-player', userInfos);
                   Navigator.pop(context);
                 },
-                child:  Text(translate.translateString(lang,'Accepter')),
+                child: Text(translate.translateString(lang, 'Accepter')),
               ),
             ],
           );
@@ -376,8 +388,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(
-                  userInfos.username + translate.translateString(lang,"a quitté l'attente d'acceptation."))),
+              content: Text(userInfos.username +
+                  translate.translateString(
+                      lang, "a quitté l'attente d'acceptation."))),
         );
       }
     });

@@ -116,7 +116,7 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop("");
                         },
                         child: Text(translate.translateString(lang,'Annuler')),
                       ),

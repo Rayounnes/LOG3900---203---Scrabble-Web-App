@@ -24,11 +24,15 @@ class MusicService {
   MusicService._internal();
 
   void playMusic(String musicPath, [bool isBackgroundMusic = true]) async {
-    isStarting = false;
-    await audioPlayer.setAsset(musicPath);
-    await audioPlayer.setVolume(isBackgroundMusic ? volume : 1.0);
-    isPlaying = isBackgroundMusic ? true : false;
-    await audioPlayer.play();
+    try {
+      isStarting = false;
+      await audioPlayer.setAsset(musicPath);
+      await audioPlayer.setVolume(isBackgroundMusic ? volume : 1.0);
+      isPlaying = isBackgroundMusic ? true : false;
+      await audioPlayer.play();
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<int> getMusicID() async {
@@ -66,7 +70,7 @@ class MusicService {
   }
 
   Future<void> volumeUp() async {
-    if(volume < 1.0){
+    if (volume < 1.0) {
       volume += 0.15;
       await audioPlayer.setVolume(volume);
       resumeMusic();
@@ -74,7 +78,7 @@ class MusicService {
   }
 
   void volumeDown() async {
-    if(volume > 0.0){
+    if (volume > 0.0) {
       volume -= 0.15;
       await audioPlayer.setVolume(volume);
       resumeMusic();
@@ -90,7 +94,7 @@ class MusicService {
         print("Music has ended $musicPosition - $musicDuration and time is");
         isPlaying = false;
       }
-      if(!isPlaying)nextMusic();
+      if (!isPlaying) nextMusic();
     });
   }
 

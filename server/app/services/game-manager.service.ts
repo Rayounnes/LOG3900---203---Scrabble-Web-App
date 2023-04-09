@@ -131,7 +131,7 @@ export class GameManager {
     }
     // observateur qui rejoint lorsque la partie a deja commencé (il faut redessiner les lettres du board)
     joinAsLateObserver(socketId: string, room: string) {
-        const scrabbleGame = this.getScrabbleGame(socketId) as ScrabbleCooperativeMode;
+        const scrabbleGame = this.getScrabbleGame(socketId);
         scrabbleGame.setObserver(true, socketId);
         const game: Game = this.gameRooms.get(room) as Game;
         const data = { players: scrabbleGame.getPlayersInfo(), turnSocket: scrabbleGame.socketTurn };
@@ -142,6 +142,7 @@ export class GameManager {
         this.sio.to(socketId).emit('draw-letters-opponent', lettersPosition);
         const reserveLength: number = scrabbleGame.getReserveLettersLength();
         this.sio.to(socketId).emit('update-reserve', reserveLength);
+        if (game.isClassicMode) this.sio.to(scrabbleGame.firstPlayerSocket).emit('game-time-live');
     }
 
     isEndGame(room: string, scrabbleGame: ScrabbleClassicMode | ScrabbleCooperativeMode): boolean {
