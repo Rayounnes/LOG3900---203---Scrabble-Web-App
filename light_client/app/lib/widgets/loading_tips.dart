@@ -1,9 +1,14 @@
 import 'dart:async';
-
+import 'package:app/services/socket_client.dart';
+import 'package:app/services/api_service.dart';
 import 'package:app/constants/widgets.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+
 class LoadingTips extends StatefulWidget {
+  String lang;
+  LoadingTips(this.lang);
   @override
   _LoadingTipsState createState() => _LoadingTipsState();
 }
@@ -14,11 +19,31 @@ class _LoadingTipsState extends State<LoadingTips> {
   int index = 0;
   List<String> tips = List.from(TIPS_FR);
   late Timer _timer;
+  String lang = 'fr';
 
   @override
   void initState() {
     super.initState();
+    handleSockets();
+    getConfigs();
     changeTip();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
+  handleSockets() {
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      // changeTip();
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          tips = lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
+        });
+      }
+    });
   }
 
   @override
@@ -30,6 +55,9 @@ class _LoadingTipsState extends State<LoadingTips> {
 
   void changeTip() {
     setState(() {
+      tips = widget.lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
+      print(widget.lang);
+      index = index > 28 ? 1 : index;
       tip = tips[index];
       index = (index + 1) % tips.length;
     });

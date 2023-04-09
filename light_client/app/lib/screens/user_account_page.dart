@@ -33,12 +33,13 @@ class _UserAccountPageState extends State<UserAccountPage> {
   bool showTableChart = false;
   bool isEmpty = true;
   String lang = "en";
-  TranslateService translate = TranslateService();
   int gamesPlayed = 0;
   int gamesWon = 0;
   int avgPointsPerGame = 0;
   String avgTimePerGame = "";
   List gamesHistory = [];
+  TranslateService translate = new TranslateService();
+  String theme = "light";
 
   @override
   void initState() {
@@ -49,7 +50,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
     getIt<SocketService>().send("get-points-mean");
     getIt<SocketService>().send("get-game-average");
     getIt<SocketService>().send('get-game-history');
-    handleSocket();
+    handleSockets();
+    getConfigs();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -59,10 +65,11 @@ class _UserAccountPageState extends State<UserAccountPage> {
     getIt<SocketService>().userSocket.off("get-points-mean");
     getIt<SocketService>().userSocket.off("get-game-average");
     getIt<SocketService>().userSocket.off('get-game-history');
+    getIt<SocketService>().userSocket.off("get-config");
     super.dispose();
   }
 
-  handleSocket() {
+  handleSockets() {
     getIt<SocketService>().on("get-number-games", (games) {
       gamesPlayed = games;
     });
@@ -77,6 +84,16 @@ class _UserAccountPageState extends State<UserAccountPage> {
     });
     getIt<SocketService>().on('get-game-history', (gameHistory) {
       gamesHistory = gameHistory;
+    });
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      theme = value['theme'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          theme = value['theme'];
+        });
+      }
     });
   }
 
@@ -96,12 +113,16 @@ class _UserAccountPageState extends State<UserAccountPage> {
         ),
       ),
       body: Container(
-        color: Color.fromARGB(255, 43, 150, 46),
+        color: theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 207, 241, 207),
         child: Padding(
           padding: const EdgeInsets.all(80.0),
           child: Center(
             child: Container(
-              color: Color.fromARGB(255, 228, 231, 224),
+              color: theme == "dark"
+                  ? Color.fromARGB(255, 203, 201, 201)
+                  : Colors.white,
               child: Column(
                 children: [
                   Container(

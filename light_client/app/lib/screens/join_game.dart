@@ -25,13 +25,14 @@ class _JoinGamesState extends State<JoinGames> {
   String username = getIt<UserInfos>().user;
   List<Game> games = [];
   bool isClassic = false;
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
+    getConfigs();
+
     handleSockets();
     isClassic = widget.modeName == GameNames.classic;
     getIt<SocketService>().send('update-joinable-matches', isClassic);
@@ -41,6 +42,10 @@ class _JoinGamesState extends State<JoinGames> {
   void dispose() {
     getIt<SocketService>().userSocket.off('update-joinable-matches');
     super.dispose();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   void handleSockets() {
@@ -54,8 +59,14 @@ class _JoinGamesState extends State<JoinGames> {
       });
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -119,7 +130,7 @@ class _JoinGamesState extends State<JoinGames> {
     return ParentWidget(
       child: Scaffold(
         backgroundColor: Colors.green[800],
-        bottomNavigationBar: LoadingTips(),
+        bottomNavigationBar: LoadingTips(lang),
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(

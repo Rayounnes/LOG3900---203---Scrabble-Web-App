@@ -5,11 +5,13 @@ class GameButton extends StatelessWidget {
   final void Function() route;
   final bool isButtonDisabled;
   final double padding;
+  final String? theme;
   const GameButton(
       {required this.name,
       required this.route,
       required this.padding,
-      this.isButtonDisabled = false});
+      this.isButtonDisabled = false,
+      this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +20,10 @@ class GameButton extends StatelessWidget {
       child: MaterialButton(
         height: 40,
         onPressed: isButtonDisabled ? null : route,
-        color: Colors.green[800],
-        textColor: Colors.white,
+        color: theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 160, 235, 160),
+        textColor: theme == "dark" ? Colors.white : Colors.black,
         child: Text(this.name),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4.0),

@@ -115,12 +115,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickDetect(event: any) {
         if (event.target.id === 'canvas') return;
-        // console.log("removeAllLetters");
         // // this.keyboard.removeAllLetters();
         // let start = this.gridService.board.getStartTile();
         // if(start){
 
-        //     console.log(this.gridService.board.getStartTile());
         //     this.keyboard.putOldTile(start?.x,start.y);
         //     this.gridService.board.wordStarted = false;
         //     this.dragOrType = "free";

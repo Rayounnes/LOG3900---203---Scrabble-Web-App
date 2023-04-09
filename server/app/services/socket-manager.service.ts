@@ -767,14 +767,19 @@ export class SocketManager {
         socket.on('get-config', async ()=>{
             let username = this.usernames.get(socket.id) as string;
             let configs = await this.loginService.getUserConfigs(username);
+            // configs = JSON.stringify(configs);
+            console.log(configs);
             this.sio.to(socket.id).emit('get-config',configs);
         })
     }
 
     updatePlayerConfigs(socket : io.Socket){
         socket.on('update-config', async (newConfig : any)=>{
+            // newConfig = typeof newConfig === 'string' ? JSON.parse(newConfig) : newConfig;
             let username = this.usernames.get(socket.id) as string;
             await this.loginService.updateUserConfigs(username,newConfig);
+            // newConfig = JSON.stringify(newConfig);
+
             this.sio.to(socket.id).emit('get-config',newConfig);
         })
     }

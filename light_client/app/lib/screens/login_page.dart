@@ -23,7 +23,6 @@ class _LoginDemoState extends State<LoginDemo> {
   bool buttonEnabled = true;
 
   String lang = "en";
-  late Personnalisation langOrTheme;
   TranslateService translate = new TranslateService();
   String selectedLanguage = 'fr';
 
@@ -40,7 +39,7 @@ class _LoginDemoState extends State<LoginDemo> {
     super.initState();
     if (!getIt<SocketService>().isSocketAlive())
       getIt<SocketService>().connect();
-    getIt<SocketService>().send("update-configs");
+    // getIt<SocketService>().send("get-config");
     handleSockets();
   }
 
@@ -52,9 +51,9 @@ class _LoginDemoState extends State<LoginDemo> {
   }
 
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
-    });
+    // getIt<SocketService>().on("get-config",(value) {
+    //   lang = value['language'];
+    // });
   }
 
   void setLanguage() {

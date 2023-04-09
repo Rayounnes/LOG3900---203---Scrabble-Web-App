@@ -1,4 +1,16 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    OnDestroy,
+    Output,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+} from '@angular/core';
 import { ChevaletService } from '@app/services/chevalet.service';
 import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 import { ChatSocketClientService } from 'src/app/services/chat-socket-client.service';
@@ -54,12 +66,12 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     dialogConfig = new MatDialogConfig();
     items = [' ', ' ', ' ', ' ', ' ', ' ', ' '];
     rackX: number;
-    
+
     rackY: number;
     lettersOut: TileDragRack[] = [];
     currentPixelRatio: number = window.devicePixelRatio;
-    langue = ""
-    theme = ""
+    langue = '';
+    theme = '';
 
     dragTiles: Map<any, any> = new Map([
         ['tile0', undefined],
@@ -82,10 +94,10 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
 
     @Input() isBoardClicked: boolean;
     @Input() dragUsed: string;
-    dragAccepted = ['free', 'drag', 'type'];
+    dragAccepted = ['free', 'drag'];
     posBoard: DOMRect;
 
-    commandTraduction : Map<string,string> = new Map<string,string>()
+    commandTraduction: Map<string, string> = new Map<string, string>();
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -101,24 +113,27 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.isObserver = this.paramsObject.params.isObserver === 'true';
-        this.setCommandTraductions()
+        this.setCommandTraductions();
     }
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buttonDetect(event: any) {
         if (this.dragUsed === 'type') {
-            if (event.key !== 'Backspace') {
-                let index = this.items.findIndex((item) => item === event.key);
+            if (event.key !== 'Backspace' && event.key !== 'Escape') {
+                let letter = event.key;
+                if (event.key === event.key.toUpperCase()) {
+                    letter = '*';
+                }
+                let index = this.items.findIndex((item) => item === letter);
                 if (index !== -1) {
                     this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
+                    this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
                 }
-                this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
             } else {
                 if (event.key === 'Backspace' && this.lettersOut.length >= 1) {
                     this.removeLastOutLetter();
-                }
-                if (event.key === 'Escape' && this.lettersOut.length >= 1) {
+                } else if (event.key === 'Escape' && this.lettersOut.length >= 1) {
                     this.removeAllOutLetter();
                 }
             }
@@ -132,12 +147,10 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
             // this.positionTiles();
             this.removeAll.emit();
-
         }
         this.positionTiles();
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
         this.removeAll.emit();
-
     }
     removeAllOutLetter() {
         while (this.lettersOut.length >= 1) {
@@ -179,7 +192,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             this.chevaletService.drawChevalet();
             this.chevaletCanvas.nativeElement.focus();
             this.setDragMap();
-            
         }
         this.connect();
     }
@@ -203,7 +215,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         this.socketService.on('draw-letters-rack', (letters: string[]) => {
             // this.setDragMap();
             console.log(letters);
-            console.log(" le tout premier boxe", this.boxes);
+            console.log(' le tout premier boxe', this.boxes);
             this.chevaletLetters = letters;
             // this.items = letters;
             // if(letters.includes('')){
@@ -214,22 +226,17 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             for (let i = 0; i < this.chevalet.squareNumber; i++) {
                 this.chevaletService.rackArray[i].letter = this.chevaletLetters[i];
                 console.log(letters[i], this.chevaletLetters[i]);
-            
-                this.items[i] = letters[i]==="" ? " ":this.chevaletLetters[i];
 
-                
+                this.items[i] = letters[i] === '' ? ' ' : this.chevaletLetters[i];
             }
-            console.log("avant le premier appel de positionTiles")
-            
+            console.log('avant le premier appel de positionTiles');
 
             this.positionTiles();
-            
- 
         });
         this.socketService.on('user-turn', (socketTurn: string) => {
             this.socketTurn = socketTurn;
             this.resetDragEvent.emit('free');
-            
+
             // this.positionTiles();
         });
         this.socketService.on('update-reserve', (reserveLength: number) => {
@@ -244,18 +251,18 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         });
         this.socketService.on('exchange-command', (command: Command) => {
             if (command.type === 'system') {
-                if(this.langue == "fr"){
+                if (this.langue == 'fr') {
                     this.snackBar.open(command.name, 'Fermer', {
                         duration: 3000,
                         panelClass: ['snackbar'],
                     });
-                }else{
+                } else {
                     this.snackBar.open(this.commandTraduction.get(command.name) as string, 'Close', {
                         duration: 3000,
                         panelClass: ['snackbar'],
                     });
                 }
-                
+
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', false);
             } else {
                 this.socketService.send('draw-letters-rack');
@@ -265,10 +272,10 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                 }
             }
         });
-        this.socketService.on('get-config',(config : any)=>{
+        this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
-        })
+        });
     }
     get width(): number {
         return this.chevalet.width + 9;
@@ -298,12 +305,12 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                 this.exchange();
             }
             const message = result.isAccepted ? 'Action accepted' : 'Action refused';
-            if(this.langue == "fr"){
+            if (this.langue == 'fr') {
                 this.snackBar.open(message, 'Fermer', {
                     duration: 3000,
                     panelClass: ['snackbar'],
                 });
-            }else{
+            } else {
                 this.snackBar.open(message, 'Close', {
                     duration: 3000,
                     panelClass: ['snackbar'],
@@ -382,8 +389,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         return Math.floor((posY - firstTilePos) / this.gridConstant.tileSize);
     }
     setDragMap() {
-        console.log("dans le drag map")
-      
         let tileBoxes: ElementRef<any>[] = [];
         this.boxes.forEach((box) => {
             tileBoxes.push(box);
@@ -409,7 +414,6 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         const keysArray = Array.from(this.dragTiles.keys());
         // let letterValue = event.item.element.nativeElement.innerText.charAt(0);
         let letterValue = this.items[keysArray.indexOf(event.item.element.nativeElement.id)];
-        // console.log("le txt 2", newVal);
         if (
             this.isInRange(event.dropPoint.x, startBoard.x, this.posBoard.x) &&
             this.isInRange(event.dropPoint.y, startBoard.y, this.posBoard.y) &&
@@ -545,13 +549,15 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                     this.items[posTileRack] = result.toUpperCase();
 
                     this.sendTileEvent.emit(letter);
-
                 }
             });
         });
     }
 
-    setCommandTraductions(){
-        this.commandTraduction.set('Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant','Impossible : not enough tiles left !')
+    setCommandTraductions() {
+        this.commandTraduction.set(
+            'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant',
+            'Impossible : not enough tiles left !',
+        );
     }
 }

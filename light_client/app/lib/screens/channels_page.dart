@@ -21,8 +21,13 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
+    getConfigs();
     handleSockets();
     initNotifications();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   List<String> discussions = ["General"];
@@ -31,7 +36,7 @@ class _ChannelsState extends State<Channels> {
   List<String> selectedList = [];
   int count = -1;
   int countJoin = 0;
-  late Personnalisation langOrTheme;
+  // late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -165,9 +170,18 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
-      nameController =TextEditingController(text: translate.translateString(lang,"Nouvelle discussion"));
+    getIt<SocketService>().on("get-config", (value) {
+      // langOrTheme.language = value['language'];
+      // langOrTheme.theme = value['theme'];
+
+      nameController = TextEditingController(
+          text: translate.translateString(lang, "Nouvelle discussion"));
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
 
     });
   }
@@ -341,7 +355,7 @@ Widget build(BuildContext context) {
             onPressed: () {
               getIt<SocketService>()
                   .send("channel-creation", nameController.text);
-                  print(nameController.text);
+              print(nameController.text);
               Navigator.of(context).pop();
             },
             child: Text(
@@ -370,12 +384,14 @@ Widget build(BuildContext context) {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    translate.translateString(lang, "Choisissez un chat à supprimer"),
+                    translate.translateString(
+                        lang, "Choisissez un chat à supprimer"),
                   ),
                 ),
                 DropdownButtonFormField(
                   validator: (value) => value == null
-                      ? translate.translateString(lang, "Veuillez choisir le chat à supprimer")
+                      ? translate.translateString(
+                          lang, "Veuillez choisir le chat à supprimer")
                       : null,
                   value: discussions[0],
                   onChanged: (String? newValue) {
@@ -599,7 +615,8 @@ Widget build(BuildContext context) {
 
                         Navigator.of(context).pop();
                       },
-                      child: Text(translate.translateString(lang, "Rejoindre le(s) chat(s)")),
+                      child: Text(translate.translateString(
+                          lang, "Rejoindre le(s) chat(s)")),
                     ),
                   ],
                 ),

@@ -25,9 +25,9 @@ class _GameChoicesState extends State<GameChoices> {
   final timeController = TextEditingController(text: "60");
   // final humanPlayersController = TextEditingController(text: "2");
   final passwordGameController = TextEditingController();
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "light";
 
   bool isClassicMode = false;
   Game game = Game(
@@ -47,14 +47,19 @@ class _GameChoicesState extends State<GameChoices> {
   String dictionary = "Francais";
   List<DropdownMenuItem<String>> dictionnaries = [
     DropdownMenuItem(child: Text("Francais"), value: "Francais"),
-    DropdownMenuItem(child: Text("Anglais"), value: "Anglais"),
+    DropdownMenuItem(child: Text("English"), value: "Anglais"),
   ];
 
   @override
   void initState() {
     super.initState();
     handleSockets();
+    getConfigs();
     isClassicMode = widget.modeName == GameNames.classic;
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -66,8 +71,15 @@ class _GameChoicesState extends State<GameChoices> {
   }
 
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      theme = value['theme'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          theme = value['theme'];
+        });
+      }
     });
   }
 
@@ -104,13 +116,17 @@ class _GameChoicesState extends State<GameChoices> {
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.green[800],
+        backgroundColor: theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 207, 241, 207),
         body: Center(
           child: Container(
             height: 400,
             width: 500,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(203, 201, 201, 1),
+              color: theme == "dark"
+                  ? Color.fromARGB(255, 203, 201, 201)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 width: 1,
@@ -127,8 +143,9 @@ class _GameChoicesState extends State<GameChoices> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      translate.translateString(lang,
-                          'Créez ou rejoignez une partie en mode ${widget.modeName}'),
+                      translate.translateString(
+                              lang, 'Créez ou rejoignez une partie') +
+                          widget.modeName,
                       style: TextStyle(
                         fontSize: 23,
                         color: Colors.black,
@@ -136,12 +153,14 @@ class _GameChoicesState extends State<GameChoices> {
                 ),
                 SizedBox(height: 15.0),
                 GameButton(
+                    theme: theme,
                     padding: 25.0,
                     name: translate.translateString(lang, "Créer une partie"),
                     route: () {
                       showModal(context);
                     }),
                 GameButton(
+                    theme: theme,
                     padding: 32.0,
                     name:
                         translate.translateString(lang, "Rejoindre une partie"),

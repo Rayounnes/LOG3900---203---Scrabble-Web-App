@@ -29,7 +29,6 @@ class _SignUpState extends State<SignUp> {
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
   final securityQuestionController = TextEditingController();
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -57,6 +56,7 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     super.initState();
     getIconList();
+    getConfigs();
     handleSockets();
     if(lang == "en") {
       questions = List.from(SECURITY_QUESTIONS_EN);
@@ -65,9 +65,19 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
+
     });
   }
 
@@ -115,7 +125,8 @@ class _SignUpState extends State<SignUp> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang,"Votre compte a été créé avec succés"))),
+              content: Text(translate.translateString(
+                  lang, "Votre compte a été créé avec succés"))),
         );
 
         Navigator.pushNamed(context, '/gameChoicesScreen');
@@ -124,8 +135,8 @@ class _SignUpState extends State<SignUp> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(
-                  translate.translateString(lang,"Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer."))),
+              content: Text(translate.translateString(lang,
+                  "Erreur lors de la création du compte. Nom d'utilisateur deja utilisé. Veuillez recommencer."))),
         );
       }
     }
@@ -150,7 +161,7 @@ class _SignUpState extends State<SignUp> {
               }));
             }),
         title: Text(
-          translate.translateString(lang,"Retour"),
+          translate.translateString(lang, "Retour"),
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
       ),
@@ -178,7 +189,9 @@ class _SignUpState extends State<SignUp> {
                       children: [
                         Padding(
                             padding: const EdgeInsets.only(top: 20.0),
-                            child: Text(translate.translateString(lang,'Création de compte'),
+                            child: Text(
+                                translate.translateString(
+                                    lang, 'Création de compte'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,
@@ -190,19 +203,23 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: usernameController,
-                            decoration:  InputDecoration(
-                              hintText: translate.translateString(lang,"Nom d'utilisateur"),
+                            decoration: InputDecoration(
+                              hintText: translate.translateString(
+                                  lang, "Nom d'utilisateur"),
                               border: OutlineInputBorder(),
                               icon: Icon(Icons.account_box),
                             ),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return translate.translateString(lang,"Nom d'utilisateur requis.");
+                                return translate.translateString(
+                                    lang, "Nom d'utilisateur requis.");
                               } else if (value.length < 5) {
-                                return translate.translateString(lang,"Un nom d'utilisateur doit au moins contenir 5 caractéres.");
+                                return translate.translateString(lang,
+                                    "Un nom d'utilisateur doit au moins contenir 5 caractéres.");
                               } else if (!value
                                   .contains(RegExp(r'^[a-zA-Z0-9]+$'))) {
-                                return translate.translateString(lang,"Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
+                                return translate.translateString(lang,
+                                    "Un nom d'utilisateur ne doit contenir que des lettres ou des chiffres");
                               }
                               return null;
                             },
@@ -212,8 +229,9 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
-                            decoration:  InputDecoration(
-                              hintText: translate.translateString(lang,'Addresse email'),
+                            decoration: InputDecoration(
+                              hintText: translate.translateString(
+                                  lang, 'Addresse email'),
                               icon: Icon(Icons.email),
                               border: OutlineInputBorder(),
                             ),
@@ -222,7 +240,8 @@ class _SignUpState extends State<SignUp> {
                               if (value!.isEmpty ||
                                   !RegExp(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
                                       .hasMatch(value)) {
-                                return translate.translateString(lang,'Entrez une adresse email valide.');
+                                return translate.translateString(
+                                    lang, 'Entrez une adresse email valide.');
                               }
                               return null;
                             },
@@ -233,16 +252,19 @@ class _SignUpState extends State<SignUp> {
                           child: TextFormField(
                             controller: passwordController,
                             decoration: InputDecoration(
-                              hintText: translate.translateString(lang,"Mot de passe"),
+                              hintText: translate.translateString(
+                                  lang, "Mot de passe"),
                               icon: Icon(Icons.password),
                               border: OutlineInputBorder(),
                             ),
                             obscureText: true,
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return translate.translateString(lang,"Mot de passe requis.");
+                                return translate.translateString(
+                                    lang, "Mot de passe requis.");
                               } else if (value.length < 6) {
-                                return translate.translateString(lang,"Un mot de passe doit contenir au minimum 6 caractéres.");
+                                return translate.translateString(lang,
+                                    "Un mot de passe doit contenir au minimum 6 caractéres.");
                               }
                               return null;
                             },
@@ -252,8 +274,9 @@ class _SignUpState extends State<SignUp> {
                           padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordCheckController,
-                            decoration:  InputDecoration(
-                              hintText: translate.translateString(lang,"Retapez votre mot de passe"),
+                            decoration: InputDecoration(
+                              hintText: translate.translateString(
+                                  lang, "Retapez votre mot de passe"),
                               icon: Icon(Icons.password),
                               border: OutlineInputBorder(),
                             ),
@@ -262,7 +285,8 @@ class _SignUpState extends State<SignUp> {
                               if (value == null ||
                                   value.isEmpty ||
                                   value != passwordController.text) {
-                                return translate.translateString(lang,"Le mot de passe écrit ne correspond pas");
+                                return translate.translateString(lang,
+                                    "Le mot de passe écrit ne correspond pas");
                               }
                               return null;
                             },
@@ -277,7 +301,8 @@ class _SignUpState extends State<SignUp> {
                               leadingIcon: Icon(Icons.security_outlined),
                               // initialSelection: questions[0],
                               controller: securityQuestionController,
-                              label:  Text(translate.translateString(lang,'Question de sécurité')),
+                              label: Text(translate.translateString(
+                                  lang, 'Question de sécurité')),
                               dropdownMenuEntries: qsts,
                               onSelected: (String? question) {
                                 setState(() {
@@ -294,14 +319,17 @@ class _SignUpState extends State<SignUp> {
                             decoration: InputDecoration(
                               icon: Icon(Icons.question_answer_outlined),
                               label: Text(selectedQuestion == ''
-                                  ? translate.translateString(lang,'Choisissez une question de sécurité')
+                                  ? translate.translateString(lang,
+                                      'Choisissez une question de sécurité')
                                   : securityQuestionController.text),
-                              hintText: translate.translateString(lang,'Réponse à la question'),
+                              hintText: translate.translateString(
+                                  lang, 'Réponse à la question'),
                               border: OutlineInputBorder(),
                             ),
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
-                                return translate.translateString(lang,"Entrez une réponse à la question de sécurité");
+                                return translate.translateString(lang,
+                                    "Entrez une réponse à la question de sécurité");
                               }
                               return null;
                             },
@@ -318,7 +346,8 @@ class _SignUpState extends State<SignUp> {
                                       createAccount();
                                     }
                                   },
-                            child: Text(translate.translateString(lang,'Créer le compte')),
+                            child: Text(translate.translateString(
+                                lang, 'Créer le compte')),
                           ),
                         ),
                       ],

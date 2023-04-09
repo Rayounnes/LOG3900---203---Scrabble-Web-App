@@ -46,10 +46,12 @@ class TranslateService {
     //game_modes_page
     "Application Scrabble": "Scrabble app",
     "Mode de jeu classique": "Classic game mode",
-    "Mode de jeu coopératif": "Coop game mode",
     "Mode de jeu Classique": "Classic game mode",
+    "Mode de jeu coopératif": "Coop game mode",
     "Mode de jeu Coopératif": "Coop game mode",
     "Mode d'entrainement orthographe": "Spelling training mode",
+    "Classique": "Classic",
+    "Coopératif": "Cooperative",
     "Profil": "Profile",
     "Aide": "Help",
     "Déconnexion": "Log out",
@@ -77,7 +79,6 @@ class TranslateService {
     "Veuillez choisir le chat à quitter": "Please choose the chat to leave",
     "Supprimer le chat": "Delete chat",
     "Supprimer": "Delete",
-    "Rechercher": "Search",
     "Rejoindre le(s) chat(s)": "Join chats",
 
     //chat_page
@@ -87,7 +88,6 @@ class TranslateService {
     "est en train d'écrire ...": "is typing...",
     'Bien joué!': "Well done!",
     'Wow!': "Wow!",
-    'Nul!': "Nothing!",
     'Bonne chance!': "Good luck!",
     'Oh non!': "Oh no!",
     'Salut!': 'Hey',
@@ -104,10 +104,6 @@ class TranslateService {
 
     //game_mode_choices
     "Francais": "French",
-    "Classique": "Classic",
-    "Coopératif": "Cooperative",
-    "Mode de jeu Classique": "Classic Game mode",
-    "Mode de jeu Coopératif": "Coop Game mode",
     "Créez ou rejoignez une partie en mode Classique":
         "Create or join a Classic game mode",
     "Créez ou rejoignez une partie en mode Coopératif":
@@ -153,16 +149,15 @@ class TranslateService {
 
     //join_game
     "Parties": "Games",
+    'Publique': "Public",
+    "Privée": "Privée",
     "disponibles": "available",
     "Partie de": "Game of",
     "Publique (protégé par mot de passe)": "Public (secured with password)",
-    "Publique": "Public",
-    "Privée": "Private",
     "Réglages de la partie:": "Game settings",
     "Partie en cours:": "Game in progress:",
     "Salle d'attente:": "Waiting room",
     "Rejoindre": "Join",
-    "Francais": "French",
     "Anglais": "English",
     "Observer": "Watch",
     "Mot de passe incorrect": "Incorrect password",
@@ -172,12 +167,10 @@ class TranslateService {
         "You are waiting to be accepted by the game host",
     "Vous avez été rejeté de la partie.":
         "You have been rejected from the game",
-
     //mode_orthographe
     "Bienvenue au mode entrainement orthographe": "Welcome to spelling mode",
     "Commencer l'entraînement": "Start training",
     "Votre meilleur score": "Your best score",
-    "Quitter": "Quit",
     "Désolé, vous avez perdu !": "Sorry, you lost!",
     "Bien joué, vous avez fini le mode d'entraînement orthographe !":
         "Well done, you've finished spelling mode!",
@@ -221,7 +214,7 @@ class TranslateService {
     'Parties jouées': "Games played",
 
     //waiting_room
-    "Salle d'attente de": "Waiting room of",
+    "Salle d'attente de": "Waiting room of ",
     "Joueurs": "Players",
     "Observateurs": "Viewers",
     "En attente de joueurs": "Waiting for players",
@@ -237,10 +230,10 @@ class TranslateService {
     "a quitté l'attente d'acceptation.": "has left waiting for approval.",
   };
   translateService() {
-    ;
   }
 
   translateString(String language, String stringToTranslate) {
+    print(stringToTranslate);
     if (language == 'fr') {
       return stringToTranslate;
     } else if (language == 'en') {

@@ -57,9 +57,9 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "dark";
 
   List<Placement> hints = [];
   List<WordArgs> formatedHints = [];
@@ -67,6 +67,7 @@ class _GamePageState extends State<GamePage> {
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
+    getConfigs();
     handleSockets();
     widget.joinGameSocket();
     if (!widget.isObserver) {
@@ -75,6 +76,10 @@ class _GamePageState extends State<GamePage> {
       selectedLetter = '';
       if (!widget.isClassicMode) isPlayerTurn = true;
     }
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -586,8 +591,15 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    getIt<SocketService>().on('get-configs', (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      theme = value['theme'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          theme = value['theme'];
+        });
+      }
     });
   }
 
@@ -684,6 +696,9 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return ParentWidget(
       child: Scaffold(
+          backgroundColor: theme == "dark"
+              ? Color.fromARGB(255, 73, 73, 73)
+              : Color.fromARGB(255, 207, 241, 207),
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
@@ -715,6 +730,7 @@ class _GamePageState extends State<GamePage> {
                 left: 0,
                 top: 10,
                 child: TimerPage(
+                  theme: theme,
                   isClassicMode: widget.isClassicMode,
                   isObserver: widget.isObserver,
                 )),
@@ -724,7 +740,9 @@ class _GamePageState extends State<GamePage> {
               child: Container(
                 height: 750,
                 width: 750,
-                color: Color.fromRGBO(243, 174, 72, 1),
+                color: theme == "light"
+                    ? Color.fromARGB(255, 126, 126, 126)
+                    : Color.fromRGBO(243, 174, 72, 1),
                 child: Center(
                   child: CustomPaint(
                     painter: BoardPaint(widget.isObserver),

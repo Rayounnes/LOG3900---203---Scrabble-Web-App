@@ -7,7 +7,8 @@ import '../services/socket_client.dart';
 
 class ParentWidget extends StatefulWidget {
   final Widget child;
-  ParentWidget({super.key, required this.child});
+  String? theme = 'dark';
+  ParentWidget({super.key, required this.child, this.theme});
 
   @override
   State<ParentWidget> createState() => _ParentWidgetState();
@@ -16,14 +17,18 @@ class ParentWidget extends StatefulWidget {
 class _ParentWidgetState extends State<ParentWidget> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _isExpanded = false;
+  String theme = "light";
 
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
         //bottomNavigationBar: HomePage(),
-        backgroundColor: Colors.green[800],
-        body: Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
+        backgroundColor: widget.theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 207, 241, 207),
+        body:
+            Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
         floatingActionButton: keyboardIsOpened
             ? null
             : ElevatedButton(

@@ -325,6 +325,7 @@ export class KeyboardManagementService {
             console.log("remove last from backspace");
             this.removeLastLetter();
             if (this.letters.length === 0) {
+                console.log("on rentre dans la derniers lettre");
                 this.putOldTile(start?.x as number, start?.y as number);
                 this.gridService.board.resetStartTile();
                 this.gridService.board.wordStarted = false;
@@ -386,6 +387,9 @@ export class KeyboardManagementService {
     }
 
     putOldTile(positionX: number, positionY: number) {
+        if(positionX>14 || positionY>14){
+            return;
+        }
         this.gridService.fillColor(positionX + 1, positionY + 1, this.gridService.board.getColor(positionY + 1, positionX + 1));
         this.gridService.drawDependColor(positionX + 1, positionY + 1, this.gridService.board.getColor(positionY + 1, positionX + 1));
     }

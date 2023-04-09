@@ -18,7 +18,6 @@ class GalleryPage extends StatefulWidget {
 class _GalleryPageState extends State<GalleryPage> {
   File? imageFile;
   int index = -1;
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
 
@@ -35,10 +34,11 @@ class _GalleryPageState extends State<GalleryPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
+          SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(translate.translateString(lang, "Image trop volumineuse"))),
+              content: Text(
+                  translate.translateString(lang, "Image trop volumineuse"))),
         );
       }
     }
@@ -48,12 +48,22 @@ class _GalleryPageState extends State<GalleryPage> {
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
+    getConfigs();
     handleSockets();
   }
 
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
+
   void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+        });
+      }
     });
   }
 
@@ -75,7 +85,8 @@ class _GalleryPageState extends State<GalleryPage> {
               Column(
                 children: [
                   Text(
-                    translate.translateString(lang, 'Choississez une icône ou importer une image'),
+                    translate.translateString(
+                        lang, 'Choississez une icône ou importer une image'),
                     style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w700,

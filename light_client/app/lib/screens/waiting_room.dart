@@ -35,16 +35,21 @@ class _WaitingRoomState extends State<WaitingRoom> {
   String hostUsername = '';
   Game game = Game(hostUsername: "", time: 60);
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
-  late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "light";
 
   @override
   void initState() {
     super.initState();
     isClassic = widget.modeName == GameNames.classic;
+    getConfigs();
     handleSockets();
     widget.waitingSocket();
+  }
+
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -183,8 +188,15 @@ class _WaitingRoomState extends State<WaitingRoom> {
       }));
     });
 
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      theme = value['theme'];
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          theme = value['theme'];
+        });
+      }
     });
   }
 
@@ -208,8 +220,10 @@ class _WaitingRoomState extends State<WaitingRoom> {
   Widget build(BuildContext context) {
     return ParentWidget(
         child: Scaffold(
-            backgroundColor: Colors.green[800],
-            bottomNavigationBar: LoadingTips(),
+            backgroundColor: theme == "dark"
+                ? Colors.green[800]
+                : Color.fromARGB(255, 207, 241, 207),
+            bottomNavigationBar: LoadingTips(lang),
             body: Center(
               child: Container(
                 height: 1000,
@@ -320,7 +334,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                         if (isHost) ...[
                           GameButton(
                             padding: 16.0,
-                            name: "Lancer Partie",
+                            name: translate.translateString(
+                                lang, "Lancer Partie"),
                             route: () {
                               // true: isLightClient
                               getIt<SocketService>().send('join-game', true);
@@ -328,6 +343,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                             isButtonDisabled: game.joinedPlayers.length < 2,
                           ),
                           GameButton(
+                            theme: theme,
                             padding: 16.0,
                             name: translate.translateString(
                                 lang, "Annuler Partie"),
