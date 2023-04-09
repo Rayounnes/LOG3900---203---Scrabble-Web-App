@@ -32,7 +32,6 @@ class _GameModesState extends State<GameModes> {
   List<dynamic> iconList = [];
   Uint8List decodedBytes = Uint8List(1);
   String userName = "user";
-  int userPoints = 100;
   late Personnalisation langOrTheme;
   String lang = "en";
   TranslateService translate = new TranslateService();
@@ -228,8 +227,8 @@ class _GameModesState extends State<GameModes> {
                         getUserInfo();
                         return UserAccountPage(
                           connexionHistory: connexionHistory,
+                          deconnectionHistory: connexionHistory,
                           userName: userName,
-                          userPoints: userPoints,
                           decodedBytes: decodedBytes,
                         );
                       }));

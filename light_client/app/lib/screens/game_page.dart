@@ -630,7 +630,7 @@ class _GamePageState extends State<GamePage> {
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
                     }
-                    getIt<MusicService>().playMusic(GOOD_PLACEMENT_SOUND, false);
+                    getIt<MusicService>().playMusic(PLACEMENT_SOUND, false);
                   }
                 });
               },
@@ -674,6 +674,7 @@ class _GamePageState extends State<GamePage> {
     } else {
       sendVoteAction("exchange", null, lettersToExchange);
     }
+    getIt<MusicService>().playMusic(CHANGE_TILE_SOUND, false);
   }
 
   @override
