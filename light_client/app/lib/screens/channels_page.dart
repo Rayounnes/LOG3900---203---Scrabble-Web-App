@@ -128,6 +128,7 @@ class _ChannelsState extends State<Channels> {
             for (int i = 0; i < discussions.length; i++) {
               if (message['channel'] == discussions[i]) {
                 newMessage[i] = true;
+                print(ModalRoute.of(context)?.settings?.name);
               }
             }
           });

@@ -22,10 +22,14 @@ class _ChannelState extends State<Channel> {
           Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ChatPage(discussion: widget.name),
+                  
                 ),
+                
               );
         },
         child: Container(
+          
+          
           decoration: BoxDecoration(
             color: Colors.blue[200],
             borderRadius: BorderRadius.circular(8),
@@ -41,7 +45,8 @@ class _ChannelState extends State<Channel> {
                 Text(
                   widget.name,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                )
+                ),
+
               ],
             ),
           ),
