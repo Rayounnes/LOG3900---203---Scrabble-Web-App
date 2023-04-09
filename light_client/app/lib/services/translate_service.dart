@@ -210,11 +210,14 @@ class TranslateService {
     "Dernière connexion": "Last connection",
     "Points": "Points",
     "Historique des connexions": "Login history",
+    "Historique des parties": "Game history",
     "Historique des déconnexions": "Log out history",
     "Temps moyen par partie": "Average time per game",
     "Moyenne de points par partie": "Average points per game",
     'Parties perdues': "Lost games",
     'Parties gagnées': "Games won",
+    'Partie perdue': "Game lost",
+    'Partie gagnée': "Game won",
     'Parties jouées': "Games played",
 
     //waiting_room

@@ -30,6 +30,7 @@ const LOSE_GAME_SOUND = 'assets/Mario Fall.mp3';
 const SWITCH_TURN_SOUND = 'assets/Me Mario.mp3';
 const CHANGE_TILE_SOUND = 'assets/Yay.mp3';
 const WIN_GAME_SOUND = 'assets/Pokemon win.mp3';
+const PLACEMENT_SOUND = 'assets/iiiiii.mp3';
 
 const BASE64PREFIX = 'data:image/png;base64,';
 
@@ -166,7 +167,7 @@ const COOP_MODE_HELP_TEXT = [
       "\nThe minimum number of players is 2 and the maximum is 4."
       "\nThe players share the same rack, so they must agree on the placements."
       "\nThere is no time limit or virtual players.",
-    "When a player makes a placement, they will be waiting",
+    "When a player makes a placement, they will be waiting"
     "\nfor validation from their teammates.",
     "When a teammate makes a placement, you can accept or refuse it."
   ]

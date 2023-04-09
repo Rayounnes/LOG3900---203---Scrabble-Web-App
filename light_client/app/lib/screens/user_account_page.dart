@@ -12,17 +12,15 @@ import '../services/socket_client.dart';
 
 class UserAccountPage extends StatefulWidget {
   final String userName;
-
-  final int userPoints;
-
   final Uint8List decodedBytes;
   final List<dynamic> connexionHistory;
+  final List<dynamic> deconnectionHistory;
 
   const UserAccountPage(
       {super.key,
       required this.userName,
-      required this.userPoints,
       required this.connexionHistory,
+      required this.deconnectionHistory,
       required this.decodedBytes});
 
   @override
@@ -40,12 +38,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
   int gamesWon = 0;
   int avgPointsPerGame = 0;
   String avgTimePerGame = "";
-  List gameHistory = [];
+  List gamesHistory = [];
 
   @override
   void initState() {
     super.initState();
-    fillHistoryLit();
+    fillHistoryList();
     getIt<SocketService>().send("get-number-games");
     getIt<SocketService>().send('get-number-games-won');
     getIt<SocketService>().send("get-points-mean");
@@ -67,27 +65,22 @@ class _UserAccountPageState extends State<UserAccountPage> {
   handleSocket() {
     getIt<SocketService>().on("get-number-games", (games) {
       gamesPlayed = games;
-      print(gamesPlayed);
     });
     getIt<SocketService>().on('get-number-games-won', (games) {
       gamesWon = games;
-      print(gamesWon);
     });
     getIt<SocketService>().on("get-points-mean", (points) {
       avgPointsPerGame = points;
-      print(avgPointsPerGame);
     });
     getIt<SocketService>().on("get-game-average", (average) {
       avgTimePerGame = average;
-      print(avgTimePerGame);
     });
     getIt<SocketService>().on('get-game-history', (gameHistory) {
-      gameHistory = gameHistory; // TODO afficher liste [[temp, true || false]]
-      print(gameHistory);
+      gamesHistory = gameHistory;
     });
   }
 
-  void fillHistoryLit() {
+  void fillHistoryList() {
     for (var element in widget.connexionHistory) {
       newList.add(element[0]);
       isEmpty = false;
@@ -119,20 +112,16 @@ class _UserAccountPageState extends State<UserAccountPage> {
                           : translate.translateString(
                                   lang, "Dernière connexion") +
                               ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(10),
                     child: Column(
                       children: [
                         Text(
                           widget.userName,
-                          style: TextStyle(fontSize: 26),
-                        ),
-                        Text(
-                          "Points : ${widget.userPoints}",
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -161,7 +150,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.only(top:20.0,right:20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -176,7 +165,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.only(top:20.0,left: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -193,9 +182,15 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     ],
                   ),
                   if (showHistory)
-                    Container(
-                      height: 400,
-                      child: ConnectionHistoryList(connectionHistory: newList),
+                    Padding(
+                      padding: const EdgeInsets.only(top:15.0),
+                      child: Container(
+                        height: 400,
+                        child: ConnectionHistoryList(
+                            connectionHistory: List.from(newList.reversed),
+                            deconnectionHistory: List.from(newList.reversed),
+                            gameHistory: List.from(gamesHistory.reversed)),
+                      ),
                     ),
                   if (showTableChart)
                     Padding(
