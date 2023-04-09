@@ -98,7 +98,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy(): void {
         clearInterval(this.timer);
-        console.log('disposing information pannel sockets');
         this.socketService.socket.off('user-turn');
         this.socketService.socket.off('refresh-user-turn');
 
@@ -149,13 +148,11 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
             }
-            console.log("sendin send-player-score");
             this.socketService.send('send-player-score');
         });
     }
     panelDisplaySockets() {
         this.socketService.on('send-info-to-panel', async (infos: any) => {
-            console.log("received send info to pannel");
             this.players = infos.players;
             for (const player of this.players) {
                 if (player.socket === infos.turnSocket) {
@@ -244,7 +241,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
 
         this.socketService.on('coins-win', (coins: number) => {
-            console.log(`coins gagnés : ${coins}`);
             this.communicationService.addCoinsToUser(this.getUsername(), coins).subscribe((isValid: boolean) => {
                 if (isValid) this.coins += coins;
             });
@@ -309,7 +305,6 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
 
     getUserCoins() {
         this.communicationService.getUserCoins(this.getUsername() as string).subscribe((coins: number[]) => {
-            console.log(`coins posseder : ${coins}`);
             this.coinsGotFromDB = true;
             this.coins = coins[0];
         });
