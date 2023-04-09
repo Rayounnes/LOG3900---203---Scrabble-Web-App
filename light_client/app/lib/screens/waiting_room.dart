@@ -37,7 +37,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
   String lang = "en";
   TranslateService translate = new TranslateService();
-  String theme = "light";
+  String theme = "white";
 
   @override
   void initState() {
@@ -189,11 +189,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
     });
 
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }

@@ -28,7 +28,7 @@
                     <span *ngIf="langue == 'fr'">Tuiles restantes</span>
                     <span *ngIf="langue == 'en'">Tiles left</span>
                 </div>
-                <div class="tiles" *ngIf="player.socket == socketId">
+                <div class="tiles" *ngIf="player.socket == socketId && isClassic">
                     <div class="coin">
                         {{coins}}
                     </div>

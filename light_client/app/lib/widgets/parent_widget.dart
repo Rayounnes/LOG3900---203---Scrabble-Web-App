@@ -17,7 +17,6 @@ class ParentWidget extends StatefulWidget {
 class _ParentWidgetState extends State<ParentWidget> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _isExpanded = false;
-  String theme = "light";
 
   @override
   Widget build(BuildContext context) {

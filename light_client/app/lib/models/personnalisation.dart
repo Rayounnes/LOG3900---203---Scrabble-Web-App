@@ -1,6 +1,6 @@
 class Personnalisation {
   String language = "fr";
-  String theme = "light";
+  String theme = "white";
 
   Personnalisation({required this.language, required this.theme});
   //  {
@@ -8,13 +8,13 @@ class Personnalisation {
   //   this.theme = theme;
   // }
   Map toJson() => {
-        'language': language,
+        'langue': language,
         'theme': theme,
       };
 
   factory Personnalisation.fromJson(Map<String, dynamic> json) {
     return Personnalisation(
-      language: json['language'],
+      language: json['langue'],
       theme: json['theme'],
     );
   }

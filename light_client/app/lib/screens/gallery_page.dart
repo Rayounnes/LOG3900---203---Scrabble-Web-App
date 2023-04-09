@@ -9,7 +9,9 @@ import '../services/socket_client.dart';
 
 class GalleryPage extends StatefulWidget {
   final List iconList;
-  const GalleryPage({super.key, required this.iconList});
+  final bool isForAccountCreation;
+  const GalleryPage(
+      {super.key, required this.iconList, required this.isForAccountCreation});
 
   @override
   _GalleryPageState createState() => _GalleryPageState();
@@ -37,8 +39,9 @@ class _GalleryPageState extends State<GalleryPage> {
           SnackBar(
               backgroundColor: Colors.blue,
               duration: Duration(seconds: 3),
-              content: Text(
-                  translate.translateString(lang, "Image trop volumineuse"))),
+              content: Text(widget.isForAccountCreation
+                  ? "Image trop volumineuse"
+                  : translate.translateString(lang, "Image trop volumineuse"))),
         );
       }
     }
@@ -48,8 +51,10 @@ class _GalleryPageState extends State<GalleryPage> {
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
-    getConfigs();
-    handleSockets();
+    if (!widget.isForAccountCreation) {
+      getConfigs();
+      handleSockets();
+    }
   }
 
   getConfigs() {
@@ -58,10 +63,10 @@ class _GalleryPageState extends State<GalleryPage> {
 
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
         });
       }
     });
@@ -71,7 +76,7 @@ class _GalleryPageState extends State<GalleryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(translate.translateString(lang, "Page de choix d'icône")),
+        title: Text(widget.isForAccountCreation ? "Page de choix d'icône" : translate.translateString(lang, "Page de choix d'icône")),
       ),
       body: Center(
         child: Column(
@@ -85,7 +90,7 @@ class _GalleryPageState extends State<GalleryPage> {
               Column(
                 children: [
                   Text(
-                    translate.translateString(
+                    widget.isForAccountCreation ? 'Choississez une icône ou importer une image' : translate.translateString(
                         lang, 'Choississez une icône ou importer une image'),
                     style: TextStyle(
                         fontSize: 20.0,

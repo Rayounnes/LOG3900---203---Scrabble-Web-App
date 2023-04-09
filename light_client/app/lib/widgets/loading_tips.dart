@@ -35,11 +35,11 @@ class _LoadingTipsState extends State<LoadingTips> {
 
   handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       // changeTip();
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           tips = lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
         });
       }

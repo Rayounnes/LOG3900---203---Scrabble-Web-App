@@ -592,11 +592,11 @@ class _GamePageState extends State<GamePage> {
     });
 
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }
@@ -740,7 +740,7 @@ class _GamePageState extends State<GamePage> {
               child: Container(
                 height: 750,
                 width: 750,
-                color: theme == "light"
+                color: theme == "white"
                     ? Color.fromARGB(255, 126, 126, 126)
                     : Color.fromRGBO(243, 174, 72, 1),
                 child: Center(

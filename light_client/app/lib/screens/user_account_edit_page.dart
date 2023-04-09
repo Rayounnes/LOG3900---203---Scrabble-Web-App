@@ -57,12 +57,12 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
 
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
 
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }
@@ -189,6 +189,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
                                             context, MaterialPageRoute(
                                                 builder: (context) {
                                           return GalleryPage(
+                                            isForAccountCreation: false,
                                             iconList: decodedBytesList,
                                           );
                                         })) as File?;

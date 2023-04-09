@@ -90,12 +90,12 @@ class _ModeOrthographyState extends State<ModeOrthography> {
     });
 
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
 
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }

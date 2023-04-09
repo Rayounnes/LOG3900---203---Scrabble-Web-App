@@ -39,7 +39,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
   String avgTimePerGame = "";
   List gamesHistory = [];
   TranslateService translate = new TranslateService();
-  String theme = "light";
+  String theme = "white";
 
   @override
   void initState() {
@@ -86,11 +86,11 @@ class _UserAccountPageState extends State<UserAccountPage> {
       gamesHistory = gameHistory;
     });
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }

@@ -35,13 +35,13 @@ class _GameModesState extends State<GameModes> {
   String userName = "user";
   int userPoints = 100;
   Personnalisation langOrTheme =
-      new Personnalisation(language: "fr", theme: "light");
+      new Personnalisation(language: "fr", theme: "white");
   String lang = "en";
   TranslateService translate = new TranslateService();
   int _selectedButton = 1;
   int _selectedThemeButton = 1;
   bool _darkMode = false;
-  String theme = "light";
+  String theme = "white";
   // String selectedLanguage = "fr";
   bool _isDarkMode = false;
 
@@ -62,7 +62,7 @@ class _GameModesState extends State<GameModes> {
   }
 
   void setTheme() {
-    langOrTheme.theme = _selectedThemeButton == 1 ? "dark" : "light";
+    langOrTheme.theme = _selectedThemeButton == 1 ? "dark" : "white";
 
     getIt<SocketService>().send("update-config", langOrTheme);
     theme = langOrTheme.theme;
@@ -135,11 +135,11 @@ class _GameModesState extends State<GameModes> {
     });
 
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           _selectedButton = (lang == 'fr') ? 1 : 2;
           _selectedThemeButton = (theme == 'dark') ? 1 : 2;
         });
@@ -210,7 +210,7 @@ class _GameModesState extends State<GameModes> {
             //   ),
             // ),
             Positioned(
-              top: 160,
+              top: 140,
               left: 550,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -241,7 +241,7 @@ class _GameModesState extends State<GameModes> {
               ),
             ),
             Positioned(
-              top: 160,
+              top: 140,
               left: 150,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

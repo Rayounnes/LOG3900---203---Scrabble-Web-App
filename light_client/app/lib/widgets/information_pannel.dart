@@ -39,7 +39,7 @@ class _TimerPageState extends State<TimerPage> {
   int coins = 0;
   bool coinsGotFromDB = false;
   late Timer _timer;
-  String theme = "light";
+  String theme = "white";
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -404,7 +404,7 @@ class _TimerPageState extends State<TimerPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(usernamePlayer),
-              getIt<SocketService>().socketId == player.socket
+              getIt<SocketService>().socketId == player.socket && widget.isClassicMode
                   ? Container(
                       padding: EdgeInsets.all(4.0),
                       alignment: Alignment.center,

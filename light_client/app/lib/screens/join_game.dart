@@ -26,6 +26,7 @@ class _JoinGamesState extends State<JoinGames> {
   List<Game> games = [];
   bool isClassic = false;
   String lang = "en";
+  String theme = "white";
   TranslateService translate = new TranslateService();
 
   @override
@@ -61,13 +62,14 @@ class _JoinGamesState extends State<JoinGames> {
     });
 
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
+          theme = value['theme'];
         });
       }
-
     });
   }
 
@@ -130,12 +132,18 @@ class _JoinGamesState extends State<JoinGames> {
   Widget build(BuildContext context) {
     return ParentWidget(
       child: Scaffold(
-        backgroundColor: Colors.green[800],
+        backgroundColor: theme == "dark"
+            ? Color.fromARGB(255, 32, 107, 34)
+            : Color.fromARGB(255, 207, 241, 207),
         bottomNavigationBar: LoadingTips(lang),
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(
-            translate.translateString(lang, "Parties")+" "+ translate.translateString(lang,widget.modeName) +" "+ translate.translateString(lang, "disponibles"),
+            translate.translateString(lang, "Parties") +
+                " " +
+                translate.translateString(lang, widget.modeName) +
+                " " +
+                translate.translateString(lang, "disponibles"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
@@ -167,7 +175,8 @@ class _JoinGamesState extends State<JoinGames> {
 
   Widget buildGameCard(BuildContext context, Game game) {
     return Card(
-        color: Color.fromRGBO(203, 201, 201, 1),
+        color:
+            theme == "dark" ? Color.fromARGB(255, 116, 129, 117) : Colors.white,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: EdgeInsets.all(16),
@@ -219,7 +228,8 @@ class _JoinGamesState extends State<JoinGames> {
                     ],
                     Icon(Icons.book),
                     SizedBox(width: 4.0),
-                    Text(translate.translateString(lang, game.dictionary.title)),
+                    Text(
+                        translate.translateString(lang, game.dictionary.title)),
                   ],
                 ),
                 SizedBox(height: 16),

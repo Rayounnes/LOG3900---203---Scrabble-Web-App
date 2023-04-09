@@ -50,10 +50,10 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
 
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
         });
       }
 

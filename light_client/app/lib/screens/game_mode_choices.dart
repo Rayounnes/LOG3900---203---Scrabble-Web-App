@@ -27,7 +27,7 @@ class _GameChoicesState extends State<GameChoices> {
   final passwordGameController = TextEditingController();
   String lang = "en";
   TranslateService translate = new TranslateService();
-  String theme = "light";
+  String theme = "white";
 
   bool isClassicMode = false;
   Game game = Game(
@@ -72,11 +72,11 @@ class _GameChoicesState extends State<GameChoices> {
 
   void handleSockets() {
     getIt<SocketService>().on("get-config", (value) {
-      lang = value['language'];
+      lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
           theme = value['theme'];
         });
       }

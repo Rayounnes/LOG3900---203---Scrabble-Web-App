@@ -11,12 +11,10 @@
                 <div
                     id="tile0"
                     class="example-box"
-                    [style.left.px]="position0.x"
-                    [style.top.px]="position0.y"
                     *ngIf="items[0]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[0] ===' '"
-                    #tile1
+                    #tile0
                 >
                     {{ items[0].toUpperCase() }}
                     <span class="tile-points">{{ letterPoints.get(items[0]) }}</span>
@@ -24,72 +22,60 @@
                 <div
                     id="tile1"
                     class="example-box"
-                    [style.left.px]="position1.x"
-                    [style.top.px]="position1.y"
                     *ngIf="items[1] "
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[1] ===' '"
-                    #tile2
+                    #tile1
                 >
                     {{ items[1].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[1]) }}</span>
                 </div>
                 <div
                     id="tile2"
                     class="example-box"
-                    [style.left.px]="position2.x"
-                    [style.top.px]="position2.y"
                     *ngIf="items[2]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[2] ===' '"
-                    #tile3
+                    #tile2
                 >
                     {{ items[2].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[2]) }}</span>
                 </div>
                 <div
                     id="tile3"
                     class="example-box"
-                    [style.left.px]="position3.x"
-                    [style.top.px]="position3.y"
                     *ngIf="items[3]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[3] ===' '"
-                    #tile4
+                    #tile3
                 >
                     {{ items[3].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[3]) }}</span>
                 </div>
                 <div
                     id="tile4"
                     class="example-box"
-                    [style.left.px]="position4.x"
-                    [style.top.px]="position4.y"
                     *ngIf="items[4]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[4] ===' '"
-                    #tile5
+                    #tile4
                 >
                     {{ items[4].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[4]) }}</span>
                 </div>
                 <div
                     id="tile5"
                     class="example-box"
-                    [style.left.px]="position5.x"
-                    [style.top.px]="position5.y"
                     *ngIf="items[5]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[5] ===' '"
-                    #tile6
+                    #tile5
                 >
                     {{ items[5].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[5]) }}</span>
                 </div>
                 <div
                     id="tile6"
                     class="example-box"
-                    [style.left.px]="position6.x"
-                    [style.top.px]="position6.y"
                     *ngIf="items[6]"
                     cdkDrag
                     [cdkDragDisabled]="isNotDraggable() || items[6] ===' '"
-                    #tile7
+                    #tile6
                 >
                     {{ items[6].toUpperCase() }} <span class="tile-points">{{ letterPoints.get(items[6]) }}</span>
                 </div>

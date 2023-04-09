@@ -65,8 +65,7 @@ class _CameraPageState extends State<CameraPage> {
           SnackBar(
               backgroundColor: Color.fromARGB(255, 64, 176, 119),
               duration: Duration(seconds: 2),
-              content: Text(translate.translateString(
-                  lang, "Image en cours de traitement..."))),
+              content: Text("Image ...")),
         );
       }
       final image = await controller.takePicture();
@@ -92,7 +91,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:Text(translate.translateString(lang, "Page caméra"))),
+      appBar: AppBar(title:Text("Camera")),
       backgroundColor: Color.fromARGB(255, 156, 239, 171),
       body: FutureBuilder(
         future: initializeController,

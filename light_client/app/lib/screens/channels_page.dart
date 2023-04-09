@@ -176,10 +176,10 @@ class _ChannelsState extends State<Channels> {
 
       nameController = TextEditingController(
           text: translate.translateString(lang, "Nouvelle discussion"));
-      lang = value['language'];
+      lang = value['langue'];
       if (mounted) {
         setState(() {
-          lang = value['language'];
+          lang = value['langue'];
         });
       }
 
