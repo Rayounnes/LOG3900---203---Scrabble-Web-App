@@ -138,17 +138,31 @@ export class UserProfilComponent implements OnInit {
             this.username = newUsername;
             this.socketService.send('change-username',newUsername)
           }else{
-            this._snackBar.open(
-              "Ce username est deja utilisé !",
-              'Fermer',
-          );
+            if(this.langue == 'fr'){
+              this._snackBar.open(
+                "Ce username est deja utilisé !",
+                'Fermer',);
+            }else{
+              this._snackBar.open(
+                "This username is already used !",
+                'Close',
+            );
+            }
+            
           }
         })
         subscription.unsubscribe()
       }else{
-        this._snackBar.open(
-          "Vous possédes deja ce username !",
-          'Fermer',)
+        if(this.langue == 'fr'){
+          this._snackBar.open(
+            "Vous possédez deja ce username ;)",
+            'Fermer',)
+        }else{
+          this._snackBar.open(
+            "This username is already yours ;)",
+            'Close',)
+        }
+        
       }
 
     })

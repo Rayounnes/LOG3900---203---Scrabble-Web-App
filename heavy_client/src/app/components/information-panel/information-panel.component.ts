@@ -57,6 +57,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     dialogConfig = new MatDialogConfig();
     langue = '';
     theme = '';
+    commandTraduction : Map<string,string> = new Map<string,string>()
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -72,6 +73,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.isObserver = this.paramsObject.params.isObserver === 'true';
+        this.setCommandTraduction()
     }
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
@@ -423,5 +425,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             }
             return 'player'
         }
+    }
+
+    setCommandTraduction(){
+        
     }
 }
