@@ -233,10 +233,18 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.getUserChannels();
         });
         this.socketService.on('duplicate-name',()=>{
-            this._snackBar.open(
-                "Un channel avec le meme nom existe deja !",
-                'Fermer',
-            );
+            if(this.langue == 'fr'){
+                this._snackBar.open(
+                    "Un channel avec le meme nom existe deja !",
+                    'Fermer',
+                );
+            }else{
+                this._snackBar.open(
+                    "A channel with the same name already exists",
+                    'Close',
+                );
+            }
+            
         })
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();

@@ -1,21 +1,21 @@
-<div class="homeDiv" *ngIf="langue == 'fr'">
-    <div class="modesContainer">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'fr'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1>Mode jeu {{this.mode}}</h1>
         <p>Créer ou rejoignez une partie {{this.mode}}</p>
-        <button mat-raised-button (click)="createGame()" class="dataButton">Créer une partie</button>
-        <button mat-raised-button (click)="navJoinGame()" class="dataButton">Rejoindre une partie</button>
-        <button mat-raised-button (click)="navHome()" class="dataButton">Accueil</button>
+        <button mat-raised-button (click)="createGame()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Créer une partie</button>
+        <button mat-raised-button (click)="navJoinGame()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Rejoindre une partie</button>
+        <button mat-raised-button (click)="navHome()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Accueil</button>
     </div>
     <app-tips [autoSlide]="true"></app-tips>
 </div>
 
-<div class="homeDiv" *ngIf="langue == 'en'">
-    <div class="modesContainer">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'en'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1>{{this.mode}} game mode</h1>
         <p>Create or join a {{this.mode}} game</p>
-        <button mat-raised-button (click)="createGame()" class="dataButton">Create a game</button>
-        <button mat-raised-button (click)="navJoinGame()" class="dataButton">Join a game</button>
-        <button mat-raised-button (click)="navHome()" class="dataButton">Home</button>
+        <button mat-raised-button (click)="createGame()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Create a game</button>
+        <button mat-raised-button (click)="navJoinGame()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Join a game</button>
+        <button mat-raised-button (click)="navHome()" [ngClass]="theme == 'white' ? 'dataButton-white' : 'dataButton-dark'">Home</button>
     </div>
     <app-tips [autoSlide]="true"></app-tips>
 </div>

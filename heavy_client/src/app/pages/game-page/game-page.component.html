@@ -1,4 +1,4 @@
-<div class="container" (contextmenu)="rightMouseOutsideCanvas($event)" >
+<div [ngClass]="theme == 'white' ? 'container-white' : 'container'" (contextmenu)="rightMouseOutsideCanvas($event)" >
     <div class="info-container">
         <app-information-panel></app-information-panel>
     </div>

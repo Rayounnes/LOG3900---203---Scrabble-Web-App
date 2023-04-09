@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 
 @Component({
     selector: 'app-section-help',
@@ -258,17 +260,37 @@ export class SectionHelpComponent implements OnInit {
       },
   ];
 
-    constructor() {}
+  langue = ""
+  theme = ""
 
-    ngOnInit(): void {}
+    constructor(private socketService: ChatSocketClientService, public router: Router) {}
+
+    ngOnInit(): void {
+        this.connect()
+    }
 
     showHelpClicked(mode: string) {
         this.showHelp = true;
         this.helpMode = mode;
     }
 
+    connect() {
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+        }
+        this.socketService.on('get-config',(config : any)=>{
+            this.langue = config.langue;
+            this.theme = config.theme;
+        })
+        this.socketService.send('get-config')
+    }
+
     backHelp() {
         this.showHelp = false;
         this.helpMode = '';
+    }
+
+    navHome() {
+        this.router.navigate(['/home']);
     }
 }

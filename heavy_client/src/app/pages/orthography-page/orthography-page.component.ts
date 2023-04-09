@@ -81,7 +81,7 @@ connect() {
   }
 
   getWordsForMode() {
-    this.communicationService.getAllWords().subscribe((allWordsOrthography: any) => {
+    this.communicationService.getAllWords(this.langue).subscribe((allWordsOrthography: any) => {
         
         this.allWords = allWordsOrthography;
         console.log(this.allWords);

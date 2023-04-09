@@ -62,8 +62,8 @@ export class MainPageComponent {
 
     openConfigurations(){
         this.dialogRef = this.dialog.open(ConfigurationChoiceDialogComponent,{
-            width : '45%',
-            height: '70%'
+            width : '25%',
+            height: '40%'
         })
     }
 

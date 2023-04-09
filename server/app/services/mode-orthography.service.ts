@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { Service } from 'typedi';
 import { DatabaseService } from './database.service';
 import types from '@app/types';
-import { DB_COLLECTION_WORDS, DB_COLLECTION_SCORESORTHOGRAPHY} from '@app/constants/constants';
+import { DB_COLLECTION_WORDS, DB_COLLECTION_SCORESORTHOGRAPHY, DB_COLLECTION_WORDS_EN} from '@app/constants/constants';
 
 @injectable()
 @Service()
@@ -13,12 +13,22 @@ export class ModeOrthography {
         return this.databaseService.database.collection(DB_COLLECTION_WORDS);
     }
 
+    get wordsOrthographyENCollection() {
+        return this.databaseService.database.collection(DB_COLLECTION_WORDS_EN);
+    }
+
     get scoresOrthographyCollection() {
         return this.databaseService.database.collection(DB_COLLECTION_SCORESORTHOGRAPHY);
     }
 
-    async getAllWords() {
-        const allWords = await this.wordsOrthographyCollection.find().toArray();
+    async getAllWords(langue : string) {
+        let allWords;
+        if(langue == 'fr'){
+            allWords = await this.wordsOrthographyCollection.find().toArray();
+        }else{
+            allWords = await this.wordsOrthographyENCollection.find().toArray();
+        }
+        
         const wordsList = allWords.map(word => word.words);
         return wordsList;
     }

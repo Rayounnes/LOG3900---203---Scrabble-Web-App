@@ -1,5 +1,5 @@
-<div class="homeDiv" *ngIf="langue == 'fr'">
-    <div class="modesContainer">
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'fr'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1 class="title">Liste des parties joignables mode "{{ mode }}"</h1>
         <div class="gameContainer" *ngFor="let game of gameList; let i = index">
             <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : !game.isFinished" class="example-card">
@@ -65,8 +65,9 @@
     </div>
     <button mat-raised-button color="primary" routerLink="/classique">Retour</button>
 </div>
-<div class="homeDiv" *ngIf="langue == 'en'">
-    <div class="modesContainer">
+
+<div [ngClass]="theme == 'white' ? 'homeDiv-white' : 'homeDiv-dark'" *ngIf="langue == 'en'">
+    <div [ngClass]="theme == 'white' ? 'modesContainer-white' : 'modesContainer-dark'">
         <h1 class="title">List of joignable games "{{ mode }}" mode</h1>
         <div class="gameContainer" *ngFor="let game of gameList; let i = index">
             <mat-card *ngIf="game.isPrivate ? !game.isFullPlayers : !game.isFinished" class="example-card">

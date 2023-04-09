@@ -1,7 +1,7 @@
 
 <div class="panel">
     <div class="gameinfos">
-        <div class="tiles-perso">
+        <div [ngClass]="theme == 'white' ? 'tiles-perso-white' : 'tiles-perso'">
             <div class="number-perso">
                 {{reserveTilesLeft}}
             </div>
@@ -16,8 +16,8 @@
             </svg>
         </div>
     </div>
-    <div class="players">
-        <div *ngFor="let player of players" [ngClass]="player['isTurn'] ? 'player-active' : 'player'">
+    <div  [ngClass]="theme == 'white' ? 'players-white' : 'players'">
+        <div *ngFor="let player of players" [ngClass]="getPlayerClass(player)">
             <img  [src]="player['icon']" width="80px" height="80px"/>
             <div class="infos">
                 <span>{{player['username']}}</span>
@@ -46,8 +46,8 @@
             </div>
         </div>
     </div>
-    <div class="time-buy" *ngIf="isPlayersTurn && isClassic">
-        <button mat-flat-button class="custom-button" [disabled]="coins < 10 || game.time < clock+5" (click)="buyTime(5)">
+    <div [ngClass]="theme == 'white' ? 'time-buy-white' : 'time-buy'" *ngIf="isPlayersTurn && isClassic">
+        <button mat-flat-button [ngClass]="theme == 'white' ? 'custom-button-white' : 'custom-button'" [disabled]="coins < 10 || game.time < clock+5" (click)="buyTime(5)">
             <span class="custom-content">
                 <div class="buy">
                     10
@@ -56,7 +56,7 @@
             </span>
         </button>
 
-        <button mat-flat-button class="custom-button" [disabled]="coins < 20 || game.time < clock+10" (click)="buyTime(10)">
+        <button mat-flat-button [ngClass]="theme == 'white' ? 'custom-button-white' : 'custom-button'" [disabled]="coins < 20 || game.time < clock+10" (click)="buyTime(10)">
             <span class="custom-content">
                 <div class="buy">
                     20
@@ -65,7 +65,7 @@
             </span>
         </button>
 
-        <button mat-flat-button class="custom-button" [disabled]="coins < 40 || game.time < clock+20" (click)="buyTime(20)">
+        <button mat-flat-button [ngClass]="theme == 'white' ? 'custom-button-white' : 'custom-button'" [disabled]="coins < 40 || game.time < clock+20" (click)="buyTime(20)">
             <span class="custom-content">
                 <div class="buy">
                     40

@@ -202,8 +202,8 @@ export class CommunicationService {
 
      /** ************** mode orthography methods *******************************/
 
-    getAllWords() : Observable<any>{
-        return this.http.get<any>(`${this.baseUrl}/api/modeOrthography/allWordsOrthography`)
+    getAllWords(langue : string) : Observable<any>{
+        return this.http.get<any>(`${this.baseUrl}/api/modeOrthography/allWordsOrthography/${langue}`)
         .pipe(catchError(this.handleError<void>('WordsGetError')))
     }
 

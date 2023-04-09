@@ -85,11 +85,20 @@ export class CooperativeVoteComponent implements OnInit, OnDestroy {
 
     getPlayerClass(socketId: string) {
         if (this.action.socketAndChoice[socketId] == 'choice') {
-            return 'choice';
+            if(this.theme == 'dark'){
+                return 'choice';
+            }
+            return 'choice-white'
         } else if (this.action.socketAndChoice[socketId] == 'yes') {
-            return 'yes';
+            if(this.theme == 'dark'){
+                return 'yes';
+            }
+            return 'yes-white';
         } else {
-            return 'no';
+            if(this.theme == 'dark'){
+                return 'no';
+            }
+            return 'no-white';
         }
     }
 

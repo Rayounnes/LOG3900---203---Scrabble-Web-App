@@ -85,6 +85,8 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     dragAccepted = ['free', 'drag', 'type'];
     posBoard: DOMRect;
 
+    commandTraduction : Map<string,string> = new Map<string,string>()
+
     constructor(
         public socketService: ChatSocketClientService,
         public chevaletService: ChevaletService,
@@ -99,6 +101,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.isObserver = this.paramsObject.params.isObserver === 'true';
+        this.setCommandTraductions()
     }
     @HostListener('document:keydown', ['$event'])
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
@@ -247,7 +250,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                         panelClass: ['snackbar'],
                     });
                 }else{
-                    this.snackBar.open(command.name, 'Close', {
+                    this.snackBar.open(this.commandTraduction.get(command.name) as string, 'Close', {
                         duration: 3000,
                         panelClass: ['snackbar'],
                     });
@@ -546,5 +549,9 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
                 }
             });
         });
+    }
+
+    setCommandTraductions(){
+        this.commandTraduction.set('Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant','Impossible : not enough tiles left !')
     }
 }

@@ -4,28 +4,28 @@
         <span class="username" (click)="changeUsername()">{{username}}</span>
     </div>
     <div class="col">
-        <span class="number">{{numberOfGames}}</span>
+        <span [ngClass]="theme == 'white' ? 'number-white' : 'number-dark'">{{numberOfGames}}</span>
         <span class="info" *ngIf="langue == 'fr'">Parties jouées</span>
         <span class="info" *ngIf="langue == 'en'">Played games</span>
     </div>
     <div class="col">
-        <span class="number">{{numberOfGamesWon}}</span>
+        <span [ngClass]="theme == 'white' ? 'number-white' : 'number-dark'">{{numberOfGamesWon}}</span>
         <span class="info" *ngIf="langue == 'fr'">Parties gagnées</span>
         <span class="info" *ngIf="langue == 'en'">Games won</span>
     </div>
     <div class="col">
-        <span class="number">{{pointsMean}}</span>
+        <span [ngClass]="theme == 'white' ? 'number-white' : 'number-dark'">{{pointsMean}}</span>
         <span class="info" *ngIf="langue == 'fr'">Points en moyenne</span>
         <span class="info" *ngIf="langue == 'en'">Average points</span>
     </div>
     <div class="col2">
-        <span class="number">{{timeAverage}}</span>
+        <span [ngClass]="theme == 'white' ? 'number-white' : 'number-dark'">{{timeAverage}}</span>
         <span class="info" *ngIf="langue == 'fr'">Temps moyen</span>
         <span class="info" *ngIf="langue == 'en'">Average duration</span>
     </div>
 </div>
 
-<div class="row2" *ngIf="langue == 'fr'">
+<div class="row2" *ngIf="langue == 'fr' && theme == 'dark'">
     <div class="category">
         <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
             <span >Historique des parties</span>
@@ -63,7 +63,7 @@
     </div>
 </div>
 
-<div class="row2" *ngIf="langue == 'en'">
+<div class="row2" *ngIf="langue == 'en' && theme == 'dark'">
     <div class="category">
         <div [ngClass]="currentCategory == 'Parties' ? 'choice' : 'no-choice'" (click)="changeCategory('Parties')">
             <span >Games history</span>
@@ -101,4 +101,78 @@
     </div>
 </div>
 
+<div class="row2" *ngIf="langue == 'fr' && theme == 'white'">
+    <div class="category">
+        <div [ngClass]="currentCategory == 'Parties' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Parties')">
+            <span >Historique des parties</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Connexions' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Connexions')">
+            <span>Historique des connexions et déconnexions</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Screenshot' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Screenshot')">
+            <span>Capture d'écrans</span>
+        </div>
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Parties'">
+        <div class="data-white"  *ngFor="let data of gameHistory">
+            <span *ngIf="data[1]" class="connect">Gagnée</span>
+            <span *ngIf="!data[1]" class="disconnect">Perdue</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Connexions'">
+        <div class="data-white"  *ngFor="let data of connexionHistory">
 
+            <span *ngIf="data[1]" class="connect">Connexion</span>
+            <span *ngIf="!data[1]" class="disconnect">Déconnexion</span>
+            <span class="time"> Le {{data[0].split(',')[0]}} a {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Screenshot'">
+        <div class="data-white"  *ngFor="let screenshot of screenshots">
+            <img  class="screen" [src]="screenshot[0]" (click)="openScreenShot(screenshot[0])" />
+            <span class="time">{{screenshot[1]}}</span>
+        </div>
+        
+    </div>
+</div>
+
+<div class="row2" *ngIf="langue == 'en' && theme == 'white'">
+    <div class="category">
+        <div [ngClass]="currentCategory == 'Parties' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Parties')">
+            <span >Games history</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Connexions' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Connexions')">
+            <span>Connections history</span>
+        </div>
+        <div [ngClass]="currentCategory == 'Screenshot' ? 'choice-white' : 'no-choice'" (click)="changeCategory('Screenshot')">
+            <span>Screenshots</span>
+        </div>
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Parties'">
+        <div class="data-white"  *ngFor="let data of gameHistory">
+            <span *ngIf="data[1]" class="connect">Win</span>
+            <span *ngIf="!data[1]" class="disconnect">Loose</span>
+            <span class="time"> {{data[0].split(',')[0]}} at {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Connexions'">
+        <div class="data-white"  *ngFor="let data of connexionHistory">
+
+            <span *ngIf="data[1]" class="connect">Connect</span>
+            <span *ngIf="!data[1]" class="disconnect">Disconnect</span>
+            <span class="time"> {{data[0].split(',')[0]}} at {{data[0].split(',')[1]}}</span>
+        </div>
+        
+    </div>
+    <div class="infos" *ngIf="currentCategory == 'Screenshot'">
+        <div class="data-white"  *ngFor="let screenshot of screenshots">
+            <img  class="screen" [src]="screenshot[0]" (click)="openScreenShot(screenshot[0])" />
+            <span class="time">{{screenshot[1]}}</span>
+        </div>
+        
+    </div>
+</div>

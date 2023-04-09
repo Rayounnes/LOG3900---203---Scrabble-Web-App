@@ -21,8 +21,9 @@ export class ModeOrthographyController{
     private configureRouter(): void {
         this.router = Router();
 
-        this.router.get('/allWordsOrthography', async (req: Request, res: Response, next): Promise<void> => {
-            this.modeOrthographyService.getAllWords().then((word) => {
+        this.router.get('/allWordsOrthography/:langue', async (req: Request, res: Response, next): Promise<void> => {
+            const langue = req.params.langue
+            this.modeOrthographyService.getAllWords(langue).then((word) => {
                 res.send(word);
             })
         });

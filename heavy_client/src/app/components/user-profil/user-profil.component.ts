@@ -145,14 +145,30 @@ export class UserProfilComponent implements OnInit, OnDestroy {
                         this.username = newUsername;
                         this.socketService.send('change-username', newUsername);
                     } else {
-                        this._snackBar.open('Ce username est deja utilisé !', 'Fermer');
+                        if (this.langue == 'fr') {
+                            this._snackBar.open('Ce username est deja utilisé !', 'Fermer');
+                        } else {
+                            this._snackBar.open('This username is already used !', 'Close');
+                        }
                     }
                 });
                 subscription.unsubscribe();
             } else {
-                this._snackBar.open('Vous possédes deja ce username !', 'Fermer');
+                if (this.langue == 'fr') {
+                    this._snackBar.open('Vous possédez deja ce username ;)', 'Fermer');
+                } else {
+                    this._snackBar.open('This username is already yours ;)', 'Close');
+                }
             }
         });
+    }
+
+    ngOnInit(): void {
+        this.socketService.send('get-number-games');
+        this.socketService.send('get-number-games-won');
+        this.socketService.send('get-points-mean');
+        this.socketService.send('get-game-average');
+        this.socketService.send('get-game-history');
     }
 
     ngOnInit(): void {

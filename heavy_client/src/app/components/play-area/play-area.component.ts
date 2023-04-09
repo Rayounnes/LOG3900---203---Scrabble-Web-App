@@ -66,6 +66,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     langue = ""
     theme = ""
 
+
     constructor(
         public gridService: GridService,
         public socketService: ChatSocketClientService,
@@ -364,6 +365,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.on('get-config',(config : any)=>{
             this.langue = config.langue;
             this.theme = config.theme;
+            this.gridService.setColor(config.theme)
         })
     }
 
