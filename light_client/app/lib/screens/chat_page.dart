@@ -409,20 +409,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FloatingActionButton(
-            onPressed: () {
-              sendMessage(messageController.text);
-            },
-            child: Icon(
-              Icons.send,
-              color: Colors.white,
-              size: 25,
-            ),
-            backgroundColor: Colors.blue,
-          ),
-        ),
+       
        
       ],
     ),

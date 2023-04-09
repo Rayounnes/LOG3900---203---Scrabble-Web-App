@@ -5,6 +5,7 @@ import 'package:app/widgets/button.dart';
 import 'package:app/main.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/api_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../services/translate_service.dart';
 
 import '../models/placement.dart';
@@ -21,6 +22,7 @@ class _ChannelsState extends State<Channels> {
   void initState() {
     super.initState();
     handleSockets();
+    initNotifications();
   }
 
   List<String> discussions = ["General"];
@@ -34,12 +36,33 @@ class _ChannelsState extends State<Channels> {
   TranslateService translate = new TranslateService();
 
   List<dynamic> channelsUsers = [];
-  var nameController = TextEditingController(text: "Nouvelle discussion");
+  var nameController = TextEditingController(text: "");
 
   List<bool> newMessage = [false];
 
   String chatDeleted = '';
   String chatJoined = '';
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+
+  void initNotifications() async {
+  var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
+  var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  
+  }
+
+
+  void showNotification(String message, String channel) async {
+    var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
+    importance: Importance.max, priority: Priority.high, showWhen: false, color:Color(0xFF2196F3));
+
+    var notificationDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+    0, translate.translateString(lang, 'Nouveau message dans ')+ '$channel', message, notificationDetails);
+}
 
   handleSockets() async {
     ApiService().getAllChannels().then((response) {
@@ -53,6 +76,20 @@ class _ChannelsState extends State<Channels> {
     }).catchError((error) {
       print('Error fetching channels: $error');
     });
+
+
+      getIt<SocketService>().on("notify-message", (message) async {
+      try {
+        if (mounted) {
+          setState(() async {  
+          showNotification(message['message'], message['channel']);
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
 
     getIt<SocketService>().on("sendUsername", (username) async {
       ApiService().getChannelsOfUsers(username).then((response) {
@@ -555,7 +592,6 @@ Widget build(BuildContext context) {
                       onPressed: () {
                         print(selectedList);
                         for (String channel in selectedList) {
-                          count = count + 1;
                           getIt<SocketService>().send("join-channel", channel);
                         }
 

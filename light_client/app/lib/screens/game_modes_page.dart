@@ -9,6 +9,7 @@ import 'package:app/services/translate_service.dart';
 import 'package:app/widgets/button.dart';
 import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../constants/constants.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/main.dart';
@@ -59,6 +60,7 @@ class _GameModesState extends State<GameModes> {
     super.initState();
     getUserInfo();
     handleSockets();
+    initNotifications();
   }
 
   @override
@@ -66,7 +68,42 @@ class _GameModesState extends State<GameModes> {
     super.dispose();
   }
 
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+
+  void initNotifications() async {
+  var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
+  var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  
+  }
+
+
+  void showNotification(String message, String channel) async {
+    var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
+    importance: Importance.max, priority: Priority.high, showWhen: false, color:Color(0xFF2196F3));
+
+    var notificationDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+    0, translate.translateString(lang, 'Nouveau message dans ')+ '$channel', message, notificationDetails);
+}
+
   void handleSockets() {
+
+      getIt<SocketService>().on("notify-message", (message) async {
+      try {
+        if (mounted) {
+          setState(() async {  
+          showNotification(message['message'], message['channel']);
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
     getIt<SocketService>().on("get-configs", (value) {
       langOrTheme = value;
     });
