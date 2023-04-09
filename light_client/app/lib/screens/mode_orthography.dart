@@ -36,6 +36,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   String username = getIt<UserInfos>().user;
   int countdown = 0;
   String lang = "en";
+  String theme = "dark";
   TranslateService translate = new TranslateService();
 
   @override
@@ -45,10 +46,9 @@ class _ModeOrthographyState extends State<ModeOrthography> {
     handleSockets();
   }
 
-    getConfigs() {
+  getConfigs() {
     getIt<SocketService>().send("get-config");
   }
-
 
   @override
   void dispose() {
@@ -91,14 +91,15 @@ class _ModeOrthographyState extends State<ModeOrthography> {
 
     getIt<SocketService>().on("get-config", (value) {
       lang = value['language'];
+      theme = value['theme'];
+
       if (mounted) {
         setState(() {
           lang = value['language'];
+          theme = value['theme'];
         });
       }
-
     });
-    
 
     // getIt<SocketService>().on('sendUsername', (name) {
     //   try {
@@ -205,25 +206,35 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color.fromARGB(255, 178, 227, 180),
+        color: theme == "dark"
+            ? Color.fromARGB(255, 68, 98, 68)
+            : Color.fromARGB(255, 178, 227, 180),
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              translate.translateString(lang, "Bienvenue au mode entrainement orthographe"),
-              style: TextStyle(fontSize: 30.0, color: Color(0xFF0c5c03)),
+              translate.translateString(
+                  lang, "Bienvenue au mode entrainement orthographe"),
+              style: TextStyle(
+                  fontSize: 30.0,
+                  color: theme == "dark"
+                      ? Color.fromARGB(255, 0, 0, 0)
+                      : Color(0xFF0c5c03)),
             ),
             if (countdown > 0) Text("$countdown"),
             SizedBox(height: 16.0),
             if (!hideButton)
               ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Color(0xFF0c5c03)),
+                  backgroundColor: MaterialStateProperty.all(theme == "dark"
+                      ? Color.fromARGB(255, 95, 158, 110)
+                      : Color.fromARGB(255, 95, 158, 110)),
                 ),
                 onPressed: hideButton ? null : startCountdown,
-                child: Text(translate.translateString(lang, "Commencer l'entraînement"),
+                child: Text(
+                    translate.translateString(lang, "Commencer l'entraînement"),
                     style: TextStyle(color: Colors.white)),
               ),
             SizedBox(height: 16.0),
@@ -276,7 +287,9 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                       width: (chances / 3) * 100.0,
                       height: 16.0,
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 33, 86, 0),
+                        color: theme == "dark"
+                            ? Color.fromARGB(255, 95, 158, 110)
+                            : Color.fromARGB(255, 95, 158, 110),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
@@ -287,19 +300,31 @@ class _ModeOrthographyState extends State<ModeOrthography> {
             ),
             Text(
               "Score : $score",
-              style: TextStyle(fontSize: 25.0, color: Color(0xFF0c5c03)),
+              style: TextStyle(
+                  fontSize: 25.0,
+                  color: theme == "dark"
+                      ? Color.fromARGB(255, 0, 0, 0)
+                      : Color(0xFF0c5c03)),
             ),
             Text(
-              translate.translateString(lang, "Votre meilleur score") + ": $bestScore",
-              style: TextStyle(fontSize: 25.0, color: Color(0xFF0c5c03)),
+              translate.translateString(lang, "Votre meilleur score") +
+                  ": $bestScore",
+              style: TextStyle(
+                  fontSize: 25.0,
+                  color: theme == "dark"
+                      ? Color.fromARGB(255, 0, 0, 0)
+                      : Color(0xFF0c5c03)),
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Color(0xFF0c5c03)),
+                backgroundColor: MaterialStateProperty.all(theme == "dark"
+                    ? Color.fromARGB(255, 95, 158, 110)
+                    : Color.fromARGB(255, 95, 158, 110)),
               ),
               onPressed: leavePage,
-              child: Text(translate.translateString(lang, "Quitter"), style: TextStyle(color: Colors.white)),
+              child: Text(translate.translateString(lang, "Quitter"),
+                  style: TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 16.0),
             Visibility(
@@ -315,11 +340,14 @@ class _ModeOrthographyState extends State<ModeOrthography> {
             Visibility(
               visible: modeDone,
               child: Text(
-                translate.translateString(lang, "Bien joué, vous avez fini le mode d'entraînement orthographe !"),
+                translate.translateString(lang,
+                    "Bien joué, vous avez fini le mode d'entraînement orthographe !"),
                 style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0c5c03)),
+                    color: theme == "dark"
+                        ? Color.fromARGB(255, 0, 0, 0)
+                        : Color(0xFF0c5c03)),
               ),
             ),
           ],

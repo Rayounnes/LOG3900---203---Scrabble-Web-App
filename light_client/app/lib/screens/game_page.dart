@@ -167,8 +167,7 @@ class _GamePageState extends State<GamePage> {
                       Navigator.pop(context);
                     });
                   },
-                  child: TileWidget(
-                      letter: letters[index], points: "0"),
+                  child: TileWidget(letter: letters[index], points: "0"),
                 );
               },
             ),
@@ -575,6 +574,7 @@ class _GamePageState extends State<GamePage> {
                 left: 0,
                 top: 10,
                 child: TimerPage(
+                  theme: theme,
                   isClassicMode: widget.isClassicMode,
                   isObserver: widget.isObserver,
                 )),

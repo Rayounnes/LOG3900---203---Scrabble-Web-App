@@ -175,9 +175,12 @@ class _ChannelsState extends State<Channels> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
-      child: Column(
+      child: 
+      Column(
+        
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: 
+        <Widget>[
           SafeArea(
             child: Padding(
               padding: EdgeInsets.only(left: 16, right: 16, top: 10),
@@ -199,6 +202,7 @@ class _ChannelsState extends State<Channels> {
             physics: BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               return Stack(
+                
                 children: [
                   Channel(
                     name: discussions[index],

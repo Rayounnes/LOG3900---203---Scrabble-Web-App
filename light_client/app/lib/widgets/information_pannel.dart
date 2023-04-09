@@ -17,8 +17,9 @@ const RESERVE_START_LENGTH = 102;
 
 class TimerPage extends StatefulWidget {
   final bool isClassicMode, isObserver;
+  final String? theme;
   const TimerPage(
-      {super.key, required this.isClassicMode, required this.isObserver});
+      {super.key, required this.isClassicMode, required this.isObserver, this.theme});
 
   @override
   _TimerPageState createState() => _TimerPageState();
@@ -323,7 +324,7 @@ class _TimerPageState extends State<TimerPage> {
       height: 230,
       width: 800,
       decoration: BoxDecoration(
-        color: theme == "dark"
+        color: widget.theme == "dark"
             ? Color.fromARGB(255, 176, 176, 176)
             : Color.fromARGB(255, 214, 213, 213),
         borderRadius: BorderRadius.circular(20),
@@ -372,10 +373,10 @@ class _TimerPageState extends State<TimerPage> {
     return Expanded(
       child: Card(
         color: player.isTurn
-            ? (theme == "dark"
+            ? (widget.theme == "dark"
                 ? Colors.green
                 : Color.fromARGB(255, 168, 238, 170))
-            : (theme == "dark"
+            : (widget.theme == "dark"
                 ? Colors.grey[300]
                 : Color.fromARGB(255, 244, 243, 243)),
         child: ListTile(
