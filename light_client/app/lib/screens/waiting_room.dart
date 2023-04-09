@@ -37,6 +37,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "light";
 
   @override
   void initState() {
@@ -217,7 +218,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
   Widget build(BuildContext context) {
     return ParentWidget(
         child: Scaffold(
-            backgroundColor: Colors.green[800],
+            backgroundColor: theme == "dark"
+                ? Colors.green[800]
+                : Color.fromARGB(255, 207, 241, 207),
             bottomNavigationBar: LoadingTips(lang),
             body: Center(
               child: Container(
@@ -328,7 +331,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
                         if (isHost) ...[
                           GameButton(
                             padding: 16.0,
-                            name: translate.translateString(lang, "Lancer Partie"),
+                            name: translate.translateString(
+                                lang, "Lancer Partie"),
                             route: () {
                               // true: isLightClient
                               getIt<SocketService>().send('join-game', true);

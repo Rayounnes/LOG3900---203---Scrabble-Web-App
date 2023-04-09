@@ -40,7 +40,9 @@ class _GameModesState extends State<GameModes> {
   int _selectedButton = 1;
   int _selectedThemeButton = 1;
   bool _darkMode = false;
+  String theme = "light";
   // String selectedLanguage = "fr";
+  bool _isDarkMode = false;
 
   List<bool> _isSelected = [false, false, false];
 
@@ -109,7 +111,9 @@ class _GameModesState extends State<GameModes> {
     getIt<SocketService>().disconnect();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          backgroundColor: Color.fromARGB(255, 32, 107, 34),
+          backgroundColor: theme == "dark"
+              ? Color.fromARGB(255, 32, 107, 34)
+              : Color.fromARGB(255, 207, 241, 207),
           duration: Duration(seconds: 3),
           content: Text(translate.translateString(
               lang, "Vous avez été déconnecté avec succés"))),
@@ -153,6 +157,37 @@ class _GameModesState extends State<GameModes> {
         //   ),
         // ),
         Positioned(
+          top: 125,
+          left: 300,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  // _onButtonSelected(1);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: (_selectedButton == 1 && lang == 'fr')
+                      ? Color.fromARGB(255, 92, 196, 95)
+                      : Colors.grey,
+                ),
+                child: Icon(Icons.dark_mode),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _onButtonSelected(2);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: (_selectedButton == 2 && lang == 'en')
+                      ? Colors.green
+                      : Colors.grey,
+                ),
+                child: Icon(Icons.light_mode),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
           top: 100,
           left: 150,
           child: Column(
@@ -188,7 +223,9 @@ class _GameModesState extends State<GameModes> {
             height: 750,
             width: 500,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(203, 201, 201, 1),
+              color: theme == "dark"
+                  ? Color.fromARGB(255, 203, 201, 201)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 width: 1,
@@ -209,7 +246,7 @@ class _GameModesState extends State<GameModes> {
                 ),
                 SizedBox(height: 16.0),
                 GameButton(
-                    padding: 32.0,
+                    padding: 20.0,
                     name: translate.translateString(
                         lang, "Mode de jeu classique"),
                     route: () {
@@ -221,7 +258,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 20.0,
                     name: translate.translateString(
                         lang, "Mode de jeu coopératif"),
                     route: () {
@@ -233,7 +270,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 32.0,
+                    padding: 20.0,
                     name: translate.translateString(
                         lang, "Mode d'entrainement orthographe"),
                     route: () {
@@ -258,7 +295,7 @@ class _GameModesState extends State<GameModes> {
                       }));
                     }),
                 GameButton(
-                    padding: 10.0,
+                    padding: 20.0,
                     name: translate.translateString(lang, "Aide"),
                     route: () {
                       Navigator.pushNamed(context, '/helpScreen');

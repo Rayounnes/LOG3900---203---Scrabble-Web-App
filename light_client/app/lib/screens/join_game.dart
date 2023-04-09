@@ -235,7 +235,7 @@ class _JoinGamesState extends State<JoinGames> {
                 Text(
                   game.hasStarted
                       ? translate.translateString(lang, 'Partie en cours:')
-                      : translate.translateString(lang, 'Salle d\'attente:'),
+                      : translate.translateString(lang, "Salle d'attente:"),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),

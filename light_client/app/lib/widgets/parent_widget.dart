@@ -16,14 +16,17 @@ class ParentWidget extends StatefulWidget {
 class _ParentWidgetState extends State<ParentWidget> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _isExpanded = false;
+  String theme = "light";
 
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
         //bottomNavigationBar: HomePage(),
-        backgroundColor: Colors.green[800],
-        body: Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
+        backgroundColor:
+            theme == "dark" ? Colors.green[800] : Color.fromARGB(255, 207, 241, 207),
+        body:
+            Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
         floatingActionButton: keyboardIsOpened
             ? null
             : ElevatedButton(

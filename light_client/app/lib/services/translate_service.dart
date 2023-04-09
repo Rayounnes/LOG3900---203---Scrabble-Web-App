@@ -134,7 +134,7 @@ class TranslateService {
     //join_game
     "Parties": "Games",
     'Publique': "Public",
-    "Privée" : "Privée",
+    "Privée": "Privée",
     "disponibles": "available",
     "Partie de": "Game of",
     "Publique (protégé par mot de passe)": "Public (secured with password)",
@@ -148,7 +148,6 @@ class TranslateService {
     "Attente d'acceptation": "",
     "Vous êtes en attente d'être accepté par le hôte de la partie": "",
     "Vous avez été rejeté de la partie.": "",
-
     //mode_orthographe
     "Bienvenue au mode entrainement orthographe": "Welcome to orthography mode",
     "Commencer l'entraînement": "Start training",
@@ -209,6 +208,7 @@ class TranslateService {
   }
 
   translateString(String language, String stringToTranslate) {
+    print(stringToTranslate);
     if (language == 'fr') {
       return stringToTranslate;
     } else if (language == 'en') {

@@ -34,8 +34,9 @@ class _UserAccountPageState extends State<UserAccountPage> {
   bool showHistory = false;
   bool showTableChart = false;
   bool isEmpty = true;
-    String lang = "en";
+  String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "light";
 
   @override
   void initState() {
@@ -56,7 +57,6 @@ class _UserAccountPageState extends State<UserAccountPage> {
           lang = value['language'];
         });
       }
-
     });
   }
 
@@ -72,19 +72,25 @@ class _UserAccountPageState extends State<UserAccountPage> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          translate.translateString(lang,'Mon compte'),
+          translate.translateString(lang, 'Mon compte'),
         ),
       ),
-      body: Container(color: Color.fromARGB(255, 43, 150, 46),
+      body: Container(
+        color: theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 207, 241, 207),
         child: Padding(
           padding: const EdgeInsets.all(80.0),
           child: Center(
-            child: Container(color: Color.fromARGB(255, 228, 231, 224),
+            child: Container(
+              color: theme == "dark"
+                  ? Color.fromARGB(255, 203, 201, 201)
+                  : Colors.white,
               child: Column(
                 children: [
                   Container(
@@ -92,7 +98,9 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     child: Text(
                       isEmpty
                           ? ''
-                          : translate.translateString(lang,"Dernière connexion") + ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
+                          : translate.translateString(
+                                  lang, "Dernière connexion") +
+                              ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -113,8 +121,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                   ),
                   Container(
                     padding: EdgeInsets.all(20),
-                    child:
-                        Image.memory(widget.decodedBytes, height: 180, width: 180),
+                    child: Image.memory(widget.decodedBytes,
+                        height: 180, width: 180),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),

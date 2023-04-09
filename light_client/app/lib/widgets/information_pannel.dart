@@ -38,6 +38,7 @@ class _TimerPageState extends State<TimerPage> {
   int coins = 0;
   bool coinsGotFromDB = false;
   late Timer _timer;
+  String theme = "light";
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -132,7 +133,7 @@ class _TimerPageState extends State<TimerPage> {
             PlayerIdPoints = player.points;
         }
         // joueur a gagné
-        if(PlayerIdPoints > bestScore){
+        if (PlayerIdPoints > bestScore) {
           getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
         } else {
           getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
@@ -322,7 +323,9 @@ class _TimerPageState extends State<TimerPage> {
       height: 230,
       width: 800,
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: theme == "dark"
+            ? Color.fromARGB(255, 176, 176, 176)
+            : Color.fromARGB(255, 214, 213, 213),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           width: 1,
@@ -368,7 +371,13 @@ class _TimerPageState extends State<TimerPage> {
         : player.username;
     return Expanded(
       child: Card(
-        color: player.isTurn ? Colors.green : Colors.grey[300],
+        color: player.isTurn
+            ? (theme == "dark"
+                ? Colors.green
+                : Color.fromARGB(255, 168, 238, 170))
+            : (theme == "dark"
+                ? Colors.grey[300]
+                : Color.fromARGB(255, 244, 243, 243)),
         child: ListTile(
           leading: CircleAvatar(
             radius: 30,

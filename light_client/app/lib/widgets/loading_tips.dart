@@ -24,29 +24,27 @@ class _LoadingTipsState extends State<LoadingTips> {
   @override
   void initState() {
     super.initState();
-    // handleSockets();
-    // getConfigs();
+    handleSockets();
+    getConfigs();
     changeTip();
   }
 
-  // getConfigs() {
-  //   getIt<SocketService>().send("get-config");
-  // }
+  getConfigs() {
+    getIt<SocketService>().send("get-config");
+  }
 
-  // handleSockets() {
-  //   getIt<SocketService>().on("get-config", (value) {
-  //     lang = value['language'];
-  //     // changeTip();
-  //     if (mounted) {
-  //       setState(() {
-  //         lang = value['language'];
-  //         tips = lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
-  //       });
-  //     }
-  //   });
-  // }
-
-
+  handleSockets() {
+    getIt<SocketService>().on("get-config", (value) {
+      lang = value['language'];
+      // changeTip();
+      if (mounted) {
+        setState(() {
+          lang = value['language'];
+          tips = lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {

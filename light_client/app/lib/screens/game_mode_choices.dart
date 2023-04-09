@@ -27,6 +27,7 @@ class _GameChoicesState extends State<GameChoices> {
   final passwordGameController = TextEditingController();
   String lang = "en";
   TranslateService translate = new TranslateService();
+  final theme = "light";
 
   bool isClassicMode = false;
   Game game = Game(
@@ -113,13 +114,17 @@ class _GameChoicesState extends State<GameChoices> {
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.green[800],
+        backgroundColor: theme == "dark"
+            ? Colors.green[800]
+            : Color.fromARGB(255, 207, 241, 207),
         body: Center(
           child: Container(
             height: 400,
             width: 500,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(203, 201, 201, 1),
+              color: theme == "dark"
+                  ? Color.fromARGB(255, 203, 201, 201)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 width: 1,

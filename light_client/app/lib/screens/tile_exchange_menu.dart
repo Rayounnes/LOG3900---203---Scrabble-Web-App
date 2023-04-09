@@ -45,7 +45,6 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
           lang = value['language'];
         });
       }
-
     });
   }
 

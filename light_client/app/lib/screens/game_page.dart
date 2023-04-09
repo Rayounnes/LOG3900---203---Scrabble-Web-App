@@ -55,6 +55,7 @@ class _GamePageState extends State<GamePage> {
   String selectedLetter = '';
   String lang = "en";
   TranslateService translate = new TranslateService();
+  String theme = "dark";
 
   @override
   void initState() {
@@ -166,7 +167,8 @@ class _GamePageState extends State<GamePage> {
                       Navigator.pop(context);
                     });
                   },
-                  child: TileWidget(letter: letters[index], points: "0"),
+                  child: TileWidget(
+                      letter: letters[index], points: "0"),
                 );
               },
             ),
@@ -444,7 +446,6 @@ class _GamePageState extends State<GamePage> {
           lang = value['language'];
         });
       }
-
     });
   }
 
@@ -540,6 +541,9 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return ParentWidget(
       child: Scaffold(
+          backgroundColor: theme == "dark"
+              ? Color.fromARGB(255, 73, 73, 73)
+              : Color.fromARGB(255, 207, 241, 207),
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
@@ -580,7 +584,9 @@ class _GamePageState extends State<GamePage> {
               child: Container(
                 height: 750,
                 width: 750,
-                color: Color.fromRGBO(243, 174, 72, 1),
+                color: theme == "light"
+                    ? Color.fromARGB(255, 126, 126, 126)
+                    : Color.fromRGBO(243, 174, 72, 1),
                 child: Center(
                   child: CustomPaint(
                     painter: BoardPaint(widget.isObserver),
