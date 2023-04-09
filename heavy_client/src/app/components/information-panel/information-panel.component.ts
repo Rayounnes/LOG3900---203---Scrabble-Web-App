@@ -410,4 +410,18 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.socketService.send('observer-left');
         this.router.navigate(['/home']);
     }
+
+    getPlayerClass(player : GamePlayerInfos){
+        if(player.isTurn){
+            if(this.theme == 'dark'){
+                return 'player-active'
+            }
+            return 'player-active-white'
+        }else{
+            if(this.theme == 'white'){
+                return 'player-white'
+            }
+            return 'player'
+        }
+    }
 }

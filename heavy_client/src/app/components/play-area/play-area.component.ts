@@ -66,6 +66,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     langue = ""
     theme = ""
 
+
     constructor(
         public gridService: GridService,
         public socketService: ChatSocketClientService,

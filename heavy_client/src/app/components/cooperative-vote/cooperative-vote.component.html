@@ -12,7 +12,7 @@
     <span *ngIf="action.action === 'pass' && langue == 'en'">Pass turn</span>
   </div>
   
-  <div class="players" *ngIf="infoget">
+  <div [ngClass]="theme == 'white' ? 'players-white' : 'players'" *ngIf="infoget">
     <div *ngFor="let player of getKeys(action.socketAndChoice)" [ngClass]="getPlayerClass(player)">
         <img  [src]="usernameAndAvatars[player][1]" width="40px" height="40px"/>
         <div class="infos">
