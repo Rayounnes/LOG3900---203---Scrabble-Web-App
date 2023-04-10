@@ -488,6 +488,13 @@ export class SocketManager {
             for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
                 this.sio.to(opponentSocket).emit('cooperative-invalid-action', isPlacement);
         });
+
+        socket.on('show-startTile', (positions: any) => {
+            // envoyer a toutes les autres personnes la position de la case depart
+            console.log(positions);
+            for (const opponentSocket of this.gameManager.findOpponentSockets(socket.id))
+                this.sio.to(opponentSocket).emit('show-startTile', positions);
+        });
     }
     playerScoreHandler(socket: io.Socket) {
         socket.on('send-player-score', () => {

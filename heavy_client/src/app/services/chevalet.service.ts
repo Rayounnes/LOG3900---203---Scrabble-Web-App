@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { RackTile } from '@app/classes/rack-tile';
 import * as chevaletConstants from 'src/constants/chevalet-constants';
 import * as gridConstants from 'src/constants/grid-constants';
-import { LETTERS_POINTS } from 'src/constants/points-constants';
+// import { LETTERS_POINTS } from 'src/constants/points-constants';
 const RACK_SIZE = 7;
 const END_POSITION = 6;
 @Injectable({
@@ -78,35 +78,35 @@ export class ChevaletService {
       }
 
     writeOneLetterOnRack(letter: string, posx: number) {
-        this.chevaletContext.fillStyle = this.grid.black;
-        this.chevaletContext.font = this.chevalet.rackFont;
-        this.chevaletContext.fillText(
-            letter.toUpperCase(),
-            (((posx + this.chevalet.shiftPosX) * this.width) / this.chevalet.squareNumber)+(1.5*posx),
-            this.height / this.chevalet.factorPosY,
-        );
+        // this.chevaletContext.fillStyle = this.grid.black;
+        // this.chevaletContext.font = this.chevalet.rackFont;
+        // this.chevaletContext.fillText(
+        //     letter.toUpperCase(),
+        //     (((posx + this.chevalet.shiftPosX) * this.width) / this.chevalet.squareNumber)+(1.5*posx),
+        //     this.height / this.chevalet.factorPosY,
+        // );
     }
     writePoint(letter: string, posx: number) {
-        if (!letter) return;
-        let point = String(LETTERS_POINTS.get(letter));
-        this.chevaletContext.font = '15px system-ui';
-        if (letter === '*') point = '0';
-        this.chevaletContext.fillText(
-            point,
-            ((posx + this.chevalet.shiftPointX) * this.width) / this.chevalet.squareNumber,
-            this.height - this.chevalet.shiftPointY,
-        );
+        // if (!letter) return;
+        // let point = String(LETTERS_POINTS.get(letter));
+        // this.chevaletContext.font = '15px system-ui';
+        // if (letter === '*') point = '0';
+        // this.chevaletContext.fillText(
+        //     point,
+        //     ((posx + this.chevalet.shiftPointX) * this.width) / this.chevalet.squareNumber,
+        //     this.height - this.chevalet.shiftPointY,
+        // );
     }
 
     writeLettersOnRack(chevaletArray: string[]) {
-        for (let i = this.chevalet.startLine; i < this.chevalet.squareNumber; i++) {
-            if (chevaletArray[i] !== undefined) {
-                if (chevaletArray[i]) {
-                    this.writeOneLetterOnRack(chevaletArray[i], i);
-                    this.writePoint(chevaletArray[i], i);
-                }
-            }
-        }
+        // for (let i = this.chevalet.startLine; i < this.chevalet.squareNumber; i++) {
+        //     if (chevaletArray[i] !== undefined) {
+        //         if (chevaletArray[i]) {
+        //             this.writeOneLetterOnRack(chevaletArray[i], i);
+        //             this.writePoint(chevaletArray[i], i);
+        //         }
+        //     }
+        // }
     }
     makerackTilesIn() {
         for (const tiles of this.rackArray) {
