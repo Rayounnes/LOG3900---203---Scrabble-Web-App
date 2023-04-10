@@ -195,7 +195,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 if (channel['name'] === chatMessage.channel) {
                     this.checkUniqueUserIcon(chatMessage.username)
                     channel.messages.push(chatMessage);
-                    if (channel.messages[0].length === 0) channel.messages.shift();
+                    //if (channel.messages[0].length === 0) channel.messages.shift();
                     if (channel['name'] === this.currentChannel) {
                         this.chatMessages = channel.messages;
                     } else {
@@ -563,7 +563,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                 this.checkAllUsersIcon(channel['messages'])
                 if (channel['name'] === 'General') {
                     this.chatMessages = channel['messages'];
-                    if (channel.messages[0].length === 0) this.chatMessages.shift();
+                    //if (channel.messages[0].length === 0) this.chatMessages.shift();
                     setTimeout(() => this.automaticScroll(), 1);
                 }
                 channel['unread'] = false;
@@ -574,7 +574,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
 
     async checkAllUsersIcon(messages: any) {
         const keysArray: string[] = Array.from(this.usersIcons.keys());
-        if(messages[0].length == 0) messages.shift()
+        //if(messages[0].length == 0) messages.shift()
         for (let message of messages) {
           if (!keysArray.includes(message['username'])) {
             const icon: string[] = await this.communicationService.getAvatar(message['username']).toPromise();

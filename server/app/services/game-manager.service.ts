@@ -85,6 +85,7 @@ export class GameManager {
         game.virtualPlayers++;
         game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
         const gameScrabbleAbandoned = this.scrabbleGames.get(room) as ScrabbleClassicMode;
+        this.sio.to(socketId).emit("update-points-mean",(gameScrabbleAbandoned.getPlayerScore(socketId)))
         const virtualPlayer: string = gameScrabbleAbandoned.abandonPlayer(socketId);
         const abandonMessage = `${this.usernames.get(
             socketId,
@@ -117,6 +118,7 @@ export class GameManager {
         const game: Game = this.gameRooms.get(room) as Game;
         game.joinedPlayers = game.joinedPlayers.filter((player) => player.socketId !== socketId);
         const gameScrabbleAbandoned = this.getScrabbleGame(socketId) as ScrabbleCooperativeMode;
+        this.sio.to(socketId).emit("update-points-mean",(gameScrabbleAbandoned.getPlayerScore()))
         const playerRemaining: number = gameScrabbleAbandoned.abandonPlayer(socketId);
         const abandonMessage = `${this.usernames.get(socketId)} a abandonné la partie.`;
         this.leaveRoom(socketId);

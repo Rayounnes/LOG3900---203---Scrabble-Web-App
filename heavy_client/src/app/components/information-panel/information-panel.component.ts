@@ -282,6 +282,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.resetProgressCircle();
             this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
         });
+        this.socketService.on('get-duration-abandon',()=>{
+            this.socketService.send('game-duration', this.gameDuration)
+        })
     }
 
     addScore(): void {

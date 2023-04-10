@@ -520,6 +520,8 @@ export class SocketManager {
             await this.leaveChannel(socket, room);
             if (game.isClassicMode) this.gameManager.abandonClassicGame(socket.id);
             else this.gameManager.abandonCooperativeGame(socket.id);
+            if (game.isClassicMode) this.sio.to(socket.id).emit('game-loss')
+            this.sio.to(socket.id).emit('get-duration-abandon')
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
         socket.on('quit-game', async () => {
