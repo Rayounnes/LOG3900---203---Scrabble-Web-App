@@ -47,6 +47,7 @@ class _ChannelsState extends State<Channels> {
 
   String chatDeleted = '';
   String chatJoined = '';
+  String usernameMain ='';
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 
@@ -82,21 +83,8 @@ class _ChannelsState extends State<Channels> {
       print('Error fetching channels: $error');
     });
 
-
-      getIt<SocketService>().on("notify-message", (message) async {
-      try {
-        if (mounted) {
-          setState(() async {  
-          showNotification(message['message'], message['channel']);
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
-    });
-
-
     getIt<SocketService>().on("sendUsername", (username) async {
+      usernameMain = username;
       ApiService().getChannelsOfUsers(username).then((response) {
         channelsUsers = response;
         setState(() {
@@ -129,7 +117,13 @@ class _ChannelsState extends State<Channels> {
     getIt<SocketService>().on("notify-message", (message) {
       try {
         if (mounted) {
-          setState(() {
+          setState(() async {
+            if(usernameMain != message['username']) {
+                 showNotification(message['message'], message['channel']);
+
+            }
+             
+       
             for (int i = 0; i < discussions.length; i++) {
               if (message['channel'] == discussions[i]) {
                 newMessage[i] = true;

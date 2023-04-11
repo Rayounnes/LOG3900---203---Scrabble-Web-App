@@ -109,7 +109,6 @@ class _ChatPageState extends State<ChatPage> {
       print(response);
 
       for (dynamic res in response) {
-      print("AAAAAAAAAH");
       print(res);
       ChatMessage message = ChatMessage.fromJson(res);
       messages.add(message);

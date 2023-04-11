@@ -398,6 +398,7 @@ export class SocketManager {
             console.log('un message envoye!');
             this.sio.to(message.channel as string).emit('chatMessage', message);
             this.sio.to(message.channel as string).emit('notify-message', message);
+            
             this.channelService.addMessageToChannel(message);
         });
     }
