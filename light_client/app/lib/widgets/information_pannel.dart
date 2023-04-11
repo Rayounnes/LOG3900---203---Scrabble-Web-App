@@ -126,21 +126,6 @@ class _TimerPageState extends State<TimerPage> {
       setState(() {
         players = playersList;
       });
-      if (isGameFinished) {
-        var bestScore = 0;
-        var PlayerIdPoints = 0;
-        for (var player in players) {
-          if (player.points > bestScore) bestScore = player.points;
-          if (player.socket == getIt<SocketService>().socketId)
-            PlayerIdPoints = player.points;
-        }
-        // joueur a gagné
-        if (PlayerIdPoints > bestScore) {
-          getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
-        } else {
-          getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
-        }
-      }
     });
     getIt<SocketService>().on('freeze-timer', (_) {
       _timer.cancel();
@@ -189,7 +174,6 @@ class _TimerPageState extends State<TimerPage> {
       }).catchError((error) {
         print('Error in coins win: $error');
       });
-      coinsCongratulation(context, coinsGained as int);
     });
     getIt<SocketService>().on('time-add', (timeToAdd) {
       setState(() {
@@ -237,48 +221,6 @@ class _TimerPageState extends State<TimerPage> {
     }).catchError((error) {
       print('Error in time-add: $error');
     });
-  }
-
-  // void buyTimeDialog(BuildContext context) {
-  //   showDialog(
-  //       context: context,
-  //       barrierDismissible: true,
-  //       builder: (BuildContext context) {
-  //         return StatefulBuilder(builder: (context, setState) {
-  //           return AlertDialog(
-  //             title: const Text("Achat de temps"),
-  //             content: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 timeBuyOption(5, 10, Icons.timer),
-  //                 timeBuyOption(10, 20, Icons.timer),
-  //                 timeBuyOption(20, 40, Icons.timer),
-  //               ],
-  //             ),
-  //           );
-  //         });
-  //       });
-  // }
-
-  void coinsCongratulation(BuildContext context, int gainedCoins) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: Text('Congratulations!'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.monetization_on,
-                      size: 48.0, color: Colors.yellow[700]),
-                  SizedBox(height: 16.0),
-                  Text('You won $gainedCoins coins!',
-                      style: TextStyle(fontSize: 24.0)),
-                  SizedBox(height: 16.0),
-                ],
-              ));
-        });
   }
 
   Widget timeBuyOption(int time, int cost, IconData icon) {

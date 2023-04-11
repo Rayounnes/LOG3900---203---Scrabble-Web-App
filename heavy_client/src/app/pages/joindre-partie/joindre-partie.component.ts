@@ -56,8 +56,7 @@ export class JoindrePartieComponent implements OnInit, OnDestroy {
 
     configureBaseSocketFeatures() {
         this.socketService.on('update-joinable-matches', (param: Game[]) => {
-            console.log("update-joinable-matches");
-            this.gameList = param;
+            this.gameList = param.filter((game: Game) => game.isClassicMode === this.isClassic);
             this.gameList.push();
         });
         this.socketService.on('join-late-observer', () => {

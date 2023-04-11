@@ -26,6 +26,17 @@ class _ChannelsState extends State<Channels> {
     initNotifications();
   }
 
+  @override
+  void dispose() {
+    print("dispose channels called");
+    getIt<SocketService>().userSocket.off('sendUsername');
+    getIt<SocketService>().userSocket.off('channel-created');
+    getIt<SocketService>().userSocket.off("leave-channel");
+    getIt<SocketService>().userSocket.off("channels-joined");
+    getIt<SocketService>().userSocket.off('get-configs');
+    super.dispose();
+  }
+
   getConfigs() {
     getIt<SocketService>().send("get-config");
   }

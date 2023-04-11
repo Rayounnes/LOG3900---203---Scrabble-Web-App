@@ -90,6 +90,7 @@ class _GameModesState extends State<GameModes> {
 
   @override
   void dispose() {
+    getIt<SocketService>().userSocket.off('get-configs');
     super.dispose();
   }
 

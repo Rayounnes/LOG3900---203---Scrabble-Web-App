@@ -56,7 +56,8 @@ class _JoinGamesState extends State<JoinGames> {
       setState(() {
         games = [];
         for (final game in gamesJson) {
-          games.add(Game.fromJson(game));
+          if (game["isClassicMode"] == isClassic)
+            games.add(Game.fromJson(game));
         }
       });
     });

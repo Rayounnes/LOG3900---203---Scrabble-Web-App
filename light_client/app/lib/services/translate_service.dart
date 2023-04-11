@@ -91,7 +91,7 @@ class TranslateService {
     'Bonne chance!': "Good luck!",
     'Oh non!': "Oh no!",
     'Salut!': 'Hey',
-    'Nul!':'You suck!',
+    'Nul!': 'You suck!',
     "Écris un message ...": "Write a message...",
 
     //gallery_page && camera_page
@@ -229,11 +229,9 @@ class TranslateService {
     "Accepter": "Accept",
     "a quitté l'attente d'acceptation.": "has left waiting for approval.",
   };
-  translateService() {
-  }
+  translateService() {}
 
   translateString(String language, String stringToTranslate) {
-    print(stringToTranslate);
     if (language == 'fr') {
       return stringToTranslate;
     } else if (language == 'en') {

@@ -39,6 +39,12 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    print("dispose chat called");
+    getIt<SocketService>().userSocket.off('chatMessage');
+    getIt<SocketService>().userSocket.off('isTypingMessage');
+    getIt<SocketService>().userSocket.off("change-username");
+    getIt<SocketService>().userSocket.off("isNotTypingMessage");
+    getIt<SocketService>().userSocket.off('get-configs');
     messageController.dispose();
     scrollController.dispose();
     super.dispose();

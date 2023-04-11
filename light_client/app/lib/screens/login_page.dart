@@ -22,7 +22,7 @@ class _LoginDemoState extends State<LoginDemo> {
   final passwordController = TextEditingController();
   bool buttonEnabled = true;
 
-  String lang = "en";
+  String lang = "fr";
   TranslateService translate = new TranslateService();
   String selectedLanguage = 'fr';
 

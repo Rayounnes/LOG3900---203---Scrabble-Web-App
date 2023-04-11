@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:app/services/socket_client.dart';
 import 'package:app/services/translate_service.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import 'package:app/main.dart';
@@ -204,7 +205,8 @@ class _ModeOrthographyState extends State<ModeOrthography> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ParentWidget(
+        child: Scaffold(
       body: Container(
         color: theme == "dark"
             ? Color.fromARGB(255, 68, 98, 68)
@@ -353,6 +355,6 @@ class _ModeOrthographyState extends State<ModeOrthography> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

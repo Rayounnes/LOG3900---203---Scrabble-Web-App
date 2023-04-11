@@ -27,7 +27,7 @@ import { ModeOrthography } from './mode-orthography.service';
 
 export class SocketManager {
     private sio: io.Server;
-    // private roomIncrement = 1;
+    private gameRoomIncrement = 1;
     // private roomName: string;
     private usernames = new Map<string, string>(); // socket id - username;
     private gameRooms = new Map<string, Game>(); // roomname - game
@@ -63,7 +63,8 @@ export class SocketManager {
     //     this.roomName = 'room' + this.roomIncrement;
     // }
     createGame(game: Game, socketId: string) {
-        game.room = `Partie de ${game.hostUsername}`;
+        game.room = `Partie no ${this.gameRoomIncrement} (de ${game.hostUsername})`;
+        this.gameRoomIncrement++;
         this.gameRooms.set(game.room, game);
         game.hostID = socketId;
         this.usersRoom.set(socketId, game.room);
@@ -105,6 +106,7 @@ export class SocketManager {
             const gameCanceled = this.gameRooms.get(this.usersRoom.get(socket.id) as string) as Game;
             this.gameManager.leaveRoom(socket.id);
             socket.leave(gameCanceled.room);
+            this.gameRoomIncrement--;
             this.sio.to(gameCanceled.room).emit('cancel-match');
             for (const player of gameCanceled.joinedPlayers) {
                 this.sio.sockets.sockets.get(player.socketId)?.leave(gameCanceled.room);

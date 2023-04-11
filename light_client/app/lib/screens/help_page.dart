@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:app/constants/widgets.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/sliding_image.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +37,7 @@ class _HelpSectionState extends State<HelpSection> {
   void initState() {
     super.initState();
     handleSockets();
-    if(lang == "en"){
+    if (lang == "en") {
       topicsName = TOPICS_NAME[1];
       topicText = [
         CLASSIC_MODE_HELP_TEXT[1],
@@ -45,7 +46,7 @@ class _HelpSectionState extends State<HelpSection> {
         PROFILE_HELP_TEXT[1],
         BONUS_HELP_TEXT[1],
       ];
-    }else{
+    } else {
       topicsName = TOPICS_NAME[0];
       topicText = [
         CLASSIC_MODE_HELP_TEXT[0],
@@ -77,15 +78,16 @@ class _HelpSectionState extends State<HelpSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ParentWidget(
+        child: Scaffold(
       appBar: AppBar(
-        title: Text(translate.translateString(
-        lang,'Aide')),
+        title: Text(translate.translateString(lang, 'Aide')),
       ),
       body: Scrollbar(
         thickness: 15,
         thumbVisibility: true,
-        child: Container(color: Color.fromARGB(255, 145, 213, 161),
+        child: Container(
+          color: Color.fromARGB(255, 145, 213, 161),
           child: ListView.builder(
             itemCount: topicsName.length,
             itemBuilder: (context, index) {
@@ -108,8 +110,7 @@ class _HelpSectionState extends State<HelpSection> {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(topicsName[index],
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700)),
+                                    fontSize: 20, fontWeight: FontWeight.w700)),
                           ),
                         ),
                       ),
@@ -132,10 +133,11 @@ class _HelpSectionState extends State<HelpSection> {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
                             return SlidingImage(
-                                imagePath: topicList[index]!,
-                                imageText: textList[index]!,
-                                helpTopic: topicsName[index],
-                                lang: lang,);
+                              imagePath: topicList[index]!,
+                              imageText: textList[index]!,
+                              helpTopic: topicsName[index],
+                              lang: lang,
+                            );
                           }))
                         },
                         child: Icon(Icons.info),
@@ -148,7 +150,7 @@ class _HelpSectionState extends State<HelpSection> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   displayHelpTopics(BuildContext context, List<String> imagePath) {

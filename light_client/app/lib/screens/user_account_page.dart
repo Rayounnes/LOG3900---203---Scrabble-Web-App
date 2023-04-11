@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:app/screens/user_account_edit_page.dart';
 import 'package:app/widgets/connexion_history.dart';
+import 'package:app/widgets/parent_widget.dart';
 import 'package:app/widgets/stats_table.dart';
 import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ParentWidget(
+        child: Scaffold(
       appBar: AppBar(
         title: Text(
           translate.translateString(lang, 'Mon compte'),
@@ -133,7 +135,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                           : translate.translateString(
                                   lang, "Dernière connexion") +
                               ": ${widget.connexionHistory[widget.connexionHistory.length - 1][0]}",
-                      style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
                     ),
                   ),
                   Container(
@@ -142,7 +145,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                       children: [
                         Text(
                           widget.userName,
-                          style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -171,7 +175,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top:20.0,right:20.0),
+                        padding: const EdgeInsets.only(top: 20.0, right: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -186,7 +190,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top:20.0,left: 20.0),
+                        padding: const EdgeInsets.only(top: 20.0, left: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -204,7 +208,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                   ),
                   if (showHistory)
                     Padding(
-                      padding: const EdgeInsets.only(top:15.0),
+                      padding: const EdgeInsets.only(top: 15.0),
                       child: Container(
                         height: 400,
                         child: ConnectionHistoryList(
@@ -229,6 +233,6 @@ class _UserAccountPageState extends State<UserAccountPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

@@ -56,7 +56,6 @@ class _LoadingTipsState extends State<LoadingTips> {
   void changeTip() {
     setState(() {
       tips = widget.lang == 'fr' ? List.from(TIPS_FR) : List.from(TIPS_EN);
-      print(widget.lang);
       index = index > 28 ? 1 : index;
       tip = tips[index];
       index = (index + 1) % tips.length;
