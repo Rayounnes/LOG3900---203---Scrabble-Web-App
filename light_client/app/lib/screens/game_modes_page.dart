@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:app/constants/widgets.dart';
 import 'package:app/screens/game_mode_choices.dart';
+import 'package:app/screens/help_page.dart';
 import 'package:app/screens/mode_orthography.dart';
 import 'package:app/screens/user_account_page.dart';
 import 'package:app/services/translate_service.dart';
@@ -179,36 +180,6 @@ class _GameModesState extends State<GameModes> {
         theme: theme,
         child: Stack(
           children: [
-            // Positioned(
-            //   top: 80,
-            //   left: 300,
-            //   child: Column(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: <Widget>[
-            //       ElevatedButton(
-            //         onPressed: () {
-            //           _onButtonThemeSelected(1);
-            //         },
-            //         style: ElevatedButton.styleFrom(
-            //           primary: _selectedButton == 1
-            //               ? Color.fromARGB(255, 47, 60, 47)
-            //               : Colors.grey,
-            //         ),
-            //         child: Icon(Icons.dark_mode),
-            //       ),
-            //       ElevatedButton(
-            //         onPressed: () {
-            //           _onButtonThemeSelected(2);
-            //         },
-            //         style: ElevatedButton.styleFrom(
-            //           primary:
-            //               _selectedThemeButton == 2 ? Colors.green : Colors.grey,
-            //         ),
-            //         child: Icon(Icons.light_mode),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             Positioned(
               top: 140,
               left: 550,
@@ -357,7 +328,13 @@ class _GameModesState extends State<GameModes> {
                         padding: 20.0,
                         name: translate.translateString(lang, "Aide"),
                         route: () {
-                          Navigator.pushNamed(context, '/helpScreen');
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return HelpSection(
+                                  lang: lang,
+                                  theme:theme,
+                                );
+                              }));
                         }),
                     GameButton(
                         theme: theme,

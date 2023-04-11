@@ -7,7 +7,6 @@ import 'package:app/widgets/stats_table.dart';
 import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
-import '../models/personnalisation.dart';
 import '../services/socket_client.dart';
 
 class UserAccountPage extends StatefulWidget {
@@ -171,7 +170,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top:20.0,right:20.0),
+                        padding: const EdgeInsets.only(top: 20.0, right: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -186,7 +185,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top:20.0,left: 20.0),
+                        padding: const EdgeInsets.only(top: 20.0, left: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -204,13 +203,16 @@ class _UserAccountPageState extends State<UserAccountPage> {
                   ),
                   if (showHistory)
                     Padding(
-                      padding: const EdgeInsets.only(top:15.0),
+                      padding: const EdgeInsets.only(top: 15.0),
                       child: Container(
                         height: 400,
                         child: ConnectionHistoryList(
-                            connectionHistory: List.from(newList.reversed),
-                            deconnectionHistory: List.from(newList.reversed),
-                            gameHistory: List.from(gamesHistory.reversed)),
+                          connectionHistory: List.from(newList.reversed),
+                          deconnectionHistory: List.from(newList.reversed),
+                          gameHistory: List.from(gamesHistory.reversed),
+                          lang: lang,
+                          theme: theme,
+                        ),
                       ),
                     ),
                   if (showTableChart)
@@ -221,6 +223,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         gamesWon: gamesWon,
                         avgPointsPerGame: avgPointsPerGame,
                         avgTimePerGame: avgTimePerGame,
+                        lang: lang,
+                        theme: theme,
                       ),
                     ),
                 ],

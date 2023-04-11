@@ -3,12 +3,14 @@ import 'package:app/constants/widgets.dart';
 import 'package:app/widgets/sliding_image.dart';
 import 'package:flutter/material.dart';
 
-import '../main.dart';
-import '../models/personnalisation.dart';
-import '../services/socket_client.dart';
 import '../services/translate_service.dart';
 
 class HelpSection extends StatefulWidget {
+  final String lang;
+  final String theme;
+
+  const HelpSection({super.key, required this.lang, required this.theme});
+
   @override
   State<HelpSection> createState() => _HelpSectionState();
 }
@@ -18,7 +20,7 @@ class _HelpSectionState extends State<HelpSection> {
   Map<int, List<String>> topicList = {};
   Map<int, List<String>> textList = {};
   TranslateService translate = TranslateService();
-  late Personnalisation langOrTheme;
+  String theme = "white";
   String lang = "en";
   List<String> topicsName = [];
   final List<List<String>> topicImages = [
@@ -31,12 +33,15 @@ class _HelpSectionState extends State<HelpSection> {
 
   List<List<String>> topicText = [];
 
-  int currentIndex = 0;
-
   void initState() {
     super.initState();
-    handleSockets();
-    if(lang == "en"){
+    getConfigs();
+  }
+
+  getConfigs() {
+    lang = widget.lang;
+    theme = widget.theme;
+    if (lang == "en") {
       topicsName = TOPICS_NAME[1];
       topicText = [
         CLASSIC_MODE_HELP_TEXT[1],
@@ -45,7 +50,7 @@ class _HelpSectionState extends State<HelpSection> {
         PROFILE_HELP_TEXT[1],
         BONUS_HELP_TEXT[1],
       ];
-    }else{
+    } else {
       topicsName = TOPICS_NAME[0];
       topicText = [
         CLASSIC_MODE_HELP_TEXT[0],
@@ -56,16 +61,6 @@ class _HelpSectionState extends State<HelpSection> {
       ];
     }
     fillTopicImages();
-  }
-
-  void dispose() {
-    super.dispose();
-  }
-
-  void handleSockets() {
-    getIt<SocketService>().on("get-configs", (value) {
-      langOrTheme = value;
-    });
   }
 
   void fillTopicImages() {
@@ -79,13 +74,13 @@ class _HelpSectionState extends State<HelpSection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(translate.translateString(
-        lang,'Aide')),
+        title: Text(translate.translateString(lang, 'Aide')),
       ),
       body: Scrollbar(
         thickness: 15,
         thumbVisibility: true,
-        child: Container(color: Color.fromARGB(255, 145, 213, 161),
+        child: Container(
+          color: Color.fromARGB(255, 145, 213, 161),
           child: ListView.builder(
             itemCount: topicsName.length,
             itemBuilder: (context, index) {
@@ -108,8 +103,7 @@ class _HelpSectionState extends State<HelpSection> {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(topicsName[index],
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700)),
+                                    fontSize: 20, fontWeight: FontWeight.w700)),
                           ),
                         ),
                       ),
@@ -132,10 +126,11 @@ class _HelpSectionState extends State<HelpSection> {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
                             return SlidingImage(
-                                imagePath: topicList[index]!,
-                                imageText: textList[index]!,
-                                helpTopic: topicsName[index],
-                                lang: lang,);
+                              imagePath: topicList[index]!,
+                              imageText: textList[index]!,
+                              helpTopic: topicsName[index],
+                              lang: lang,
+                            );
                           }))
                         },
                         child: Icon(Icons.info),

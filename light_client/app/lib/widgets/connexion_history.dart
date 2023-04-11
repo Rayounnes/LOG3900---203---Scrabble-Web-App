@@ -7,12 +7,16 @@ class ConnectionHistoryList extends StatefulWidget {
   final List<String> connectionHistory;
   final List<String> deconnectionHistory;
   final List gameHistory;
+  final String lang;
+  final String theme;
 
   const ConnectionHistoryList(
       {super.key,
       required this.connectionHistory,
       required this.deconnectionHistory,
-      required this.gameHistory});
+      required this.gameHistory,
+      required this.lang,
+      required this.theme});
 
   @override
   _ConnectionHistoryListState createState() => _ConnectionHistoryListState();
@@ -21,23 +25,29 @@ class ConnectionHistoryList extends StatefulWidget {
 class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
   String lang = "en";
   TranslateService translate = TranslateService();
+  String theme = "white";
   final List<String> newList = [];
 
   @override
   void initState() {
     super.initState();
-    fillHistoryList();
+    getConfigs();
   }
 
   void fillHistoryList() {
-    for (int i=0; i< widget.gameHistory.length; i++) {
-      String res = translate.translateString(
-          lang,"Partie perdue");
-      if(widget.gameHistory[i][1]) {
-        res = translate.translateString(lang,"Partie gagnée");
+    for (int i = 0; i < widget.gameHistory.length; i++) {
+      String res = translate.translateString(lang, "Partie perdue");
+      if (widget.gameHistory[i][1]) {
+        res = translate.translateString(lang, "Partie gagnée");
       }
       newList.add("${widget.gameHistory[i][0]} \n$res");
     }
+  }
+
+  getConfigs() {
+    lang =widget.lang;
+    theme =widget.theme;
+    fillHistoryList();
   }
 
   @override
