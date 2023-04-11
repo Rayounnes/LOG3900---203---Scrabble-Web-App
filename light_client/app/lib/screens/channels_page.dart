@@ -415,7 +415,7 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General') {
+              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("delete-channel", chatDeleted);
                 setState(() {
 
@@ -489,7 +489,7 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General') {
+              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("leave-channel", chatDeleted);
                 setState(() {
 
