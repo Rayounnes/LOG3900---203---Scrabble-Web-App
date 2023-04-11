@@ -646,8 +646,11 @@ export class SocketManager {
     userTyping(socket: io.Socket) {
         socket.on('isTypingMessage', (message: ChatMessage) => {
             if (message.message.length > 0) {
+                console.log('tu ecris');
+                console.log(message);
                 this.sio.to(message.channel as string).emit('isTypingMessage', { channel: message.channel, player: message.username });
             } else {
+                console.log('tu necris pas');
                 this.sio.to(message.channel as string).emit('isNotTypingMessage', { channel: message.channel, player: message.username });
             }
         });
@@ -720,32 +723,32 @@ export class SocketManager {
     }
 
     updateUserPointsMean(socket : io.Socket){
-        socket.on("update-points-mean",async (points : number)=>{
+        socket.on('update-points-mean',async (points : number)=>{
             let username = this.usernames.get(socket.id) as string;
             await this.loginService.updateUserPointsMean(username,points);
         })
     }
 
     getUserPointsMean(socket : io.Socket){
-        socket.on("get-points-mean",async (points : number)=>{
+        socket.on('get-points-mean',async (points : number)=>{
             let username = this.usernames.get(socket.id) as string;
             let userPoints = await this.loginService.getUserPointsMean(username);
-            this.sio.to(socket.id).emit("get-points-mean",userPoints)
+            this.sio.to(socket.id).emit('get-points-mean',userPoints)
         })
     }
 
     updateGameTimeAverage(socket : io.Socket){
-        socket.on("game-duration",async (duration : number)=>{
+        socket.on('game-duration',async (duration : number)=>{
             let username = this.usernames.get(socket.id) as string;
             await this.loginService.updateUserTimeAverage(username,duration)
         })
     }
 
     getGameTimeAverage(socket : io.Socket){
-        socket.on("get-game-average",async (points : number)=>{
+        socket.on('get-game-average',async (points : number)=>{
             let username = this.usernames.get(socket.id) as string;
             let timeAverage = await this.loginService.getUserTimeAverage(username);
-            this.sio.to(socket.id).emit("get-game-average",timeAverage)
+            this.sio.to(socket.id).emit('get-game-average',timeAverage)
         })
     }
 

@@ -48,6 +48,7 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatMessage> messages = [];
   String currentChat = '';
   bool isTyping = false;
+  bool isTypingSend = false;
   String userTyping = "";
   int countUsersTyping = 0;
   List<String> usersTyping = [];
@@ -150,8 +151,11 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() {
-            if (message['channel'] == widget.discussion) {
+            print(message['player']);
+            print(username);
+            if (message['channel'] == widget.discussion && message['player'] != username) {
               isTyping = true;
+              print("yooooooooooooooooo");
               countUsersTyping = countUsersTyping + 1;
               userTyping = message['player'];
               usersTyping.add(userTyping);
@@ -174,7 +178,7 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() {
-            if (message['channel'] == widget.discussion) {
+            if (message['channel'] == widget.discussion && message['player'] != username) {
               countUsersTyping = countUsersTyping - 1;
               usersTyping.remove(message['player']);
               if (usersTyping.isNotEmpty) {
@@ -210,7 +214,8 @@ class _ChatPageState extends State<ChatPage> {
         username: username,
         message: 'typing',
         time: DateFormat.Hms().format(DateTime.now()),
-        type: 'player');
+        type: 'player',
+        channel:widget.discussion);
     getIt<SocketService>().send('isTypingMessage', message);
   }
 
@@ -219,7 +224,8 @@ class _ChatPageState extends State<ChatPage> {
         username: username,
         message: '',
         time: DateFormat.Hms().format(DateTime.now()),
-        type: 'player');
+        type: 'player',
+        channel:widget.discussion);
     getIt<SocketService>().send('isTypingMessage', message);
   }
 
@@ -232,6 +238,8 @@ class _ChatPageState extends State<ChatPage> {
         time: DateFormat.Hms().format(DateTime.now()),
         channel: widget.discussion);
     getIt<SocketService>().send('chatMessage', message);
+    sendUserIsNotTyping();
+    isTypingSend = false;
     messageController.clear();
   }
 
@@ -288,7 +296,9 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           if (isTyping && countUsersTyping == 1)
+        
             Padding(
+              
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
                 userTyping +
@@ -296,6 +306,7 @@ class _ChatPageState extends State<ChatPage> {
                         lang, " est en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
+              
             ),
           Align(
             alignment: Alignment.topLeft,
@@ -371,11 +382,18 @@ class _ChatPageState extends State<ChatPage> {
                       },
                       controller: messageController,
                       onChanged: (value) {
-                        if (value.isNotEmpty) {
+                        print("OOOOOOOOOO");
+                        print(value.isNotEmpty);
+                        
+                        
+                        if (value.isNotEmpty && !isTypingSend) {
+                          isTypingSend = true;
                           sendUserIsTyping();
-                        } else {
+                        } else if(!value.isNotEmpty && isTypingSend) {
+                          isTypingSend= false;
                           sendUserIsNotTyping();
                         }
+                        else{}
                       },
                       decoration: InputDecoration(
                         hintText: translate.translateString(

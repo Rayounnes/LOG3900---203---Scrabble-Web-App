@@ -253,6 +253,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.getUserChannels();
         });
         this.socketService.on('isTypingMessage', (message: any) => {
+            console.log(message);
             if (message.player !== this.username) {
                 let channel: any;
                 for (channel of this.allUserChannels) {
