@@ -43,7 +43,6 @@ class _GameModesState extends State<GameModes> {
   int _selectedThemeButton = 1;
   bool _darkMode = false;
   String theme = "white";
-  // String selectedLanguage = "fr";
   bool _isDarkMode = false;
 
   List<bool> _isSelected = [false, false, false];
@@ -317,7 +316,6 @@ class _GameModesState extends State<GameModes> {
                             getUserInfo();
                             return UserAccountPage(
                               connexionHistory: connexionHistory,
-                              deconnectionHistory: connexionHistory,
                               userName: userName,
                               decodedBytes: decodedBytes,
                             );

@@ -80,7 +80,7 @@ class _ConnectionHistoryListState extends State<ConnectionHistoryList> {
         body: TabBarView(
           children: [
             buildTabView(context, widget.connectionHistory),
-            buildTabView(context, widget.connectionHistory),
+            buildTabView(context, widget.deconnectionHistory),
             buildTabView(context, newList),
           ],
         ),
