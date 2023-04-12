@@ -58,6 +58,7 @@ class _ChannelsState extends State<Channels> {
 
   String chatDeleted = '';
   String chatJoined = '';
+  String usernameMain ='';
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 
@@ -93,21 +94,8 @@ class _ChannelsState extends State<Channels> {
       print('Error fetching channels: $error');
     });
 
-
-      getIt<SocketService>().on("notify-message", (message) async {
-      try {
-        if (mounted) {
-          setState(() async {  
-          showNotification(message['message'], message['channel']);
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
-    });
-
-
     getIt<SocketService>().on("sendUsername", (username) async {
+      usernameMain = username;
       ApiService().getChannelsOfUsers(username).then((response) {
         channelsUsers = response;
         setState(() {
@@ -137,17 +125,39 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
+    getIt<SocketService>().on("change-notif", (channel) async {
+      try {
+        if (mounted) {
+          setState(() async {
+  
+             for (int i = 0; i < discussions.length; i++) {
+              if (channel == discussions[i]) {
+                newMessage[i] = false;
+              }
+            }
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    
+
     getIt<SocketService>().on("notify-message", (message) {
       try {
         if (mounted) {
           setState(() {
-            for (int i = 0; i < discussions.length; i++) {
+              for (int i = 0; i < discussions.length; i++) {
               if (message['channel'] == discussions[i]) {
                 newMessage[i] = true;
-                print(ModalRoute.of(context)?.settings?.name);
               }
             }
+            
           });
+          if(usernameMain != message['username']) {
+                 showNotification(message['message'], message['channel']);
+            }
         }
       } catch (e) {
         print(e);
@@ -432,7 +442,7 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General') {
+              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("delete-channel", chatDeleted);
                 setState(() {
 
@@ -506,7 +516,7 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General') {
+              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("leave-channel", chatDeleted);
                 setState(() {
 
