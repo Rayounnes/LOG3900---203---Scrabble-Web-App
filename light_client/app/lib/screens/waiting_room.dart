@@ -170,6 +170,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
           joinGameSocket: () {
             getIt<SocketService>().send('start-game-light-client');
           },
+          theme: theme,
+          lang: lang,
         );
       }));
     });

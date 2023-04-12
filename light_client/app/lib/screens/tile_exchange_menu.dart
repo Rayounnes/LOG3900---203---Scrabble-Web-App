@@ -33,6 +33,12 @@ class _TileExchangeMenuState extends State<TileExchangeMenu> {
     handleSockets();
   }
 
+  @override
+  void dispose() {
+    getIt<SocketService>().userSocket.off("get-config");
+    super.dispose();
+  }
+
   getConfigs() {
     getIt<SocketService>().send("get-config");
   }

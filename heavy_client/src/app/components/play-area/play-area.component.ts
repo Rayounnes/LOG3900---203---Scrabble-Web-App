@@ -46,7 +46,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     mode: string;
     isClassic: boolean;
     isObserver: boolean;
-    startTileOpponent: Vec2 ={x:-1, y:-1};
+    startTileOpponent: Vec2 = { x: -1, y: -1 };
 
     dialogConfig = new MatDialogConfig();
 
@@ -64,9 +64,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     firstLetterPos: Vec2;
     hintWords: WordArgs[] = [];
 
-    langue = ""
-    theme = ""
-
+    langue = '';
+    theme = '';
 
     constructor(
         public gridService: GridService,
@@ -95,22 +94,19 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-
         this.buttonPressed = event.key;
         console.log(this.keyboard.letters.length);
         if (this.buttonPressed === 'Enter') {
             if (this.gridService.board.verifyPlacement(this.keyboard.letters) !== undefined) {
                 this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
                 this.dragOrType = 'free';
-                
             }
-            this.sendStartTile({x:-1, y:-1});
-
-      
-        }
-       
-        else if (((this.buttonPressed === 'Backspace'&& this.keyboard.letters.length<=1)|| (this.buttonPressed === 'Escape'))&& this.dragOrType === "type") {
-            this.sendStartTile({x:-1, y:-1});
+            this.sendStartTile({ x: -1, y: -1 });
+        } else if (
+            ((this.buttonPressed === 'Backspace' && this.keyboard.letters.length <= 1) || this.buttonPressed === 'Escape') &&
+            this.dragOrType === 'type'
+        ) {
+            this.sendStartTile({ x: -1, y: -1 });
         }
         this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
@@ -120,7 +116,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             // }
             this.keyboard.placerOneLetter(letter);
             this.chevaletService.removeLetterOnRack(letter);
-            this.sendStartTile({x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line})
+            this.sendStartTile({ x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line });
         }
     }
 
@@ -156,7 +152,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
 
     returnRackTile(letter: Letter) {
         if (this.keyboard.letters.length === 1) {
-            this.sendStartTile({x:-1, y:-1});
+            this.sendStartTile({ x: -1, y: -1 });
         }
         this.keyboard.removeLetterOnBoard(letter);
         if (this.keyboard.letters.length === 0) {
@@ -168,12 +164,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         if (this.keyboard.verifyLetterOnBoard(letter)) {
             this.keyboard.removeLetterOnBoard(letter);
         }
-    //     if(this.keyboard.letters.length===0){
-    //         console.log("quand on depose la lettre", {x: letter.column,y: letter.line});
-    //         this.sendStartTile({x: letter.column,y: letter.line});
-    //    }
+        //     if(this.keyboard.letters.length===0){
+        //         console.log("quand on depose la lettre", {x: letter.column,y: letter.line});
+        //         this.sendStartTile({x: letter.column,y: letter.line});
+        //    }
         this.keyboard.addDropLettersArray(letter);
-        this.sendStartTile({x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line})
+        this.sendStartTile({ x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line });
         this.boardClicked = false;
         this.dragOrType = 'drag';
     }
@@ -194,18 +190,17 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
                 this.removeLetterAndArrow();
-                if(this.langue == "fr"){
+                if (this.langue == 'fr') {
                     this.snackBar.open(placedWord.letters, 'Fermer', {
                         duration: 2000,
                         panelClass: ['snackbar'],
                     });
-                }else{
+                } else {
                     this.snackBar.open(placedWord.letters, 'Close', {
                         duration: 2000,
                         panelClass: ['snackbar'],
                     });
                 }
-                
             } else {
                 if (this.isClassic) {
                     this.commandSent = true;
@@ -246,35 +241,34 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             if (this.isClassic) this.socketService.send('freeze-timer');
             if (placedWord.points === 0) {
                 await new Promise((r) => setTimeout(r, THREE_SECONDS));
-                if(this.langue == "fr"){
+                if (this.langue == 'fr') {
                     this.snackBar.open('Erreur : les mots crées sont invalides', 'Fermer', {
                         duration: 2000,
                         panelClass: ['snackbar'],
                     });
-                }else{
+                } else {
                     this.snackBar.open('Error : the created words are invalid', 'Close', {
                         duration: 2000,
                         panelClass: ['snackbar'],
                     });
                 }
-                
+
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', true);
                 this.gridService.removeLetter(placedWord.letters);
                 this.removeLastStart();
-
             } else {
                 this.validatePlacement(placedWord, this.isClassic);
             }
             this.commandSent = false;
             this.socketService.send('change-user-turn');
-            console.log("socket validatePlaceSocket")
+            console.log('socket validatePlaceSocket');
             this.socketService.send('draw-letters-rack');
         });
         this.socketService.on('draw-letters-opponent', (lettersPosition: Letter[]) => {
             this.gridService.placeLetter(lettersPosition as Letter[]);
             this.gridService.board.isFilledForEachLetter(lettersPosition as Letter[]);
             this.gridService.board.setLetterForEachLetters(lettersPosition as Letter[]);
-            console.log("socket drawlettersopponent")
+            console.log('socket drawlettersopponent');
 
             if (!this.isClassic) this.socketService.send('draw-letters-rack');
         });
@@ -285,17 +279,15 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             if (voteAction.action !== 'exchange') this.openVoteActionDialog(voteAction);
         });
         this.socketService.on('cooperative-invalid-action', (isPlacement: boolean) => {
-            let message = ""
-            if(this.langue == "fr"){
+            let message = '';
+            if (this.langue == 'fr') {
                 message = isPlacement
-                ? 'Erreur : les mots crées sont invalides'
-                : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
-            }else{
-                message = isPlacement
-                ? 'Error : Created words are invalid'
-                : 'Impossible : not enough letters in stock';
+                    ? 'Erreur : les mots crées sont invalides'
+                    : 'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant';
+            } else {
+                message = isPlacement ? 'Error : Created words are invalid' : 'Impossible : not enough letters in stock';
             }
-            
+
             this.snackBar.open(message, 'Fermer', {
                 duration: 2000,
                 panelClass: ['snackbar'],
@@ -308,13 +300,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             });
         });
 
-        this.socketService.on('show-startTile',(position: Vec2)=>{
+        this.socketService.on('show-startTile', (position: Vec2) => {
             // this.startTile = positions;
             this.removeStartTile();
-            if(position.x !== -1){
+            if (position.x !== -1) {
                 this.showStartTile(position);
             }
-
         });
 
         // this.socketService.on('remove-startTile',(positions: Vec2)=>{
@@ -324,8 +315,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         // });
     }
 
-    showStartTile(position: Vec2){
-        this.gridService.fillColor(position.x + 1,position.y +1,this.gridService.grid.colorStart);
+    showStartTile(position: Vec2) {
+        this.gridService.fillColor(position.x + 1, position.y + 1, this.gridService.grid.colorStart);
         this.startTileOpponent = position;
         // if (this.startTileOpponent){
         //     this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
@@ -335,17 +326,17 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         //     this.startTileOpponent = position;
         // }
     }
-    removeStartTile(){
-        console.log("keyboardletter",this.keyboard.letters);
+    removeStartTile() {
+        console.log('keyboardletter', this.keyboard.letters);
         console.log(this.startTileOpponent);
-        if(this.startTileOpponent.x!==-1){
-            this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
+        if (this.startTileOpponent.x !== -1) {
+            this.keyboard.putOldTile(this.startTileOpponent.x, this.startTileOpponent.y);
         }
-        this.startTileOpponent = {x:-1,y:-1};
+        this.startTileOpponent = { x: -1, y: -1 };
     }
 
-    sendStartTile(position: Vec2){
-        this.socketService.send('show-startTile', position as Vec2);
+    sendStartTile(position: Vec2) {
+        if (this.isClassic) this.socketService.send('show-startTile', position as Vec2);
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
         this.dialogConfig.position = { left: '100px' };
@@ -372,13 +363,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                     this.socketService.send('pass-turn');
                 }
             }
-            let message = ""
-            if(this.langue == "en"){
+            let message = '';
+            if (this.langue == 'en') {
                 message = result.isAccepted ? 'Action accepted' : 'Action refused';
-            }else{
+            } else {
                 message = result.isAccepted ? 'Action acceptée' : 'Action refusée';
             }
-            
+
             this.snackBar.open(message, 'Fermer', {
                 duration: 3000,
                 panelClass: ['snackbar'],
@@ -393,6 +384,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.socket.off('vote-action');
         this.socketService.socket.off('cooperative-invalid-action');
         this.socketService.socket.off('player-action');
+        this.socketService.socket.off('show-startTile');
 
         this.socketService.socket.off('user-turn');
         this.socketService.socket.off('hint-cooperative');
@@ -400,15 +392,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.socket.off('hint-command');
         this.socketService.socket.off('get-config');
     }
-    removeLastStart(){
-        if (this.startTileOpponent.x !== -1){
-
-            if (!this.gridService.board.getIsFilled(this.startTileOpponent.y+1, this.startTileOpponent.x+1)){
+    removeLastStart() {
+        if (this.startTileOpponent.x !== -1) {
+            if (!this.gridService.board.getIsFilled(this.startTileOpponent.y + 1, this.startTileOpponent.x + 1)) {
                 this.removeStartTile();
-
             }
         }
-        this.startTileOpponent = {x:-1,y:-1};
+        this.startTileOpponent = { x: -1, y: -1 };
     }
     configureBaseSocketFeatures() {
         this.verifyPlaceSocket();
@@ -436,11 +426,11 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.createWord(hints);
             }
         });
-        this.socketService.on('get-config',(config : any)=>{
+        this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;
-            this.gridService.setColor(config.theme)
-        })
+            this.gridService.setColor(config.theme);
+        });
     }
 
     createWord(hints: Placement[]) {
@@ -481,7 +471,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     }
     connect() {
         this.configureBaseSocketFeatures();
-        this.socketService.send('get-config')
+        this.socketService.send('get-config');
     }
     get width(): number {
         return this.canvasSize.x;
@@ -523,6 +513,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     buttonPlayPressed() {
         if (this.gridService.board.verifyPlacement(this.keyboard.letters) !== undefined) {
             this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+            this.sendStartTile({ x: -1, y: -1 });
         }
         this.keyboard.buttonPlayPressed();
         this.chevaletService.makerackTilesIn();
@@ -548,7 +539,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.gridService.board.wordStarted = false;
         this.chevaletService.makerackTilesIn();
         this.removeLastStart();
-
     }
 
     openHintDialog() {

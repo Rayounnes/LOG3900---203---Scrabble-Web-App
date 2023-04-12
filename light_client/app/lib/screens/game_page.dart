@@ -30,11 +30,15 @@ import '../services/board.dart';
 class GamePage extends StatefulWidget {
   final bool isClassicMode, isObserver;
   final Function joinGameSocket;
-  const GamePage(
-      {super.key,
-      required this.isClassicMode,
-      required this.isObserver,
-      required this.joinGameSocket});
+  final String theme, lang;
+  const GamePage({
+    super.key,
+    required this.isClassicMode,
+    required this.isObserver,
+    required this.joinGameSocket,
+    required this.theme,
+    required this.lang,
+  });
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -58,9 +62,7 @@ class _GamePageState extends State<GamePage> {
   final List<String> letters =
       List.generate(26, (index) => String.fromCharCode(index + 65));
   String selectedLetter = '';
-  String lang = "en";
   TranslateService translate = new TranslateService();
-  String theme = "dark";
 
   List<Placement> hints = [];
   List<WordArgs> formatedHints = [];
@@ -76,7 +78,6 @@ class _GamePageState extends State<GamePage> {
   void initState() {
     print("-------------------------Initiation game-page-------------------");
     super.initState();
-    getConfigs();
     handleSockets();
     widget.joinGameSocket();
     if (!widget.isObserver) {
@@ -85,10 +86,6 @@ class _GamePageState extends State<GamePage> {
       selectedLetter = '';
       if (!widget.isClassicMode) isPlayerTurn = true;
     }
-  }
-
-  getConfigs() {
-    getIt<SocketService>().send("get-config");
   }
 
   @override
@@ -109,7 +106,7 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('game-loss');
     getIt<SocketService>().userSocket.off("update-points-mean");
     getIt<SocketService>().userSocket.off('hint-command');
-    getIt<SocketService>().userSocket.off('get-configs');
+    getIt<SocketService>().userSocket.off('show-startTile');
     super.dispose();
   }
 
@@ -135,10 +132,10 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title:
-                Text(translate.translateString(lang, "Abandonner la partie")),
+            title: Text(
+                translate.translateString(widget.lang, "Abandonner la partie")),
             content: Text(translate.translateString(
-                lang, "Voulez-vous abandonner la partie?")),
+                widget.lang, "Voulez-vous abandonner la partie?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
@@ -150,13 +147,13 @@ class _GamePageState extends State<GamePage> {
                     return GameModes();
                   }));
                 },
-                child: Text(translate.translateString(lang, 'Oui')),
+                child: Text(translate.translateString(widget.lang, 'Oui')),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text(translate.translateString(lang, 'Non')),
+                child: Text(translate.translateString(widget.lang, 'Non')),
               ),
             ],
           );
@@ -164,6 +161,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _showLetterPicker(int line, int column, int tileId) {
+    print("show * dialog");
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -338,7 +336,9 @@ class _GamePageState extends State<GamePage> {
         removeLetterOnBoard(tileID);
       }
       if (letterValue == '*') {
+        print("in * condition");
         _showLetterPicker(line, column, tileID);
+        print("after letter picker");
       } else {
         if (isHint) {
           if (letter == letter!.toUpperCase()) {
@@ -533,7 +533,7 @@ class _GamePageState extends State<GamePage> {
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
               content: Text(translate.translateString(
-                  lang, 'Erreur : les mots crées sont invalides'))),
+                  widget.lang, 'Erreur : les mots crées sont invalides'))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', true);
@@ -590,8 +590,8 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
       final message = isPlacement
           ? translate.translateString(
-              lang, 'Erreur : les mots crées sont invalides')
-          : translate.translateString(lang,
+              widget.lang, 'Erreur : les mots crées sont invalides')
+          : translate.translateString(widget.lang,
               'Commande impossible a réaliser : le nombre de lettres dans la réserve est insuffisant');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -609,17 +609,6 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    getIt<SocketService>().on("get-config", (value) {
-      lang = value['langue'];
-      theme = value['theme'];
-      if (mounted) {
-        setState(() {
-          lang = value['langue'];
-          theme = value['theme'];
-        });
-      }
-    });
-
     getIt<SocketService>().on('show-startTile', (position) {
       // this.startTile = positions;
       posToShow = Vec2(x: position['x'], y: position['y']);
@@ -631,7 +620,8 @@ class _GamePageState extends State<GamePage> {
   }
 
   void sendStartTile(position) {
-    getIt<SocketService>().send('show-startTile', position);
+    if (widget.isClassicMode)
+      getIt<SocketService>().send('show-startTile', position);
   }
 
   void showStartTile(position) {
@@ -765,14 +755,14 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return ParentWidget(
       child: Scaffold(
-          backgroundColor: theme == "dark"
+          backgroundColor: widget.theme == "dark"
               ? Color.fromARGB(255, 73, 73, 73)
               : Color.fromARGB(255, 207, 241, 207),
           appBar: AppBar(
             leadingWidth: 10,
             automaticallyImplyLeading: false,
             title: Text(
-              translate.translateString(lang, 'Page de jeu'),
+              translate.translateString(widget.lang, 'Page de jeu'),
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             actions: [
@@ -799,7 +789,7 @@ class _GamePageState extends State<GamePage> {
                 left: 0,
                 top: 10,
                 child: TimerPage(
-                  theme: theme,
+                  theme: widget.theme,
                   isClassicMode: widget.isClassicMode,
                   isObserver: widget.isObserver,
                 )),
@@ -809,7 +799,7 @@ class _GamePageState extends State<GamePage> {
               child: Container(
                 height: 750,
                 width: 750,
-                color: theme == "dark"
+                color: widget.theme == "dark"
                     ? Color.fromARGB(255, 126, 126, 126)
                     : Color.fromRGBO(243, 174, 72, 1),
                 child: Center(

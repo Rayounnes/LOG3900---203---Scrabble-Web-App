@@ -1,6 +1,6 @@
 
 <div class="panel">
-    <div class="gameinfos">
+    <div class="gameinfos" *ngIf="!isGameFinished">
         <div [ngClass]="theme == 'white' ? 'tiles-perso-white' : 'tiles-perso'">
             <div class="number-perso">
                 {{reserveTilesLeft}}

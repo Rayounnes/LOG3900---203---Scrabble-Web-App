@@ -95,6 +95,8 @@ class _JoinGamesState extends State<JoinGames> {
           joinGameSocket: () {
             getIt<SocketService>().send('join-late-observer', gameToJoin);
           },
+          theme: theme,
+          lang: lang,
         );
       }));
     } else {

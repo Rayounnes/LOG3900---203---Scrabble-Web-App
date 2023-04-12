@@ -19,7 +19,10 @@ class TimerPage extends StatefulWidget {
   final bool isClassicMode, isObserver;
   final String? theme;
   const TimerPage(
-      {super.key, required this.isClassicMode, required this.isObserver, this.theme});
+      {super.key,
+      required this.isClassicMode,
+      required this.isObserver,
+      this.theme});
 
   @override
   _TimerPageState createState() => _TimerPageState();
@@ -299,21 +302,24 @@ class _TimerPageState extends State<TimerPage> {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                'Tuiles dans la réserve: ${reserveTilesLeft}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              widget.isClassicMode ? timerWidget(context) : Container(),
-              if (widget.isClassicMode && !widget.isObserver) ...[
-                timeBuyOption(5, 10, Icons.timer),
-                timeBuyOption(10, 20, Icons.timer),
-                timeBuyOption(20, 40, Icons.timer),
-              ]
-            ],
-          ),
+          !isGameFinished
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tuiles dans la réserve: ${reserveTilesLeft}',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    widget.isClassicMode ? timerWidget(context) : Container(),
+                    if (widget.isClassicMode && !widget.isObserver) ...[
+                      timeBuyOption(5, 10, Icons.timer),
+                      timeBuyOption(10, 20, Icons.timer),
+                      timeBuyOption(20, 40, Icons.timer),
+                    ]
+                  ],
+                )
+              : Container(),
           for (int i = 0; i < players.length; i += 2)
             Row(
               children: [
@@ -352,7 +358,8 @@ class _TimerPageState extends State<TimerPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(usernamePlayer),
-              getIt<SocketService>().socketId == player.socket && widget.isClassicMode
+              getIt<SocketService>().socketId == player.socket &&
+                      widget.isClassicMode
                   ? Container(
                       padding: EdgeInsets.all(4.0),
                       alignment: Alignment.center,
