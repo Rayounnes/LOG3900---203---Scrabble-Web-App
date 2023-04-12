@@ -46,6 +46,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     mode: string;
     isClassic: boolean;
     isObserver: boolean;
+    startTileOpponent: Vec2 ={x:-1, y:-1};
 
     dialogConfig = new MatDialogConfig();
 
@@ -96,17 +97,30 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     buttonDetect(event: KeyboardEvent) {
 
         this.buttonPressed = event.key;
+        console.log(this.keyboard.letters.length);
         if (this.buttonPressed === 'Enter') {
             if (this.gridService.board.verifyPlacement(this.keyboard.letters) !== undefined) {
                 this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
                 this.dragOrType = 'free';
+                
             }
+            this.sendStartTile({x:-1, y:-1});
+
+      
+        }
+       
+        else if (((this.buttonPressed === 'Backspace'&& this.keyboard.letters.length<=1)|| (this.buttonPressed === 'Escape'))&& this.dragOrType === "type") {
+            this.sendStartTile({x:-1, y:-1});
         }
         this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
         const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
         if (this.keyboard.verificationKeyboard(letter)) {
+            // if(this.keyboard.letters.length===0){
+            //      this.sendStartTile(this.gridService.board.getStartTile() as Vec2);
+            // }
             this.keyboard.placerOneLetter(letter);
             this.chevaletService.removeLetterOnRack(letter);
+            this.sendStartTile({x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line})
         }
     }
 
@@ -141,6 +155,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     returnRackTile(letter: Letter) {
+        if (this.keyboard.letters.length === 1) {
+            this.sendStartTile({x:-1, y:-1});
+        }
         this.keyboard.removeLetterOnBoard(letter);
         if (this.keyboard.letters.length === 0) {
             this.dragOrType = 'free';
@@ -151,7 +168,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         if (this.keyboard.verifyLetterOnBoard(letter)) {
             this.keyboard.removeLetterOnBoard(letter);
         }
+    //     if(this.keyboard.letters.length===0){
+    //         console.log("quand on depose la lettre", {x: letter.column,y: letter.line});
+    //         this.sendStartTile({x: letter.column,y: letter.line});
+    //    }
         this.keyboard.addDropLettersArray(letter);
+        this.sendStartTile({x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line})
         this.boardClicked = false;
         this.dragOrType = 'drag';
     }
@@ -238,6 +260,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                 
                 if (!this.isClassic) this.socketService.send('cooperative-invalid-action', true);
                 this.gridService.removeLetter(placedWord.letters);
+                this.removeLastStart();
+
             } else {
                 this.validatePlacement(placedWord, this.isClassic);
             }
@@ -283,6 +307,45 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                 panelClass: ['snackbar'],
             });
         });
+
+        this.socketService.on('show-startTile',(position: Vec2)=>{
+            // this.startTile = positions;
+            this.removeStartTile();
+            if(position.x !== -1){
+                this.showStartTile(position);
+            }
+
+        });
+
+        // this.socketService.on('remove-startTile',(positions: Vec2)=>{
+        //     this.startTile = positions;
+        //     this.gridService.fillColor(positions.x,positions.y,this.gridService.grid.gray);
+
+        // });
+    }
+
+    showStartTile(position: Vec2){
+        this.gridService.fillColor(position.x + 1,position.y +1,this.gridService.grid.colorStart);
+        this.startTileOpponent = position;
+        // if (this.startTileOpponent){
+        //     this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
+        // }
+        // if(position.x !== -1){
+        //     this.gridService.fillColor(position.x + 1,position.y +1,this.gridService.grid.colorStart);
+        //     this.startTileOpponent = position;
+        // }
+    }
+    removeStartTile(){
+        console.log("keyboardletter",this.keyboard.letters);
+        console.log(this.startTileOpponent);
+        if(this.startTileOpponent.x!==-1){
+            this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
+        }
+        this.startTileOpponent = {x:-1,y:-1};
+    }
+
+    sendStartTile(position: Vec2){
+        this.socketService.send('show-startTile', position as Vec2);
     }
     openVoteActionDialog(voteAction: CooperativeAction): void {
         this.dialogConfig.position = { left: '100px' };
@@ -337,12 +400,25 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.socket.off('hint-command');
         this.socketService.socket.off('get-config');
     }
+    removeLastStart(){
+        if (this.startTileOpponent.x !== -1){
+
+            if (!this.gridService.board.getIsFilled(this.startTileOpponent.y+1, this.startTileOpponent.x+1)){
+                this.removeStartTile();
+
+            }
+        }
+        this.startTileOpponent = {x:-1,y:-1};
+    }
     configureBaseSocketFeatures() {
         this.verifyPlaceSocket();
         this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
-            if (!this.isObserver) this.socketService.send('hint-command');
-
+            if (!this.isObserver) {
+                this.socketService.send('hint-command');
+                this.removeLastStart();
+                // this.startTileOpponent = {x:-1,y:-1};
+            }
             this.socketTurn = socketTurn;
             this.dragOrType = 'free';
         });
@@ -471,6 +547,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.keyboard.letters = [];
         this.gridService.board.wordStarted = false;
         this.chevaletService.makerackTilesIn();
+        this.removeLastStart();
+
     }
 
     openHintDialog() {

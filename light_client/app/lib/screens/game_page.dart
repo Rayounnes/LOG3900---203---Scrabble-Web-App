@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/models/Vec2.dart';
 import 'package:app/services/translate_service.dart';
 import 'package:app/models/Words_Args.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +64,14 @@ class _GamePageState extends State<GamePage> {
 
   List<Placement> hints = [];
   List<WordArgs> formatedHints = [];
+
+  int startTileX = -1;
+  int startTileY = -1;
+  Vec2 startTileOpponent = Vec2(x: -1, y: -1);
+
+  List<Widget> tileShowed = [];
+  Vec2 posToShow = Vec2(x: -1, y: -1);
+
   @override
   void initState() {
     print("-------------------------Initiation game-page-------------------");
@@ -345,7 +354,14 @@ class _GamePageState extends State<GamePage> {
               .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
         }
       }
+      print(line);
+      print(column);
+      sendStartTile(
+          Vec2(x: lettersofBoard[0].column, y: lettersofBoard[0].line));
     } else {
+      if (lettersofBoard.length == 1) {
+        sendStartTile(Vec2(x: -1, y: -1));
+      }
       removeLetterOnBoard(tileID);
     }
 
@@ -603,6 +619,36 @@ class _GamePageState extends State<GamePage> {
         });
       }
     });
+
+    getIt<SocketService>().on('show-startTile', (position) {
+      // this.startTile = positions;
+      posToShow = Vec2(x: position['x'], y: position['y']);
+      removeStartTile();
+      if (position['x'] != -1) {
+        showStartTile(position);
+      }
+    });
+  }
+
+  void sendStartTile(position) {
+    getIt<SocketService>().send('show-startTile', position);
+  }
+
+  void showStartTile(position) {
+    showDynamicstart();
+
+    // this.gridService.fillColor(position.x + 1,position.y +1,this.gridService.grid.colorStart);
+    this.startTileX = position['x'];
+    this.startTileY = position['y'];
+  }
+
+  removeStartTile() {
+    tileShowed = [];
+    showDynamicstart();
+    // this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
+
+    this.startTileX = -1;
+    this.startTileY = -1;
   }
 
   void switchRack(bool isForExchange) {
@@ -612,6 +658,27 @@ class _GamePageState extends State<GamePage> {
     setTileOnRack();
     fillRack();
     changeTurn();
+  }
+
+  showDynamicstart() {
+    setState(() {
+      tileShowed = [];
+      if (posToShow.x != -1) {
+        Vec2 pos = Vec2(
+            x: (LEFT_BOARD_POSITION + posToShow.x * 50).toInt(),
+            y: (TOP_BOARD_POSITION + posToShow.y * 50).toInt());
+        tileShowed.add(Positioned(
+          left: (pos.x).toDouble(),
+          top: (pos.y).toDouble(),
+          child: Container(
+            decoration: BoxDecoration(color: Color.fromARGB(255, 143, 75, 12)),
+            width: 50,
+            height: 50,
+          ),
+        ));
+      }
+    });
+    return tileShowed;
   }
 
   // Création des tuiles
@@ -754,6 +821,7 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             ...fillRack(),
+            ...showDynamicstart(),
             if (!widget.isObserver) ...[
               Positioned(
                 left: LEFT_BOARD_POSITION,

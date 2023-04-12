@@ -12,6 +12,7 @@ export class GridConstants {
     pink = 'rgb(255 192 203)';
     beige = 'beige';
     gray = 'rgb(76,80,80)'
+    colorStart = "#8f7754"
     greyTile = "rgb(128,128,128)"
     word = 'MOT';
     letter = 'LETTRE';

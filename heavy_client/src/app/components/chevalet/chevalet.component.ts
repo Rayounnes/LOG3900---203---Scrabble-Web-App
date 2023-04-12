@@ -237,7 +237,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             this.socketTurn = socketTurn;
             this.resetDragEvent.emit('free');
 
-            // this.positionTiles();
+            this.positionTiles();
         });
         this.socketService.on('update-reserve', (reserveLength: number) => {
             this.reserveTilesLeft = reserveLength;
@@ -336,6 +336,9 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             });
 
             dialogRef.afterClosed().subscribe((result) => {
+                if(result){
+                    this.positionTiles();
+                }
                 this.lettersExchange = result;
                 this.exchangePopUp(result);
             });
