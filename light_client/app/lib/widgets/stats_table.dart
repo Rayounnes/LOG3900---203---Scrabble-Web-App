@@ -10,6 +10,8 @@ class StatsTable extends StatefulWidget {
   final int gamesWon;
   final int avgPointsPerGame;
   final String avgTimePerGame;
+  final String lang;
+  final String theme;
 
   const StatsTable({
     Key? key,
@@ -17,6 +19,8 @@ class StatsTable extends StatefulWidget {
     required this.gamesWon,
     required this.avgPointsPerGame,
     required this.avgTimePerGame,
+    required this.lang,
+    required this.theme,
   }) : super(key: key);
   @override
   _StatsTableState createState() => _StatsTableState();
@@ -27,11 +31,21 @@ class _StatsTableState extends State<StatsTable> {
   Map<String, double> dataMap = {};
   String lang = "en";
   TranslateService translate = TranslateService();
-
+  String theme = "white";
 
   @override
   void initState() {
     super.initState();
+    getConfigs();
+  }
+
+  getConfigs() {
+    lang =widget.lang;
+    theme =widget.theme;
+    fillStatsInfo();
+  }
+
+  fillStatsInfo(){
     dataMap[translate.translateString(lang,'Parties perdues')] = widget.gamesPlayed.toDouble() - widget.gamesWon.toDouble();
     dataMap[translate.translateString(lang,'Parties gagnées')] = widget.gamesWon.toDouble();
     dataMap[translate.translateString(lang,'Parties jouées') + ' = ${widget.gamesPlayed}'] = 0.0;

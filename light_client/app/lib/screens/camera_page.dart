@@ -49,7 +49,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void toggleCamera(int direction) async{
-    // controller.dispose();
+    //controller.dispose();
     setState(() {
       isFrontCamera = !isFrontCamera;
       initializeCamera(direction);
@@ -157,7 +157,7 @@ class _CameraPageState extends State<CameraPage> {
                         FloatingActionButton(
                           heroTag: "tag3",
                           backgroundColor: Colors.white70,
-                            onPressed: pictureCounter > 1 ? () {
+                            onPressed: pictureCounter > 1 && isValid ? () {
                               Navigator.pop(context, File(imagePath));
                             } : null,
                             child: Icon(Icons.done)),

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:app/constants/widgets.dart';
 import 'package:app/screens/gallery_page.dart';
 import 'package:app/screens/login_page.dart';
-import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 import "package:app/models/login_infos.dart";
@@ -13,7 +12,6 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 import 'package:app/services/socket_client.dart';
 
-import '../models/personnalisation.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -28,7 +26,6 @@ class _SignUpState extends State<SignUp> {
   final emailController = TextEditingController();
   final passwordCheckController = TextEditingController();
   final securityResponseController = TextEditingController();
-  final securityQuestionController = TextEditingController();
 
   String selectedQuestion = "";
   String picturePath = "";
@@ -46,7 +43,6 @@ class _SignUpState extends State<SignUp> {
     passwordCheckController.dispose();
     emailController.dispose();
     securityResponseController.dispose();
-    securityQuestionController.dispose();
     super.dispose();
   }
 
@@ -117,9 +113,9 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<DropdownMenuEntry<String>> qsts = <DropdownMenuEntry<String>>[];
+    final List<DropdownMenuItem<String>> qsts = <DropdownMenuItem<String>>[];
     for (int i = 0; i < questions.length; i++) {
-      qsts.add(DropdownMenuEntry<String>(value: '$i', label: questions[i]));
+      qsts.add(DropdownMenuItem<String>(value: '$i', child: Text(questions[i])));
     }
 
     return Scaffold(
@@ -252,23 +248,19 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                         Padding(
-                          padding:
-                              const EdgeInsets.only(top: 20.0, bottom: 20.0),
-                          child: Center(
-                            child: DropdownMenu(
-                              width: 450,
-                              leadingIcon: Icon(Icons.security_outlined),
-                              // initialSelection: questions[0],
-                              controller: securityQuestionController,
-                              label: Text('Question de sécurité'),
-                              dropdownMenuEntries: qsts,
-                              onSelected: (String? question) {
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButtonFormField(
+                            decoration: InputDecoration(
+                                icon: Icon(Icons.security_outlined),label: Text('Choisissez une question de sécurité')),
+                              validator: (value) => value == null
+                                  ? "Choisissez une question de sécurité"
+                                  : null,
+                              onChanged: (String? question) {
                                 setState(() {
                                   selectedQuestion = question!;
                                 });
                               },
-                            ),
-                          ),
+                              items: qsts),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -278,8 +270,8 @@ class _SignUpState extends State<SignUp> {
                               icon: Icon(Icons.question_answer_outlined),
                               label: Text(selectedQuestion == ''
                                   ? 'Choisissez une question de sécurité'
-                                  : securityQuestionController.text),
-                              hintText: 'Réponse à la question',
+                                  : questions[int.parse(selectedQuestion)]),
+                              hintText: 'Réponse à la question de sécurité',
                               border: OutlineInputBorder(),
                             ),
                             validator: (String? value) {

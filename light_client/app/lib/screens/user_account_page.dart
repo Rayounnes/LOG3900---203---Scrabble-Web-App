@@ -8,20 +8,17 @@ import 'package:app/widgets/stats_table.dart';
 import 'package:app/services/translate_service.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
-import '../models/personnalisation.dart';
 import '../services/socket_client.dart';
 
 class UserAccountPage extends StatefulWidget {
   final String userName;
   final Uint8List decodedBytes;
   final List<dynamic> connexionHistory;
-  final List<dynamic> deconnectionHistory;
 
   const UserAccountPage(
       {super.key,
       required this.userName,
       required this.connexionHistory,
-      required this.deconnectionHistory,
       required this.decodedBytes});
 
   @override
@@ -29,7 +26,8 @@ class UserAccountPage extends StatefulWidget {
 }
 
 class _UserAccountPageState extends State<UserAccountPage> {
-  List<String> newList = [];
+  List<String> connexionHistory = [];
+  List<String> deconnexionHistory = [];
   bool showHistory = false;
   bool showTableChart = false;
   bool isEmpty = true;
@@ -39,7 +37,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
   int avgPointsPerGame = 0;
   String avgTimePerGame = "";
   List gamesHistory = [];
-  TranslateService translate = new TranslateService();
+  TranslateService translate = TranslateService();
   String theme = "white";
 
   @override
@@ -100,7 +98,14 @@ class _UserAccountPageState extends State<UserAccountPage> {
 
   void fillHistoryList() {
     for (var element in widget.connexionHistory) {
-      newList.add(element[0]);
+      print(element[1]);
+      if(element[1] == true){
+        connexionHistory.add(element[0]);
+        print(connexionHistory);
+      }else{
+        deconnexionHistory.add(element[0]);
+        print(deconnexionHistory);
+      }
       isEmpty = false;
     }
   }
@@ -212,9 +217,12 @@ class _UserAccountPageState extends State<UserAccountPage> {
                       child: Container(
                         height: 400,
                         child: ConnectionHistoryList(
-                            connectionHistory: List.from(newList.reversed),
-                            deconnectionHistory: List.from(newList.reversed),
-                            gameHistory: List.from(gamesHistory.reversed)),
+                          connectionHistory: List.from(connexionHistory.reversed),
+                          deconnectionHistory: List.from(deconnexionHistory.reversed),
+                          gameHistory: List.from(gamesHistory.reversed),
+                          lang: lang,
+                          theme: theme,
+                        ),
                       ),
                     ),
                   if (showTableChart)
@@ -225,6 +233,8 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         gamesWon: gamesWon,
                         avgPointsPerGame: avgPointsPerGame,
                         avgTimePerGame: avgTimePerGame,
+                        lang: lang,
+                        theme: theme,
                       ),
                     ),
                 ],

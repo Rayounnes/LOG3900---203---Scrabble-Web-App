@@ -149,6 +149,12 @@ class _TimerPageState extends State<TimerPage> {
             content: Text(abandonMessage)),
       );
     });
+    //Compte le temps malgré abandon
+    if (!widget.isObserver) {
+      getIt<SocketService>().on('get-duration-abandon',
+          (_) => {getIt<SocketService>().send('game-duration', gameDuration)});
+    }
+
     getIt<SocketService>().on('end-game', (_) {
       // if (isAbandoned) isAbandon = true;
       isGameFinished = true;
