@@ -57,7 +57,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
     dialogConfig = new MatDialogConfig();
     langue = '';
     theme = '';
-    commandTraduction : Map<string,string> = new Map<string,string>()
+    commandTraduction: Map<string, string> = new Map<string, string>();
 
     constructor(
         public socketService: ChatSocketClientService,
@@ -73,7 +73,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         });
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.isObserver = this.paramsObject.params.isObserver === 'true';
-        this.setCommandTraduction()
+        this.setCommandTraduction();
     }
     get socketId() {
         return this.socketService.socket.id ? this.socketService.socket.id : '';
@@ -282,9 +282,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             this.resetProgressCircle();
             this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
         });
-        this.socketService.on('get-duration-abandon',()=>{
-            this.socketService.send('game-duration', this.gameDuration)
-        })
+        this.socketService.on('get-duration-abandon', () => {
+            if (!this.isObserver) this.socketService.send('game-duration', this.gameDuration);
+        });
     }
 
     addScore(): void {
@@ -441,21 +441,19 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         this.router.navigate(['/home']);
     }
 
-    getPlayerClass(player : GamePlayerInfos){
-        if(player.isTurn){
-            if(this.theme == 'dark'){
-                return 'player-active'
+    getPlayerClass(player: GamePlayerInfos) {
+        if (player.isTurn) {
+            if (this.theme == 'dark') {
+                return 'player-active';
             }
-            return 'player-active-white'
-        }else{
-            if(this.theme == 'white'){
-                return 'player-white'
+            return 'player-active-white';
+        } else {
+            if (this.theme == 'white') {
+                return 'player-white';
             }
-            return 'player'
+            return 'player';
         }
     }
 
-    setCommandTraduction(){
-        
-    }
+    setCommandTraduction() {}
 }
