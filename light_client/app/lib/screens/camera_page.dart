@@ -49,7 +49,7 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void toggleCamera(int direction) async{
-    controller.dispose();
+    // controller.dispose();
     setState(() {
       isFrontCamera = !isFrontCamera;
       initializeCamera(direction);
@@ -135,7 +135,9 @@ class _CameraPageState extends State<CameraPage> {
                             child: Icon(Icons.close)),
                         Padding(
                           padding: const EdgeInsets.only(right: 50.0, left: 50),
-                          child: FloatingActionButton(backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
+                          child: FloatingActionButton(
+                            heroTag: "tag1",
+                            backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
                             onPressed:  imagePath.isNotEmpty && isValid ? null :takePicture,
                             child: Icon(
                                 Icons.camera_alt),
@@ -143,14 +145,18 @@ class _CameraPageState extends State<CameraPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 50.0),
-                          child: FloatingActionButton(backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
+                          child: FloatingActionButton(
+                            heroTag: "tag2",
+                            backgroundColor: imagePath.isNotEmpty && isValid ? Colors.blueGrey: Colors.white70,
                             onPressed: imagePath.isNotEmpty && isValid ? null : () => {
                               isFrontCamera ? toggleCamera(0) : toggleCamera(1)
                             },
                             child: Icon(Icons.flip_camera_ios),
                           ),
                         ),
-                        FloatingActionButton(backgroundColor: Colors.white70,
+                        FloatingActionButton(
+                          heroTag: "tag3",
+                          backgroundColor: Colors.white70,
                             onPressed: pictureCounter > 1 ? () {
                               Navigator.pop(context, File(imagePath));
                             } : null,
