@@ -114,23 +114,39 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-    getIt<SocketService>().on("notify-message", (message) {
+    getIt<SocketService>().on("change-notif", (channel) async {
       try {
         if (mounted) {
           setState(() async {
-            if(usernameMain != message['username']) {
-                 showNotification(message['message'], message['channel']);
-
-            }
-             
-       
-            for (int i = 0; i < discussions.length; i++) {
-              if (message['channel'] == discussions[i]) {
-                newMessage[i] = true;
-                print(ModalRoute.of(context)?.settings?.name);
+  
+             for (int i = 0; i < discussions.length; i++) {
+              if (channel == discussions[i]) {
+                newMessage[i] = false;
               }
             }
           });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    
+
+    getIt<SocketService>().on("notify-message", (message) {
+      try {
+        if (mounted) {
+          setState(() {
+              for (int i = 0; i < discussions.length; i++) {
+              if (message['channel'] == discussions[i]) {
+                newMessage[i] = true;
+              }
+            }
+            
+          });
+          if(usernameMain != message['username']) {
+                 showNotification(message['message'], message['channel']);
+            }
         }
       } catch (e) {
         print(e);

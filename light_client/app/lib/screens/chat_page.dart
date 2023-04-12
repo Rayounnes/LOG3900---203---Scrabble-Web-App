@@ -123,11 +123,22 @@ class _ChatPageState extends State<ChatPage> {
     getIt<SocketService>().on("notify-message", (message) async {
       try {
         if (mounted) {
-          setState(() async {
+          
+
+            if(message['channel'] == widget.discussion) {
+                print(message['channel']);
+                print("ca rentre");
+                getIt<SocketService>().send("notification-received", (message['channel']));
+
+            }
+
+            
             if (message['channel'] != widget.discussion) {
               showNotification(message['message'], message['channel']);
             }
-          });
+
+     
+         
         }
       } catch (e) {
         print(e);

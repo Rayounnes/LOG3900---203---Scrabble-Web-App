@@ -17,20 +17,59 @@ class ParentWidget extends StatefulWidget {
 class _ParentWidgetState extends State<ParentWidget> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _isExpanded = false;
+  bool isNotify = true;
+
+  handleSocket() {
+
+    getIt<SocketService>().on("notify-message", (message) {
+      try {
+        if (mounted) {
+          setState(() {
+            isNotify = true;
+            
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+
+  }
+
 
   @override
-  Widget build(BuildContext context) {
-    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
-    return Scaffold(
-        //bottomNavigationBar: HomePage(),
-        backgroundColor: widget.theme == "dark"
-            ? Colors.green[800]
-            : Color.fromARGB(255, 207, 241, 207),
-        body:
-            Stack(children: [widget.child, chatPopup(context), MusicAppBar()]),
-        floatingActionButton: keyboardIsOpened
-            ? null
-            : ElevatedButton(
+Widget build(BuildContext context) {
+  bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
+  return Scaffold(
+    //bottomNavigationBar: HomePage(),
+    backgroundColor: widget.theme == "dark"
+        ? Colors.green[800]
+        : Color.fromARGB(255, 207, 241, 207),
+    body: Stack(
+      children: [
+        widget.child,
+        chatPopup(context),
+        MusicAppBar(),
+      ],
+    ),
+    floatingActionButton: keyboardIsOpened
+        ? null
+        : Stack(
+            children: [
+              if (isNotify)
+                Positioned(
+                  right: 8,
+                  top: 17,
+                  child: Container(
+                    width: 20,
+                    height: 0,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ElevatedButton(
                 onPressed: () {
                   setState(() {
                     _isExpanded = !_isExpanded;
@@ -40,11 +79,19 @@ class _ParentWidgetState extends State<ParentWidget> {
                     shape: const CircleBorder(),
                     backgroundColor: Colors.blue[200],
                     fixedSize: const Size(100, 100)),
+                    
                 child: Icon(
                   _isExpanded ? Icons.close : Icons.chat_bubble_sharp,
                   size: 50,
-                )));
-  }
+                ),
+              ),
+            ],
+          ),
+  );
+}
+
+
+
 
   Widget chatPopup(BuildContext context) {
     getIt<SocketService>().send("sendUsername");

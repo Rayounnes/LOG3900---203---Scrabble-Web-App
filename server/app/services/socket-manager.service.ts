@@ -401,6 +401,11 @@ export class SocketManager {
             
             this.channelService.addMessageToChannel(message);
         });
+        socket.on('notification-received', (channel: string)=> {
+            console.log("ahhhhhh");
+            this.sio.to(channel as string).emit('change-notif', channel);
+        });
+        
     }
     placeCommandViewHandler(socket: io.Socket) {
         socket.on('remove-arrow-and-letter', () => {
