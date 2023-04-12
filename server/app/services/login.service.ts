@@ -223,7 +223,7 @@ export class LoginService {
 
     async updateUserPointsMean(username : string, points : number){
         let player = await this.userCollection.findOne({ username: username });
-        if(player && player['points']){
+        if(player && player['points'] != undefined){
             let old = player['points'];
             let newMean = Math.floor((old+points)/player['numberOfGames']);
             await this.userCollection.updateOne({username : username},{$set : {points : newMean}});
@@ -234,7 +234,7 @@ export class LoginService {
 
     async getUserPointsMean(username : string) : Promise<number>{
         let player = await this.userCollection.findOne({ username: username });
-        if(player && player['points']){
+        if(player && player['points'] != undefined){
             return player['points'];
         }else{
             await this.userCollection.updateOne({username : username},{$set : {points : 0}});
