@@ -1,8 +1,9 @@
 popout-window{
     width: 450px !important;
-    height: 0;
-    display: block;
-    padding: 0;
+    //height: 400px !important;
+    position: absolute;
+    top: 0px;
+    visibility: hidden;
 }
 
 div.popoutWrapper{
