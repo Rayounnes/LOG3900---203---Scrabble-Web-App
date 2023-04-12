@@ -153,10 +153,10 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getAllWords() async {
+  Future<List<dynamic>> getAllWords(String lang) async {
     final response = await http.get(
       Uri.parse(
-          ApiConstants.baseUrl + '/api/modeOrthography/allWordsOrthography'),
+          ApiConstants.baseUrl + '/api/modeOrthography/allWordsOrthography/$lang'),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);

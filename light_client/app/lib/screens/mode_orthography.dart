@@ -58,7 +58,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   }
 
   void handleSockets() async {
-    ApiService().getAllWords().then((response) {
+    ApiService().getAllWords(lang).then((response) {
       setState(() {
         allWords = response;
         print(response.runtimeType);
