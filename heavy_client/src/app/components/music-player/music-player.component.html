@@ -1,0 +1,34 @@
+<div class="main__container">
+    <div class="contain__wrapper">
+        <div class="music__wrapper">
+            <div class="right__panel">
+
+                <div class="music__info__wrapper">
+                    <div class="header">
+                        <div class="icon__wrapper">
+                            <div class="title owl-carousel">
+                                <div class="item">
+                                    <div class="song__name">{{audio.title}}</div>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+
+                    <div class="music__control">
+                        <div class="music__button">
+                            <span class="button__prev" (click)="prevMusic()"><i class="material-icons">skip_previous</i></span>
+                            <span class="button__pause" (click)="playPause()"><i class="material-icons pause-btn">pause</i></span>
+                            <span class="button__next" (click)="nextMusic()"><i class="material-icons">skip_next</i></span>
+                            <div>
+                                <input type="range" min="0" max="100" value="50" step="1" #vol (change)="changeVolume(vol.value)" />	
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+  </div>

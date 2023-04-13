@@ -7,7 +7,7 @@ import { ChatSocketClientService } from 'src/app/services/chat-socket-client.ser
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
 })
-export class AppComponent{
+export class AppComponent {
     @ViewChild('popoutWindow', { static: false }) private popoutWindow: PopoutWindowComponent;
     chatBoxVisible: boolean = false;
 
