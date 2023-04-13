@@ -216,6 +216,8 @@ class _GamePageState extends State<GamePage> {
       var lineWord = splitedCommand[1][0].codeUnitAt(0) - 97;
       var valueWord = splitedCommand[splitedCommand.length - 1];
       var orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
+      if (orientationWord != "h" && orientationWord != "v")
+        orientationWord = "h";
       formatedHints.add(WordArgs(
         line: lineWord,
         column: columnWord,
@@ -235,14 +237,14 @@ class _GamePageState extends State<GamePage> {
     return false;
   }
 
-  removeLetterOnBoard(int tileID) {
+  removeLetterOnBoard(int tileID, bool isBoardToBoard) {
     for (var letter in lettersofBoard) {
       if (letter.tileID == tileID) {
         lettersofBoard
             .removeWhere((element) => element.tileID == letter.tileID);
         String? letterValue = tileLetter[tileID];
         // on remet la tuile a * lorsqu on remet la tuile * dans le chevalet
-        if (letterValue != null) {
+        if (letterValue != null && !isBoardToBoard) {
           tileLetter[tileID] =
               letterValue!.toUpperCase() == letterValue ? '*' : letterValue;
         }
@@ -333,12 +335,10 @@ class _GamePageState extends State<GamePage> {
 
     if (board.verifyRangeBoard(line, column)) {
       if (verifyLetterOnBoard(tileID)) {
-        removeLetterOnBoard(tileID);
+        removeLetterOnBoard(tileID, true);
       }
-      if (letterValue == '*') {
-        print("in * condition");
+      if (letterValue == '*' && !isHint) {
         _showLetterPicker(line, column, tileID);
-        print("after letter picker");
       } else {
         if (isHint) {
           if (letter == letter!.toUpperCase()) {
@@ -350,19 +350,20 @@ class _GamePageState extends State<GamePage> {
                 .add(Letter(line, column, letter!.toLowerCase(), tileID));
           }
         } else {
-          lettersofBoard
-              .add(Letter(line, column, letterValue!.toLowerCase(), tileID));
+          // Enlever le lowercase car lettre * est uppercase
+          lettersofBoard.add(Letter(line, column, letterValue!, tileID));
         }
       }
       print(line);
       print(column);
-      sendStartTile(
-          Vec2(x: lettersofBoard[0].column, y: lettersofBoard[0].line));
+      if (lettersofBoard.isNotEmpty)
+        sendStartTile(
+            Vec2(x: lettersofBoard[0].column, y: lettersofBoard[0].line));
     } else {
       if (lettersofBoard.length == 1) {
         sendStartTile(Vec2(x: -1, y: -1));
       }
-      removeLetterOnBoard(tileID);
+      removeLetterOnBoard(tileID, false);
     }
 
     return getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint);
@@ -483,10 +484,11 @@ class _GamePageState extends State<GamePage> {
       if (!widget.isObserver) {
         if (!mounted) return;
         setState(() {
+          tempHintRack = [];
           for (var index in rackIDList) {
+            tempHintRack.add(letters[index % RACK_SIZE].toString());
             tileLetter[index] = letters[index % RACK_SIZE].toString();
           }
-          tempHintRack = letters;
         });
       }
     });
@@ -604,7 +606,7 @@ class _GamePageState extends State<GamePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 1),
             content: Text(message)),
       );
     });
@@ -784,153 +786,155 @@ class _GamePageState extends State<GamePage> {
               )
             ],
           ),
-          body: Stack(children: <Widget>[
-            Positioned(
-                left: 0,
-                top: 10,
-                child: TimerPage(
-                  theme: widget.theme,
-                  isClassicMode: widget.isClassicMode,
-                  isObserver: widget.isObserver,
-                )),
-            Positioned(
-              left: LEFT_BOARD_POSITION,
-              top: TOP_BOARD_POSITION,
-              child: Container(
-                height: 750,
-                width: 750,
-                color: widget.theme == "dark"
-                    ? Color.fromARGB(255, 126, 126, 126)
-                    : Color.fromRGBO(243, 174, 72, 1),
-                child: Center(
-                  child: CustomPaint(
-                    painter: BoardPaint(widget.isObserver),
-                    size: Size(750, 750),
+          body: WillPopScope(
+              onWillPop: () async => false,
+              child: Stack(children: <Widget>[
+                Positioned(
+                    left: 0,
+                    top: 10,
+                    child: TimerPage(
+                      theme: widget.theme,
+                      isClassicMode: widget.isClassicMode,
+                      isObserver: widget.isObserver,
+                    )),
+                Positioned(
+                  left: LEFT_BOARD_POSITION,
+                  top: TOP_BOARD_POSITION,
+                  child: Container(
+                    height: 750,
+                    width: 750,
+                    color: widget.theme == "dark"
+                        ? Color.fromARGB(255, 126, 126, 126)
+                        : Color.fromRGBO(243, 174, 72, 1),
+                    child: Center(
+                      child: CustomPaint(
+                        painter: BoardPaint(widget.isObserver),
+                        size: Size(750, 750),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            ...fillRack(),
-            ...showDynamicstart(),
-            if (!widget.isObserver) ...[
-              Positioned(
-                left: LEFT_BOARD_POSITION,
-                top: RACK_START_AXISY - 30,
-                child: FloatingActionButton(
-                  heroTag: "passTurn",
-                  onPressed: !isPlayerTurn || commandSent
-                      ? null
-                      : () {
-                          passTurn();
-                        },
-                  backgroundColor: !isPlayerTurn || commandSent
-                      ? Colors.grey
-                      : Color.fromARGB(255, 253, 174, 101),
-                  child: Icon(
-                    Icons.double_arrow_rounded,
-                    color: !isPlayerTurn || commandSent
-                        ? Colors.grey[200]
-                        : Color.fromARGB(255, 0, 123, 172),
-                    size: TILE_SIZE,
+                ...fillRack(),
+                ...showDynamicstart(),
+                if (!widget.isObserver) ...[
+                  Positioned(
+                    left: LEFT_BOARD_POSITION,
+                    top: RACK_START_AXISY - 30,
+                    child: FloatingActionButton(
+                      heroTag: "passTurn",
+                      onPressed: !isPlayerTurn || commandSent
+                          ? null
+                          : () {
+                              passTurn();
+                            },
+                      backgroundColor: !isPlayerTurn || commandSent
+                          ? Colors.grey
+                          : Color.fromARGB(255, 253, 174, 101),
+                      child: Icon(
+                        Icons.double_arrow_rounded,
+                        color: !isPlayerTurn || commandSent
+                            ? Colors.grey[200]
+                            : Color.fromARGB(255, 0, 123, 172),
+                        size: TILE_SIZE,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Positioned(
-                right: 45.0 + TILE_ADJUSTMENT,
-                top: RACK_START_AXISY,
-                child: FloatingActionButton(
-                  heroTag: "confirmPlacement",
-                  onPressed: !isPlayerTurn || commandSent
-                      ? null
-                      : () {
-                          if (lettersofBoard.isNotEmpty) {
-                            print("placingggggg");
-                            setState(() {
-                              validatePlacement();
-                            });
-                          }
-                        },
-                  backgroundColor: !isPlayerTurn || commandSent
-                      ? Colors.grey[200]
-                      : Color.fromARGB(255, 159, 201, 165),
-                  child: Icon(
-                    Icons.check_box,
-                    color: !isPlayerTurn || commandSent
-                        ? Colors.grey
-                        : Color.fromARGB(255, 22, 82, 0),
-                    size: TILE_SIZE,
+                  Positioned(
+                    right: 45.0 + TILE_ADJUSTMENT,
+                    top: RACK_START_AXISY,
+                    child: FloatingActionButton(
+                      heroTag: "confirmPlacement",
+                      onPressed: !isPlayerTurn || commandSent
+                          ? null
+                          : () {
+                              if (lettersofBoard.isNotEmpty) {
+                                print("placingggggg");
+                                setState(() {
+                                  validatePlacement();
+                                });
+                              }
+                            },
+                      backgroundColor: !isPlayerTurn || commandSent
+                          ? Colors.grey[200]
+                          : Color.fromARGB(255, 159, 201, 165),
+                      child: Icon(
+                        Icons.check_box,
+                        color: !isPlayerTurn || commandSent
+                            ? Colors.grey
+                            : Color.fromARGB(255, 22, 82, 0),
+                        size: TILE_SIZE,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Positioned(
-                left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
-                top: RACK_START_AXISY - 30,
-                child: FloatingActionButton(
-                  heroTag: "exchangeLetters",
-                  onPressed: !isPlayerTurn || commandSent
-                      ? null
-                      : () {
-                          showDialog<String>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                List<String> exchangeableTile = [];
-                                for (var index in rackIDList) {
-                                  exchangeableTile
-                                      .add(tileLetter[index].toString());
+                  Positioned(
+                    left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT,
+                    top: RACK_START_AXISY - 30,
+                    child: FloatingActionButton(
+                      heroTag: "exchangeLetters",
+                      onPressed: !isPlayerTurn || commandSent
+                          ? null
+                          : () {
+                              showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    List<String> exchangeableTile = [];
+                                    for (var index in rackIDList) {
+                                      exchangeableTile
+                                          .add(tileLetter[index].toString());
+                                    }
+                                    return TileExchangeMenu(
+                                      tileLetters: exchangeableTile,
+                                    );
+                                  }).then((String? lettersToExchange) {
+                                if (lettersToExchange != "") {
+                                  exchangeCommand(lettersToExchange!);
                                 }
-                                return TileExchangeMenu(
-                                  tileLetters: exchangeableTile,
-                                );
-                              }).then((String? lettersToExchange) {
-                            if (lettersToExchange != "") {
-                              exchangeCommand(lettersToExchange!);
-                            }
-                          });
-                        },
-                  backgroundColor: !isPlayerTurn || commandSent
-                      ? Colors.grey
-                      : Color.fromARGB(255, 55, 151, 189),
-                  child: Icon(
-                    Icons.compare_arrows,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    size: TILE_SIZE,
-                  ),
-                ),
-              ),
-              Positioned(
-                left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT / 2,
-                top: RACK_START_AXISY + 38,
-                child: FloatingActionButton(
-                  heroTag: "hintLetters",
-                  onPressed: !isPlayerTurn || commandSent
-                      ? null
-                      : () {
-                          HintDialog hintDialog = HintDialog(
-                            items: formatedHints,
-                            onNoClick: (word) {
-                              validationHintWord(word);
+                              });
                             },
-                          );
+                      backgroundColor: !isPlayerTurn || commandSent
+                          ? Colors.grey
+                          : Color.fromARGB(255, 55, 151, 189),
+                      child: Icon(
+                        Icons.compare_arrows,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        size: TILE_SIZE,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: LEFT_BOARD_POSITION + TILE_ADJUSTMENT / 2,
+                    top: RACK_START_AXISY + 38,
+                    child: FloatingActionButton(
+                      heroTag: "hintLetters",
+                      onPressed: !isPlayerTurn || commandSent
+                          ? null
+                          : () {
+                              HintDialog hintDialog = HintDialog(
+                                items: formatedHints,
+                                onNoClick: (word) {
+                                  validationHintWord(word);
+                                },
+                              );
 
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return hintDialog;
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return hintDialog;
+                                },
+                              );
                             },
-                          );
-                        },
-                  backgroundColor: !isPlayerTurn || commandSent
-                      ? Colors.grey
-                      : Color.fromARGB(255, 55, 151, 189),
-                  child: Icon(
-                    Icons.star_rounded,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    size: TILE_SIZE,
+                      backgroundColor: !isPlayerTurn || commandSent
+                          ? Colors.grey
+                          : Color.fromARGB(255, 55, 151, 189),
+                      child: Icon(
+                        Icons.star_rounded,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        size: TILE_SIZE,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ]
-          ])),
+                ]
+              ]))),
     );
   }
 
@@ -983,7 +987,7 @@ class _GamePageState extends State<GamePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
+            duration: Duration(seconds: 1),
             content: Text(message)),
       );
     });

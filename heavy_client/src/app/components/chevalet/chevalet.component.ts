@@ -336,7 +336,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             });
 
             dialogRef.afterClosed().subscribe((result) => {
-                if(result){
+                if (result) {
                     this.positionTiles();
                 }
                 this.lettersExchange = result;
@@ -528,7 +528,9 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
 
     isNotDraggable() {
-        if (this.isClassic) {
+        if (this.isEndGame) {
+            return true;
+        } else if (this.isClassic) {
             if (this.dragAccepted.includes(this.dragUsed) && this.socketService.socketId === this.socketTurn) {
                 return false;
             }

@@ -145,7 +145,7 @@ class _GameChoicesState extends State<GameChoices> {
                   child: Text(
                       translate.translateString(
                               lang, 'Créez ou rejoignez une partie') +
-                          widget.modeName,
+                          translate.translateString(lang, widget.modeName),
                       style: TextStyle(
                         fontSize: 23,
                         color: Colors.black,

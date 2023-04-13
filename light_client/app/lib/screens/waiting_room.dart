@@ -226,141 +226,150 @@ class _WaitingRoomState extends State<WaitingRoom> {
                 ? Colors.green[800]
                 : Color.fromARGB(255, 207, 241, 207),
             bottomNavigationBar: LoadingTips(lang),
-            body: Center(
-              child: Container(
-                height: 1000,
-                width: 700,
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(203, 201, 201, 1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    width: 1,
-                    color: Colors.grey,
-                  ),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    TextPhrase(
-                        text: (translate.translateString(
-                                lang, "Salle d'attente de") +
-                            " " +
-                            game.hostUsername)),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Container(
-                        height: 300,
-                        width: 200,
-                        child: ListView.builder(
-                          itemCount: game.joinedPlayers.length + 1,
-                          shrinkWrap: true,
-                          physics: BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return ListTile(
-                                title: Text(
-                                  translate.translateString(lang, 'Joueurs'),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              return playerWaitingInfos(
-                                  game.joinedPlayers[index - 1].username);
-                            }
-                          },
-                        ),
+            body: WillPopScope(
+                onWillPop: () async => false,
+                child: Center(
+                  child: Container(
+                    height: 1000,
+                    width: 700,
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(203, 201, 201, 1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
                       ),
-                      if (!game.isPrivate) ...[
-                        Container(
-                            height: 300,
-                            width: 200,
-                            child: ListView.builder(
-                              itemCount: game.joinedObservers.length + 1,
-                              shrinkWrap: true,
-                              physics: BouncingScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  return ListTile(
-                                    title: Text(
-                                      translate.translateString(
-                                          lang, "Observateurs"),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  return playerWaitingInfos(
-                                      game.joinedObservers[index - 1].username);
-                                }
-                              },
-                            ))
-                      ],
-                    ]),
-                    SizedBox(
-                      height: 50,
                     ),
-                    if (game.joinedPlayers.length < 2) ...[
-                      TextPhrase(
-                          text: translate.translateString(
-                              lang, "En attente de joueurs")),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                            height: 80,
-                            width: 80,
-                            child: CircularProgressIndicator()),
-                      )
-                    ],
-                    TextPhrase(
-                        text: translate.translateString(lang,
-                                "Joueurs restants pour démarrer la partie:") +
-                            " ${game.joinedPlayers.length == 1 ? 1 : 0}"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!isHost)
-                          GameButton(
-                            padding: 16.0,
-                            name: translate.translateString(lang, "Quitter"),
-                            route: () {
-                              cancelWaiting();
-                            },
-                            isButtonDisabled: false,
-                          ),
-                        if (isHost) ...[
-                          GameButton(
-                            padding: 16.0,
-                            name: translate.translateString(
-                                lang, "Lancer Partie"),
-                            route: () {
-                              // true: isLightClient
-                              getIt<SocketService>().send('join-game', true);
-                            },
-                            isButtonDisabled: game.joinedPlayers.length < 2,
-                          ),
-                          GameButton(
-                            theme: theme,
-                            padding: 16.0,
-                            name: translate.translateString(
-                                lang, "Annuler Partie"),
-                            route: () {
-                              cancelMatch();
-                            },
-                            isButtonDisabled: false,
+                    child: Column(
+                      children: <Widget>[
+                        TextPhrase(
+                            text: (translate.translateString(
+                                    lang, "Salle d'attente de") +
+                                " " +
+                                game.hostUsername)),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 300,
+                                width: 200,
+                                child: ListView.builder(
+                                  itemCount: game.joinedPlayers.length + 1,
+                                  shrinkWrap: true,
+                                  physics: BouncingScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    if (index == 0) {
+                                      return ListTile(
+                                        title: Text(
+                                          translate.translateString(
+                                              lang, 'Joueurs'),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return playerWaitingInfos(game
+                                          .joinedPlayers[index - 1].username);
+                                    }
+                                  },
+                                ),
+                              ),
+                              if (!game.isPrivate) ...[
+                                Container(
+                                    height: 300,
+                                    width: 200,
+                                    child: ListView.builder(
+                                      itemCount:
+                                          game.joinedObservers.length + 1,
+                                      shrinkWrap: true,
+                                      physics: BouncingScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        if (index == 0) {
+                                          return ListTile(
+                                            title: Text(
+                                              translate.translateString(
+                                                  lang, "Observateurs"),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return playerWaitingInfos(game
+                                              .joinedObservers[index - 1]
+                                              .username);
+                                        }
+                                      },
+                                    ))
+                              ],
+                            ]),
+                        SizedBox(
+                          height: 50,
+                        ),
+                        if (game.joinedPlayers.length < 2) ...[
+                          TextPhrase(
+                              text: translate.translateString(
+                                  lang, "En attente de joueurs")),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                                height: 80,
+                                width: 80,
+                                child: CircularProgressIndicator()),
                           )
-                        ]
+                        ],
+                        TextPhrase(
+                            text: translate.translateString(lang,
+                                    "Joueurs restants pour démarrer la partie:") +
+                                " ${game.joinedPlayers.length == 1 ? 1 : 0}"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (!isHost)
+                              GameButton(
+                                padding: 16.0,
+                                name:
+                                    translate.translateString(lang, "Quitter"),
+                                route: () {
+                                  cancelWaiting();
+                                },
+                                isButtonDisabled: false,
+                              ),
+                            if (isHost) ...[
+                              GameButton(
+                                padding: 16.0,
+                                name: translate.translateString(
+                                    lang, "Lancer Partie"),
+                                route: () {
+                                  // true: isLightClient
+                                  getIt<SocketService>()
+                                      .send('join-game', true);
+                                },
+                                isButtonDisabled: game.joinedPlayers.length < 2,
+                              ),
+                              GameButton(
+                                theme: theme,
+                                padding: 16.0,
+                                name: translate.translateString(
+                                    lang, "Annuler Partie"),
+                                route: () {
+                                  cancelMatch();
+                                },
+                                isButtonDisabled: false,
+                              )
+                            ]
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            )));
+                  ),
+                ))));
   }
 
   void openAcceptDialog(BuildContext context, PlayerInfos userInfos) {

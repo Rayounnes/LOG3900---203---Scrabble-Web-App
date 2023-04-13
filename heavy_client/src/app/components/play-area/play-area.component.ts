@@ -522,6 +522,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     removeLetterAndArrowCoop(letters: Letter[]) {
         this.keyboard.removeArrowAfterPlacement({ x: this.keyboard.word.line, y: this.keyboard.word.column }, this.keyboard.word.orientation);
         this.gridService.removeLetter(letters);
+        this.socketService.send('draw-letters-rack');
         this.keyboard.createTemporaryRack();
         this.keyboard.word = { line: 0, column: 0, orientation: '', value: '' };
         this.keyboard.letters = [];
