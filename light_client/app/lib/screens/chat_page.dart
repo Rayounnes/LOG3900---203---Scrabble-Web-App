@@ -11,7 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     hide Message;
 
 import '../constants/widgets.dart';
-import '../models/personnalisation.dart';
 
 class ChatPage extends StatefulWidget {
   final String discussion;
@@ -91,9 +90,9 @@ class _ChatPageState extends State<ChatPage> {
         notificationDetails);
   }
 
-  void handleSockets() async {
+  getMessageOfChannel(){
     ApiService().getMessagesOfChannel(widget.discussion).then((response) {
-      print(widget.discussion);
+      //print(widget.discussion);
 
       ApiService()
           .getUserChannels(username)
@@ -102,25 +101,32 @@ class _ChatPageState extends State<ChatPage> {
         print('Error fetching channels: $error');
       });
 
-    // ApiService().getUserChannels(username).then((response) {
-    // }).catchError((error) {
-    // print('Error fetching channels: $error');
-    // });
       setState(() {
-      if(widget.discussion == 'General') {      
-        response.removeAt(0);
+        messages = [];
+        for (dynamic res in response) {
+          ChatMessage message = ChatMessage.fromJson(res);
+          messages.add(message);
+        }
+      });
+    }).catchError((error) {
+      print('Error fetching channels: $error');
+    });
+  }
 
+  void handleSockets() async {
+    ApiService().getMessagesOfChannel(widget.discussion).then((response) {
+      ApiService()
+          .getUserChannels(username)
+          .then((response) {})
+          .catchError((error) {
+        print('Error fetching channels: $error');
+      });
 
-      }
-
-      print(response);
-
+      setState(() {
       for (dynamic res in response) {
-      print(res);
       ChatMessage message = ChatMessage.fromJson(res);
       messages.add(message);
     }
-        
       });
     }).catchError((error) {
       print('Error fetching channels: $error');
@@ -129,22 +135,13 @@ class _ChatPageState extends State<ChatPage> {
     getIt<SocketService>().on("notify-message", (message) async {
       try {
         if (mounted) {
-          
-
             if(message['channel'] == widget.discussion) {
-                print(message['channel']);
-                print("ca rentre");
                 getIt<SocketService>().send("notification-received", (message['channel']));
 
             }
-
-            
             if (message['channel'] != widget.discussion) {
               showNotification(message['message'], message['channel']);
             }
-
-     
-         
         }
       } catch (e) {
         print(e);
@@ -168,11 +165,8 @@ class _ChatPageState extends State<ChatPage> {
       try {
         if (mounted) {
           setState(() {
-            print(message['player']);
-            print(username);
             if (message['channel'] == widget.discussion && message['player'] != username) {
               isTyping = true;
-              print("yooooooooooooooooo");
               countUsersTyping = countUsersTyping + 1;
               userTyping = message['player'];
               usersTyping.add(userTyping);
@@ -185,9 +179,24 @@ class _ChatPageState extends State<ChatPage> {
     });
 
     getIt<SocketService>().on('change-username', (infos) {
-      if (infos['id'] == getIt<SocketService>().socketId) {
-        username = infos['username'];
-        getIt<UserInfos>().setUser(infos['username']);
+      try{
+        print("$infos CHANGE USER \n id");
+        print(getIt<SocketService>().socketId);
+        if (infos['id'] == getIt<SocketService>().socketId) {
+          username = infos['username'];
+          getIt<UserInfos>().setUser(infos['username']);
+        }
+        getMessageOfChannel();
+      }catch(e){
+        print("FAILED USERCHANGE");
+      }
+    });
+
+    getIt<SocketService>().on('icon-change', (infos) {
+      try{
+        getMessageOfChannel();
+      }catch(e){
+        print("FAILED ICONCHANGE");
       }
     });
 
@@ -313,9 +322,9 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           if (isTyping && countUsersTyping == 1)
-        
+
             Padding(
-              
+
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
                 userTyping +
@@ -323,7 +332,7 @@ class _ChatPageState extends State<ChatPage> {
                         lang, " est en train d'écrire ..."),
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
-              
+
             ),
           Align(
             alignment: Alignment.topLeft,
@@ -401,8 +410,7 @@ class _ChatPageState extends State<ChatPage> {
                       onChanged: (value) {
                         print("OOOOOOOOOO");
                         print(value.isNotEmpty);
-                        
-                        
+
                         if (value.isNotEmpty && !isTypingSend) {
                           isTypingSend = true;
                           sendUserIsTyping();
@@ -430,23 +438,23 @@ class _ChatPageState extends State<ChatPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: FloatingActionButton(
                       onPressed: () {
-                        print(messages);
+                        //print(messages);
                         sendMessage(messageController.text);
                       },
+                      backgroundColor: Colors.blue,
                       child: Icon(
                         Icons.send,
                         color: Colors.white,
                         size: 25,
                       ),
-                      backgroundColor: Colors.blue,
                     ),
                   ),
                 ],
               ),
           ),
         ),
-       
-       
+
+
       ],
     ),
   );

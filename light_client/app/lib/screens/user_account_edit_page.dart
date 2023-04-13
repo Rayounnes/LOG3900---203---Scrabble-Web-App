@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 
 import '../constants/widgets.dart';
 import '../main.dart';
-import '../models/personnalisation.dart';
 import '../services/api_service.dart';
 import '../services/socket_client.dart';
 import 'game_modes_page.dart';
@@ -95,8 +94,11 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
             ? BASE64PREFIX + base64Encode(decodedBytesList[number])
             : BASE64PREFIX + base64Encode(imageBytes);
         await ApiService().pushIcon(imageBase64, newUsernameController.text);
+        dynamic value = {};
+        value['username'] = name;
+        value['icon'] = imageBase64;
         await ApiService()
-            .changeIcon(usernameValidationController.text, imageBase64);
+            .changeIcon(usernameValidationController.text, imageBase64).then((a) => getIt<SocketService>().send('icon-change',value));
       }
       if (newUsernameController.text != '') {
         bool res = await ApiService().changeUsername(

@@ -39,7 +39,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     theme = ""
 
     allUserChannels: any[] = [];
-    currentChannel: string = 'General';
+    currentChannel: string = '';
     searching: boolean = false;
     search = new FormControl();
     currentSearch: string = '';
@@ -213,7 +213,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             if(infos['id'] == this.socketService.socketId){
                 this.username = infos['username'];
             }
-            
+
             this.getUserChannels();
         });
         this.socketService.on('user-turn', (socketTurn: string) => {
@@ -244,7 +244,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
                     'Close',
                 );
             }
-            
+
         })
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();
@@ -558,11 +558,11 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     getUserChannels() {
         this.communicationService.getUserChannels(this.username).subscribe((userChannels: any): void => {
             this.allUserChannels = userChannels;
-            this.currentChannel = 'General';
+            if (this.currentChannel.length === 0) this.currentChannel ='General';
             let channel: any;
             for (channel of this.allUserChannels) {
                 this.checkAllUsersIcon(channel['messages'])
-                if (channel['name'] === 'General') {
+                if (channel['name'] === this.currentChannel) {
                     this.chatMessages = channel['messages'];
                     //if (channel.messages[0].length === 0) this.chatMessages.shift();
                     setTimeout(() => this.automaticScroll(), 1);
@@ -584,7 +584,7 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
           }
         }
     }
-      
+
     async checkUniqueUserIcon(username: string) {
     const keysArray: string[] = Array.from(this.usersIcons.keys());
     if (!keysArray.includes(username)) {
