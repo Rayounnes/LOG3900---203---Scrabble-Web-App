@@ -176,7 +176,7 @@ class TranslateService {
         "Well done, you've finished spelling mode!",
 
     //password_recovering_page
-    "Ce nom d'utilisateur n'existe pas": "This username does not exist",
+    "Ce nom d'utilisateur n'existe pas ou n'as pas été créé sur la plateforme mobile": "This username does not exist or has not been created on the mobile platform",
     "Modification du mot de passe non-autorisée":
         "Unauthorized password change",
     "Retour": "Back",

@@ -81,7 +81,7 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
             content: Text(translate.translateString(
-                lang, "Ce nom d'utilisateur n'existe pas"))),
+                lang, "Ce nom d'utilisateur n'existe pas ou n'as pas été créé sur la plateforme mobile"))),
       );
     }
   }
