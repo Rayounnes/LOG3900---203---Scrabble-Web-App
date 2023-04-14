@@ -118,11 +118,19 @@ export class JoindrePartieComponent implements OnInit, OnDestroy {
                 if (result === null) this.socketService.send('left-private-player', gameToJoin);
                 else if (result) this.goToWaitingRoom(gameToJoin);
                 else if (!result) {
-                    const message = 'Vous avez été rejeté de la partie.';
-                    this.snackBar.open(message, 'Fermer', {
-                        duration: 1000,
-                        panelClass: ['snackbar'],
-                    });
+                    const message = this.langue == 'fr' ?  'Vous avez été rejeté de la partie.' : 'You got rejected from the game';
+                    if(this.langue == 'fr'){
+                        this.snackBar.open(message, 'Fermer', {
+                            duration: 1000,
+                            panelClass: ['snackbar'],
+                        });
+                    }else{
+                        this.snackBar.open(message, 'Close', {
+                            duration: 1000,
+                            panelClass: ['snackbar'],
+                        });
+                    }
+                    
                 }
             });
         }

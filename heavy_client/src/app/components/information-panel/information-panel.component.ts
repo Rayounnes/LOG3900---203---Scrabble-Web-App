@@ -218,7 +218,19 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                     panelClass: ['snackbar'],
                 });
             } else {
-                this.snackBar.open(abandonMessage, 'Close', {
+                let newAbandonMessage = abandonMessage.includes('virtuel') ? this.commandTraduction.get('classic') : this.commandTraduction.get('coop') as string
+                let messageElements = abandonMessage.split(" ")
+                if(abandonMessage.includes('virtuel')){
+                    let playerName = messageElements[0]
+                    let virtualName = messageElements[messageElements.length-1]
+                    let abandonArray = newAbandonMessage?.split(" ") as string[]
+                    abandonArray.unshift(playerName)
+                    abandonArray.push(virtualName)
+                    newAbandonMessage = abandonArray.join(" ")
+                }
+                
+
+                this.snackBar.open(newAbandonMessage as string, 'Close', {
                     duration: 1000,
                     panelClass: ['snackbar'],
                 });
@@ -455,5 +467,8 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    setCommandTraduction() {}
+    setCommandTraduction() {
+        this.commandTraduction.set('classic', 'resigned the game, and will be replaced by the virtual player')
+        this.commandTraduction.set('coop', 'resigned the game.')
+    }
 }

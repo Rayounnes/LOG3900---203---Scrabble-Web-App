@@ -95,28 +95,55 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
         });
 
         this.socketService.on('joined-user-left', (username: string) => {
-            const message = `${username} a quitté la partie.`;
-            this.snackBar.open(message, 'Fermer', {
-                duration: 3000,
-                panelClass: ['snackbar'],
-            });
+            if(this.langue == 'fr'){
+                const message = `${username} a quitté la partie.`;
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }else{
+                const message = `${username} left the game.`;
+                this.snackBar.open(message, 'Close', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }
+            
         });
         this.socketService.on('joined-observer-left', (username: string) => {
-            const message = `${username} a quitté l'observation de la partie.`;
-            this.snackBar.open(message, 'Fermer', {
-                duration: 3000,
-                panelClass: ['snackbar'],
-            });
+            if(this.langue == 'fr'){
+                const message = `${username} a quitté l'observation de la partie.`;
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }else{
+                
+                const message = `${username} left the game observers.`;
+                this.snackBar.open(message, 'Close', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }
+            
         });
         this.socketService.on('join-game', (observer: boolean) => {
             this.router.navigate(['/game'], { queryParams: { isClassicMode: this.isClassic, isObserver: observer } });
         });
         this.socketService.on('cancel-match', () => {
-            const message = 'La partie a été annulée.';
-            this.snackBar.open(message, 'Fermer', {
-                duration: 3000,
-                panelClass: ['snackbar'],
-            });
+            if(this.langue == 'fr'){
+                const message = 'La partie a été annulée.';
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }else{
+                const message = 'The game has been cancelled.';
+                this.snackBar.open(message, 'Close', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
+            }
             this.router.navigate(['/joindre-partie'], { queryParams: { isClassicMode: this.isClassic } });
         });
         this.socketService.on('get-config', (config: any) => {
@@ -148,11 +175,19 @@ export class WaitingRoomPageComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === null) {
-                const message = `${userInfos.username} a quitté l'attente d'acceptation.`;
-                this.snackBar.open(message, 'Fermer', {
-                    duration: 3000,
-                    panelClass: ['snackbar'],
-                });
+                if(this.langue == 'fr'){
+                    const message = `${userInfos.username} a quitté l'attente d'acceptation.`;
+                    this.snackBar.open(message, 'Fermer', {
+                        duration: 3000,
+                        panelClass: ['snackbar'],
+                    });
+                }else{
+                    const message = `${userInfos.username} left during the acceptation waiting.`;
+                    this.snackBar.open(message, 'Close', {
+                        duration: 3000,
+                        panelClass: ['snackbar'],
+                    });
+                }
             } else if (result) {
                 this.socketService.send('accept-private-player', userInfos);
             } else {

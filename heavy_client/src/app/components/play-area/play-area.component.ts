@@ -49,6 +49,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     startTileOpponent: Vec2 = { x: -1, y: -1 };
 
     dialogConfig = new MatDialogConfig();
+    commandTraduction: Map<string, string> = new Map<string, string>();
 
     // le chargé m'a dit de mettre any car le type mouseEvent et keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,6 +91,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.isClassic = this.paramsObject.params.isClassicMode === 'true';
         this.isObserver = this.paramsObject.params.isObserver === 'true';
         this.mode = this.isClassic ? 'Classique' : 'Coopératif';
+        this.setCommandTraduction()
     }
 
     @HostListener('window:keydown', ['$event'])
@@ -196,7 +198,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                         panelClass: ['snackbar'],
                     });
                 } else {
-                    this.snackBar.open(placedWord.letters, 'Close', {
+                    this.snackBar.open(this.commandTraduction.get(placedWord.letters) as string, 'Close', {
                         duration: 2000,
                         panelClass: ['snackbar'],
                     });
@@ -294,10 +296,44 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             });
         });
         this.socketService.on('player-action', (message: string) => {
-            this.snackBar.open(message, 'Fermer', {
-                duration: 2000,
-                panelClass: ['snackbar'],
-            });
+            if(this.langue == "fr"){
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
+            }else{
+                if(message.includes('échangé')){
+                    let newMessage = this.commandTraduction.get('échangé')
+                    let messageArray = message?.split(" ") as string[];
+                    let newMessageArray : string[] = newMessage?.split(" ") as string[];
+                    newMessageArray.unshift(messageArray[0])
+                    newMessageArray.splice(2,0,messageArray[3])
+                    newMessage = newMessageArray.join(" ")
+                    this.snackBar.open(newMessage, 'Close', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                    return;
+                }
+                if(message.includes('passé')){
+                    let newMessage = this.commandTraduction.get('passé');
+                    let messageArray = message?.split(" ") as string[];
+                    let newMessageArray : string[] = newMessage?.split(" ") as string[];
+                    newMessageArray.unshift(messageArray[0])
+                    newMessage = newMessageArray.join(" ")
+                    this.snackBar.open(newMessage, 'Close', {
+                        duration: 2000,
+                        panelClass: ['snackbar'],
+                    });
+                    return;
+                }
+                this.snackBar.open(message, 'Close', {
+                    duration: 2000,
+                    panelClass: ['snackbar'],
+                });
+
+            }
+            
         });
 
         this.socketService.on('show-startTile', (position: Vec2) => {
@@ -366,14 +402,19 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             let message = '';
             if (this.langue == 'en') {
                 message = result.isAccepted ? 'Action accepted' : 'Action refused';
+                this.snackBar.open(message, 'Close', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
             } else {
                 message = result.isAccepted ? 'Action acceptée' : 'Action refusée';
+                this.snackBar.open(message, 'Fermer', {
+                    duration: 3000,
+                    panelClass: ['snackbar'],
+                });
             }
 
-            this.snackBar.open(message, 'Fermer', {
-                duration: 3000,
-                panelClass: ['snackbar'],
-            });
+            
         });
     }
     ngOnDestroy(): void {
@@ -562,5 +603,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             this.chevaletService.removeLetterOnRack(letter);
         }
         this.buttonPlayPressed();
+    }
+
+    setCommandTraduction() {
+        this.commandTraduction.set('Erreur de syntaxe : les lettres écrites dans la commande ne sont pas dans votre chevalet','Syntax erro : coosen letters not in your rack');
+        this.commandTraduction.set('Commande impossible a réaliser : ce placement de lettres sort du plateau ou ne posséde pas une lettre dans la case H8','Impossible : this letters placement goes off the board, or does not have a letter on H8')
+        this.commandTraduction.set('Commande impossible a réaliser : la position initiale choisi contient deja une lettre', 'Impossible : the choosen position already contains a letter')
+        this.commandTraduction.set("Commande impossible a réaliser : ce placement de lettres sort du plateau ou n'est pas attaché a des lettres", "Impossible : this letter placement goes out of the board boundaries, or is not attached to any other letter")
+        this.commandTraduction.set('échangé','exchanged letters')
+        this.commandTraduction.set('passé','passed his turn')
     }
 }
