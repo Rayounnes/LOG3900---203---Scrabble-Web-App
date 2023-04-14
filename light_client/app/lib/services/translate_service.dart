@@ -223,11 +223,20 @@ class TranslateService {
     "Lancer Partie": "Start game",
     "Annuler Partie": "Cancel game",
     "Demande d'acceptation": "Approval request",
-    "essaye de rejoindre la partie. Accepter ou rejeter le joueur?":
-        "try to join the game. Accept or reject player?",
+    " essaye de rejoindre la partie. Accepter ou rejeter le joueur?":
+        " try to join the game. Accept or reject player?",
     "Rejeter": "Reject",
     "Accepter": "Accept",
     "a quitté l'attente d'acceptation.": "has left waiting for approval.",
+    "Fermer": "Close",
+    "Liste d'indices": "Hint list",
+    "Demande d'action": "Action request",
+    "Action acceptée": "Action accepted",
+    "Action refusée": "Action refused",
+    "Tuiles dans la réserve": "Reserve tiles",
+    "Tuiles restantes": "Tiles left",
+    "Echanger les lettres": "Exchange letters",
+    "Passer le tour": "Pass turn",
   };
   translateService() {}
 

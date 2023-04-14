@@ -9,6 +9,7 @@ import '../constants/letters_points.dart';
 import '../constants/widgets.dart';
 import '../services/api_service.dart';
 import '../services/music_service.dart';
+import '../services/translate_service.dart';
 import '../services/user_infos.dart';
 
 const DEFAULT_CLOCK = 60;
@@ -18,10 +19,12 @@ const RESERVE_START_LENGTH = 102;
 class TimerPage extends StatefulWidget {
   final bool isClassicMode, isObserver;
   final String? theme;
+  final String lang;
   const TimerPage(
       {super.key,
       required this.isClassicMode,
       required this.isObserver,
+      required this.lang,
       this.theme});
 
   @override
@@ -43,6 +46,7 @@ class _TimerPageState extends State<TimerPage> {
   bool coinsGotFromDB = false;
   late Timer _timer;
   String theme = "white";
+  TranslateService translate = new TranslateService();
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -54,7 +58,6 @@ class _TimerPageState extends State<TimerPage> {
           gameDuration++;
           if (_start == 0) {
             timer.cancel();
-            print("sending change-user-turn from timer");
             getIt<SocketService>().send('change-user-turn');
           }
         },
@@ -70,7 +73,6 @@ class _TimerPageState extends State<TimerPage> {
   void handleSockets() {
     print("handle sockets information pannel");
     getIt<SocketService>().on('user-turn', (playerTurnId) {
-      print("-------------------------------------------In user-turn pannel");
       if (widget.isClassicMode) {
         setState(() {
           isPlayersTurn = playerTurnId == getIt<SocketService>().socketId;
@@ -307,7 +309,9 @@ class _TimerPageState extends State<TimerPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Tuiles dans la réserve: ${reserveTilesLeft}',
+                      translate.translateString(
+                              widget.lang, "Tuiles dans la réserve") +
+                          ": ${reserveTilesLeft}",
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -373,7 +377,11 @@ class _TimerPageState extends State<TimerPage> {
           ),
           subtitle: Row(
               children: !widget.isObserver
-                  ? [Text('Tiles left: ${player.tilesLeft}')]
+                  ? [
+                      Text(translate.translateString(
+                              widget.lang, "Tuiles restantes") +
+                          ": ${player.tilesLeft}")
+                    ]
                   : [
                       for (int i = 0; i < player.tiles.length; i++)
                         player.tiles[i] != ''

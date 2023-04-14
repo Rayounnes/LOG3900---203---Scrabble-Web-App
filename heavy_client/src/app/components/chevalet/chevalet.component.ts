@@ -292,6 +292,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         this.chevaletService.changeRackTile(event);
     } */
     openExchangeVoteActionDialog(voteAction: CooperativeAction): void {
+        console.log('Opening coopervative vote');
         this.dialogConfig.position = { left: '100px' };
         this.dialogConfig.backdropClass = 'custom-backdrop';
         this.dialogConfig.panelClass = 'custom-panel';
@@ -328,23 +329,20 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
 
     openExchangeDialog() {
+        if (this.isEndGame) return;
         this.rotate();
-        setTimeout(() => {
-            const dialogRef = this.dialog.open(ExchangeDialogComponent, {
-                width: '200px',
-                data: { rackList: this.items },
-            });
+        const dialogRef = this.dialog.open(ExchangeDialogComponent, {
+            width: '200px',
+            data: { rackList: this.items },
+        });
 
-            dialogRef.afterClosed().subscribe((result) => {
-                if (result) {
-                    this.positionTiles();
-                }
-                this.lettersExchange = result;
-                this.exchangePopUp(result);
-            });
-
-            // this.position0.x = 42; //42 et 1
-            // this.position0.y = 1;
+        dialogRef.afterClosed().subscribe((result) => {
+            console.log('exchange result: ', result);
+            if (result) {
+                this.positionTiles();
+            }
+            this.lettersExchange = result;
+            this.exchangePopUp(result);
         });
     }
 

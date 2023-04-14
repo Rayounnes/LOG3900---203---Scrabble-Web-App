@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LetterExchange } from '@app/interfaces/letter-exchange';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
@@ -8,7 +8,7 @@ import { ChatSocketClientService } from '@app/services/chat-socket-client.servic
     templateUrl: './exchange-dialog.component.html',
     styleUrls: ['./exchange-dialog.component.scss'],
 })
-export class ExchangeDialogComponent implements OnDestroy {
+export class ExchangeDialogComponent {
     items: LetterExchange[] = [
         { label: this.data.rackList[0], checked: false },
         { label: this.data.rackList[1], checked: false },
@@ -45,8 +45,5 @@ export class ExchangeDialogComponent implements OnDestroy {
             // this.exchangeword+=item;
             this.exchangeWord += this.checkedItems[i].label;
         }
-    }
-    ngOnDestroy(): void {
-        this.socketService.socket.off('vote-action');
     }
 }

@@ -385,7 +385,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
                 Text(translate.translateString(lang, "Demande d'acceptation")),
             content: Text(userInfos.username +
                 translate.translateString(lang,
-                    "essaye de rejoindre la partie. Accepter ou rejeter le joueur?")),
+                    " essaye de rejoindre la partie. Accepter ou rejeter le joueur?")),
             actions: <TextButton>[
               TextButton(
                 onPressed: () {

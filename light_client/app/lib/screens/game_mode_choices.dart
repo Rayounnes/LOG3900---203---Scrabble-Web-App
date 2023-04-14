@@ -46,8 +46,8 @@ class _GameChoicesState extends State<GameChoices> {
 
   String dictionary = "Francais";
   List<DropdownMenuItem<String>> dictionnaries = [
-    DropdownMenuItem(child: Text("Francais"), value: "Francais"),
-    DropdownMenuItem(child: Text("English"), value: "Anglais"),
+    DropdownMenuItem(child: Text("FR"), value: "Francais"),
+    DropdownMenuItem(child: Text("EN"), value: "Anglais"),
   ];
 
   @override

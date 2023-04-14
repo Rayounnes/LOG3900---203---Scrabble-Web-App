@@ -8,7 +8,7 @@
     <span *ngIf="action.placement">{{action.placement.command}}</span>
     <span *ngIf="action.action === 'exchange' && langue == 'fr'">Echanger les lettres {{action.lettersToExchange}}</span>
     <span *ngIf="action.action === 'pass' && langue == 'fr'">Passer le tour</span>
-    <span *ngIf="action.action === 'exchange' && langue == 'en'">Exchange letters{{action.lettersToExchange}}</span>
+    <span *ngIf="action.action === 'exchange' && langue == 'en'">Exchange letters {{action.lettersToExchange}}</span>
     <span *ngIf="action.action === 'pass' && langue == 'en'">Pass turn</span>
   </div>
   

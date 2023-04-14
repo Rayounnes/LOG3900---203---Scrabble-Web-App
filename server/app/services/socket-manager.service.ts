@@ -362,11 +362,11 @@ export class SocketManager {
             this.sio.to(socket.id).emit('reserve-command', reserveResult);
         });
         socket.on('hint-command', () => {
-            const room = this.usersRoom.get(socket.id) as string;
+            // const room = this.usersRoom.get(socket.id) as string;
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             const hintWords = scrabbleGame.getPlayerHintWords(socket.id);
-            if (scrabbleGame.isClassicMode) this.sio.to(socket.id).emit('hint-command', hintWords);
-            else this.sio.to(room).emit('hint-command', hintWords);
+            this.sio.to(socket.id).emit('hint-command', hintWords);
+            // this.sio.to(room).emit('hint-command', hintWords);
         });
     }
     exchangeCommandHandler(socket: io.Socket) {

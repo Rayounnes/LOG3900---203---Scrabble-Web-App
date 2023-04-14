@@ -69,6 +69,10 @@ class _GamePageState extends State<GamePage> {
 
   int startTileX = -1;
   int startTileY = -1;
+  late BuildContext exchangeDialogContext;
+  late BuildContext hintDialogContext;
+  bool exchangeOpen = false;
+  bool hintOpen = false;
   Vec2 startTileOpponent = Vec2(x: -1, y: -1);
 
   List<Widget> tileShowed = [];
@@ -105,7 +109,7 @@ class _GamePageState extends State<GamePage> {
     getIt<SocketService>().userSocket.off('game-won');
     getIt<SocketService>().userSocket.off('game-loss');
     getIt<SocketService>().userSocket.off("update-points-mean");
-    getIt<SocketService>().userSocket.off('hint-command');
+    // getIt<SocketService>().userSocket.off('hint-command');
     getIt<SocketService>().userSocket.off('show-startTile');
     super.dispose();
   }
@@ -139,7 +143,6 @@ class _GamePageState extends State<GamePage> {
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
-                  print("abandonning game");
                   getIt<SocketService>().send('abandon-game');
                   Navigator.pop(context); // pop le dialog
                   Navigator.pop(context); // pop le game page
@@ -161,7 +164,6 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _showLetterPicker(int line, int column, int tileId) {
-    print("show * dialog");
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -259,6 +261,7 @@ class _GamePageState extends State<GamePage> {
     }
     placeWordHint(word);
     validatePlacement();
+    hintOpen = false;
   }
 
   placeWordHint(WordArgs word) {
@@ -298,7 +301,6 @@ class _GamePageState extends State<GamePage> {
       letter = '*';
     }
     int indexInRack = tempHintRack.indexOf(letter);
-
     targetID = rackIDList[indexInRack];
     tempHintRack[indexInRack] = " ";
     return targetID;
@@ -337,6 +339,11 @@ class _GamePageState extends State<GamePage> {
       if (verifyLetterOnBoard(tileID)) {
         removeLetterOnBoard(tileID, true);
       }
+      // Si il essaye de placer sur une tuile on retoure
+      if (tilePosition.containsValue(
+          getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint))) {
+        return getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint);
+      }
       if (letterValue == '*' && !isHint) {
         _showLetterPicker(line, column, tileID);
       } else {
@@ -354,8 +361,6 @@ class _GamePageState extends State<GamePage> {
           lettersofBoard.add(Letter(line, column, letterValue!, tileID));
         }
       }
-      print(line);
-      print(column);
       if (lettersofBoard.isNotEmpty)
         sendStartTile(
             Vec2(x: lettersofBoard[0].column, y: lettersofBoard[0].line));
@@ -371,8 +376,6 @@ class _GamePageState extends State<GamePage> {
 
   void validatePlacement() {
     dynamic word = board.verifyPlacement(lettersofBoard);
-    // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
-    lettersofBoard = [];
     if (word != null) {
       getIt<SocketService>().send('verify-place-message', word);
     } else {
@@ -494,6 +497,8 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('verify-place-message', (placedWord) {
       if (placedWord["letters"] is String) {
+        // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+        lettersofBoard = [];
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: Colors.red,
@@ -546,6 +551,7 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         commandSent = false;
       });
+      // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
       lettersofBoard = [];
     });
     getIt<SocketService>().on('exchange-command', (command) {
@@ -574,19 +580,27 @@ class _GamePageState extends State<GamePage> {
         else
           isPlayerTurn = true;
       });
-      if (!widget.isObserver) getIt<SocketService>().send('hint-command');
+      // if (!widget.isObserver) getIt<SocketService>().send('hint-command');
     });
 
     getIt<SocketService>().on('hint-cooperative', (_) {
-      if (!widget.isObserver) getIt<SocketService>().send('hint-command');
+      // if (!widget.isObserver) getIt<SocketService>().send('hint-command');
     });
 
-    getIt<SocketService>().on('hint-command', (placements) {
-      setState(() {
-        createWord(placements);
-      });
-    });
+    // getIt<SocketService>().on('hint-command', (placements) {
+    //   setState(() {
+    //     createWord(placements);
+    //   });
+    // });
     getIt<SocketService>().on('vote-action', (voteAction) {
+      if (hintOpen) {
+        Navigator.pop(hintDialogContext);
+        hintOpen = false;
+      }
+      if (exchangeOpen) {
+        Navigator.pop(exchangeDialogContext, "");
+        exchangeOpen = false;
+      }
       openVoteActionDialog(context, CooperativeAction.fromJson(voteAction));
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
@@ -705,8 +719,8 @@ class _GamePageState extends State<GamePage> {
 
                     if (!tilePosition.containsValue(boardPosition)) {
                       tilePosition[id] = boardPosition;
+                      getIt<MusicService>().playMusic(PLACEMENT_SOUND, false);
                     }
-                    getIt<MusicService>().playMusic(PLACEMENT_SOUND, false);
                   }
                 });
               },
@@ -796,6 +810,7 @@ class _GamePageState extends State<GamePage> {
                       theme: widget.theme,
                       isClassicMode: widget.isClassicMode,
                       isObserver: widget.isObserver,
+                      lang: widget.lang,
                     )),
                 Positioned(
                   left: LEFT_BOARD_POSITION,
@@ -848,7 +863,6 @@ class _GamePageState extends State<GamePage> {
                           ? null
                           : () {
                               if (lettersofBoard.isNotEmpty) {
-                                print("placingggggg");
                                 setState(() {
                                   validatePlacement();
                                 });
@@ -874,9 +888,11 @@ class _GamePageState extends State<GamePage> {
                       onPressed: !isPlayerTurn || commandSent
                           ? null
                           : () {
+                              exchangeOpen = true;
                               showDialog<String>(
                                   context: context,
                                   builder: (BuildContext context) {
+                                    exchangeDialogContext = context;
                                     List<String> exchangeableTile = [];
                                     for (var index in rackIDList) {
                                       exchangeableTile
@@ -886,8 +902,10 @@ class _GamePageState extends State<GamePage> {
                                       tileLetters: exchangeableTile,
                                     );
                                   }).then((String? lettersToExchange) {
-                                if (lettersToExchange != "") {
-                                  exchangeCommand(lettersToExchange!);
+                                exchangeOpen = false;
+                                if (lettersToExchange != null &&
+                                    lettersToExchange != "") {
+                                  exchangeCommand(lettersToExchange);
                                 }
                               });
                             },
@@ -909,19 +927,18 @@ class _GamePageState extends State<GamePage> {
                       onPressed: !isPlayerTurn || commandSent
                           ? null
                           : () {
-                              HintDialog hintDialog = HintDialog(
-                                items: formatedHints,
-                                onNoClick: (word) {
-                                  validationHintWord(word);
-                                },
-                              );
-
+                              hintOpen = true;
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return hintDialog;
+                                  hintDialogContext = context;
+                                  return HintDialog(lang: widget.lang);
                                 },
-                              );
+                              ).then((hintPlacement) {
+                                hintOpen = false;
+                                if (hintPlacement != null)
+                                  validationHintWord(hintPlacement);
+                              });
                             },
                       backgroundColor: !isPlayerTurn || commandSent
                           ? Colors.grey
@@ -952,7 +969,10 @@ class _GamePageState extends State<GamePage> {
                       shape: RoundedRectangleBorder(
                           side: BorderSide(color: Colors.yellow, width: 5)),
                       content: CooperativeActionWidget(
-                          actionParam: action, isObserver: widget.isObserver))),
+                        actionParam: action,
+                        isObserver: widget.isObserver,
+                        lang: widget.lang,
+                      ))),
             ],
           );
         }).then((result) {
@@ -982,8 +1002,9 @@ class _GamePageState extends State<GamePage> {
           });
         }
       }
-      final message =
-          result["isAccepted"] ? 'Action accepted' : 'Action refused';
+      final message = result["isAccepted"]
+          ? translate.translateString(widget.lang, "Action acceptée")
+          : translate.translateString(widget.lang, "Action refusée");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,

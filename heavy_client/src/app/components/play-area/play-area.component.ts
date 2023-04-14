@@ -430,7 +430,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.socket.off('user-turn');
         this.socketService.socket.off('hint-cooperative');
         this.socketService.socket.off('end-game');
-        this.socketService.socket.off('hint-command');
+        // this.socketService.socket.off('hint-command');
         this.socketService.socket.off('get-config');
     }
     removeLastStart() {
@@ -446,7 +446,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.validatePlaceSockets();
         this.socketService.on('user-turn', (socketTurn: string) => {
             if (!this.isObserver) {
-                this.socketService.send('hint-command');
+                // this.socketService.send('hint-command');
                 this.removeLastStart();
                 // this.startTileOpponent = {x:-1,y:-1};
             }
@@ -454,19 +454,19 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
             this.dragOrType = 'free';
         });
         this.socketService.on('hint-cooperative', () => {
-            if (!this.isObserver) this.socketService.send('hint-command');
+            // if (!this.isObserver) this.socketService.send('hint-command');
             this.dragOrType = 'free';
         });
         this.socketService.on('end-game', () => {
             this.commandSent = true;
             this.isEndGame = true;
         });
-        this.socketService.on('hint-command', (hints: Placement[]) => {
-            if (hints != undefined) {
-                this.hintWords = [];
-                this.createWord(hints);
-            }
-        });
+        // this.socketService.on('hint-command', (hints: Placement[]) => {
+        //     if (hints != undefined) {
+        //         this.hintWords = [];
+        //         this.createWord(hints);
+        //     }
+        // });
         this.socketService.on('get-config', (config: any) => {
             this.langue = config.langue;
             this.theme = config.theme;

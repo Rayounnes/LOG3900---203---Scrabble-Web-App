@@ -5,13 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:app/services/socket_client.dart';
 import 'package:app/main.dart';
 
+import '../services/translate_service.dart';
+
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
 
 class CooperativeActionWidget extends StatefulWidget {
   final CooperativeAction actionParam;
   final bool isObserver;
-  const CooperativeActionWidget({super.key, required this.actionParam, required this.isObserver});
+  final String lang;
+  const CooperativeActionWidget(
+      {super.key,
+      required this.actionParam,
+      required this.isObserver,
+      required this.lang});
 
   @override
   _CooperativeActionWidgetState createState() =>
@@ -25,6 +32,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
   bool choiceMade = false;
   int gameDuration = 0;
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
+  TranslateService translate = new TranslateService();
 
   ///socketId - image
   int _start = DEFAULT_CLOCK;
@@ -158,7 +166,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Demande d'action",
+                    translate.translateString(widget.lang, "Demande d'action"),
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   timerWidget(context)
@@ -171,12 +179,12 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
                 ),
               if (action.action == 'exchange')
                 Text(
-                  'Echanger les lettres ${action.lettersToExchange}',
+                  translate.translateString(widget.lang, "Echanger les lettres") + "${action.lettersToExchange}",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               if (action.action == 'pass')
                 Text(
-                  'Passer le tour',
+                  translate.translateString(widget.lang, "Passer le tour"),
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               for (int i = 0; i < socketChoices.length; i += 2)
@@ -201,13 +209,13 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
                     onPressed: () {
                       sendVote(true);
                     },
-                    child: const Text('Accepter'),
+                    child: Text(translate.translateString(widget.lang, "Accepter")),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       sendVote(false);
                     },
-                    child: const Text('Refuser'),
+                    child: Text(translate.translateString(widget.lang, "Rejeter")),
                   ),
                 ],
               )
