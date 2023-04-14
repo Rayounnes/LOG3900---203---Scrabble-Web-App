@@ -247,7 +247,7 @@ class _ChannelsState extends State<Channels> {
       // langOrTheme.theme = value['theme'];
 
       nameController = TextEditingController(
-          text: translate.translateString(lang, "Nouvelle discussion"));
+          text: "");
       lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
@@ -372,8 +372,8 @@ Widget build(BuildContext context) {
               Expanded(
                 child: GameButton(
                   padding: 32.0,
-                  route: () {
-                    showModalSearch(context);
+                  route: () async {
+                    await showModalSearch(context);
                   },
                   name: translate.translateString(lang, "Rechercher"),
                 ),
@@ -584,7 +584,11 @@ Widget build(BuildContext context) {
     );
   }
 
-  List<String> channelsToJoin() {
+  Future<List<String>> channelsToJoin() async {
+    allChannelsDB = await ApiService().getAllChannels();
+
+    print(allChannelsDB);
+    
     List<String> filteredChannels = [];
     for (String channel in allChannelsDB) {
       if (!discussions.contains(channel)) {
@@ -594,8 +598,8 @@ Widget build(BuildContext context) {
     return filteredChannels;
   }
 
-  void showModalSearch(BuildContext context) {
-    final fullList = channelsToJoin();
+  Future<void> showModalSearch(BuildContext context) async {
+    final fullList = await channelsToJoin();
     List<String> filteredList = fullList;
     selectedList = [];
 
