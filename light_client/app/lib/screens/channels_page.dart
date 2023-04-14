@@ -59,6 +59,7 @@ class _ChannelsState extends State<Channels> {
   String chatDeleted = '';
   String chatJoined = '';
   String usernameMain ='';
+  String theme = '';
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 
@@ -168,10 +169,10 @@ class _ChannelsState extends State<Channels> {
       if(infos['isValid']){
         setState(() {
 
-                discussions.remove(infos['channel']);
+                discussions.remove(infos['channelName']);
               });
       }else{
-          if(infos['user'] == username && infos['type'] == 'delete'){
+          if(infos['user'] == usernameMain && infos['type'] == 'delete'){
               if(lang == 'fr'){
                 ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -180,7 +181,7 @@ class _ChannelsState extends State<Channels> {
                         : Color.fromARGB(255, 207, 241, 207),
                     duration: Duration(seconds: 3),
                     content: Text("Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie")),
-              )}else{
+              );}else{
                 ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     backgroundColor: theme == "dark"
@@ -188,9 +189,9 @@ class _ChannelsState extends State<Channels> {
                         : Color.fromARGB(255, 207, 241, 207),
                     duration: Duration(seconds: 3),
                     content: Text("Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends")),
-              )
+              );
               }
-          }else if(infos['user'] == username && infos['type'] == 'leave'){
+          }else if(infos['user'] == usernameMain && infos['type'] == 'leave'){
               if(lang == 'fr'){
                   ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -199,7 +200,7 @@ class _ChannelsState extends State<Channels> {
                           : Color.fromARGB(255, 207, 241, 207),
                       duration: Duration(seconds: 3),
                       content: Text("Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon")),
-                )
+                );
               }else{
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -208,7 +209,7 @@ class _ChannelsState extends State<Channels> {
                           : Color.fromARGB(255, 207, 241, 207),
                       duration: Duration(seconds: 3),
                       content: Text("Impossible to leave a game channel. You will automatically leave at the end of the game.")),
-                )
+                );
               }
           }
           
@@ -248,9 +249,11 @@ class _ChannelsState extends State<Channels> {
       nameController = TextEditingController(
           text: translate.translateString(lang, "Nouvelle discussion"));
       lang = value['langue'];
+      theme = value['theme'];
       if (mounted) {
         setState(() {
           lang = value['langue'];
+          theme = value['theme'];
         });
       }
 
@@ -494,10 +497,6 @@ Widget build(BuildContext context) {
             onPressed: () {
               if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("delete-channel", chatDeleted);
-                setState(() {
-
-                discussions.remove(chatDeleted);
-              });
 
               }
              
