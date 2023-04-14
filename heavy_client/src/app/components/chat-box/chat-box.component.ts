@@ -249,8 +249,27 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         this.socketService.on('channels-joined', () => {
             this.getUserChannels();
         });
-        this.socketService.on('leave-channel', () => {
-            this.getUserChannels();
+        this.socketService.on('leave-channel', (isValid : any) => {
+            if(isValid['isValid']){
+                this.getUserChannels(true);
+            }else{
+                if(isValid['user'] == this.username && isValid['type'] == 'delete'){
+                    if(this.langue == 'fr'){
+                        this._snackBar.open("Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie", "Fermer")
+                    }else{
+                        this._snackBar.open("Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends", "Close")
+                    }
+                }else if(isValid['user'] == this.username && isValid['type'] == 'leave'){
+                    if(this.langue == 'fr'){
+                        this._snackBar.open("Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon", "Fermer")
+                    }else{
+                        this._snackBar.open("Impossible to leave a game channel. You will automatically leave at the end of the game.", "Close")
+                    }
+                }
+                
+                
+            }
+            
         });
         this.socketService.on('isTypingMessage', (message: any) => {
             console.log(message);
@@ -555,10 +574,10 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
         this.socketService.send('delete-channel', this.currentChannel);
     }
 
-    getUserChannels() {
+    getUserChannels(channelDeleted? : boolean) {
         this.communicationService.getUserChannels(this.username).subscribe((userChannels: any): void => {
             this.allUserChannels = userChannels;
-            if (this.currentChannel.length === 0) this.currentChannel ='General';
+            if (this.currentChannel.length === 0 || channelDeleted) this.currentChannel ='General';
             let channel: any;
             for (channel of this.allUserChannels) {
                 this.checkAllUsersIcon(channel['messages'])

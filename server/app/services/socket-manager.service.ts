@@ -126,7 +126,7 @@ export class SocketManager {
             const playerUsername = this.usernames.get(socket.id) as string;
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            await this.leaveChannel(socket, game.room);
+            await this.leaveChannel(socket, game.room,false);
             this.gameManager.leaveRoom(socket.id);
             if (!isObserver) {
                 game.joinedPlayers = game.joinedPlayers.filter((user) => user.username !== playerUsername);
@@ -224,7 +224,7 @@ export class SocketManager {
             game.joinedObservers = game.joinedObservers.filter((user) => user.socketId !== socket.id);
             const scrabbleGame = this.gameManager.getScrabbleGame(socket.id);
             scrabbleGame.setObserver(false, socket.id);
-            await this.leaveChannel(socket, gameRoom);
+            await this.leaveChannel(socket, gameRoom,false);
             this.gameManager.leaveRoom(socket.id);
             this.sio.emit('update-joinable-matches', this.gameList(game.isClassicMode));
         });
@@ -532,7 +532,7 @@ export class SocketManager {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
             socket.leave(room);
-            await this.leaveChannel(socket, room);
+            await this.leaveChannel(socket, room, false);
             if (game.isClassicMode) this.gameManager.abandonClassicGame(socket.id);
             else this.gameManager.abandonCooperativeGame(socket.id);
             if (game.isClassicMode) this.sio.to(socket.id).emit('game-loss')
@@ -542,7 +542,7 @@ export class SocketManager {
         socket.on('quit-game', async () => {
             const room = this.usersRoom.get(socket.id) as string;
             const game = this.gameRooms.get(room) as Game;
-            await this.leaveChannel(socket, game.room);
+            await this.leaveChannel(socket, game.room, false);
             // this.sio.to(room).emit('chatMessage', {
             //     username: '',
             //     message: `${this.usernames.get(socket.id)} a quitté le jeu.`,
@@ -613,22 +613,23 @@ export class SocketManager {
         }
     }
 
-    async leaveChannel(socket: io.Socket, channelName: string) {
+    async leaveChannel(socket: io.Socket, channelName: string, tryingToQuitDuringGame : boolean) {
         const username = this.usernames.get(socket.id);
-        await this.channelService.leaveChannel(channelName, username as string);
-        this.sio.to(socket.id).emit('leave-channel');
+        let isValid = await this.channelService.leaveChannel(channelName, username as string, tryingToQuitDuringGame);
+        this.sio.to(socket.id).emit('leave-channel' , {isValid : isValid, user : username, type : 'leave'});
+        if(isValid)
         socket.leave(channelName);
     }
 
     async leaveChannelWithSocketId(socket: string, channelName: string) {
         const username = this.usernames.get(socket);
-        await this.channelService.leaveChannel(channelName, username as string);
-        this.sio.to(socket).emit('leave-channel');
+        let isValid = await this.channelService.leaveChannel(channelName, username as string, false);
+        this.sio.to(socket).emit('leave-channel', {isValid : isValid, user : username, type : 'leave'});
     }
 
-    async deleteChannel(channelName: string) {
-        await this.channelService.deleteChannel(channelName);
-        this.sio.to(channelName).emit('leave-channel');
+    async deleteChannel(channelName: string,username : string) {
+        let isValid = await this.channelService.deleteChannel(channelName,username);
+        this.sio.to(channelName).emit('leave-channel', {isValid : isValid, user : username , type : 'delete'});
     }
     userCreateChannel(socket: io.Socket) {
         socket.on('channel-creation', async (channelName: string) => {
@@ -649,13 +650,14 @@ export class SocketManager {
 
     userLeaveChannel(socket: io.Socket) {
         socket.on('leave-channel', async (channelName: string) => {
-            await this.leaveChannel(socket, channelName);
+            await this.leaveChannel(socket, channelName,true);
         });
     }
 
     userDeleteChannel(socket: io.Socket) {
         socket.on('delete-channel', async (channelName: string) => {
-            await this.deleteChannel(channelName);
+            let username = this.usernames.get(socket.id)
+            await this.deleteChannel(channelName,username as string);
         });
     }
 

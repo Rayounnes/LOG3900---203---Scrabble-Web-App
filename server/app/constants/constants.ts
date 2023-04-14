@@ -211,3 +211,6 @@ export interface loginInfos {
     qstIndex? : string,
     qstAnswer? : string,
 }
+
+//db.Users.updateMany({}, {$pull: {channels: {$regex: 'Partie', $options: 'i' }}}) --> supprimer tt les channels Partie de des arrays de Users
+//db.Channels.deleteMany({name: {$regex: 'Partie', $options: 'i'} }) supprimer les channels partie de de la collection channels

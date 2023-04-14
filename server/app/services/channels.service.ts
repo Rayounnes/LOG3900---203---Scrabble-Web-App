@@ -70,7 +70,7 @@ export class ChannelService {
                 await this.userCollection.updateOne({ _id: user['_id'] }, { $push: { channels: channelName } });
             }
 
-            const newChannel = { name: channelName, isGameChannel: isGame, users: 1, messages: [] };
+            const newChannel = { name: channelName, isGameChannel: isGame, users: 1, messages: [], creator : username };
             await this.channelCollection.insertOne(newChannel);
             return newChannel;
         }
@@ -94,11 +94,15 @@ export class ChannelService {
         }
     }
 
-    async leaveChannel(channelName: string, username: string) {
+    async leaveChannel(channelName: string, username: string, tryingToQuitDuringGame : boolean) {
         const user = await this.userCollection.findOne({ username: username });
-        const membersOfChannel = await this.channelCollection.findOne({ name: channelName });
-        if (membersOfChannel) {
-            var numberOfUsers = membersOfChannel['users'];
+        const channel = await this.channelCollection.findOne({ name: channelName });
+        if(channel && channel['isGameChannel'] && tryingToQuitDuringGame){
+            //Si les 3 conditions sont a true, sa veut dire que le user essaie de quitter le channel pendant qu'une partie est en cours
+            return false
+        }
+        if (channel) {
+            var numberOfUsers = channel['users'];
         }
 
         if (user) {
@@ -111,15 +115,36 @@ export class ChannelService {
         if (numberOfUsers - 1 == 0) {
             this.deleteChannel(channelName);
         }
+        return true;
     }
 
-    async deleteChannel(channelName: string) {
+    async deleteChannel(channelName: string, username? : string) {
+
+        let channel = await this.channelCollection.findOne({name : channelName});
+        if(channel && channel['isGameChannel'] && username){
+            return false //Si les trois conditions sont true, ca veut dire que un user a essayer de supprimer un channel de jeu, donc false;
+        }
+
+        if(username){ //Le username est optionnel, pour traiter le cas ou on veut supprimer le channel juste parceque y'a plus personne dedans
+            
+            if(channel && channel['creator'] == username){
+                const users = (await this.userCollection.find({ channels: { $in: [channelName] } }).toArray()) as any[];
+                for (const user of users) {
+                    await this.leaveChannel(channelName, user['username'], false);
+                }
+
+                await this.channelCollection.deleteOne({ name: channelName });
+                return true;
+            }
+            return false;
+        }
         const users = (await this.userCollection.find({ channels: { $in: [channelName] } }).toArray()) as any[];
         for (const user of users) {
-            await this.leaveChannel(channelName, user['username']);
+            await this.leaveChannel(channelName, user['username'], false);
         }
 
         await this.channelCollection.deleteOne({ name: channelName });
+        return true
     }
 
     async getMessagesOfChannel(channelName: string) {
