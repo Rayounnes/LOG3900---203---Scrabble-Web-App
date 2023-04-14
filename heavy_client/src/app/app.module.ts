@@ -58,6 +58,7 @@ import { ConfigurationChoiceDialogComponent } from './components/configuration-c
 import { TipsComponent } from './components/tips/tips.component';
 
 import { SectionHelpComponent } from './pages/section-help/section-help.component';
+import { MusicPlayerComponent } from './components/music-player/music-player.component';
 /**
  * Main module that is used in main.ts.
  * All automatically generated components will appear in this module.
@@ -101,6 +102,7 @@ import { SectionHelpComponent } from './pages/section-help/section-help.componen
         ConfigurationChoiceDialogComponent,
         SectionHelpComponent,
         TipsComponent,
+        MusicPlayerComponent,
     ],
     imports: [
         MatProgressSpinnerModule,
