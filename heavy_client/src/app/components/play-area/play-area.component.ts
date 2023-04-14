@@ -598,6 +598,11 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
+                if(this.dragOrType == 'type'){
+                    this.keyboard.removeAllLetters()
+                    let pos = this.gridService.board.getStartTile() as Vec2
+                    this.keyboard.putOldTile(pos.x,pos.y)
+                }
                 this.placeHintWord(result);
             }
         });
