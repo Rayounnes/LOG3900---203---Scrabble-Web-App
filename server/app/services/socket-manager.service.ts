@@ -616,7 +616,7 @@ export class SocketManager {
     async leaveChannel(socket: io.Socket, channelName: string, tryingToQuitDuringGame : boolean) {
         const username = this.usernames.get(socket.id);
         let isValid = await this.channelService.leaveChannel(channelName, username as string, tryingToQuitDuringGame);
-        this.sio.to(socket.id).emit('leave-channel' , {isValid : isValid, user : username, type : 'leave'});
+        this.sio.to(socket.id).emit('leave-channel' , {isValid : isValid, user : username, type : 'leave', channelName : channelName});
         if(isValid)
         socket.leave(channelName);
     }
@@ -624,12 +624,12 @@ export class SocketManager {
     async leaveChannelWithSocketId(socket: string, channelName: string) {
         const username = this.usernames.get(socket);
         let isValid = await this.channelService.leaveChannel(channelName, username as string, false);
-        this.sio.to(socket).emit('leave-channel', {isValid : isValid, user : username, type : 'leave'});
+        this.sio.to(socket).emit('leave-channel', {isValid : isValid, user : username, type : 'leave',channelName : channelName});
     }
 
     async deleteChannel(channelName: string,username : string) {
         let isValid = await this.channelService.deleteChannel(channelName,username);
-        this.sio.to(channelName).emit('leave-channel', {isValid : isValid, user : username , type : 'delete'});
+        this.sio.to(channelName).emit('leave-channel', {isValid : isValid, user : username , type : 'delete', channelName : channelName});
     }
     userCreateChannel(socket: io.Socket) {
         socket.on('channel-creation', async (channelName: string) => {

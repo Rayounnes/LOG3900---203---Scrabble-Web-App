@@ -164,7 +164,57 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-    getIt<SocketService>().on("leave-channel", (dynamic) {});
+    getIt<SocketService>().on("leave-channel", (infos) {
+      if(infos['isValid']){
+        setState(() {
+
+                discussions.remove(infos['channel']);
+              });
+      }else{
+          if(infos['user'] == username && infos['type'] == 'delete'){
+              if(lang == 'fr'){
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    backgroundColor: theme == "dark"
+                        ? Color.fromARGB(255, 32, 107, 34)
+                        : Color.fromARGB(255, 207, 241, 207),
+                    duration: Duration(seconds: 3),
+                    content: Text("Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie")),
+              )}else{
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    backgroundColor: theme == "dark"
+                        ? Color.fromARGB(255, 32, 107, 34)
+                        : Color.fromARGB(255, 207, 241, 207),
+                    duration: Duration(seconds: 3),
+                    content: Text("Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends")),
+              )
+              }
+          }else if(infos['user'] == username && infos['type'] == 'leave'){
+              if(lang == 'fr'){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      backgroundColor: theme == "dark"
+                          ? Color.fromARGB(255, 32, 107, 34)
+                          : Color.fromARGB(255, 207, 241, 207),
+                      duration: Duration(seconds: 3),
+                      content: Text("Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon")),
+                )
+              }else{
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      backgroundColor: theme == "dark"
+                          ? Color.fromARGB(255, 32, 107, 34)
+                          : Color.fromARGB(255, 207, 241, 207),
+                      duration: Duration(seconds: 3),
+                      content: Text("Impossible to leave a game channel. You will automatically leave at the end of the game.")),
+                )
+              }
+          }
+          
+          
+      }
+    });
 
     getIt<SocketService>().on("channels-joined", (dynamic) {
       try {
@@ -518,10 +568,7 @@ Widget build(BuildContext context) {
             onPressed: () {
               if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("leave-channel", chatDeleted);
-                setState(() {
-
-                discussions.remove(chatDeleted);
-              });
+                
 
               }
 
