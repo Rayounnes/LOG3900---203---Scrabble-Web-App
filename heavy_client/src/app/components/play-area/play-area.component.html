@@ -5,7 +5,7 @@
     
     
         <div>
-            <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+            <canvas id="canvas" #gridCanvas (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height" style="border: 0;"></canvas>
         </div>
 
         <div class="buttons" *ngIf="!isObserver">

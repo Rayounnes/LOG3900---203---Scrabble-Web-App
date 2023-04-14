@@ -24,6 +24,7 @@ export class KeyboardManagementService {
     enterPressed: boolean = false;
     playPressed: boolean = false;
     temporaryRack: RackTile[] = [];
+    isWritingComment : boolean = false;
     readonly lastPositionFill = END_POSITION_FILL;
 
     constructor(
@@ -55,6 +56,8 @@ export class KeyboardManagementService {
                 this.placeLetterOnGrid(positionStart, letter);
             }
         }
+        
+        
     }
 
     placerOneHintLetter(letter: string, orientation: string) {

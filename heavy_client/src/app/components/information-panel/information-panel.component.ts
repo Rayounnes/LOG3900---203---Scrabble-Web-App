@@ -16,6 +16,7 @@ import { DOCUMENT } from '@angular/common';
 import html2canvas from 'html2canvas';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ScreenshotDialogComponent } from '../screenshot-dialog/screenshot-dialog.component';
+import { KeyboardManagementService } from '@app/services/keyboard-management.service';
 
 const DEFAULT_CLOCK = 60;
 const ONE_SECOND = 1000;
@@ -67,6 +68,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         @Inject(DOCUMENT) private document: Document,
         private dialog: MatDialog,
         public router: Router,
+        public keyboard: KeyboardManagementService
     ) {
         this.route.queryParamMap.subscribe((params) => {
             this.paramsObject = { ...params.keys, ...params };
@@ -397,12 +399,14 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
 
     captureScreenshot() {
         html2canvas(this.document.body).then((canvas) => {
+            this.keyboard.isWritingComment = true;
             const base64Image = canvas.toDataURL('image/png');
             this.dialogConfig.width = '100%';
             this.dialogConfig.height = '100%';
             this.dialogConfig.data = { image: base64Image };
             const dialogRef = this.dialog.open(ScreenshotDialogComponent, this.dialogConfig);
             dialogRef.afterClosed().subscribe((comment: string) => {
+                this.keyboard.isWritingComment = false;
                 if (comment) {
                     this.communicationService.addScreenshotToUser(this.getUsername(), base64Image, comment).subscribe((isValid: boolean) => {
                         if (isValid) {

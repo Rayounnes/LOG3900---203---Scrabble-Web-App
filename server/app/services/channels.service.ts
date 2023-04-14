@@ -108,9 +108,13 @@ export class ChannelService {
         if (user) {
             const currentChannels = user['channels'] as string[];
             const index = currentChannels.indexOf(channelName);
-            currentChannels.splice(index, 1);
-            await this.userCollection.updateOne({ _id: user['_id'] }, { $set: { channels: currentChannels } });
-            await this.channelCollection.updateOne({ name: channelName }, { $set: { users: numberOfUsers - 1 } });
+            if(index !== -1){
+                currentChannels.splice(index, 1);
+                await this.userCollection.updateOne({ _id: user['_id'] }, { $set: { channels: currentChannels } });
+                await this.channelCollection.updateOne({ name: channelName }, { $set: { users: numberOfUsers - 1 } });
+            }else{
+                return false;
+            }
         }
         if (numberOfUsers - 1 == 0) {
             this.deleteChannel(channelName);

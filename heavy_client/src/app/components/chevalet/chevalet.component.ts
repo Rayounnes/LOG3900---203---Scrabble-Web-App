@@ -119,7 +119,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     // le chargé m'a dit de mettre any car le type keyboardEvent ne reconnait pas target
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buttonDetect(event: any) {
-        if (this.dragUsed === 'type') {
+        if (this.dragUsed === 'type' && !this.keyboardService.isWritingComment) {
             if (event.key !== 'Backspace' && event.key !== 'Escape') {
                 let letter = event.key;
                 if (event.key === event.key.toUpperCase()) {

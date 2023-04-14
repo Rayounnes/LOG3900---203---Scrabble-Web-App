@@ -96,30 +96,37 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
 
     @HostListener('window:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        this.buttonPressed = event.key;
-        console.log(this.keyboard.letters.length);
-        if (this.buttonPressed === 'Enter') {
-            if (this.gridService.board.verifyPlacement(this.keyboard.letters) !== undefined) {
-                this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
-                this.dragOrType = 'free';
+        if(!this.keyboard.isWritingComment){
+            this.buttonPressed = event.key;
+            console.log(this.keyboard.letters.length);
+            if (this.buttonPressed === 'Enter') {
+                if (this.gridService.board.verifyPlacement(this.keyboard.letters) !== undefined) {
+                    this.keyboard.word = this.gridService.board.verifyPlacement(this.keyboard.letters) as WordArgs;
+                    this.dragOrType = 'free';
+                }
+                this.sendStartTile({ x: -1, y: -1 });
+            } else if (
+                ((this.buttonPressed === 'Backspace' && this.keyboard.letters.length <= 1) || this.buttonPressed === 'Escape') &&
+                this.dragOrType === 'type'
+            ) {
+                this.sendStartTile({ x: -1, y: -1 });
             }
-            this.sendStartTile({ x: -1, y: -1 });
-        } else if (
-            ((this.buttonPressed === 'Backspace' && this.keyboard.letters.length <= 1) || this.buttonPressed === 'Escape') &&
-            this.dragOrType === 'type'
-        ) {
-            this.sendStartTile({ x: -1, y: -1 });
+            this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
+            const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
+            if (this.keyboard.verificationKeyboard(letter) &&
+            this.dragOrType === 'type' /* && this.keyboard.conditionOnRack(letter) */) {
+                // if(this.keyboard.letters.length===0){
+                //      this.sendStartTile(this.gridService.board.getStartTile() as Vec2);
+                // }
+                console.log("ON EST ICIIIIIIIIIII")
+                
+                this.keyboard.placerOneLetter(letter);
+                this.chevaletService.removeLetterOnRack(letter);
+                console.log(this.keyboard.letters)
+                this.sendStartTile({ x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line });
+            }
         }
-        this.dragOrType = this.keyboard.importantKey(this.buttonPressed, this.dragOrType);
-        const letter = this.keyboard.verificationAccentOnE(this.buttonPressed);
-        if (this.keyboard.verificationKeyboard(letter)) {
-            // if(this.keyboard.letters.length===0){
-            //      this.sendStartTile(this.gridService.board.getStartTile() as Vec2);
-            // }
-            this.keyboard.placerOneLetter(letter);
-            this.chevaletService.removeLetterOnRack(letter);
-            this.sendStartTile({ x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line });
-        }
+        
     }
 
     @HostListener('document:click', ['$event'])

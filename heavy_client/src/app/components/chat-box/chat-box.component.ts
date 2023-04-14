@@ -593,11 +593,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     async checkAllUsersIcon(messages: any) {
+        console.log(messages)
         const keysArray: string[] = Array.from(this.usersIcons.keys());
         //if(messages[0].length == 0) messages.shift()
         for (let message of messages) {
           if (!keysArray.includes(message['username'])) {
+            console.log(message['username'])
             const icon: string[] = await this.communicationService.getAvatar(message['username']).toPromise();
+            if(icon)
             this.usersIcons.set(message['username'], icon[0]);
             keysArray.push(message['username'])
           }
