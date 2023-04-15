@@ -136,7 +136,8 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: widget.theme == "dark" ? Colors.grey : Colors.white,
+            backgroundColor:
+                widget.theme == "dark" ? Colors.grey : Colors.white,
             title: Text(
                 translate.translateString(widget.lang, "Abandonner la partie")),
             content: Text(translate.translateString(
@@ -186,6 +187,10 @@ class _GamePageState extends State<GamePage> {
                           .add(Letter(line, column, selectedLetter, tileId));
 
                       tileLetter[tileId] = selectedLetter;
+                      if (lettersofBoard.isNotEmpty)
+                        sendStartTile(Vec2(
+                            x: lettersofBoard[0].column,
+                            y: lettersofBoard[0].line));
                       Navigator.pop(context);
                     });
                   },
@@ -458,7 +463,8 @@ class _GamePageState extends State<GamePage> {
 
     getIt<SocketService>().on('end-game', (_) {
       // Envoyer dans endgame si il a gagné ou perdu
-      getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
+      if (!widget.isObserver)
+        getIt<MusicService>().playMusic(LOSE_GAME_SOUND, false);
       setState(() {
         commandSent = true;
         isEndGame = true;
@@ -506,7 +512,8 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
-              content: Text(placedWord["letters"])),
+              content: Text(translate.translateString(
+                  widget.lang, placedWord["letters"]))),
         );
         setState(() {
           commandSent = false;
@@ -576,6 +583,10 @@ class _GamePageState extends State<GamePage> {
       }
     });
     getIt<SocketService>().on('user-turn', (playerTurnId) {
+      if (widget.isClassicMode && !widget.isObserver) {
+        print("removing startTile");
+        removeStartTile();
+      }
       if (hintOpen) {
         Navigator.pop(hintDialogContext);
         hintOpen = false;
@@ -643,14 +654,14 @@ class _GamePageState extends State<GamePage> {
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 1),
-            content: Text(message)),
+            content: Text(convertedMessage)),
       );
     });
 
     getIt<SocketService>().on('show-startTile', (position) {
       // this.startTile = positions;
-      posToShow = Vec2(x: position['x'], y: position['y']);
       removeStartTile();
+      posToShow = Vec2(x: position['x'], y: position['y']);
       if (position['x'] != -1) {
         showStartTile(position);
       }
@@ -672,6 +683,7 @@ class _GamePageState extends State<GamePage> {
 
   removeStartTile() {
     tileShowed = [];
+    posToShow = Vec2(x: -1, y: -1);
     showDynamicstart();
     // this.keyboard.putOldTile(this.startTileOpponent.x ,this.startTileOpponent.y );
 
@@ -792,12 +804,14 @@ class _GamePageState extends State<GamePage> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: widget.theme,
       child: Scaffold(
           backgroundColor: widget.theme == "dark"
               ? Color.fromARGB(255, 73, 73, 73)
               : Color.fromARGB(255, 207, 241, 207),
           appBar: AppBar(
-            backgroundColor: widget.theme == "dark" ? Colors.grey: Colors.white,
+            backgroundColor:
+                widget.theme == "dark" ? Colors.grey : Colors.white,
             leadingWidth: 10,
             automaticallyImplyLeading: false,
             title: Text(
@@ -863,6 +877,12 @@ class _GamePageState extends State<GamePage> {
                       onPressed: !isPlayerTurn || commandSent
                           ? null
                           : () {
+                              setState(() {
+                                commandSent = false;
+                                setTileOnRack();
+                                // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+                                lettersofBoard = [];
+                              });
                               passTurn();
                             },
                       backgroundColor: !isPlayerTurn || commandSent
@@ -928,6 +948,12 @@ class _GamePageState extends State<GamePage> {
                                 exchangeOpen = false;
                                 if (lettersToExchange != null &&
                                     lettersToExchange != "") {
+                                  setState(() {
+                                    commandSent = false;
+                                    setTileOnRack();
+                                    // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+                                    lettersofBoard = [];
+                                  });
                                   exchangeCommand(lettersToExchange);
                                 }
                               });

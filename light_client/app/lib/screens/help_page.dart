@@ -74,6 +74,7 @@ class _HelpSectionState extends State<HelpSection> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: widget.theme,
         child: Scaffold(
       appBar: AppBar(
         title: Text(translate.translateString(lang, 'Aide')),

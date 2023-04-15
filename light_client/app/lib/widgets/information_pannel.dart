@@ -151,7 +151,7 @@ class _TimerPageState extends State<TimerPage> {
       var listWords = (abandonMessage as String).split(' ');
       if (widget.isClassicMode && widget.lang == "en") {
         convertedMessage =
-            "${listWords[0]} has abandoned the game. The player has been replaced by the virtual player ${listWords[listWords.length - 1]}.";
+            "${listWords[0]} has abandoned the game. The player has been replaced by ${listWords[listWords.length - 1]}.";
       } else if (!widget.isClassicMode && widget.lang == "en") {
         convertedMessage = "${listWords[0]} has abandoned the game.";
       }

@@ -134,6 +134,7 @@ class _JoinGamesState extends State<JoinGames> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: theme,
       child: Scaffold(
         backgroundColor: theme == "dark"
             ? Color.fromARGB(255, 32, 107, 34)

@@ -206,6 +206,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: theme,
         child: Scaffold(
       body: Container(
         color: theme == "dark"

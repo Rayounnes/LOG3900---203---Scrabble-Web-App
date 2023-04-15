@@ -9,8 +9,8 @@ class PlayerInfos {
 
   factory PlayerInfos.fromJson(Map<String, dynamic> json) {
     return PlayerInfos(
-      username: json['username'],
-      socketId: json['socketId'],
+      username: json['username'] == null ? "" : json['username'],
+      socketId: json['socketId'] == null ? "" : json['socketId'],
     );
   }
 }

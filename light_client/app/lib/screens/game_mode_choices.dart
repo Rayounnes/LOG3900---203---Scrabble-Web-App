@@ -111,6 +111,7 @@ class _GameChoicesState extends State<GameChoices> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: theme,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

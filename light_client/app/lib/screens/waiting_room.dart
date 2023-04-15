@@ -222,6 +222,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: theme,
         child: Scaffold(
             backgroundColor: theme == "dark"
                 ? Colors.green[800]

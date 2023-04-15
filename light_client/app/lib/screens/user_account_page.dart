@@ -113,6 +113,7 @@ class _UserAccountPageState extends State<UserAccountPage> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
+      theme: theme,
         child: Scaffold(
       appBar: AppBar(
         title: Text(

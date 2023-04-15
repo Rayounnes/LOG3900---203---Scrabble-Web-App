@@ -7,8 +7,8 @@ import '../services/socket_client.dart';
 
 class ParentWidget extends StatefulWidget {
   final Widget child;
-  String? theme = 'dark';
-  ParentWidget({super.key, required this.child, this.theme});
+  final String theme;
+  ParentWidget({super.key, required this.child, required this.theme});
 
   @override
   State<ParentWidget> createState() => _ParentWidgetState();
