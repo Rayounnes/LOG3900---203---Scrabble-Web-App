@@ -339,6 +339,14 @@ export class LoginService {
                 }
             }
 
+            //On modifie le fiel "creator" de tout les channles que ce user a créé
+            let channels = await this.channelService.channelCollection.find({creator : oldUsername}).toArray();
+            if(channels){
+                for(let channel of channels){
+                    this.channelService.channelCollection.updateOne({_id : channel["_id"]}, {$set : {creator : newUsername}})
+                }
+            }
+
             //On enleve l'ancien username du array 'active' de l'icon du username, et on push le nouveau username dans l'array
             let currentIcon = await this.iconsCollection.findOne({active : oldUsername});
             if(currentIcon){

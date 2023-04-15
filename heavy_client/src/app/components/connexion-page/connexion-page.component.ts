@@ -71,9 +71,11 @@ export class ConnexionPageComponent implements AfterViewInit {
 
         this.communicationService.userlogin(loginInfos).subscribe((connectionValid): void => {
             if (connectionValid) {
+                console.log(loginInfos)
                 this.connected = true;
-                this.router.navigate(['home']);
+                
                 this.socketService.send('user-connection', { username: loginInfos.username, socketId: this.socketService.socketId });
+                this.router.navigate(['home']);
                 this.appComponent.initiatePopout();
                 // on save les logins seulement si le remember me est checked
                 if (this.rememberMeForm.value.remeberMe) {

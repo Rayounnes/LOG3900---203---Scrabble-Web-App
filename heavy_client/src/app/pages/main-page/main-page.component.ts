@@ -51,6 +51,7 @@ export class MainPageComponent {
         localStorage.removeItem('password');
         this.router.navigate(['/connexion']);
         this.app.popIn();
+        this.app.popInMusic();
     }
 
     openProfile(){

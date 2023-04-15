@@ -37,6 +37,7 @@ export class OrthographyPageComponent implements OnInit {
   configureBaseSocketFeatures() {
     this.socketService.on('sendUsername', (name: string) => {
         this.username = name;
+        this.getBestScoreOfPlayer();
     });
     this.socketService.on('get-config',(config : any)=>{
       this.langue = config.langue;
@@ -62,7 +63,7 @@ connect() {
         clearInterval(countdownInterval);
       }
     }, 1000);
-    this.getBestScoreOfPlayer();
+    
     this.getWordsForMode();
 
     
@@ -70,12 +71,8 @@ connect() {
 
   getBestScoreOfPlayer() {
     let param = this.username ? this.username : this.socketService.socketId;
-    console.log(param);
     this.communicationService.getBestScore(param).subscribe((bestScore: any) : void => {
-      console.log("yoyoyoyoy");
       this.bestScore = bestScore.bestScore; 
-      console.log(bestScore);
-      console.log(this.bestScore);
   });
 
   }

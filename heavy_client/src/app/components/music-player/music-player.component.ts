@@ -4,12 +4,12 @@ interface bgMusic {
     src: string;
 }
 const PLAYLIST: bgMusic[] = [
-    { title: 'Dragon Ball Lofi', src: '../../../assets/DB Music.mp3' },
-    { title: 'Naruto Lofi', src: '../../../assets/NARUTO Music.mp3' },
-    { title: 'AOT Music', src: '../../../assets/AOT Music.mp3' },
-    { title: 'CSM Music', src: '../../../assets/CSM Music.mp3' },
-    { title: 'Fumetsu Music', src: '../../../assets/Fumetsu Music.mp3' },
-    { title: 'OP Lofi', src: '../../../assets/OP Music.mp3' },
+    { title: 'Dragon Ball Lofi', src: 'assets/DB Music.mp3' },
+    { title: 'Naruto Lofi', src: 'assets/NARUTO Music.mp3' },
+    { title: 'AOT Music', src: 'assets/AOT Music.mp3' },
+    { title: 'CSM Music', src: 'assets/CSM Music.mp3' },
+    { title: 'Fumetsu Music', src: 'assets/Fumetsu Music.mp3' },
+    { title: 'OP Lofi', src: 'assets/OP Music.mp3' },
 ];
 
 @Component({

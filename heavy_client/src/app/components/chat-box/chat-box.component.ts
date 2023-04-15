@@ -495,12 +495,14 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             this.allChannelsNames = allChannelsNames;
         });
         this.channelsControl.setValue([]);
+        this.search.reset()
     }
 
     $search = this.search.valueChanges.pipe(
         startWith(null),
         debounceTime(200),
         switchMap((res: string) => {
+            console.log(`vall du bail : ${this.search.value}`)
             let newChannelsList: string[] = [];
             if (!res) {
                 newChannelsList = this.allChannelsNames
@@ -537,15 +539,20 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
             // Si l'utilisateur veut juste rejoindre des channels deja existants
             this.socketService.send('join-channel', this.channelsControl.value);
             this.currentSearch = '';
+            this.search.reset()
             this.searching = false;
             return;
         }
         //Si l'utilisateur veut créé son propre channel
-        if (this.currentSearch.length === 0 || this.userChannelsNames.indexOf(this.currentSearch) !== -1) {
+        if (this.currentSearch.length === 0 || this.userChannelsNames.indexOf(this.currentSearch) !== -1 || this.currentSearch.trim().length == 0) {
+            console.log('ici')
+            this.currentSearch = ""
+            this.search.reset()
             return;
         }
         this.socketService.send('channel-creation', this.currentSearch);
         this.currentSearch = '';
+        this.search.reset()
         this.searching = false;
         setTimeout(() => this.automaticScroll(), 1);
         return;
