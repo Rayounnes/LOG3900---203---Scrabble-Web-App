@@ -43,6 +43,7 @@ class TranslateService {
     "Entrez une réponse à la question de sécurité":
         "Enter an answer to the security question",
     "Créer le compte": "Create account",
+    "Le mot de passe doit contenir au minimum un caractère spécial,\n un chiffre et une lettre en majuscule":"The password must contain at least one special character,\n one number and one uppercase letter",
     //game_modes_page
     "Application Scrabble": "Scrabble app",
     "Mode de jeu classique": "Classic game mode",

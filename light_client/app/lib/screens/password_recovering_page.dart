@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import "package:app/services/api_service.dart";
 
 import '../main.dart';
-import '../models/personnalisation.dart';
 import '../services/socket_client.dart';
 
 class RecoverAccountPage extends StatefulWidget {
@@ -228,9 +227,13 @@ class _RecoverAccountPageState extends State<RecoverAccountPage> {
             validator: (String? value) {
               if (value == null || value.isEmpty) {
                 return translate.translateString(lang, "Mot de passe requis.");
-              } else if (value.length < 6) {
+              } else if (value.length < 8) {
                 return translate.translateString(lang,
-                    "Un mot de passe doit contenir au minimum 6 caractéres.");
+                    "Un mot de passe doit contenir au minimum 8 caractéres.");
+              }else if (!value
+                  .contains(RegExp(r'^(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$'))) {
+                return translate.translateString(lang,
+                    "Le mot de passe doit contenir au minimum un caractère spécial,\n un chiffre et une lettre en majuscule");
               }
               return null;
             },

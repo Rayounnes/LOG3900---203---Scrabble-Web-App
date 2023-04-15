@@ -220,8 +220,11 @@ class _SignUpState extends State<SignUp> {
                             validator: (String? value) {
                               if (value == null || value.isEmpty) {
                                 return "Mot de passe requis.";
-                              } else if (value.length < 6) {
-                                return "Un mot de passe doit contenir au minimum 6 caractéres.";
+                              } else if (value.length < 8) {
+                                return "Un mot de passe doit contenir au minimum 8 caractéres.";
+                              }else if (!value
+                                  .contains(RegExp(r'^(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$'))) {
+                                return "Le mot de passe doit contenir au minimum un caractère spécial,\n un chiffre et une lettre en majuscule";
                               }
                               return null;
                             },
