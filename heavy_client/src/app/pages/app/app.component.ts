@@ -37,8 +37,10 @@ export class AppComponent {
     }
 
     popIn(): void {
-        this.popoutWindow.closed.unsubscribe();
+        setTimeout(() => this.popoutWindow.closed.unsubscribe(), 0);
+        setTimeout(() => this.popoutMusic.closed.unsubscribe(), 0);
         this.popoutWindow.popIn();
+        this.popoutMusic.popIn();
     }
 
     popOutMusicParams(): void {
@@ -55,10 +57,5 @@ export class AppComponent {
                 }
             });
         }
-    }
-
-    popInMusic(): void {
-        this.popoutMusic.closed.unsubscribe();
-        this.popoutMusic.popIn();
     }
 }

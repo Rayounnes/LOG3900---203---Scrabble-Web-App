@@ -1,5 +1,13 @@
 popout-window{
-    width: 450px !important;
+    width: 450px;
+    //height: 400px !important;
+    position: absolute;
+    top: 0px;
+    visibility: hidden;
+}
+
+popout-window.musicPopout{
+    width: 350px !important;
     //height: 400px !important;
     position: absolute;
     top: 0px;
