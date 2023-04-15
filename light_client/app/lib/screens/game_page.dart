@@ -136,6 +136,7 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: widget.theme == "dark" ? Colors.grey : Colors.white,
             title: Text(
                 translate.translateString(widget.lang, "Abandonner la partie")),
             content: Text(translate.translateString(
@@ -562,7 +563,8 @@ class _GamePageState extends State<GamePage> {
           SnackBar(
               backgroundColor: Colors.red,
               duration: Duration(seconds: 2),
-              content: Text(command["name"])),
+              content: Text(
+                  translate.translateString(widget.lang, command["name"]))),
         );
         if (!widget.isClassicMode)
           getIt<SocketService>().send('cooperative-invalid-action', false);
@@ -629,6 +631,14 @@ class _GamePageState extends State<GamePage> {
       );
     });
     getIt<SocketService>().on('player-action', (message) {
+      var convertedMessage = message;
+      var listWords = message.split(' ');
+      if ((message as String).contains("échangé") && widget.lang == "en") {
+        convertedMessage =
+            "${listWords[0]} exchanged ${listWords[3]} letter(s)";
+      } else if ((message as String).contains("passé") && widget.lang == "en") {
+        convertedMessage = "${listWords[0]} passed his turn.";
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.blue,
@@ -787,6 +797,7 @@ class _GamePageState extends State<GamePage> {
               ? Color.fromARGB(255, 73, 73, 73)
               : Color.fromARGB(255, 207, 241, 207),
           appBar: AppBar(
+            backgroundColor: widget.theme == "dark" ? Colors.grey: Colors.white,
             leadingWidth: 10,
             automaticallyImplyLeading: false,
             title: Text(
@@ -998,7 +1009,19 @@ class _GamePageState extends State<GamePage> {
               .send('validate-created-words', result["action"].placement);
         } else if (result["action"].action == 'pass') {
           getIt<SocketService>().send('pass-turn');
+          setState(() {
+            commandSent = false;
+            setTileOnRack();
+            // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+            lettersofBoard = [];
+          });
         } else if (result["action"].action == 'exchange') {
+          setState(() {
+            commandSent = false;
+            setTileOnRack();
+            // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+            lettersofBoard = [];
+          });
           getIt<SocketService>()
               .send('exchange-command', result["action"].lettersToExchange);
         }
