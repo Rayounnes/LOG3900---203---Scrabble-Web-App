@@ -237,6 +237,15 @@ class _UserAccountPageState extends State<UserAccountPage> {
                         theme: theme,
                       ),
                     ),
+                  if(showHistory == false && showTableChart==false)
+                    Padding(
+                      padding: EdgeInsets.only(top:40.0),
+                      child: Text(translate.translateString(
+                          lang, "Veuillez cliquer sur un des boutons pour plus d'informations"),
+                      style: TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.w700),
+                      ),
+                    ),
                 ],
               ),
             ),

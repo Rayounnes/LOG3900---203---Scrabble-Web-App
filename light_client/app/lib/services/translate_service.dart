@@ -213,6 +213,7 @@ class TranslateService {
     'Partie perdue': "Game lost",
     'Partie gagnée': "Game won",
     'Parties jouées': "Games played",
+    "Veuillez cliquer sur un des boutons pour plus d'informations":"Please click on one of the buttons for more information",
 
     //waiting_room
     "Salle d'attente de": "Waiting room of ",
