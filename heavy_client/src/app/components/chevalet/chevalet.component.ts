@@ -121,15 +121,19 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     buttonDetect(event: any) {
         if (this.dragUsed === 'type' && !this.keyboardService.isWritingComment) {
             if (event.key !== 'Backspace' && event.key !== 'Escape') {
-                let letter = event.key;
-                if (event.key === event.key.toUpperCase()) {
-                    letter = '*';
+                console.log(this.keyboardService.word)
+                if(!((this.keyboardService.word.column + this.keyboardService.word.value.length == 15 && this.keyboardService.word.orientation == 'h') || (this.keyboardService.word.line + this.keyboardService.word.value.length == 15 && this.keyboardService.word.orientation == 'v'))){
+                    let letter = event.key;
+                    if (event.key === event.key.toUpperCase()) {
+                        letter = '*';
+                    }
+                    let index = this.items.findIndex((item) => item === letter);
+                    if (index !== -1) {
+                        this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
+                        this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
+                    }
                 }
-                let index = this.items.findIndex((item) => item === letter);
-                if (index !== -1) {
-                    this.items = this.items.slice(0, index).concat(' ', this.items.slice(index + 1));
-                    this.lettersOut.push({ position: index, value: event.key } as TileDragRack);
-                }
+                
             } else {
                 if (event.key === 'Backspace' && this.lettersOut.length >= 1) {
                     this.removeLastOutLetter();
@@ -159,7 +163,12 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
     removeLastOutLetter() {
         let letterOut = this.lettersOut.pop();
-        this.items[letterOut?.position as number] = letterOut?.value as string;
+        if(letterOut?.value == letterOut?.value.toLocaleUpperCase() || letterOut?.value === '*'){
+            this.items[letterOut?.position as number] = "*";
+        }else{
+            this.items[letterOut?.position as number] = letterOut?.value as string;
+        }
+        
     }
 
     @HostListener('mousewheel', ['$event'])
@@ -334,13 +343,20 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
         this.rotate();
         const dialogRef = this.dialog.open(ExchangeDialogComponent, {
             width: '200px',
-            data: { rackList: this.items },
+            data: { rackList: this.chevaletLetters },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
             console.log('exchange result: ', result);
             if (result) {
-                this.positionTiles();
+                if(this.dragUsed == 'type'){
+                    this.keyboardService.removeAllLetters();
+                    let pos = this.keyboardService.gridService.board.getStartTile() as Vec2
+                    this.keyboardService.putOldTile(pos.x,pos.y)
+                }else{
+                    this.positionTiles();
+                }
+                
             }
             this.lettersExchange = result;
             this.exchangePopUp(result);
@@ -410,8 +426,15 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     }
     drop(event: CdkDragDrop<string[]>) {
         this.posBoard = this.canvasBoard.nativeElement.getBoundingClientRect();
+        let isOccupied = false
+        
         let startBoard = { x: this.posBoard.x + this.gridConstant.tileSize, y: this.posBoard.y + this.gridConstant.tileSize };
-
+        for(let letter of this.keyboardService.letters){
+            console.log(letter)
+            if(letter['line'] == this.getPositionDroppedY(event.dropPoint.y, startBoard.y) && letter['column'] == this.getPositionDroppedX(event.dropPoint.x, startBoard.x)){
+                isOccupied = true;
+            }
+        }
         let tile = this.dragTiles.get(event.item.element.nativeElement.id);
         const keysArray = Array.from(this.dragTiles.keys());
         // let letterValue = event.item.element.nativeElement.innerText.charAt(0);
@@ -422,7 +445,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
             !this.boardUser.getIsFilled(
                 this.getPositionDroppedY(event.dropPoint.y, startBoard.y) + 1,
                 this.getPositionDroppedX(event.dropPoint.x, startBoard.x) + 1,
-            )
+            ) && !isOccupied
         ) {
             this.placeTileElement(tile, event, letterValue, startBoard, keysArray.indexOf(event.item.element.nativeElement.id));
         } else {
@@ -432,6 +455,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
     placeTileElement(tile: any, event: any, letterValue: any, startBoard: any, posTileRack: number) {
         let posTileX = event.dropPoint.x;
         let posTileY = event.dropPoint.y;
+        
         if (posTileX < startBoard.x + this.gridConstant.tileSize) {
             tile.nativeElement.style.left = `${startBoard.x}px`; // REVOIR LA POSITION 741
         } else {

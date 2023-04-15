@@ -9,7 +9,7 @@ import * as gridConstants from 'src/constants/grid-constants';
 import { RackTile } from '@app/classes/rack-tile';
 import { ChatSocketClientService } from './chat-socket-client.service';
 
-const END_POSITION_FILL = 13;
+const END_POSITION_FILL = 14;
 const END_INDEX_BOARD = 14;
 const DELAY = 5;
 

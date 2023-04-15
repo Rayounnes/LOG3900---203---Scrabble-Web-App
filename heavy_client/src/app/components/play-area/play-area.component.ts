@@ -123,6 +123,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                 this.keyboard.placerOneLetter(letter);
                 this.chevaletService.removeLetterOnRack(letter);
                 console.log(this.keyboard.letters)
+                if(this.keyboard.letters.length > 0)
                 this.sendStartTile({ x: this.keyboard.letters[0].column, y: this.keyboard.letters[0].line });
             }
         }
