@@ -28,7 +28,7 @@ class UserAccountPage extends StatefulWidget {
 class _UserAccountPageState extends State<UserAccountPage> {
   List<String> connexionHistory = [];
   List<String> deconnexionHistory = [];
-  bool showHistory = true;
+  bool showHistory = false;
   bool showTableChart = false;
   bool isEmpty = true;
   String lang = "en";
