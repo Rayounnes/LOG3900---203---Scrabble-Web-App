@@ -58,7 +58,7 @@ class _TimerPageState extends State<TimerPage> {
           gameDuration++;
           if (_start == 0) {
             timer.cancel();
-            if(isPlayersTurn) getIt<SocketService>().send('change-user-turn');
+            if (isPlayersTurn) getIt<SocketService>().send('change-user-turn');
           }
         },
       ),
@@ -147,11 +147,19 @@ class _TimerPageState extends State<TimerPage> {
     });
     getIt<SocketService>().on('abandon-game', (abandonMessage) {
       isAbandon = true;
+      var convertedMessage = abandonMessage;
+      var listWords = (abandonMessage as String).split(' ');
+      if (widget.isClassicMode && widget.lang == "en") {
+        convertedMessage =
+            "${listWords[0]} has abandoned the game. The player has been replaced by the virtual player ${listWords[listWords.length - 1]}.";
+      } else if (!widget.isClassicMode && widget.lang == "en") {
+        convertedMessage = "${listWords[0]} has abandoned the game.";
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.red,
             duration: Duration(seconds: 2),
-            content: Text(abandonMessage)),
+            content: Text(convertedMessage)),
       );
     });
     //Compte le temps malgré abandon
@@ -169,7 +177,8 @@ class _TimerPageState extends State<TimerPage> {
         SnackBar(
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
-            content: Text('La partie est terminée')),
+            content: Text(translate.translateString(
+                widget.lang, "La partie est terminée"))),
       );
       clearInterval();
     });
@@ -194,7 +203,9 @@ class _TimerPageState extends State<TimerPage> {
         SnackBar(
             backgroundColor: Colors.deepOrange,
             duration: Duration(seconds: 1),
-            content: Text('Un achat de ${timeToAdd}s a été réalisé')),
+            content: Text(widget.lang == "en"
+                ? 'A purchase of ${timeToAdd}s has been made'
+                : 'Un achat de ${timeToAdd}s a été réalisé')),
       );
     });
     // envoyer le timer a l observateur

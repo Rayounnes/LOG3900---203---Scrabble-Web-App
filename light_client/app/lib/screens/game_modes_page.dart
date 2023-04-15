@@ -363,6 +363,7 @@ class _GameModesState extends State<GameModes> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
+        backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
         title: Text(translate.translateString(lang, 'Déconnexion')),
         content: Text(translate.translateString(
             lang, 'Etes-vous sur de vous déconnecter ?')),

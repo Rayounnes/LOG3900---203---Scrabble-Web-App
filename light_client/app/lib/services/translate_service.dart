@@ -176,7 +176,8 @@ class TranslateService {
         "Well done, you've finished spelling mode!",
 
     //password_recovering_page
-    "Ce nom d'utilisateur n'existe pas ou n'as pas été créé sur la plateforme mobile": "This username does not exist or has not been created on the mobile platform",
+    "Ce nom d'utilisateur n'existe pas ou n'as pas été créé sur la plateforme mobile":
+        "This username does not exist or has not been created on the mobile platform",
     "Modification du mot de passe non-autorisée":
         "Unauthorized password change",
     "Retour": "Back",
@@ -237,6 +238,18 @@ class TranslateService {
     "Tuiles restantes": "Tiles left",
     "Echanger les lettres": "Exchange letters",
     "Passer le tour": "Pass turn",
+    "Nom du chat requis": "Chat name is required",
+    "a quitté la partie.": "has left the game.",
+    "a quitté l'observation de la partie.":
+        "has left the observation of the game",
+    "Commande impossible a réaliser : ce placement de lettres sort du plateau ou ne posséde pas une lettre dans la case H8":
+        "Impossible to do this action: this letters placement is outside the board ou doesnt have a letter on the tile H8.",
+    "Commande impossible a réaliser : ce placement de lettres sort du plateau ou n'est pas attaché a des lettres":
+        "Impossible to do this action: this letters placement is not attached to the board letters or is outside the board.",
+    "La partie est terminée": "The game has ended",
+    "Créez ou rejoignez une partie ": "Create or join a game in ",
+    "Accueil": "Home",
+    " est en train d'écrire ...": "is typing",
   };
   translateService() {}
 

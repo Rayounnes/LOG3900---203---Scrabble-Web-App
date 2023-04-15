@@ -180,7 +180,7 @@ class _ChannelsState extends State<Channels> {
               SnackBar(
                   backgroundColor: theme == "dark"
                       ? Color.fromARGB(255, 32, 107, 34)
-                      : Color.fromARGB(255, 207, 241, 207),
+                      : Color.fromARGB(255, 121, 202, 121),
                   duration: Duration(seconds: 3),
                   content: Text(
                       "Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie")),
@@ -190,7 +190,7 @@ class _ChannelsState extends State<Channels> {
               SnackBar(
                   backgroundColor: theme == "dark"
                       ? Color.fromARGB(255, 32, 107, 34)
-                      : Color.fromARGB(255, 207, 241, 207),
+                      : Color.fromARGB(255, 121, 202, 121),
                   duration: Duration(seconds: 3),
                   content: Text(
                       "Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends")),
@@ -202,7 +202,7 @@ class _ChannelsState extends State<Channels> {
               SnackBar(
                   backgroundColor: theme == "dark"
                       ? Color.fromARGB(255, 32, 107, 34)
-                      : Color.fromARGB(255, 207, 241, 207),
+                      : Color.fromARGB(255, 121, 202, 121),
                   duration: Duration(seconds: 3),
                   content: Text(
                       "Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon")),
@@ -212,7 +212,7 @@ class _ChannelsState extends State<Channels> {
               SnackBar(
                   backgroundColor: theme == "dark"
                       ? Color.fromARGB(255, 32, 107, 34)
-                      : Color.fromARGB(255, 207, 241, 207),
+                      : Color.fromARGB(255, 121, 202, 121),
                   duration: Duration(seconds: 3),
                   content: Text(
                       "Impossible to leave a game channel. You will automatically leave at the end of the game.")),
@@ -394,6 +394,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
+        backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
         title: Text(translate.translateString(lang, 'Créer un nouveau chat')),
         content: Container(
           height: 150,
@@ -415,7 +416,9 @@ class _ChannelsState extends State<Channels> {
                     child: TextFormField(
                         controller: nameController,
                         validator: (String? value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.trim().isEmpty) {
                             return translate.translateString(
                                 lang, "Nom du chat requis");
                           }
@@ -456,6 +459,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
+        backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
         title: Text(translate.translateString(lang, 'Supprimer un chat')),
         content: Container(
           height: 150,
@@ -527,6 +531,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
+        backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
         title: Text(translate.translateString(lang, 'Quitter un chat')),
         content: Container(
           height: 150,
@@ -623,6 +628,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),

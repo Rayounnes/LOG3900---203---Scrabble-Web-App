@@ -1,5 +1,6 @@
 import 'package:app/constants/constants.dart';
 import 'package:app/models/game.dart';
+import 'package:app/screens/home_page.dart';
 import 'package:app/screens/join_game.dart';
 import 'package:app/screens/waiting_room.dart';
 import 'package:app/services/socket_client.dart';
@@ -11,6 +12,7 @@ import 'package:app/main.dart';
 import 'package:app/services/user_infos.dart';
 
 import '../models/personnalisation.dart';
+import 'game_modes_page.dart';
 
 class GameChoices extends StatefulWidget {
   final String modeName;
@@ -111,6 +113,7 @@ class _GameChoicesState extends State<GameChoices> {
     return ParentWidget(
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: Text(
             translate.translateString(lang, "Mode de jeu ${widget.modeName}"),
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
@@ -121,7 +124,7 @@ class _GameChoicesState extends State<GameChoices> {
             : Color.fromARGB(255, 207, 241, 207),
         body: Center(
           child: Container(
-            height: 400,
+            height: 500,
             width: 500,
             decoration: BoxDecoration(
               color: theme == "dark"
@@ -144,7 +147,7 @@ class _GameChoicesState extends State<GameChoices> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                       translate.translateString(
-                              lang, 'Créez ou rejoignez une partie') +
+                              lang, 'Créez ou rejoignez une partie ') +
                           translate.translateString(lang, widget.modeName),
                       style: TextStyle(
                         fontSize: 23,
@@ -172,6 +175,16 @@ class _GameChoicesState extends State<GameChoices> {
                         );
                       }));
                     }),
+                GameButton(
+                    theme: theme,
+                    padding: 25.0,
+                    name: translate.translateString(lang, "Accueil"),
+                    route: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return GameModes();
+                      }));
+                    }),
               ],
             ),
           ),
@@ -188,6 +201,7 @@ class _GameChoicesState extends State<GameChoices> {
           bool _isChecked = false;
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: theme == "dark" ? Colors.grey : Colors.white,
               title: Text(translate.translateString(lang, 'Créer une partie') +
                   " " +
                   translate.translateString(lang, widget.modeName)),

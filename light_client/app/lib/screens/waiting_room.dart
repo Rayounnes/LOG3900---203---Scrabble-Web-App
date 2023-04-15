@@ -148,7 +148,8 @@ class _WaitingRoomState extends State<WaitingRoom> {
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
-            content: Text("${username}  a quitté la partie.")),
+            content: Text("${username}  " + translate.translateString(
+                    lang, "a quitté la partie."))),
       );
     });
     getIt<SocketService>().on('joined-observer-left', (username) {
@@ -156,7 +157,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
         SnackBar(
             backgroundColor: Colors.blue,
             duration: Duration(seconds: 3),
-            content: Text("${username} a quitté l'observation de la partie.")),
+            content: Text("${username} " +
+                translate.translateString(
+                    lang, "a quitté l'observation de la partie."))),
       );
     });
     getIt<SocketService>().on('join-game', (observer) {

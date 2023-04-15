@@ -179,7 +179,7 @@ class _CooperativeActionWidgetState extends State<CooperativeActionWidget> {
                 ),
               if (action.action == 'exchange')
                 Text(
-                  translate.translateString(widget.lang, "Echanger les lettres") + "${action.lettersToExchange}",
+                  translate.translateString(widget.lang, "Echanger les lettres") + " ${action.lettersToExchange}",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               if (action.action == 'pass')
