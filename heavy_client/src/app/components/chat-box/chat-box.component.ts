@@ -559,6 +559,19 @@ export class ChatBoxComponent implements OnInit, OnDestroy {
     }
 
     changeChannel(newChannel: string) {
+        if(this.userTyping){
+            const message: ChatMessage = {
+                username: this.username,
+                message: '',
+                time: new Date().toTimeString().split(' ')[0],
+                type: 'player',
+                channel: this.currentChannel,
+            };
+            this.socketService.send('isTypingMessage', message);
+            this.userTyping = false;
+            this.chatMessage = ""
+
+        }
         if (newChannel !== this.currentChannel) {
             this.currentChannel = newChannel;
             let channel: any;

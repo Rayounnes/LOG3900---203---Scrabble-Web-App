@@ -115,7 +115,7 @@ export class LoginService {
     async changeConnectionState(username: string, state: boolean) {
         var newvalues = { $set: { connected: state } };
         await this.databaseService.database.collection(DB_COLLECTION_USERS).updateOne({ username: username }, newvalues);
-        await this.userCollection.updateOne({ username: username },{ $push: {connexions : [new Date().toLocaleString(),state ]}});
+        await this.userCollection.updateOne({ username: username },{ $push: {connexions : [new Date().toLocaleString("en-US",{ timeZone: 'America/New_York' }),state ]}});
     }
 
     async getConnexionHistory(username : string){
@@ -290,10 +290,10 @@ export class LoginService {
         let player = await this.userCollection.findOne({username :  username});
         if(player && player['gameHistory']){
             let gameHistory = player['gameHistory'];
-            gameHistory.push([new Date().toLocaleString(),gameWin])
+            gameHistory.push([new Date().toLocaleString("en-US",{ timeZone: 'America/New_York' }),gameWin])
             await this.userCollection.updateOne({username : username},{$set : { gameHistory : gameHistory}})
         }else{
-            let gameHistory = [new Date().toLocaleString(),gameWin]
+            let gameHistory = [new Date().toLocaleString("en-US",{ timeZone: 'America/New_York' }),gameWin]
             await this.userCollection.updateOne({username : username},{$set : { gameHistory : [gameHistory]}})
         }
     }
