@@ -37,6 +37,9 @@ export class ExchangeDialogComponent {
         this.socketService.on('vote-action', () => {
             this.onNoClick();
         });
+        this.socketService.on('user-turn', () => {
+            this.onNoClick();
+        });
     }
     onChange() {
         this.exchangeWord = '';

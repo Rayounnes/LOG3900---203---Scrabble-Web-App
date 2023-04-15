@@ -140,7 +140,7 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
         if (this.clock === 0) {
             if (this.isPlayersTurn) this.socketService.send('remove-arrow-and-letter');
             clearInterval(this.timer);
-            this.socketService.send('change-user-turn');
+            if (this.isPlayersTurn) this.socketService.send('change-user-turn');
         }
     }
     turnSockets() {

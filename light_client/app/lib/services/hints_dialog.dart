@@ -80,41 +80,40 @@ class _HintDialogState extends State<HintDialog> {
     return AlertDialog(
       title: Text(translate.translateString(widget.lang, "Liste d'indices")),
       content: hintReceived
-          ? Flexible(
-              child: SizedBox(
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: formatedHints.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context, formatedHints[index]);
-                        },
-                        child: Card(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                formatedHints[index].value!,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                  "Position: ${(formatedHints[index].line as int) + 1}, ${(formatedHints[index].column as int) + 1}"),
-                              Text(
-                                  "Orientation: ${formatedHints[index].orientation}"),
-                              Text("Points: ${formatedHints[index].points}"),
-                            ],
-                          ),
-                        ),
-                      );
+          ? SizedBox(
+              width: 300,
+              height: 600,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: formatedHints.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context, formatedHints[index]);
                     },
-                  )),
-            )
+                    child: Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            formatedHints[index].value!,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                              "Position: ${(formatedHints[index].line as int) + 1}, ${(formatedHints[index].column as int) + 1}"),
+                          Text(
+                              "Orientation: ${formatedHints[index].orientation}"),
+                          Text("Points: ${formatedHints[index].points}"),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ))
           : SizedBox(height: 20, width: 20, child: CircularProgressIndicator()),
       actions: [
         TextButton(

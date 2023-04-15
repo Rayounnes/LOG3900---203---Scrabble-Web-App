@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../services/translate_service.dart';
 
 import '../models/placement.dart';
+import '../services/user_infos.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -58,29 +59,35 @@ class _ChannelsState extends State<Channels> {
 
   String chatDeleted = '';
   String chatJoined = '';
-  String usernameMain ='';
+  String usernameMain = '';
   String theme = '';
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   void initNotifications() async {
-  var initializationSettingsAndroid =AndroidInitializationSettings('@mipmap/ic_launcher');
-  var  initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-
   void showNotification(String message, String channel) async {
-    var androidDetails = AndroidNotificationDetails('channel_id', 'Channel Name',
-    importance: Importance.max, priority: Priority.high, showWhen: false, color:Color(0xFF2196F3));
+    var androidDetails = AndroidNotificationDetails(
+        'channel_id', 'Channel Name',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+        color: Color(0xFF2196F3));
 
     var notificationDetails = NotificationDetails(android: androidDetails);
 
     await flutterLocalNotificationsPlugin.show(
-    0, translate.translateString(lang, 'Nouveau message dans ')+ '$channel', message, notificationDetails);
-}
+        0,
+        translate.translateString(lang, 'Nouveau message dans ') + '$channel',
+        message,
+        notificationDetails);
+  }
 
   handleSockets() async {
     ApiService().getAllChannels().then((response) {
@@ -130,8 +137,7 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() async {
-  
-             for (int i = 0; i < discussions.length; i++) {
+            for (int i = 0; i < discussions.length; i++) {
               if (channel == discussions[i]) {
                 newMessage[i] = false;
               }
@@ -143,22 +149,19 @@ class _ChannelsState extends State<Channels> {
       }
     });
 
-    
-
     getIt<SocketService>().on("notify-message", (message) {
       try {
         if (mounted) {
           setState(() {
-              for (int i = 0; i < discussions.length; i++) {
+            for (int i = 0; i < discussions.length; i++) {
               if (message['channel'] == discussions[i]) {
                 newMessage[i] = true;
               }
             }
-            
           });
-          if(usernameMain != message['username']) {
-                 showNotification(message['message'], message['channel']);
-            }
+          if (getIt<UserInfos>().user != message['username']) {
+            showNotification(message['message'], message['channel']);
+          }
         }
       } catch (e) {
         print(e);
@@ -166,54 +169,56 @@ class _ChannelsState extends State<Channels> {
     });
 
     getIt<SocketService>().on("leave-channel", (infos) {
-      if(infos['isValid']){
+      if (infos['isValid']) {
         setState(() {
-
-                discussions.remove(infos['channelName']);
-              });
-      }else{
-          if(infos['user'] == usernameMain && infos['type'] == 'delete'){
-              if(lang == 'fr'){
-                ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    backgroundColor: theme == "dark"
-                        ? Color.fromARGB(255, 32, 107, 34)
-                        : Color.fromARGB(255, 207, 241, 207),
-                    duration: Duration(seconds: 3),
-                    content: Text("Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie")),
-              );}else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    backgroundColor: theme == "dark"
-                        ? Color.fromARGB(255, 32, 107, 34)
-                        : Color.fromARGB(255, 207, 241, 207),
-                    duration: Duration(seconds: 3),
-                    content: Text("Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends")),
-              );
-              }
-          }else if(infos['user'] == usernameMain && infos['type'] == 'leave'){
-              if(lang == 'fr'){
-                  ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      backgroundColor: theme == "dark"
-                          ? Color.fromARGB(255, 32, 107, 34)
-                          : Color.fromARGB(255, 207, 241, 207),
-                      duration: Duration(seconds: 3),
-                      content: Text("Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon")),
-                );
-              }else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      backgroundColor: theme == "dark"
-                          ? Color.fromARGB(255, 32, 107, 34)
-                          : Color.fromARGB(255, 207, 241, 207),
-                      duration: Duration(seconds: 3),
-                      content: Text("Impossible to leave a game channel. You will automatically leave at the end of the game.")),
-                );
-              }
+          discussions.remove(infos['channelName']);
+        });
+      } else {
+        if (infos['user'] == usernameMain && infos['type'] == 'delete') {
+          if (lang == 'fr') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  backgroundColor: theme == "dark"
+                      ? Color.fromARGB(255, 32, 107, 34)
+                      : Color.fromARGB(255, 207, 241, 207),
+                  duration: Duration(seconds: 3),
+                  content: Text(
+                      "Impossible de supprimer le channel parceque vous n'etes pas le créateur, ou c'est un channel de jeu qui se supprimera automatiquement a la fin de la partie")),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  backgroundColor: theme == "dark"
+                      ? Color.fromARGB(255, 32, 107, 34)
+                      : Color.fromARGB(255, 207, 241, 207),
+                  duration: Duration(seconds: 3),
+                  content: Text(
+                      "Impossible to delete channel because you are not the creator, or it is a game channel that will destroy itself when the game ends")),
+            );
           }
-          
-          
+        } else if (infos['user'] == usernameMain && infos['type'] == 'leave') {
+          if (lang == 'fr') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  backgroundColor: theme == "dark"
+                      ? Color.fromARGB(255, 32, 107, 34)
+                      : Color.fromARGB(255, 207, 241, 207),
+                  duration: Duration(seconds: 3),
+                  content: Text(
+                      "Impossible de quitter un channel de jeu, vous le quitterez automatiquement a la fin de la partie, ou a l'abandon")),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  backgroundColor: theme == "dark"
+                      ? Color.fromARGB(255, 32, 107, 34)
+                      : Color.fromARGB(255, 207, 241, 207),
+                  duration: Duration(seconds: 3),
+                  content: Text(
+                      "Impossible to leave a game channel. You will automatically leave at the end of the game.")),
+            );
+          }
+        }
       }
     });
 
@@ -224,12 +229,11 @@ class _ChannelsState extends State<Channels> {
           print(countJoin);
           setState(() {
             print(selectedList.length);
-           
-            if(countJoin == selectedList.length) {
-              for(int i=0; i<selectedList.length; i++) {
-                  discussions.add(selectedList[i]);
-                  newMessage.add(false);
-                  
+
+            if (countJoin == selectedList.length) {
+              for (int i = 0; i < selectedList.length; i++) {
+                discussions.add(selectedList[i]);
+                newMessage.add(false);
               }
               print(discussions);
               print(selectedList);
@@ -246,8 +250,7 @@ class _ChannelsState extends State<Channels> {
       // langOrTheme.language = value['language'];
       // langOrTheme.theme = value['theme'];
 
-      nameController = TextEditingController(
-          text: "");
+      nameController = TextEditingController(text: "");
       lang = value['langue'];
       theme = value['theme'];
       if (mounted) {
@@ -256,7 +259,6 @@ class _ChannelsState extends State<Channels> {
           theme = value['theme'];
         });
       }
-
     });
   }
 
@@ -286,108 +288,108 @@ class _ChannelsState extends State<Channels> {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    physics: BouncingScrollPhysics(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    "Conversations",
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            ),
+          ),
+          ListView.separated(
+            itemCount: discussions.length,
+            shrinkWrap: true,
+            padding: EdgeInsets.all(16),
+            physics: BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Stack(
+                children: [
+                  Channel(
+                    name: discussions[index],
+                    updateMessageState: () => updateMessageState(index),
+                  ),
+                  if (newMessage[index])
+                    Positioned(
+                      right: 8,
+                      top: 17,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+            separatorBuilder: (context, index) => SizedBox(
+              height: 10,
+            ),
+          ),
+          ListTile(
+            title: Row(
               children: <Widget>[
-                Text(
-                  "Conversations",
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                )
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalAdd(context);
+                    },
+                    name: translate.translateString(lang, "Créer"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalDelete(context);
+                    },
+                    name: translate.translateString(lang, "Supprimer"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () {
+                      showModalLeave(context);
+                    },
+                    name: translate.translateString(lang, "Quitter"),
+                  ),
+                ),
+                Expanded(
+                  child: GameButton(
+                    padding: 32.0,
+                    route: () async {
+                      await showModalSearch(context);
+                    },
+                    name: translate.translateString(lang, "Rechercher"),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-        ListView.separated(
-          itemCount: discussions.length,
-          shrinkWrap: true,
-          padding: EdgeInsets.all(16),
-          physics: BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            return Stack(
-              children: [
-                Channel(
-                  name: discussions[index],
-                  updateMessageState: () => updateMessageState(index),
-                ),
-                if (newMessage[index])
-                  Positioned(
-                    right: 8,
-                    top: 17,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
-          separatorBuilder: (context, index) => SizedBox(
-            height: 10,
-          ),
-        ),
-        ListTile(
-          title: Row(
-            children: <Widget>[
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalAdd(context);
-                  },
-                  name: translate.translateString(lang, "Créer"),
-                ),
-              ),
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalDelete(context);
-                  },
-                  name: translate.translateString(lang, "Supprimer"),
-                ),
-              ),
-               Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () {
-                    showModalLeave(context);
-                  },
-                  name: translate.translateString(lang, "Quitter"),
-                ),
-              ),
-              Expanded(
-                child: GameButton(
-                  padding: 32.0,
-                  route: () async {
-                    await showModalSearch(context);
-                  },
-                  name: translate.translateString(lang, "Rechercher"),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   void showModalAdd(BuildContext context) {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -396,6 +398,7 @@ Widget build(BuildContext context) {
         content: Container(
           height: 150,
           child: Form(
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,8 +413,14 @@ Widget build(BuildContext context) {
                 Container(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: nameController,
-                    ))
+                        controller: nameController,
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return translate.translateString(
+                                lang, "Nom du chat requis");
+                          }
+                          return null;
+                        }))
               ],
             ),
           ),
@@ -427,10 +436,11 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              getIt<SocketService>()
-                  .send("channel-creation", nameController.text);
-              print(nameController.text);
-              Navigator.of(context).pop();
+              if (_formKey.currentState!.validate()) {
+                getIt<SocketService>()
+                    .send("channel-creation", nameController.text);
+                Navigator.of(context).pop();
+              }
             },
             child: Text(
               translate.translateString(lang, "Créer le chat"),
@@ -495,11 +505,12 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
+              if (chatDeleted != 'General' &&
+                  !chatDeleted.startsWith(
+                      translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("delete-channel", chatDeleted);
-
               }
-             
+
               Navigator.of(context).pop();
             },
             child: Text(
@@ -510,8 +521,6 @@ Widget build(BuildContext context) {
       ),
     );
   }
-
-
 
   void showModalLeave(BuildContext context) {
     showDialog(
@@ -530,12 +539,14 @@ Widget build(BuildContext context) {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    translate.translateString(lang, "Choisissez un chat à quitter"),
+                    translate.translateString(
+                        lang, "Choisissez un chat à quitter"),
                   ),
                 ),
                 DropdownButtonFormField(
                   validator: (value) => value == null
-                      ? translate.translateString(lang, "Veuillez choisir le chat à quitter")
+                      ? translate.translateString(
+                          lang, "Veuillez choisir le chat à quitter")
                       : null,
                   value: discussions[0],
                   onChanged: (String? newValue) {
@@ -565,14 +576,12 @@ Widget build(BuildContext context) {
           ),
           ElevatedButton(
             onPressed: () {
-              if (chatDeleted != 'General' && !chatDeleted.startsWith(translate.translateString(lang, "Partie de"))) {
+              if (chatDeleted != 'General' &&
+                  !chatDeleted.startsWith(
+                      translate.translateString(lang, "Partie de"))) {
                 getIt<SocketService>().send("leave-channel", chatDeleted);
-                
-
               }
 
-              
-      
               Navigator.of(context).pop();
             },
             child: Text(
@@ -588,7 +597,7 @@ Widget build(BuildContext context) {
     allChannelsDB = await ApiService().getAllChannels();
 
     print(allChannelsDB);
-    
+
     List<String> filteredChannels = [];
     for (String channel in allChannelsDB) {
       if (!discussions.contains(channel)) {

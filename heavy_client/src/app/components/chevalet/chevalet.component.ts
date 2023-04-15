@@ -330,6 +330,7 @@ export class ChevaletComponent implements AfterViewInit, OnDestroy {
 
     openExchangeDialog() {
         if (this.isEndGame) return;
+        if (this.isClassic && this.socketService.socketId !== this.socketTurn) return;
         this.rotate();
         const dialogRef = this.dialog.open(ExchangeDialogComponent, {
             width: '200px',

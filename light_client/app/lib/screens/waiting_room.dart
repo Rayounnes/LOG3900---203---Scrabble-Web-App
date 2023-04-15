@@ -102,16 +102,14 @@ class _WaitingRoomState extends State<WaitingRoom> {
   }
 
   Widget playerWaitingInfos(String player) {
-    return Expanded(
-      child: Card(
-        color: game.hostUsername == player ? Colors.green : Colors.white,
-        child: ListTile(
-          leading: CircleAvatar(
-            radius: 30,
-            backgroundImage: icons[player],
-          ),
-          title: Text(player),
+    return Card(
+      color: game.hostUsername == player ? Colors.green : Colors.white,
+      child: ListTile(
+        leading: CircleAvatar(
+          radius: 30,
+          backgroundImage: icons[player],
         ),
+        title: Text(player),
       ),
     );
   }

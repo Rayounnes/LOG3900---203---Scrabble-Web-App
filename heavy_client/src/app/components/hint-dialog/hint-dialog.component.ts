@@ -46,6 +46,9 @@ export class HintDialogComponent implements OnDestroy {
             console.log('closing hint dialog');
             this.dialogRef.close();
         });
+        this.socketService.on('user-turn', () => {
+            this.dialogRef.close();
+        });
         this.socketService.on('hint-command', (hints: Placement[]) => {
             this.hintReceived = true;
             if (hints !== undefined) {

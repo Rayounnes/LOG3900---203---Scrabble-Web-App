@@ -258,6 +258,8 @@ class _GamePageState extends State<GamePage> {
   validationHintWord(WordArgs word) {
     if (lettersofBoard.isNotEmpty) {
       setTileOnRack();
+      // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+      lettersofBoard = [];
     }
     placeWordHint(word);
     validatePlacement();
@@ -361,11 +363,11 @@ class _GamePageState extends State<GamePage> {
           lettersofBoard.add(Letter(line, column, letterValue!, tileID));
         }
       }
-      if (lettersofBoard.isNotEmpty)
+      if (lettersofBoard.isNotEmpty && !isHint)
         sendStartTile(
             Vec2(x: lettersofBoard[0].column, y: lettersofBoard[0].line));
     } else {
-      if (lettersofBoard.length == 1) {
+      if (lettersofBoard.length == 1 && !isHint) {
         sendStartTile(Vec2(x: -1, y: -1));
       }
       removeLetterOnBoard(tileID, false);
@@ -572,6 +574,16 @@ class _GamePageState extends State<GamePage> {
       }
     });
     getIt<SocketService>().on('user-turn', (playerTurnId) {
+      if (hintOpen) {
+        Navigator.pop(hintDialogContext);
+        hintOpen = false;
+      }
+      if (exchangeOpen) {
+        Navigator.pop(exchangeDialogContext, "");
+        exchangeOpen = false;
+      }
+      // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
+      lettersofBoard = [];
       setState(() {
         // On remet les lettres quil a placé dans le board qd le timer est écoulé
         setTileOnRack();

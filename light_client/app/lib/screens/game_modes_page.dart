@@ -127,7 +127,7 @@ class _GameModesState extends State<GameModes> {
       try {
         if (mounted) {
           setState(() async {
-            if (message['username'] != userName) {
+            if (message['username'] != getIt<UserInfos>().user) {
               showNotification(message['message'], message['channel']);
             }
           });

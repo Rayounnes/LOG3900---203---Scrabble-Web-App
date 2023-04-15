@@ -58,7 +58,7 @@ class _TimerPageState extends State<TimerPage> {
           gameDuration++;
           if (_start == 0) {
             timer.cancel();
-            getIt<SocketService>().send('change-user-turn');
+            if(isPlayersTurn) getIt<SocketService>().send('change-user-turn');
           }
         },
       ),
