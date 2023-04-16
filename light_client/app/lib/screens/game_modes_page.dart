@@ -308,7 +308,7 @@ class _GameModesState extends State<GameModes> {
                             route: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                return ModeOrthography();
+                                return ModeOrthography(lang: lang, theme: theme,);
                               }));
                             }),
                         GameButton(

@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { Service } from 'typedi';
 import { DatabaseService } from './database.service';
 import types from '@app/types';
-import { DB_COLLECTION_ICONS, DB_COLLECTION_USERS } from '@app/constants/constants';
+import { DB_COLLECTION_ICONS, DB_COLLECTION_SCORESORTHOGRAPHY, DB_COLLECTION_USERS } from '@app/constants/constants';
 import { loginInfos } from '@app/constants/constants';
 import { ChannelService } from './channels.service';
 
@@ -13,6 +13,9 @@ export class LoginService {
 
     get userCollection() {
         return this.databaseService.database.collection(DB_COLLECTION_USERS);
+    }
+    get scoresOrthography() {
+        return this.databaseService.database.collection(DB_COLLECTION_SCORESORTHOGRAPHY);
     }
     get iconsCollection() {
         return this.databaseService.database.collection(DB_COLLECTION_ICONS);
@@ -330,7 +333,6 @@ export class LoginService {
         }else{
             //Update le nom du username dans la collection Users
             await this.userCollection.updateOne({username: oldUsername},{$set : {username : newUsername}})
-
             //On modifie le field "creator" de tout les icons que ce user a créé
             let avatars = await this.iconsCollection.find({creator : oldUsername}).toArray();
             if(avatars.length > 0){
@@ -367,10 +369,13 @@ export class LoginService {
                 }
                 await this.channelService.channelCollection.updateOne({_id : channel["_id"]},{$set : {messages : channel['messages']}})
             }
-
-
-
-            return true
+            // On update le username de score orthography
+            const orthographyUsernameExists = await this.scoresOrthography.findOne({ name: oldUsername });
+            if (orthographyUsernameExists) {
+                //Update le nom du username dans la collection Users
+                await this.scoresOrthography.updateOne({name: oldUsername},{$set : {name: newUsername}});
+            }
+            return true;
         }
     }
 }

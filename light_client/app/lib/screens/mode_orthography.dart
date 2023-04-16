@@ -15,6 +15,12 @@ import '../models/personnalisation.dart';
 import '../services/user_infos.dart';
 
 class ModeOrthography extends StatefulWidget {
+  final String theme, lang;
+  const ModeOrthography({
+    super.key,
+    required this.theme,
+    required this.lang,
+  });
   @override
   _ModeOrthographyState createState() => _ModeOrthographyState();
 }
@@ -36,14 +42,12 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   int bestScore = 0;
   String username = getIt<UserInfos>().user;
   int countdown = 0;
-  String lang = "en";
-  String theme = "dark";
   TranslateService translate = new TranslateService();
 
   @override
   void initState() {
     super.initState();
-    getConfigs();
+    // getConfigs();
     handleSockets();
   }
 
@@ -58,7 +62,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   }
 
   void handleSockets() async {
-    ApiService().getAllWords(lang).then((response) {
+    ApiService().getAllWords(widget.lang).then((response) {
       setState(() {
         allWords = response;
         for (var i = 0; i < numberWordsTotal; i++) {
@@ -85,17 +89,17 @@ class _ModeOrthographyState extends State<ModeOrthography> {
       print('Error fetching best score: $error');
     });
 
-    getIt<SocketService>().on("get-config", (value) {
-      lang = value['langue'];
-      theme = value['theme'];
+    // getIt<SocketService>().on("get-config", (value) {
+    //   lang = value['langue'];
+    //   theme = value['theme'];
 
-      if (mounted) {
-        setState(() {
-          lang = value['langue'];
-          theme = value['theme'];
-        });
-      }
-    });
+    //   if (mounted) {
+    //     setState(() {
+    //       lang = value['langue'];
+    //       theme = value['theme'];
+    //     });
+    //   }
+    // });
 
     // getIt<SocketService>().on('sendUsername', (name) {
     //   try {
@@ -191,6 +195,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
     } else {
       setState(() {
         modeDone = true;
+        getIt<SocketService>().send('score-orthography', score);
         hasStarted = false;
       });
     }
@@ -199,10 +204,10 @@ class _ModeOrthographyState extends State<ModeOrthography> {
   @override
   Widget build(BuildContext context) {
     return ParentWidget(
-        theme: theme,
+        theme: widget.theme,
         child: Scaffold(
           body: Container(
-            color: theme == "dark"
+            color: widget.theme == "dark"
                 ? Color.fromARGB(255, 68, 98, 68)
                 : Color.fromARGB(255, 178, 227, 180),
             padding: EdgeInsets.all(16.0),
@@ -212,10 +217,10 @@ class _ModeOrthographyState extends State<ModeOrthography> {
               children: <Widget>[
                 Text(
                   translate.translateString(
-                      lang, "Bienvenue au mode entrainement orthographe"),
+                      widget.lang, "Bienvenue au mode entrainement orthographe"),
                   style: TextStyle(
                       fontSize: 30.0,
-                      color: theme == "dark"
+                      color: widget.theme == "dark"
                           ? Color.fromARGB(255, 0, 0, 0)
                           : Color(0xFF0c5c03)),
                 ),
@@ -224,14 +229,14 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                 if (!hideButton)
                   ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(theme == "dark"
+                      backgroundColor: MaterialStateProperty.all(widget.theme == "dark"
                           ? Color.fromARGB(255, 95, 158, 110)
                           : Color.fromARGB(255, 95, 158, 110)),
                     ),
                     onPressed: hideButton ? null : startCountdown,
                     child: Text(
                         translate.translateString(
-                            lang, "Commencer l'entraînement"),
+                            widget.lang, "Commencer l'entraînement"),
                         style: TextStyle(color: Colors.white)),
                   ),
                 SizedBox(height: 16.0),
@@ -285,7 +290,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                           width: (chances / 3) * 100.0,
                           height: 16.0,
                           decoration: BoxDecoration(
-                            color: theme == "dark"
+                            color: widget.theme == "dark"
                                 ? Color.fromARGB(255, 95, 158, 110)
                                 : Color.fromARGB(255, 95, 158, 110),
                             borderRadius: BorderRadius.circular(8.0),
@@ -300,28 +305,28 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                   "Score : $score",
                   style: TextStyle(
                       fontSize: 25.0,
-                      color: theme == "dark"
+                      color: widget.theme == "dark"
                           ? Color.fromARGB(255, 0, 0, 0)
                           : Color(0xFF0c5c03)),
                 ),
                 Text(
-                  translate.translateString(lang, "Votre meilleur score") +
+                  translate.translateString(widget.lang, "Votre meilleur score") +
                       ": $bestScore",
                   style: TextStyle(
                       fontSize: 25.0,
-                      color: theme == "dark"
+                      color: widget.theme == "dark"
                           ? Color.fromARGB(255, 0, 0, 0)
                           : Color(0xFF0c5c03)),
                 ),
                 SizedBox(height: 16.0),
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(theme == "dark"
+                    backgroundColor: MaterialStateProperty.all(widget.theme == "dark"
                         ? Color.fromARGB(255, 95, 158, 110)
                         : Color.fromARGB(255, 95, 158, 110)),
                   ),
                   onPressed: leavePage,
-                  child: Text(translate.translateString(lang, "Quitter"),
+                  child: Text(translate.translateString(widget.lang, "Quitter"),
                       style: TextStyle(color: Colors.white)),
                 ),
                 SizedBox(height: 16.0),
@@ -329,7 +334,7 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                   visible: gameOver,
                   child: Text(
                     translate.translateString(
-                        lang, "Désolé, vous avez perdu !"),
+                        widget.lang, "Désolé, vous avez perdu !"),
                     style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -339,12 +344,12 @@ class _ModeOrthographyState extends State<ModeOrthography> {
                 Visibility(
                   visible: modeDone,
                   child: Text(
-                    translate.translateString(lang,
+                    translate.translateString(widget.lang,
                         "Bien joué, vous avez fini le mode d'entraînement orthographe !"),
                     style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
-                        color: theme == "dark"
+                        color: widget.theme == "dark"
                             ? Color.fromARGB(255, 0, 0, 0)
                             : Color(0xFF0c5c03)),
                   ),
