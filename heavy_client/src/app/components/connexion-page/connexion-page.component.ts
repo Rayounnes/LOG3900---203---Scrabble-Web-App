@@ -57,10 +57,10 @@ export class ConnexionPageComponent implements AfterViewInit {
     async userConnection(): Promise<void> {
         let loginInfos: loginInfos;
 
-        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
+        if (localStorage.getItem('username')  && localStorage.getItem('password') ) {
             loginInfos = {
-                username: localStorage.getItem('username') || '',
-                password: localStorage.getItem('password') || '',
+                username: localStorage.getItem('username') as string,
+                password: localStorage.getItem('password') as string,
             };
         } else {
             loginInfos = {
@@ -150,9 +150,11 @@ export class ConnexionPageComponent implements AfterViewInit {
         return tooltip;
     }
     ngAfterViewInit(): void {
-        if (localStorage.getItem('username') !== null && localStorage.getItem('password') !== null) {
-            this.connect();
-            this.userConnection();
-        }
+        setTimeout(()=>{
+            if (localStorage.getItem('username') && localStorage.getItem('password')) {
+                this.userConnection();
+            }
+        },1000)
+        
     }
 }
