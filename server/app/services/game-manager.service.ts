@@ -190,6 +190,11 @@ export class GameManager {
                 if (!player.isVirtualPlayer) this.sio.to(player.socket as string).emit('game-loss');
             }
         }
+        if(!scrabbleGame.isClassicMode){
+            for (let player of playersInfo) {
+                this.sio.to(player.socket as string).emit('game-won');
+            }
+        }
     }
     // TODO a corriger pour les joeurs virtuels
     virtualPlayerPlay(room: string) {

@@ -143,6 +143,11 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
             if (this.isPlayersTurn) this.socketService.send('change-user-turn');
         }
     }
+
+    coopTimerHandler(){
+        this.gameDuration++;
+    }
+
     turnSockets() {
         this.socketService.on('refresh-user-turn', (playerTurnId: string) => {
             this.isPlayersTurn = playerTurnId === this.socketId;
@@ -154,6 +159,9 @@ export class InformationPanelComponent implements OnInit, OnDestroy {
                 this.clock = this.gameTime;
                 this.resetProgressCircle();
                 this.timer = setInterval(() => this.intervalHandler(), ONE_SECOND);
+            }else{
+                clearInterval(this.timer);
+                this.timer = setInterval(() => this.coopTimerHandler(), ONE_SECOND);
             }
             this.socketService.send('send-player-score');
         });
