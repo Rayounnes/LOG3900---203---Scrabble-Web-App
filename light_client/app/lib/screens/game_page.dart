@@ -344,7 +344,9 @@ class _GamePageState extends State<GamePage> {
     selectedLetter = '';
 
     if (board.verifyRangeBoard(line, column)) {
-      if (verifyLetterOnBoard(tileID)) {
+      if (verifyLetterOnBoard(tileID) &&
+          !tilePosition.containsValue(
+              getIt<TilePlacement>().setTileOnBoard(offset, tileID, isHint))) {
         removeLetterOnBoard(tileID, true);
       }
       // Si il essaye de placer sur une tuile on retoure
@@ -439,16 +441,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void changeTurn() {
-    print("sending change-turn from game-page");
     getIt<SocketService>().send('change-user-turn');
   }
 
   void handleSockets() {
-    print("game page handle sockets");
-
     //Comptez les wins et les points
     getIt<SocketService>().on('game-won', (_) {
-      print('partie gagnée');
       getIt<SocketService>().send('game-won');
       getIt<SocketService>().send('game-history-update', true);
       getIt<MusicService>().playMusic(WIN_GAME_SOUND, false);
@@ -584,7 +582,6 @@ class _GamePageState extends State<GamePage> {
     });
     getIt<SocketService>().on('user-turn', (playerTurnId) {
       if (widget.isClassicMode && !widget.isObserver) {
-        print("removing startTile");
         removeStartTile();
       }
       if (hintOpen) {
@@ -938,8 +935,9 @@ class _GamePageState extends State<GamePage> {
                                     exchangeDialogContext = context;
                                     List<String> exchangeableTile = [];
                                     for (var index in rackIDList) {
-                                      exchangeableTile
-                                          .add(tileLetter[index].toString());
+                                      if (tileLetter[index].toString() != "")
+                                        exchangeableTile
+                                            .add(tileLetter[index].toString());
                                     }
                                     return TileExchangeMenu(
                                       tileLetters: exchangeableTile,

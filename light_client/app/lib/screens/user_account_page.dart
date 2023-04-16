@@ -98,13 +98,10 @@ class _UserAccountPageState extends State<UserAccountPage> {
 
   void fillHistoryList() {
     for (var element in widget.connexionHistory) {
-      print(element[1]);
       if(element[1] == true){
         connexionHistory.add(element[0]);
-        print(connexionHistory);
       }else{
         deconnexionHistory.add(element[0]);
-        print(deconnexionHistory);
       }
       isEmpty = false;
     }

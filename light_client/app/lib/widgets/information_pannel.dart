@@ -37,6 +37,7 @@ class _TimerPageState extends State<TimerPage> {
   bool isAbandon = false;
   int gameDuration = 0;
   bool isPlayersTurn = false;
+  bool timeBought = false;
   List<GamePlayerInfos> players = [];
   Map<String, MemoryImage> icons = new Map<String, MemoryImage>();
   int reserveTilesLeft = RESERVE_START_LENGTH;
@@ -65,6 +66,18 @@ class _TimerPageState extends State<TimerPage> {
     );
   }
 
+  void startCoopTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) => setState(
+        () {
+          gameDuration++;
+        },
+      ),
+    );
+  }
+
   void clearInterval() {
     _timer.cancel();
     _start = timerDuration;
@@ -79,6 +92,9 @@ class _TimerPageState extends State<TimerPage> {
         });
         clearInterval();
         startTimer();
+      } else {
+        _timer.cancel();
+        startCoopTimer();
       }
       getIt<SocketService>().send('send-player-score');
     });
@@ -183,7 +199,6 @@ class _TimerPageState extends State<TimerPage> {
       clearInterval();
     });
     getIt<SocketService>().on('coins-win', (coinsGained) {
-      print("coins gagnés : ${coinsGained}");
       ApiService()
           .addCoinsToUser(getIt<UserInfos>().user, coinsGained)
           .then((response) {
@@ -197,6 +212,7 @@ class _TimerPageState extends State<TimerPage> {
     });
     getIt<SocketService>().on('time-add', (timeToAdd) {
       setState(() {
+        timeBought = false;
         _start += (timeToAdd as int);
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -232,6 +248,9 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   buyTime(int boughtTime) {
+    setState(() {
+      timeBought = true;
+    });
     getIt<SocketService>().send('time-add', boughtTime);
     int coinsToRemove = boughtTime * -2;
     ApiService()
@@ -248,12 +267,15 @@ class _TimerPageState extends State<TimerPage> {
   Widget timeBuyOption(int time, int cost, IconData icon) {
     return ElevatedButton.icon(
       icon: Icon(icon),
-      onPressed:
-          coins >= cost && timerDuration - _start >= time && isPlayersTurn
-              ? () {
-                  buyTime(time);
-                }
-              : null,
+      onPressed: !timeBought &&
+              coins >= cost &&
+              timerDuration - _start >= time &&
+              isPlayersTurn
+          ? () {
+              print("buying  time timer: $_start, coins: $coins");
+              buyTime(time);
+            }
+          : null,
       label: Text('+${time}s ($cost c)'),
     );
   }

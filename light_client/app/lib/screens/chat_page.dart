@@ -182,8 +182,6 @@ class _ChatPageState extends State<ChatPage> {
 
     getIt<SocketService>().on('change-username', (infos) {
       try {
-        print("$infos CHANGE USER \n id");
-        print(getIt<SocketService>().socketId);
         if (infos['id'] == getIt<SocketService>().socketId) {
           username = infos['username'];
           getIt<UserInfos>().setUser(infos['username']);
@@ -413,8 +411,6 @@ class _ChatPageState extends State<ChatPage> {
                       },
                       controller: messageController,
                       onChanged: (value) {
-                        print("OOOOOOOOOO");
-                        print(value.isNotEmpty);
 
                         if (value.isNotEmpty && !isTypingSend) {
                           isTypingSend = true;

@@ -8,6 +8,7 @@ class SlidingImage extends StatefulWidget {
   final List<String> imageText;
   final String helpTopic;
   final String lang ;
+  final String theme ;
 
 
   const SlidingImage(
@@ -15,7 +16,8 @@ class SlidingImage extends StatefulWidget {
       required this.imagePath,
       required this.imageText,
       required this.helpTopic,
-      required this.lang});
+      required this.lang,
+      required this.theme});
 
   @override
   _SlidingImageState createState() => _SlidingImageState();
@@ -45,7 +47,9 @@ class _SlidingImageState extends State<SlidingImage> {
         title: Text(translate.translateString(
             widget.lang,'Aide') + "(${widget.helpTopic})"),
       ),
-      body: Container(color: Color.fromARGB(255, 145, 213, 161),
+      body: Container(color: widget.theme == "dark"
+          ? Colors.green[800]
+          : Color.fromARGB(255, 207, 241, 207),
         child: PageView.builder(
           controller: pageController,
           itemCount: widget.imagePath.length,

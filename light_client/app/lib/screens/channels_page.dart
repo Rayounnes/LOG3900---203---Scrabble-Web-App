@@ -124,7 +124,6 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           setState(() {
-            print(discussions);
             discussions.add(channel['name']);
           });
         }
@@ -226,17 +225,13 @@ class _ChannelsState extends State<Channels> {
       try {
         if (mounted) {
           countJoin = countJoin + 1;
-          print(countJoin);
           setState(() {
-            print(selectedList.length);
 
             if (countJoin == selectedList.length) {
               for (int i = 0; i < selectedList.length; i++) {
                 discussions.add(selectedList[i]);
                 newMessage.add(false);
               }
-              print(discussions);
-              print(selectedList);
               countJoin = 0;
             }
           });
@@ -601,8 +596,6 @@ class _ChannelsState extends State<Channels> {
   Future<List<String>> channelsToJoin() async {
     allChannelsDB = await ApiService().getAllChannels();
 
-    print(allChannelsDB);
-
     List<String> filteredChannels = [];
     for (String channel in allChannelsDB) {
       if (!discussions.contains(channel)) {
@@ -694,7 +687,6 @@ class _ChannelsState extends State<Channels> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        print(selectedList);
                         for (String channel in selectedList) {
                           getIt<SocketService>().send("join-channel", channel);
                         }
