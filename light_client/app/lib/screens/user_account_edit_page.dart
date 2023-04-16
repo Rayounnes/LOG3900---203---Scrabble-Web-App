@@ -144,7 +144,7 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       ),
       body: Container(
         color: theme == "dark"
-            ? Color.fromARGB(255, 43, 150, 46)
+            ? Colors.green[800]
             : Color.fromARGB(255, 207, 241, 207),
         child: Center(
           child: Container(

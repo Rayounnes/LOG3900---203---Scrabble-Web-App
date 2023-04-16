@@ -83,7 +83,9 @@ class _HelpSectionState extends State<HelpSection> {
         thickness: 15,
         thumbVisibility: true,
         child: Container(
-          color: Color.fromARGB(255, 145, 213, 161),
+          color: theme == "dark"
+              ? Colors.green[800]
+              : Color.fromARGB(255, 207, 241, 207),
           child: ListView.builder(
             itemCount: topicsName.length,
             itemBuilder: (context, index) {
@@ -133,6 +135,7 @@ class _HelpSectionState extends State<HelpSection> {
                               imageText: textList[index]!,
                               helpTopic: topicsName[index],
                               lang: lang,
+                              theme: theme,
                             );
                           }))
                         },
