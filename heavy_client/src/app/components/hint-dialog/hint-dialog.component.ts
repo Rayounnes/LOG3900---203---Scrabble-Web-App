@@ -69,14 +69,14 @@ export class HintDialogComponent implements OnDestroy {
             }
             let splitedCommand = hint.command.split(' ');
 
-            let columnWord = Number(splitedCommand[1].substring(1, splitedCommand[1].length - 1)) - 1;
-            let lineWord = splitedCommand[1][0].charCodeAt(0) - 97;
+            let columnWord = hint.letters[0].column;
+            let lineWord = hint.letters[0].line;
             let valueWord = splitedCommand[splitedCommand.length - 1];
             let orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
             if (orientationWord !== 'h' && orientationWord !== 'v') orientationWord = 'h';
             this.hintWords.push({
                 line: lineWord,
-                column: Number(columnWord),
+                column: columnWord,
                 value: valueWord,
                 orientation: orientationWord,
                 points: hint.points,
