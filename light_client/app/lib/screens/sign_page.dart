@@ -357,9 +357,6 @@ class _SignUpState extends State<SignUp> {
                                     isIcon = true;
                                   });
                                 }
-                                print(BASE64PREFIX +
-                                    base64Encode(decodedBytesList[number]) +
-                                    'DECODEEE \n');
                               } catch (e) {
                                 print(
                                     "Erreur de parsage en int pour le FileImage");

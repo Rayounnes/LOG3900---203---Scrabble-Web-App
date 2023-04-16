@@ -116,7 +116,6 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
   void handleSockets() {
     getIt<SocketService>().on('create-game', (gameJson) {
-      print("received create-game");
       setState(() {
         try {
           game = Game.fromJson(gameJson);
@@ -129,7 +128,6 @@ class _WaitingRoomState extends State<WaitingRoom> {
     });
     getIt<SocketService>().on('waiting-room-player', (gameJson) {
       setState(() {
-        print("received game waiting room $gameJson");
         game = Game.fromJson(gameJson);
       });
       getPlayersIcons();
@@ -391,7 +389,6 @@ class _WaitingRoomState extends State<WaitingRoom> {
             actions: <TextButton>[
               TextButton(
                 onPressed: () {
-                  print("accept player quit $acceptPlayerQuit");
                   getIt<SocketService>()
                       .send('reject-private-player', userInfos);
                   Navigator.pop(context);

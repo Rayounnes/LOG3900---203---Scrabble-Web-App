@@ -80,7 +80,6 @@ class _UserAccountEditPageState extends State<UserAccountEditPage> {
       decodedBytesList.add(
           base64Decode(iconList[i].toString().substring(BASE64PREFIX.length)));
     }
-    print("$decodedBytesList BYTESSS \n");
   }
 
   void modifyAccountInfo() async {

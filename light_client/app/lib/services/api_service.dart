@@ -111,11 +111,6 @@ class ApiService {
       Uri.parse(ApiConstants.baseUrl + '/api/login/getcoins/' + username),
     );
     if (response.statusCode == 200) {
-      print("api response");
-      print(jsonDecode(response.body).toList());
-      // List<int> coinsList =
-      //     (jsonDecode(response.body)).map((s) => int.parse(s)).toList();
-      print(jsonDecode(response.body).toList());
       return jsonDecode(response.body).toList();
     } else {
       throw Exception('Failed to get user icon');
