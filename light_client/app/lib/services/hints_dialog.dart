@@ -56,11 +56,8 @@ class _HintDialogState extends State<HintDialog> {
       }
 
       var splitedCommand = hint["command"].split(' ');
-
-      var columnWord = int.parse(
-              splitedCommand[1].substring(1, splitedCommand[1].length - 1)) -
-          1;
-      var lineWord = splitedCommand[1][0].codeUnitAt(0) - 97;
+      var columnWord = hint["letters"][0]["column"];
+      var lineWord = hint["letters"][0]["line"];
       var valueWord = splitedCommand[splitedCommand.length - 1];
       var orientationWord = splitedCommand[1][splitedCommand[1].length - 1];
       if (orientationWord != "h" && orientationWord != "v")

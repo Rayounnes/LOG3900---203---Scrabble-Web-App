@@ -251,7 +251,7 @@ class TranslateService {
     "La partie est terminée": "The game has ended",
     "Créez ou rejoignez une partie ": "Create or join a game in ",
     "Accueil": "Home",
-    " est en train d'écrire ...": "is typing",
+    " est en train d'écrire ...": " is typing",
   };
   translateService() {}
 
