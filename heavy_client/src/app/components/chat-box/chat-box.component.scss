@@ -46,11 +46,33 @@
     flex-direction: row;
 }
 
+.channels-white{
+    width: 80%;
+    background-color: #cff1cf;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+}
+
 .allChannels{
     width: 70%;
     position: absolute;
     margin-left: 30%;
     background-color: #373636;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.allChannels-white{
+    width: 70%;
+    position: absolute;
+    margin-left: 30%;
+    background-color: #cff1cf;
     height: 30px;
     display: flex;
     flex-direction: column;
@@ -125,6 +147,20 @@
     flex-direction: column;
 }
 
+.messagesBox-white {
+    background-color: #cff1cf;
+    width: 100%;
+    height: 90%;
+    border: 1px solid black;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-wrap:break-word;
+    white-space:normal;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
 .predef{
     display: flex;
     flex-direction: row;
@@ -132,6 +168,15 @@
     height: 20px;
     justify-content: space-evenly;
     background-color: #373636;
+}
+
+.predef-white{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 20px;
+    justify-content: space-evenly;
+    background-color: #cff1cf;
 }
 
 .opp{
@@ -166,13 +211,23 @@
 }
 
 
-#inputChat{
+.inputChat{
     background-color: rgb(55, 54, 54);
     width: 100%;
     height: 5%;
     margin-bottom: 5px;
     border-radius: 10px;
     color:white;
+    min-height: 30px;
+}
+
+.inputChat-white{
+    background-color: #cff1cf;
+    width: 100%;
+    height: 5%;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    color:black;
     min-height: 30px;
 }
 ul {
@@ -227,6 +282,25 @@ li {
 
 }
 
+.svg-icon-white {
+    width: 1.2em;
+    height: 1.2em;
+    margin-left: 2%;
+    margin-right: 2%;
+    display: block;
+    cursor: pointer;
+}
+
+.svg-icon-add-white{
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 2%;
+    margin-right: 2%;
+    display: block;
+    cursor: pointer;
+
+}
+
 
   
 .svg-icon path,
@@ -241,6 +315,21 @@ fill: white;
 .svg-icon circle,
 .svg-icon-add circle {
 stroke: white;
+stroke-width: 1;
+}
+
+.svg-icon-white path,
+.svg-icon-white polygon,
+.svg-icon-white rect,
+.svg-icon-add-white path,
+.svg-icon-add-white polygon,
+.svg-icon-add-white rect {
+fill: black;
+}
+  
+.svg-icon-white circle,
+.svg-icon-add-white circle {
+stroke: black;
 stroke-width: 1;
 }
 
@@ -261,7 +350,7 @@ stroke-width: 1;
 }
 
 .mat-selection-list{
-    background-color: rgb(55, 54, 54);
+    /* background-color: rgb(55, 54, 54); */
     width: 99.9%;
     height: 98%;
     border: 1px solid black;
@@ -272,8 +361,20 @@ stroke-width: 1;
     border-radius: 10px;
 }
 
+.sel{
+    background-color: rgb(55, 54, 54);
+}
+
+.sel-white{
+    background-color: #cff1cf;
+}
+
 .hint{
     color: #b5b5b5;
+}
+
+.hint-white{
+    color: black;
 }
 
 .persoMessage{
