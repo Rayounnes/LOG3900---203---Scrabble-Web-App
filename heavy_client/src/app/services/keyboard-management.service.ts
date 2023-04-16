@@ -358,7 +358,7 @@ export class KeyboardManagementService {
             this.actionsAfterPlacement();
             this.socketService.send('verify-place-message', this.wordFormed);
             await new Promise((r) => setTimeout(r, DELAY));
-            this.initializeBeforeTurn();
+            //this.initializeBeforeTurn();
             this.chevaletService.makerackTilesIn();
         }
     }

@@ -199,7 +199,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
-                this.gridService.removeLetter(placedWord.letters);
                 this.removeLetterAndArrow();
                 if (this.langue == 'fr') {
                     this.snackBar.open(placedWord.letters, 'Fermer', {
@@ -218,6 +217,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
                     this.socketService.send('remove-letters-rack', placedWord.letters);
                     this.gridService.placeLetter(placedWord.letters as Letter[]);
                     this.socketService.send('validate-created-words', placedWord);
+                    this.keyboard.initializeBeforeTurn()
                 } else {
                     const choiceMap: any = {};
                     choiceMap[this.socketService.socketId] = 'yes';
@@ -583,6 +583,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     
     removeLetterAndArrow() {
         this.keyboard.removeArrowAfterPlacement({ x: this.keyboard.word.line, y: this.keyboard.word.column }, this.keyboard.word.orientation);
+        console.log(this.keyboard.letters)
         this.gridService.removeLetter(this.keyboard.letters);
         this.socketService.send('draw-letters-rack');
         this.keyboard.createTemporaryRack();
