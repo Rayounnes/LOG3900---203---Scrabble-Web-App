@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { BestScoresComponent } from '@app/pages/best-scores/best-scores.component';
 import { ChatSocketClientService } from '@app/services/chat-socket-client.service';
 import { UserProfilComponent } from '@app/components/user-profil/user-profil.component';
@@ -20,6 +20,7 @@ export class MainPageComponent {
     dialogRef : any;
     langue = "";
     theme = "";
+    dialogConfig = new MatDialogConfig();
 
     constructor(public router: Router, private dialog: MatDialog, private socketService: ChatSocketClientService, private app: AppComponent) {
         this.connect();
@@ -61,9 +62,13 @@ export class MainPageComponent {
     }
 
     openConfigurations(){
-        this.dialogRef = this.dialog.open(ConfigurationChoiceDialogComponent,{
-            width : '25%',
-            height: '40%'
+        this.dialogConfig.width = '25%';
+        this.dialogConfig.height = '40%';
+        this.dialogConfig.disableClose = true;
+        this.dialogRef = this.dialog.open(ConfigurationChoiceDialogComponent,this.dialogConfig)
+        this.dialogRef.afterClosed.subscribe((config : any) =>{
+            this.langue = config.langue;
+            this.theme = config.theme;
         })
     }
 

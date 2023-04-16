@@ -35,4 +35,9 @@ export class ConfigurationChoiceDialogComponent implements OnInit {
     this.socketService.send('update-config',{langue : this.langue, theme : this.theme})
   }
 
+  validate(){
+    this.updateConfig();
+    this.dialogRef.close({langue : this.langue, theme : this.theme})
+  }
+
 }
