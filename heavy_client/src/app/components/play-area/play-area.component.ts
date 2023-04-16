@@ -199,6 +199,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.socketService.on('verify-place-message', (placedWord: Placement) => {
             if (typeof placedWord.letters === 'string') {
                 this.commandSent = false;
+                this.gridService.removeLetter(placedWord.letters);
                 this.removeLetterAndArrow();
                 if (this.langue == 'fr') {
                     this.snackBar.open(placedWord.letters, 'Fermer', {
@@ -579,6 +580,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
         this.chevaletService.makerackTilesIn();
     }
 
+    
     removeLetterAndArrow() {
         this.keyboard.removeArrowAfterPlacement({ x: this.keyboard.word.line, y: this.keyboard.word.column }, this.keyboard.word.orientation);
         this.gridService.removeLetter(this.keyboard.letters);
