@@ -174,7 +174,7 @@ class _LoginDemoState extends State<LoginDemo> {
                   child: ElevatedButton(
                     onPressed: () {
                       connect();
-                      setLanguage();
+                      // setLanguage();
                     },
                     child: Text(translate.translateString(lang, "Connexion")),
                   ),
