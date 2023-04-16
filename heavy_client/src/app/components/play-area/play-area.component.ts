@@ -136,13 +136,18 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     clickDetect(event: any) {
         if (event.target.id === 'canvas') return;
         // // this.keyboard.removeAllLetters();
-        // let start = this.gridService.board.getStartTile();
+        let start = this.gridService.board.getStartTile();
         // if(start){
-
-        //     this.keyboard.putOldTile(start?.x,start.y);
+        if(start && this.keyboard.letters.length == 0 && this.dragOrType == 'type'){
+            this.keyboard.putOldTile(start?.x,start.y);
+            this.gridService.board.wordStarted = false;
+            this.dragOrType = "free";
+            this.gridService.board.resetStartTile();
+        }
+        
         //     this.gridService.board.wordStarted = false;
         //     this.dragOrType = "free";
-        //     this.gridService.board.resetStartTile();
+        //     
         // }
     }
 
@@ -157,6 +162,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     changeSizeWindow() {
+        if(this.dragOrType == 'drag')
         this.keyboard.removeLettersOnBoard();
     }
 
