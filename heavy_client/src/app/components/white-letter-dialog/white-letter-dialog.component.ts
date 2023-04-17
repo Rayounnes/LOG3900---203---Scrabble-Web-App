@@ -46,5 +46,8 @@ export class WhiteLetterDialogComponent {
         this.socketService.on('vote-action', () => {
             this.dialogRef.close();
         });
+        this.socketService.on('user-turn', () => {
+            this.dialogRef.close();
+        });
     }
 }

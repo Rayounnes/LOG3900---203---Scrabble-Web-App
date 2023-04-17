@@ -126,7 +126,14 @@ export class HintWordsService {
         const rack = this.rackPlayer.rackInString.split('');
         const n = rack.length;
         const whiteLetters: number = this.rackPlayer.rackInString.split(WHITE_LETTER).length - 1;
-        const wordsLength = whiteLetters !== 0 && rack.length > 5 ? 5 : rack.length;
+        let wordsLength = rack.length;
+        if (whiteLetters === 2) {
+            if (rack.length >= 4) wordsLength = 4;
+        } else if (whiteLetters === 1) {
+            if (rack.length >= 5) wordsLength = 5;
+        } else {
+            wordsLength = rack.length;
+        }
         this.numPlacementsVirtualPlayer = whiteLetters === 2 ? 1 : MAX_PLACEMENTS_VIRTUAL_PLAYER;
         this.numPlacementsVirtualPlayer = whiteLetters === 1 ? MAX_PLACEMENTS_VIRTUAL_PLAYER / 2 : MAX_PLACEMENTS_VIRTUAL_PLAYER;
         const combinaison: Set<string> = new Set();
