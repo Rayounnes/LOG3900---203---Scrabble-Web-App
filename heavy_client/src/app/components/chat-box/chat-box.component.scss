@@ -90,6 +90,13 @@
     display: none;
 } 
 
+.channels-white::-webkit-scrollbar {
+    display: none;
+} 
+
+.allChannels-white::-webkit-scrollbar {
+    display: none;
+} 
 
 .channel{
     display: flex;
