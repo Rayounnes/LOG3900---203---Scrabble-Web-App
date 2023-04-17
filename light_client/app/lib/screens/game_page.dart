@@ -46,13 +46,15 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   final Map<int, Offset> tilePosition = {};
-  final Map<int, String> tileLetter = {};
   final Map<int, String> hintLetters = {};
 
   final Map<int, bool> isTileLocked = {};
   final board = new Board();
   List<int> rackIDList = List.from(PLAYER_INITIAL_ID);
   List<dynamic> tempHintRack = [];
+  Map<int, String> tileLetter = {};
+  Map<int, String> tileCoopLetter = {};
+  List<dynamic> playerRackInString = [];
   List<int> opponentTileID = List.from(OPPONENT_INITIAL_ID);
   List<Letter> lettersofBoard = [];
   List<Letter> lettersOpponent = [];
@@ -71,8 +73,10 @@ class _GamePageState extends State<GamePage> {
   int startTileY = -1;
   late BuildContext exchangeDialogContext;
   late BuildContext hintDialogContext;
+  late BuildContext whiteLetterDialogContext;
   bool exchangeOpen = false;
   bool hintOpen = false;
+  bool whiteLetterOpen = false;
   Vec2 startTileOpponent = Vec2(x: -1, y: -1);
 
   List<Widget> tileShowed = [];
@@ -166,10 +170,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _showLetterPicker(int line, int column, int tileId) {
+    whiteLetterOpen = true;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
+        whiteLetterDialogContext = context;
         return Dialog(
           child: Container(
             height: 400.0,
@@ -191,6 +197,7 @@ class _GamePageState extends State<GamePage> {
                         sendStartTile(Vec2(
                             x: lettersofBoard[0].column,
                             y: lettersofBoard[0].line));
+                      whiteLetterOpen = false;
                       Navigator.pop(context);
                     });
                   },
@@ -495,8 +502,10 @@ class _GamePageState extends State<GamePage> {
         if (!mounted) return;
         setState(() {
           tempHintRack = [];
+          playerRackInString = [];
           for (var index in rackIDList) {
             tempHintRack.add(letters[index % RACK_SIZE].toString());
+            playerRackInString.add(letters[index % RACK_SIZE].toString());
             tileLetter[index] = letters[index % RACK_SIZE].toString();
           }
         });
@@ -592,6 +601,10 @@ class _GamePageState extends State<GamePage> {
         Navigator.pop(exchangeDialogContext, "");
         exchangeOpen = false;
       }
+      if (whiteLetterOpen) {
+        Navigator.pop(whiteLetterDialogContext);
+        whiteLetterOpen = false;
+      }
       // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
       lettersofBoard = [];
       setState(() {
@@ -623,6 +636,11 @@ class _GamePageState extends State<GamePage> {
         Navigator.pop(exchangeDialogContext, "");
         exchangeOpen = false;
       }
+      if (whiteLetterOpen) {
+        Navigator.pop(whiteLetterDialogContext);
+        whiteLetterOpen = false;
+      }
+      tileCoopLetter = {...tileLetter};
       openVoteActionDialog(context, CooperativeAction.fromJson(voteAction));
     });
     getIt<SocketService>().on('cooperative-invalid-action', (isPlacement) {
@@ -1027,6 +1045,7 @@ class _GamePageState extends State<GamePage> {
           result["isAccepted"]) {
         if (result["action"].action == 'place') {
           commandSent = true;
+          tileLetter = {...tileCoopLetter};
           getIt<SocketService>().send('remove-letters-rack-light-client',
               jsonEncode(result["action"].placement["letters"]));
           getIt<SocketService>()
@@ -1058,6 +1077,7 @@ class _GamePageState extends State<GamePage> {
             setTileOnRack();
             // On remet lettersOfBoard a une liste vide car ses lettres sont replacés
             lettersofBoard = [];
+            tempHintRack = playerRackInString;
           });
         }
       }
